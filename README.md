@@ -2,9 +2,9 @@
 
 ### A mobile application that helps schedule cooking with multiple recipes ###
 
-[Developer website](https://lokicity.github.io/CSE403CookE/)
+[Developer website](https://cook-e-team.github.io/Cook-E/)
 
-[User website](https://lokicity.github.io/CSE403CookE/user/)
+[User website](https://cook-e-team.github.io/Cook-E/user/)
 
 ## Licensing ##
 
