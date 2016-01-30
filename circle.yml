@@ -1,8 +1,8 @@
 
 general:
   artifacts:
-    - "app/build/apk"
-    - "app/build/logs"
+    - "app/build/outputs/apk"
+    - "app/build/outputs/logs"
     - "app/build/reports/tests/debug"
     - "app/build/reports/tests/release"
 
