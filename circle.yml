@@ -5,9 +5,10 @@ general:
     - "app/build/outputs"
     - "app/build/reports/tests"
 
-# Get test results
+# Run lint checks and get test results
 test:
   post:
+    - export TERM="dumb"; if [ -e ./gradlew ]; then ./gradlew lint; else gradle lint; fi
     - mkdir -p $CIRCLE_TEST_REPORTS/junit/
     - find . -type f -regex ".*/build/test-results/.*xml" -exec cp {} $CIRCLE_TEST_REPORTS/junit/ \;
     - export TERM="dumb"; if [ -e ./gradlew ]; then ./gradlew assemble; else gradle assemble; fi
