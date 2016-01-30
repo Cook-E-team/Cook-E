@@ -11,5 +11,6 @@ test:
 
 deployment:
   post:
-    - export TERM="dumb"
-    - if [ -e ./gradlew ]; then ./gradlew assemble; else gradle assemble; fi
+    commands:
+      - export TERM="dumb"
+      - if [ -e ./gradlew ]; then ./gradlew assemble; else gradle assemble; fi
