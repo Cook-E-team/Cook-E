@@ -9,6 +9,16 @@
 # and without a 'v' prefix
 #
 
+# Prints one or more lines of text with surrounding characters that make them
+# stand out
+def print_conspicuously(lines)
+    puts '*' * 80
+    lines.each do |line|
+        print '* '
+        puts line
+    end
+    puts '*' * 80
+end
 
 # Modifies the build.gradle file at the provided path.
 # Increments the version code and sets the version name to the provided version.
@@ -29,8 +39,6 @@ def update_build_file(path, version)
             # Replace this line with the new version code
             old_code = version_code_match[1].to_i;
             new_code = old_code + 1;
-
-            puts "Increasing version code from #{old_code} to #{new_code}"
 
             # Return the new line
             "        versionCode #{new_code}\n"
@@ -55,15 +63,16 @@ end
 version = ARGV[0]
 
 if !version || version.empty?
-    puts 'Please specify a version number.'
+    print_conspicuously ['Please specify a version number.']
     exit -1
 end
 
 VERSION_REGEX = /^\d+.\d+.\d+(-(alpha|beta|rc)\d+)?$/
 
 if !(version =~ VERSION_REGEX)
-    puts "#{version} is not a valid version number."
-    puts 'Version numbers should not start with \'v\'.'
+    print_conspicuously(
+        ["#{version} is not a valid version number.",
+        'Version numbers should not start with \'v\'.'])
     exit -1
 end
 
@@ -71,7 +80,8 @@ end
 repo_root = `git rev-parse --show-toplevel`
 
 if !repo_root || repo_root.empty?
-    puts 'Could not find the repository root. Please ensure the current directory is in the project folder.'
+    print_conspicuously ['Could not find the repository root.',
+        'Please ensure the current directory is in the project folder.']
     exit -1
 end
 # Remove whitespace
@@ -81,13 +91,14 @@ repo_root.strip!
 branch = `git rev-parse --abbrev-ref HEAD`
 branch.strip!
 if branch != 'master'
-    puts "You are currently viewing branch #{branch}. All new releases should be made from master."
+    print_conspicuously ["You are currently viewing branch #{branch}.",
+        'All new releases should be made from master.']
     exit -1
 end
 
 status = `git status --porcelain`
 if !status.empty?
-    puts 'Your working directory is not clean. Please commit all your changes.'
+    print_conspicuously ['Your working directory is not clean. Please commit all your changes.']
     exit -1
 end
 
@@ -97,14 +108,23 @@ end
 # Update versions in build file
 update_build_file("#{repo_root}/app/build.gradle", version)
 
+# Run tests
+print_conspicuously ['Testing...']
+
+result = system "#{repo_root}/gradlew testReleaseUnitTest"
+
+if !result
+    print_conspicuously ['Testing failed - release cancelled']
+    exit -1
+end
 
 # Build APK
-puts 'Building...'
+print_conspicuously ['Building...']
 
 result = system "#{repo_root}/gradlew assembleRelease"
 
 if !result
-    puts 'Build failed - release cancelled'
+    print_conspicuously ['Build failed - release cancelled']
     exit -1
 end
 
@@ -116,32 +136,30 @@ File.rename("#{repo_root}/app/build/outputs/apk/app-release-unsigned.apk",
 # Commit changes
 result = system "git add #{repo_root}/app/build.gradle"
 if !result
-    puts 'Failed to add file - release cancelled'
+    print_conspicuously ['Failed to add file - release cancelled']
     exit -1
 end
 result = system "git commit -m 'Version increased to v#{version}'"
 if !result
-    puts 'Failed to commit - release cancelled'
+    print_conspicuously ['Failed to commit - release cancelled']
     exit -1
 end
 # Make a tag
 tag_name = "v#{version}"
 result = system "git tag -a -m 'Version #{version}' #{tag_name}"
 if !result
-    puts 'Failed to create tag - release cancelled'
+    print_conspicuously ['Failed to create tag - release cancelled']
     exit -1
 end
 # Push
 result = system "git push --tags"
 if !result
-    puts 'Failed to push - release cancelled'
+    print_conspicuously ['Failed to push - release cancelled']
     exit -1
 end
 
 # Display release information
-puts ''
-puts 'Now create a release: https://github.com/Cook-E-team/Cook-E/releases/new'
-puts "Tag: #{tag_name}"
-puts "Upload the APK file at #{apk_path}"
-
-puts 'Done'
+print_conspicuously ['Now create a release: https://github.com/Cook-E-team/Cook-E/releases/new',
+    "Tag: #{tag_name}",
+    "Release title: #{tag_name}",
+    "Upload the APK file at #{apk_path}"]
