@@ -1,12 +1,15 @@
 
 general:
   artifacts:
-    - "app/build/outputs/apk"
-    - "app/build/outputs/logs"
-    - "app/build/reports/tests/debug"
-    - "app/build/reports/tests/release"
+    - "app/build/outputs"
+    - "app/build/reports/tests"
 
 test:
   post:
     - mkdir -p $CIRCLE_TEST_REPORTS/junit/
     - find . -type f -regex ".*/build/test-results/.*xml" -exec cp {} $CIRCLE_TEST_REPORTS/junit/ \;
+
+deployment:
+  post:
+    - export TERM="dumb"
+    - if [ -e ./gradlew ]; then ./gradlew assemble; else gradle assemble; fi
