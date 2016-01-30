@@ -11,6 +11,6 @@ public class TestThing {
 		return true;
 	}
 	public boolean isEdible() {
-		return false;
+		return true;
 	}
 }
