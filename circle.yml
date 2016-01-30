@@ -5,12 +5,6 @@ general:
     - "app/build/outputs"
     - "app/build/reports/tests"
 
-# Ignore the gh-pages branch, which is used for the website
-general:
-  branches:
-    ignore:
-      - gh-pages
-
 # Get test results
 test:
   post:
