@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <title>Cook-E: Builds</title>
+
+        <link rel="stylesheet" href="css/bootstrap.min.css" />
+        <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+        <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+        <![endif]-->
+    </head>
+    <body>
+        <div class="jumbotron">
+            <div class="container">
+                <h1>Cook-E Builds</h1>
+            </div>
+        </div>
+        <div class="container" id="build-results">
+        </div>
+
+    <script type="text/javascript">
+    var getJson = function(url, callback) {
+        var request = new XMLHttpRequest();
+
+        request.onreadystatechange = function() {
+            if (request.readyState == XMLHttpRequest.DONE && (request.status == 200 || request.status == 304)) {
+                callback(JSON.parse(request.response));
+            }
+        };
+        request.open('GET', url);
+        request.setRequestHeader('Accept', 'application/json');
+        request.send();
+    }
+
+    var statusToString = function(status) {
+        switch (status) {
+            case 'success':
+            case 'fixed':
+                return 'Success';
+            case 'not_run':
+                return 'Skipped';
+            case 'no_tests':
+                return 'No tests';
+            case 'failed':
+                return 'Failed';
+            default:
+                return status;
+        }
+    }
+    var statusToPanelClass = function(status) {
+        switch (status) {
+            case 'success':
+            case 'fixed':
+                return 'panel-success';
+            case 'not_run':
+                return 'panel-info';
+            case 'no_tests':
+            case 'failed':
+                return 'panel-danger';
+            default:
+                return 'panel-default';
+        }
+    }
+
+    var resultsContainer = document.getElementById('build-results');
+
+    var createBuildDisplay = function(build) {
+        var panel = document.createElement('div');
+        panel.classList.add('panel');
+        panel.classList.add('panel-default');
+        var panelHeader = document.createElement('div');
+        panelHeader.classList.add('panel-heading');
+        var panelBody = document.createElement('div');
+        panelBody.classList.add('panel-body');
+        panel.appendChild(panelHeader);
+        panel.appendChild(panelBody);
+
+        panel.classList.add(statusToPanelClass(build.status));
+
+        // Heading
+        var heading = document.createElement('h3');
+        heading.classList.add('panel-title');
+        heading.textContent = 'Build #' + build.build_num + ' - branch '
+            + build.branch + ' - ' + statusToString(build.status);
+
+
+        var headingLink = document.createElement('a');
+        headingLink.href = build.build_url;
+        headingLink.appendChild(heading);
+
+        panelHeader.appendChild(headingLink);
+
+        // Body
+        var artifactsHeading = document.createElement('h5');
+        artifactsHeading.textContent = 'Artifacts';
+
+        panelBody.appendChild(artifactsHeading);
+
+        // Get artifacts
+        addArtifacts(build, panelBody);
+
+        return panel;
+    }
+
+    var createListLink = function(url, text) {
+        var listEntry = document.createElement('li');
+        var link = document.createElement('a');
+        link.href = url;
+        link.textContent = text;
+        listEntry.appendChild(link);
+        return listEntry;
+    }
+
+    // Processes an artifact. Returns a DOM element if the artifact should be
+    // include in the page. Otherwise returns null.
+    var handleArtifact = function(artifact) {
+        if (artifact.path.endsWith('reports/tests/debug/index.html')) {
+            return createListLink(artifact.url, 'Debug test report');
+        }
+        if (artifact.path.endsWith('reports/tests/release/index.html')) {
+            return createListLink(artifact.url, 'Release test report');
+        }
+        if (artifact.path.endsWith('outputs/lint-results.html')) {
+            return createListLink(artifact.url, 'Lint report');
+        }
+        if (artifact.path.endsWith('apk/app-debug.apk')) {
+            return createListLink(artifact.url, 'Debug APK');
+        }
+        if (artifact.path.endsWith('apk/app-release-unsigned.apk')) {
+            return createListLink(artifact.url, 'Unsigned Release APK');
+        }
+        return null;
+    }
+
+    var addArtifacts = function(build, container) {
+        getJson('https://circleci.com/api/v1/project/Cook-E-team/Cook-E/' + build.build_num + '/artifacts',
+        function(artifacts) {
+            var list = document.createElement('ul');
+
+            for (var i = 0; i < artifacts.length; i++) {
+                var artifact = artifacts[i];
+
+                var entry = handleArtifact(artifact);
+                if (entry) {
+                    list.appendChild(entry);
+                }
+            }
+
+            container.appendChild(list);
+        })
+    }
+
+    var handleBuild = function(build) {
+        resultsContainer.appendChild(createBuildDisplay(build));
+    }
+
+    getJson('https://circleci.com/api/v1/project/Cook-E-team/Cook-E',
+    function(response) {
+        console.log(response);
+        for (var i = 0; i < response.length; i++) {
+            handleBuild(response[i]);
+        }
+    });
+
+
+    </script>
+    </body>
+</html>
