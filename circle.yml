@@ -1,9 +1,17 @@
 
+# Get artifacts from the correct directories
 general:
   artifacts:
     - "app/build/outputs"
     - "app/build/reports/tests"
 
+# Ignore the gh-pages branch, which is used for the website
+general:
+  branches:
+    ignore:
+      - gh-pages
+
+# Get test results
 test:
   post:
     - mkdir -p $CIRCLE_TEST_REPORTS/junit/
