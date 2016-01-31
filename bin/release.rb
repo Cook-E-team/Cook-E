@@ -131,8 +131,9 @@ end
 
 # Build APK
 print_conspicuously ['Building...']
-
-result = system "#{repo_root}/gradlew assembleRelease"
+# Make a debug build
+# Release builds appear to generate invalid APKs.
+result = system "#{repo_root}/gradlew assembleDebug"
 
 if !result
     print_conspicuously ['Build failed - release cancelled']
@@ -141,7 +142,7 @@ end
 
 # Give the APK the correct name
 apk_path = "#{repo_root}/app/build/outputs/apk/Cook-E-#{version}.apk"
-File.rename("#{repo_root}/app/build/outputs/apk/app-release-unsigned.apk",
+File.rename("#{repo_root}/app/build/outputs/apk/app-debug.apk",
     apk_path)
 
 
