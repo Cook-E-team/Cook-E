@@ -20,6 +20,12 @@ def print_conspicuously(lines)
     puts '*' * 80
 end
 
+# Discards any changes in the repository, then exits
+def cancel_release
+    system 'git reset --hard HEAD'
+    exit -1
+end
+
 # Modifies the build.gradle file at the provided path.
 # Increments the version code and sets the version name to the provided version.
 def update_build_file(path, version)
@@ -120,7 +126,7 @@ result = system "#{repo_root}/gradlew testReleaseUnitTest"
 
 if !result
     print_conspicuously ['Testing failed - release cancelled']
-    exit -1
+    cancel_release
 end
 
 # Build APK
@@ -130,7 +136,7 @@ result = system "#{repo_root}/gradlew assembleRelease"
 
 if !result
     print_conspicuously ['Build failed - release cancelled']
-    exit -1
+    cancel_release
 end
 
 # Give the APK the correct name
@@ -142,25 +148,25 @@ File.rename("#{repo_root}/app/build/outputs/apk/app-release-unsigned.apk",
 result = system "git add #{repo_root}/app/build.gradle"
 if !result
     print_conspicuously ['Failed to add file - release cancelled']
-    exit -1
+    cancel_release
 end
 result = system "git commit -m 'Version increased to v#{version}'"
 if !result
     print_conspicuously ['Failed to commit - release cancelled']
-    exit -1
+    cancel_release
 end
 # Make a tag
 tag_name = "v#{version}"
 result = system "git tag -a -m 'Version #{version}' #{tag_name}"
 if !result
     print_conspicuously ['Failed to create tag - release cancelled']
-    exit -1
+    cancel_release
 end
 # Push
 result = system "git push --tags"
 if !result
     print_conspicuously ['Failed to push - release cancelled']
-    exit -1
+    cancel_release
 end
 
 # Display release information
