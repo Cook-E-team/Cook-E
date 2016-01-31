@@ -8,8 +8,8 @@ android {
         applicationId "org.cook_e.cook_e"
         minSdkVersion 14
         targetSdkVersion 23
-        versionCode 2
-        versionName "0.0.1-alpha2"
+        versionCode 3
+        versionName "0.0.1-alpha4"
     }
     buildTypes {
         release {
