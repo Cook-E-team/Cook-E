@@ -91,9 +91,14 @@ repo_root.strip!
 branch = `git rev-parse --abbrev-ref HEAD`
 branch.strip!
 if branch != 'master'
-    print_conspicuously ["You are currently viewing branch #{branch}.",
-        'All new releases should be made from master.']
-    exit -1
+    print_conspicuously ["You are currently on branch #{branch}.",
+        'Releases should normally be made from master.']
+    print 'Continue? [y/N] '
+    response = STDIN.gets.strip
+    if response != 'Y' && response != 'y'
+        print_conspicuously ['Cancelled']
+        exit -1
+    end
 end
 
 status = `git status --porcelain`
