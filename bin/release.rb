@@ -144,6 +144,9 @@ apk_path = "#{repo_root}/app/build/outputs/apk/Cook-E-#{version}.apk"
 File.rename("#{repo_root}/app/build/outputs/apk/app-release-unsigned.apk",
     apk_path)
 
+
+print_conspicuously ['Build succeeded', 'Committing and pushing version change']
+
 # Commit changes
 result = system "git add #{repo_root}/app/build.gradle"
 if !result
