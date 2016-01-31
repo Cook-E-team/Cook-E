@@ -57,7 +57,7 @@
         var latest = releases[0];
         if (latest) {
             // Set version text and link to release
-            downloadLink.innerText = 'Download ' + latest.name;
+            downloadLink.textContent = 'Download ' + latest.name;
             downloadLink.href = latest.html_url;
 
             var asset = latest.assets[0];
