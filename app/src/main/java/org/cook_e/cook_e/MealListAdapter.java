@@ -24,8 +24,9 @@ import android.database.DataSetObserver;
 import android.graphics.drawable.Drawable;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout.LayoutParams;
 import android.widget.ListAdapter;
+
+import org.cook_e.cook_e.ui.RecipeListItemView;
 
 import java.util.ArrayList;
 import java.util.List;
