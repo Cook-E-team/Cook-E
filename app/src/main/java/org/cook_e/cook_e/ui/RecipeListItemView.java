@@ -17,7 +17,7 @@
  * along with Cook-E.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.cook_e.cook_e;
+package org.cook_e.cook_e.ui;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
@@ -31,6 +31,8 @@ import android.widget.ImageView.ScaleType;
 import android.widget.LinearLayout;
 import android.widget.NumberPicker;
 import android.widget.TextView;
+
+import org.cook_e.cook_e.R;
 
 /**
  * A view group that displays a drawable image, and a title
