@@ -27,33 +27,55 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.ListAdapter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * A list adapter that displays a list of meals, with each meal shown in a {@link RecipeListItemView}
  */
 public class MealListAdapter implements ListAdapter {
 
+	private static class TestRecipe {
+		public String title;
+		public Drawable image;
+
+		public TestRecipe(String title, Drawable image) {
+			this.title = title;
+			this.image = image;
+		}
+	}
+
 	/**
-	 * The activity used to access resources
+	 * The context used to access resources
 	 */
 	private final Context mContext;
 
+	/**
+	 * The list of recipes, for testing only
+	 */
+	private final List<TestRecipe> testRecipes;
+
 	public MealListAdapter(Context mContext) {
 		this.mContext = mContext;
+
+		// Add some test recipes
+		testRecipes = new ArrayList<>();
+		testRecipes.add(new TestRecipe("Lasagna", mContext.getResources().getDrawable(R.drawable.test_image_1)));
+		testRecipes.add(new TestRecipe("Pie", mContext.getResources().getDrawable(R.drawable.test_image_1)));
+		testRecipes.add(new TestRecipe("Opera cake", mContext.getResources().getDrawable(R.drawable.test_image_1)));
+		testRecipes.add(new TestRecipe("Banana Bread", mContext.getResources().getDrawable(R.drawable.test_image_1)));
+		testRecipes.add(new TestRecipe("Lemon cake", mContext.getResources().getDrawable(R.drawable.test_image_1)));
+		testRecipes.add(new TestRecipe("Pesto", mContext.getResources().getDrawable(R.drawable.test_image_1)));
 	}
 
 	@Override
 	public boolean areAllItemsEnabled() {
-		return false;
+		return true;
 	}
 
 	@Override
 	public boolean isEnabled(int position) {
-		if (position == 0) {
-			return true;
-		}
-		else {
-			return false;
-		}
+		return true;
 	}
 
 	@Override
@@ -68,12 +90,12 @@ public class MealListAdapter implements ListAdapter {
 
 	@Override
 	public int getCount() {
-		return 1;
+		return testRecipes.size();
 	}
 
 	@Override
 	public Object getItem(int position) {
-		return "Test";
+		return testRecipes.get(position);
 	}
 
 	@Override
@@ -100,10 +122,10 @@ public class MealListAdapter implements ListAdapter {
 			view = new RecipeListItemView(mContext);
 		}
 
-		final Drawable drawable = mContext.getResources().getDrawable(R.drawable.test_image_1);
+		final TestRecipe recipe = testRecipes.get(position);
 
-		view.setTitle("A recipe");
-		view.setImage(drawable);
+		view.setTitle(recipe.title);
+		view.setImage(recipe.image);
 
 		return view;
 	}
@@ -120,6 +142,6 @@ public class MealListAdapter implements ListAdapter {
 
 	@Override
 	public boolean isEmpty() {
-		return false;
+		return testRecipes.isEmpty();
 	}
 }

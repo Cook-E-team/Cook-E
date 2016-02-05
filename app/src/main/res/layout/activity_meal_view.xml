@@ -60,7 +60,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="32dp"
         android:clickable="true"
-        android:src="@drawable/ic_add_black_24dp"
+        android:src="@drawable/ic_add_white_36dp"
         app:layout_anchor="@id/recipe_list"
         app:layout_anchorGravity="bottom|right|end"
         app:elevation="6dp"

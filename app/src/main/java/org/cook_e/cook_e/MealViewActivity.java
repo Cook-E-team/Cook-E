@@ -25,7 +25,10 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
+import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.ListView;
+import android.widget.Toast;
 
 public class MealViewActivity extends AppCompatActivity {
 
@@ -38,13 +41,18 @@ public class MealViewActivity extends AppCompatActivity {
 
 		setUpActionBar();
 
+		// Set up recipe list
 		final ListView recipeList = (ListView) findViewById(R.id.recipe_list);
 		recipeList.setAdapter(new MealListAdapter(this));
 
-		// Add a floating action button
-		final FloatingActionButton addButton = new FloatingActionButton(this);
-		addButton.setImageResource(R.drawable.ic_add_black_24dp);
-
+		// Set up floating action button
+		final FloatingActionButton floatingButton = (FloatingActionButton) findViewById(R.id.add_button);
+		floatingButton.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Toast.makeText(MealViewActivity.this, "Add button pressed", Toast.LENGTH_SHORT).show();
+			}
+		});
 	}
 
 	private void setUpActionBar() {
