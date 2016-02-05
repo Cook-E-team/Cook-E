@@ -1,3 +1,22 @@
+/*
+ * Copyright 2016 the Cook-E development team
+ *
+ * This file is part of Cook-E.
+ *
+ * Cook-E is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Cook-E is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Cook-E.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package org.cook_e.cook_e;
 
 import android.content.Context;
@@ -5,13 +24,16 @@ import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.view.Gravity;
+import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.LinearLayout;
+import android.widget.NumberPicker;
 import android.widget.TextView;
 
 /**
- * A view group that displays a drawable image, a title, and a description
+ * A view group that displays a drawable image, and a title
  */
 public class RecipeListItemView extends LinearLayout {
 
@@ -34,9 +56,9 @@ public class RecipeListItemView extends LinearLayout {
 	 */
 	final TextView mTitleView;
 	/**
-	 * The text view that displays the description
+	 * The number picker used to select the number of recipe quantities to prepare
 	 */
-	final TextView mDescriptionView;
+	final NumberPicker mNumberPicker;
 
 	/**
 	 * Creates a new view
@@ -57,24 +79,34 @@ public class RecipeListItemView extends LinearLayout {
 		mImageView.setMaxHeight(MAX_IMAGE_DIMENSION);
 		mImageView.setMaxWidth(MAX_IMAGE_DIMENSION);
 
-		// Create right pane
-		final LinearLayout rightPane = new LinearLayout(context);
-		rightPane.setOrientation(LinearLayout.VERTICAL);
-		rightPane.setPadding(PADDING, PADDING, PADDING, PADDING);
-		// Put things in right pane
+		// Create title view
 		mTitleView = new TextView(context);
 		mTitleView.setPadding(PADDING, PADDING, PADDING, PADDING);
 		mTitleView.setTextAppearance(context, android.R.style.TextAppearance_Large);
-		rightPane.addView(mTitleView);
-		mDescriptionView = new TextView(context);
-		mDescriptionView.setPadding(PADDING, PADDING, PADDING, PADDING);
-		mDescriptionView.setTextAppearance(context, android.R.style.TextAppearance_Medium);
-		rightPane.addView(mDescriptionView);
 
-		final LayoutParams imageParams = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+		// Create quantity selector
+		mNumberPicker = new NumberPicker(context);
+		mNumberPicker.setMinValue(1);
+		mNumberPicker.setMaxValue(100);
+		mNumberPicker.setWrapSelectorWheel(false);
+
+		// Create delete button
+		final ImageButton deleteButton = new ImageButton(context, null, android.R.attr.borderlessButtonStyle);
+		deleteButton.setImageResource(R.drawable.ic_remove_circle_black_24dp);
+		deleteButton.setMinimumWidth(1);
+		deleteButton.setMaxWidth(10);
+
+
+		final LayoutParams imageParams = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, 0.2f);
 		imageParams.gravity = Gravity.CENTER;
 		addView(mImageView, imageParams);
-		addView(rightPane, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
+		final LayoutParams titleParams = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 0.4f);
+		titleParams.gravity = Gravity.CENTER;
+		addView(mTitleView, titleParams);
+		addView(mNumberPicker, new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
+		final LayoutParams deleteButtonParams = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+		deleteButtonParams.gravity = Gravity.CENTER;
+		addView(deleteButton, deleteButtonParams);
 	}
 
 	/**
@@ -109,22 +141,5 @@ public class RecipeListItemView extends LinearLayout {
 	 */
 	public void setTitle(@NonNull String title) {
 		mTitleView.setText(title);
-	}
-
-	/**
-	 * Returns the description displayed in this view
-	 * @return the description
-	 */
-	@NonNull
-	public String getDescription() {
-		return mDescriptionView.getText().toString();
-	}
-
-	/**
-	 * Sets the description to display
-	 * @param description the description. Must not be null.
-	 */
-	public void setDescription(@NonNull String description) {
-		mDescriptionView.setText(description);
 	}
 }
