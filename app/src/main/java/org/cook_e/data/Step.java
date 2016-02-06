@@ -23,7 +23,9 @@ import java.util.List;
 
 /*
  * Class representing a step in a recipe
- * Every step has a description, action, list of ingredients and estimate time the step takes
+ *
+ * Every step has a description, action, list of ingredients and an estimated time the step takes to
+ * perform.
  */
 public class Step {
 	private String description;
