@@ -19,7 +19,7 @@
 
 package org.cook_e.cook_e;
 
-import android.app.FragmentTransaction;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.ActionBar;
@@ -29,9 +29,8 @@ import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ListView;
-import android.widget.Toast;
 
-import org.cook_e.cook_e.ui.MealRecipeAddFragment;
+import org.cook_e.cook_e.ui.MealRecipeAddActivity;
 
 public class MealViewActivity extends AppCompatActivity {
 
@@ -53,8 +52,9 @@ public class MealViewActivity extends AppCompatActivity {
 		floatingButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				Toast.makeText(MealViewActivity.this, "Add button pressed", Toast.LENGTH_SHORT).show();
-				showDialog();
+				// Open item add view
+				final Intent intent = new Intent(MealViewActivity.this, MealRecipeAddActivity.class);
+				startActivity(intent);
 			}
 		});
 	}
@@ -71,10 +71,4 @@ public class MealViewActivity extends AppCompatActivity {
 		return true;
 	}
 
-	public void showDialog() {
-		android.app.FragmentManager fragmentManager = getFragmentManager();
-		MealRecipeAddFragment newFragment = new MealRecipeAddFragment();
-
-		newFragment.show(fragmentManager, "dialog");
-	}
 }

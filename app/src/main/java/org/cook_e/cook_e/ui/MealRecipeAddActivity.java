@@ -20,38 +20,36 @@
 package org.cook_e.cook_e.ui;
 
 
-import android.app.Dialog;
-import android.app.DialogFragment;
 import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 
 import org.cook_e.cook_e.R;
 
 /**
- * A fragment that displays a list of recipes and allows the user to add one or more of them
+ * An activity that displays a list of recipes and allows the user to add one or more of them
  * to a meal
  */
-public class MealRecipeAddFragment extends DialogFragment {
-
-
-	public MealRecipeAddFragment() {
-		// Required empty public constructor
-	}
+public class MealRecipeAddActivity extends AppCompatActivity {
 
 
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container,
-	                         Bundle savedInstanceState) {
-		// Inflate the layout for this fragment
-		return inflater.inflate(R.layout.fragment_meal_recipe_add, container, false);
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_meal_recipe_add);
+		Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+		setSupportActionBar(toolbar);
+
+		setUpActionBar();
 	}
 
-	@Override
-	public Dialog onCreateDialog(Bundle savedInstanceState) {
-		final Dialog dialog = super.onCreateDialog(savedInstanceState);
-		dialog.setTitle(R.string.add_recipes);
-		return dialog;
+	private void setUpActionBar() {
+		final ActionBar bar = getSupportActionBar();
+		assert bar != null;
+		bar.setTitle(R.string.add_recipes);
+		bar.setDisplayHomeAsUpEnabled(true);
 	}
+
+
 }

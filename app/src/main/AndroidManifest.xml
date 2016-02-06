@@ -18,7 +18,8 @@
   ~ along with Cook-E.  If not, see <http://www.gnu.org/licenses/>.
   -->
 
-<manifest package="org.cook_e.cook_e"
+<manifest xmlns:tools="http://schemas.android.com/tools"
+          package="org.cook_e.cook_e"
           xmlns:android="http://schemas.android.com/apk/res/android">
 
     <application
@@ -42,6 +43,11 @@
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
+        </activity>
+        <activity android:name=".ui.MealRecipeAddActivity"
+            android:parentActivityName=".MealViewActivity"
+                  tools:ignore="UnusedAttribute">
+            <meta-data android:name="android.support.PARENT_ACTIVITY" android:value=".MealViewActivity" />
         </activity>
     </application>
 
