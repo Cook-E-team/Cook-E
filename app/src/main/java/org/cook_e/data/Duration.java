@@ -5,7 +5,7 @@ package org.cook_e.data;
  *
  * Objects of this class are immutable.
  */
-public class Duration implements Comparable<Duration> {
+public final class Duration implements Comparable<Duration> {
 
 	/**
 	 * The maximum number of seconds that can be used to create a duration without overflow
@@ -24,6 +24,14 @@ public class Duration implements Comparable<Duration> {
 	 * The number of milliseconds in this duration
 	 */
 	private final long mMillis;
+
+	/**
+	 * Creates a new Duration as a copy of an existing Duration
+	 * @param other the duration to copy
+	 */
+	public Duration(Duration other) {
+		this(other.mMillis);
+	}
 
 	/**
 	 * Creates a new duration with a specified number of milliseconds
