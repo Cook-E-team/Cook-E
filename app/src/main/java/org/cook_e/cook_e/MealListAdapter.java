@@ -25,6 +25,7 @@ import android.graphics.drawable.Drawable;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListAdapter;
+import android.widget.Space;
 
 import org.cook_e.cook_e.ui.RecipeListItemView;
 
@@ -33,16 +34,20 @@ import java.util.List;
 
 /**
  * A list adapter that displays a list of meals, with each meal shown in a {@link RecipeListItemView}
+ *
+ * A space is added at the bottom of the list for compatibility with floating action buttons.
  */
 public class MealListAdapter implements ListAdapter {
 
 	private static class TestRecipe {
 		public String title;
 		public Drawable image;
+		public int count;
 
-		public TestRecipe(String title, Drawable image) {
+		public TestRecipe(String title, Drawable image, int count) {
 			this.title = title;
 			this.image = image;
+			this.count = count;
 		}
 	}
 
@@ -61,12 +66,12 @@ public class MealListAdapter implements ListAdapter {
 
 		// Add some test recipes
 		testRecipes = new ArrayList<>();
-		testRecipes.add(new TestRecipe("Lasagna", mContext.getResources().getDrawable(R.drawable.test_image_1)));
-		testRecipes.add(new TestRecipe("Pie", mContext.getResources().getDrawable(R.drawable.test_image_1)));
-		testRecipes.add(new TestRecipe("Opera cake", mContext.getResources().getDrawable(R.drawable.test_image_1)));
-		testRecipes.add(new TestRecipe("Banana Bread", mContext.getResources().getDrawable(R.drawable.test_image_1)));
-		testRecipes.add(new TestRecipe("Lemon cake", mContext.getResources().getDrawable(R.drawable.test_image_1)));
-		testRecipes.add(new TestRecipe("Pesto", mContext.getResources().getDrawable(R.drawable.test_image_1)));
+		testRecipes.add(new TestRecipe("Lasagna", mContext.getResources().getDrawable(R.drawable.test_image_1), 1));
+		testRecipes.add(new TestRecipe("Pie", mContext.getResources().getDrawable(R.drawable.test_image_1), 3));
+		testRecipes.add(new TestRecipe("Opera cake", mContext.getResources().getDrawable(R.drawable.test_image_1), 1));
+		testRecipes.add(new TestRecipe("Banana Bread", mContext.getResources().getDrawable(R.drawable.test_image_1), 1));
+		testRecipes.add(new TestRecipe("Lemon cake", mContext.getResources().getDrawable(R.drawable.test_image_1), 1));
+		testRecipes.add(new TestRecipe("Pesto", mContext.getResources().getDrawable(R.drawable.test_image_1), 1));
 	}
 
 	@Override
@@ -91,12 +96,17 @@ public class MealListAdapter implements ListAdapter {
 
 	@Override
 	public int getCount() {
-		return testRecipes.size();
+		return testRecipes.size() + 1;
 	}
 
 	@Override
 	public Object getItem(int position) {
-		return testRecipes.get(position);
+		if (position < testRecipes.size()) {
+			return testRecipes.get(position);
+		}
+		else {
+			return null;
+		}
 	}
 
 	@Override
@@ -115,34 +125,53 @@ public class MealListAdapter implements ListAdapter {
 	@Override
 	@SuppressWarnings("Deprecated")
 	public View getView(int position, View convertView, ViewGroup parent) {
-		RecipeListItemView view;
-		if (convertView instanceof RecipeListItemView) {
-			view = (RecipeListItemView) convertView;
+		if (position < testRecipes.size()) {
+			RecipeListItemView view;
+			if (convertView instanceof RecipeListItemView) {
+				view = (RecipeListItemView) convertView;
+			} else {
+				view = new RecipeListItemView(mContext);
+			}
+
+			final TestRecipe recipe = testRecipes.get(position);
+
+			view.setTitle(recipe.title);
+			view.setImage(recipe.image);
+			view.setCount(recipe.count);
+
+			return view;
 		}
 		else {
-			view = new RecipeListItemView(mContext);
+			// Space
+			Space space;
+			if (convertView instanceof Space) {
+				space = (Space) convertView;
+			}
+			else {
+				space = new Space(mContext);
+			}
+			space.setMinimumHeight(300);
+			return space;
 		}
-
-		final TestRecipe recipe = testRecipes.get(position);
-
-		view.setTitle(recipe.title);
-		view.setImage(recipe.image);
-
-		return view;
 	}
 
 	@Override
 	public int getItemViewType(int position) {
-		return 0;
+		if (position < testRecipes.size()) {
+			return 0;
+		}
+		else {
+			return 1;
+		}
 	}
 
 	@Override
 	public int getViewTypeCount() {
-		return 1;
+		return 2;
 	}
 
 	@Override
 	public boolean isEmpty() {
-		return testRecipes.isEmpty();
+		return false;
 	}
 }

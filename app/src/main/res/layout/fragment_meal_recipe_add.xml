@@ -17,14 +17,20 @@
   ~ along with Cook-E.  If not, see <http://www.gnu.org/licenses/>.
   -->
 
-<resources>
-    <string name="app_name">Cook-E</string>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             xmlns:tools="http://schemas.android.com/tools"
+             android:layout_width="match_parent"
+             android:layout_height="match_parent"
+             tools:context="org.cook_e.cook_e.ui.MealRecipeAddFragment">
 
-    <string name="recipe_image_description">Recipe image</string>
-    <string name="title">Title</string>
-    <string name="description">Description</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="add_recipes">Add recipes</string>
-</resources>
+    <ListView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/listView"
+        android:layout_gravity="left|top"
+        android:layout_alignParentLeft="true"
+        android:layout_marginLeft="0dp"
+        />
+
+</RelativeLayout>
