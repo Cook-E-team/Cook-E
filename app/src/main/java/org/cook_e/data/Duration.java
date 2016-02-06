@@ -5,7 +5,7 @@ package org.cook_e.data;
  *
  * Objects of this class are immutable.
  */
-public class Duration {
+public class Duration implements Comparable<Duration> {
 
 	/**
 	 * The maximum number of seconds that can be used to create a duration without overflow
@@ -129,4 +129,56 @@ public class Duration {
 		return ((double) mMillis) / 1000.0 / 60.0 / 60.0;
 	}
 
+	/**
+	 * Compares this Duration to another object
+	 * @param o the object to compare to
+	 * @return true if o is a Duration with the same time, otherwise false
+	 */
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+
+		Duration duration = (Duration) o;
+
+		return mMillis == duration.mMillis;
+
+	}
+
+	/**
+	 * Returns a hash code of this Duration
+	 * @return a hash code
+	 */
+	@Override
+	public int hashCode() {
+		return (int) (mMillis ^ (mMillis >>> 32));
+	}
+
+	/**
+	 * Returns a String representation of this Duration
+	 * @return a String
+	 */
+	@Override
+	public String toString() {
+		return mMillis + " milliseconds";
+	}
+
+	/**
+	 * Compares this duration to another
+	 * @param another a duration to compare
+	 * @return a negative integer if this instance is less than another; a positive integer if this
+	 * instance is greater than another; 0 if this instance has the same order as another.
+	 */
+	@Override
+	public int compareTo(Duration another) {
+		if (mMillis > another.mMillis) {
+			return 1;
+		}
+		else if (mMillis < another.mMillis) {
+			return -1;
+		}
+		else {
+			return 0;
+		}
+	}
 }
