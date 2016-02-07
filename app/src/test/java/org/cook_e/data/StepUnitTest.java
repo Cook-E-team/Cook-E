@@ -26,7 +26,9 @@ import org.cook_e.data.UnitTestSharedData;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.Duration;
 import org.junit.Test;
-
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.lang.NullPointerException;
 
 import static org.junit.Assert.*;
@@ -36,8 +38,8 @@ public class StepUnitTest {
     public static Step createGenericStep(int action_index, int ing_index, int unit_index, int duration_min) {
         List<Ingredient> ings = new ArrayList<Ingredient>();
         String action = UnitTestSharedData.ACTIONS[action_index];
-        Ingredient ing = new Ingredient(UnitTestSharedData.INGREDIENTS[ing_index];
-        ings.add(ing, 1, UnitTestSharedData.COMMMON_UNITS[unit_index]));
+        Ingredient ing = new Ingredient(UnitTestSharedData.INGREDIENTS[ing_index]);
+        ings.add(ing, 1, UnitTestSharedData.COMMMON_UNITS[unit_index]);
         return new Step(ings, action, UnitTestSharedData.generateDescription(ing, action), DatatypeFactory.newDuration(true, 0, 0, 0, 0, duration_min, 0));
     }
 
@@ -45,10 +47,10 @@ public class StepUnitTest {
     public void testCreation() {
         List<Ingredient> ings = new ArrayList<Ingredient>();
         String action = UnitTestSharedData.ACTIONS[0];
-        Ingredient ing = new Ingredient(UnitTestSharedData.INGREDIENTS[0];
-        ings.add(ing, 1, UnitTestSharedData.COMMMON_UNITS[0]));
+        Ingredient ing = new Ingredient(UnitTestSharedData.INGREDIENTS[0]);
+        ings.add(ing, 1, UnitTestSharedData.COMMMON_UNITS[0]);
         String description = UnitTestSharedData.generateDescription(ing, action);
-        Duration duration = DatatypeFactory.newDuration(true, 0, 0, 0, 0, 5, 0)
+        Duration duration = DatatypeFactory.newDuration(true, 0, 0, 0, 0, 5, 0);
         Step s = new Step(ings, action, description, duration);
 
         assertEquals(ings, s.getIngredients());

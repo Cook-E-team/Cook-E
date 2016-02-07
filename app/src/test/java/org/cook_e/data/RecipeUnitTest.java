@@ -28,5 +28,5 @@ import java.lang.NullPointerException;
 import static org.junit.Assert.*;
 
 public class RecipeUnitTest {
-    
+
 }
