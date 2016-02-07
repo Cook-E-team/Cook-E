@@ -21,6 +21,8 @@ package org.cook_e.data;
 
 import android.support.annotation.Nullable;
 
+import java.util.Arrays;
+
 /**
  * A utility class similar to {@link java.util.Objects} but available in older Android versions
  */
@@ -37,6 +39,20 @@ public class Objects {
 		if (o == null) {
 			throw new NullPointerException(message);
 		}
+	}
+
+
+	/**
+	 * Converts an array of type T to an array of type U by casting each item
+	 * @param in the array to convert
+	 * @param outClass The class of an array of the output type (should be U[].class)
+	 * @param <T> the input type
+	 * @param <U> the output type
+	 * @return an array of T objects containing the same objects as the input array
+	 * @throws ArrayStoreException if any element of the input array cannot be cast into U
+	 */
+	public static <T, U> U[] castArray(T[] in, Class<? extends U[]> outClass) {
+		return Arrays.copyOf(in, in.length, outClass);
 	}
 
 	// Prevent construction

@@ -19,12 +19,15 @@
 
 package org.cook_e.data;
 
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
 
 import org.joda.time.Duration;
 import org.joda.time.ReadableDuration;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /*
@@ -35,7 +38,7 @@ import java.util.List;
  *
  * Objects of this class are immutable.
  */
-public final class Step {
+public final class Step implements Parcelable {
 	/**
 	 * A human-readable mDescription of the actions involved in this step
 	 */
@@ -111,5 +114,39 @@ public final class Step {
 	@NonNull
 	public String getAction() {
 		return mAction;
+	}
+
+	// Parceling section
+
+	public static final Parcelable.Creator<Step> CREATOR = new Parcelable.Creator<Step>() {
+
+		@Override
+		public Step createFromParcel(Parcel source) {
+			final String description = source.readString();
+			final String action = source.readString();
+			final Duration duration = (Duration) source.readSerializable();
+			final Ingredient[] ingredients = Objects.castArray(
+					source.readParcelableArray(ClassLoader.getSystemClassLoader()), Ingredient[].class);
+			return new Step(Arrays.asList(ingredients), action, description, duration);
+		}
+
+		@Override
+		public Step[] newArray(int size) {
+			return new Step[size];
+		}
+
+	};
+
+	@Override
+	public int describeContents() {
+		return 0;
+	}
+
+	@Override
+	public void writeToParcel(Parcel dest, int flags) {
+		dest.writeString(mDescription);
+		dest.writeString(mAction);
+		dest.writeSerializable(mTime);
+		dest.writeParcelableArray(mIngredients.toArray(new Ingredient[mIngredients.size()]), flags);
 	}
 }
