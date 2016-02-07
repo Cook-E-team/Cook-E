@@ -57,9 +57,8 @@ public final class Ingredient implements Parcelable {
 	 * @param unit the units of measure
 	 */
 	public Ingredient(@NonNull String type, double amount, @NonNull String unit) {
-		if (type == null || type.isEmpty()) throw new IllegalArgumentException("ingredient type is empty");
-		if (amount <= 0) throw new IllegalArgumentException("amount is <= 0");
-		if (unit == null) throw new IllegalArgumentException("unit is null");
+		Objects.requireNonNull(type, "type must not be null");
+		Objects.requireNonNull(unit, "unit must not be null");		
 
 		this.mType = type;
 		this.mAmount = amount;
