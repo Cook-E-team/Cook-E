@@ -19,60 +19,105 @@
 
 package org.cook_e.data;
 
+import android.support.annotation.NonNull;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-/*
+/**
  * Class that represents a grouping of recipes
- * Stores a map of recipe titles to recipe file names
+ *
  * Modifiable
- * Bunches must have a name
  */
-public class Bunch {
-	private String title;
-	private Map<String, String> recipe_refs;
-	
-	public Bunch(String title, Map<String, String> recipe_refs) {
-		if (title == null || title.equals("")) throw new IllegalArgumentException("no name for this bunch");
-		this.title = title;
-		this.recipe_refs = recipe_refs;
+public final class Bunch {
+
+	/**
+	 * The title of this bunch
+	 */
+	@NonNull
+	private String mTitle;
+	/**
+	 * The recipes that this bunch contains
+	 */
+	@NonNull
+	private List<Recipe> mRecipes;
+
+	/**
+	 * Creates a new bunch with an empty title and no recipes
+	 */
+	public Bunch() {
+		mTitle = "";
+		mRecipes = Collections.emptyList();
 	}
 
+	/**
+	 * Creates a new bunch
+	 * @param title the title
+	 * @param recipes the recipes to include
+	 * @throws IllegalArgumentException if title is empty
+	 * @throws NullPointerException if title or recipes is null
+	 */
+	public Bunch(@NonNull String title, @NonNull List<Recipe> recipes) {
+		Objects.requireNonNull(title, "title must not be null");
+		Objects.requireNonNull(recipes, "recipes must not be null");
+		if (title.isEmpty()) throw new IllegalArgumentException("title must not be empty");
+		mTitle = title;
+		mRecipes = new ArrayList<>(recipes);
+	}
+
+	/**
+	 * Returns the title of this bunch
+	 * @return the title
+	 */
+	@NonNull
 	public String getTitle() {
-		return title;
+		return mTitle;
 	}
-	/*
-	 * Returns a List of all of the recipe titles in this bunch
+
+	/**
+	 * Sets the title of this bunch
+	 * @throws IllegalArgumentException if title is empty
+	 * @throws NullPointerException if title or recipes is null
 	 */
-	public List<String> getRecipeTitles() {
-		return new ArrayList<String>(recipe_refs.keySet());
+	public void setTitle(@NonNull String title) {
+		Objects.requireNonNull(title, "title must not be null");
+		if (title.isEmpty()) throw new IllegalArgumentException("title must not be empty");
+		mTitle = title;
 	}
-	public Map<String, String> getRecipeRefs() {
-		return Collections.unmodifiableMap(recipe_refs);
-	}
-	/*
-	 * Changes the name of this bunch
-	 * Cannot be changed to null or the empty string
-	 */
-	public void changeTitle(String title) {
-		if (title != null && !title.equals("")) 
-		this.title = title;
-	}
-	/*
+	/**
 	 * Adds a recipe to this bunch
-	 * Takes a recipe title and filename for the recipe
-	 * If either title or filename is null this method does nothing
+	 * @param recipe the recipe to add
+	 * @throws NullPointerException if recipe is null
 	 */
-	public void addRecipe(String recipe_name, String recipe_ref) {
-		if (recipe_name != null && recipe_ref != null)recipe_refs.put(recipe_name, recipe_ref);
+	public void addRecipe(@NonNull Recipe recipe) {
+		Objects.requireNonNull(recipe, "recipe must not be null");
+		// Deep-copy the recipe
+		mRecipes.add(new Recipe(recipe));
 	}
-	/*
-	 * Removes a recipe from this bunch
-	 * Does nothing if the recipe name given is not in this bunch
+
+	/**
+	 * Returns the recipes in this bunch
+	 * @return the recipes
 	 */
-	public void removeRecipe(String recipe_name) {
-		if (recipe_name != null) recipe_refs.remove(recipe_name);
+	@NonNull
+	public List<Recipe> getRecipes() {
+		return new ArrayList<>(mRecipes);
+	}
+
+	/**
+	 * Sets the recipes in this bunch
+	 * @param recipes the recipes to set
+	 * @throws NullPointerException if recipes or any recipe it contains is null
+	 */
+	public void setRecipes(@NonNull List<Recipe> recipes) {
+		Objects.requireNonNull(recipes, "recipes must not be null");
+		mRecipes = new ArrayList<>(recipes.size());
+		// Deep copy each recipe
+		for (Recipe recipe : recipes) {
+			Objects.requireNonNull(recipe, "no recipe in recipes may be null");
+			mRecipes.add(new Recipe(recipe));
+		}
 	}
 }

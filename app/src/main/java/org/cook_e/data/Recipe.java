@@ -19,51 +19,98 @@
 
 package org.cook_e.data;
 
+import android.support.annotation.NonNull;
+
+import org.joda.time.Duration;
+
 import java.util.ArrayList;
 import java.util.List;
 
 /*
  * Represents a recipe
- * Has an ordered list of steps, a title, and an author
- * Title and List of steps must not be empty
+ *
+ * Has an ordered list of steps, a title, and an author.
+ * No field may be null.
  */
-public class Recipe {
-	private List<Step> steps;
-	private String title;
-	private String author;
-	/*
+public final class Recipe {
+	/**
+	 * The steps that this recipe contains
+	 */
+	@NonNull
+	private List<Step> mSteps;
+	/**
+	 * The title of this recipe
+	 */
+	@NonNull
+	private String mTitle;
+	/**
+	 * The author of this recipe
+	 */
+	@NonNull
+	private String mAuthor;
+	/**
 	 * Constructor
-	 * Takes a list of steps, title and optionally an author
+	 *
+	 * Takes a list of mSteps, mTitle and an mAuthor.
 	 * 
 	 */
-	public Recipe(List<Step> steps, String title, String author) {
-		if (steps == null || steps.size() == 0 ) throw new IllegalArgumentException("list of steps is empty");
-		if (title == null || title.length() == 0) throw new IllegalArgumentException("title is empty");
-		this.steps = steps;
-		this.title = title;
-		this.author = author;
+	public Recipe(@NonNull String title, @NonNull String author, @NonNull List<Step> steps) {
+		Objects.requireNonNull(title, "title must not be null");
+		Objects.requireNonNull(author, "author must not be null");
+		Objects.requireNonNull(steps, "steps must not be null");
+
+		mSteps = new ArrayList<>(steps);
+		mTitle = title;
+		mAuthor = author;
 	}
-	
-	/*
+
+	/**
+	 * Creates a deep copy of another recipe. No part of the new recipe will be modifiable from the
+	 * old one.
+	 * @param other the recipe to copy from
+	 */
+	public Recipe(Recipe other) {
+		// Ingredient, Step, and String are immutable, so they do not need to be copied.
+		// The delegated constructor copies the list of steps.
+		this(other.getTitle(), other.getAuthor(), other.getSteps());
+	}
+
+
+	/**
+	 * Returns the steps in this recipe
+	 * @return the steps
+	 */
+	@NonNull
+	public List<Step> getSteps() {
+		return new ArrayList<>(mSteps);
+	}
+
+	/**
+	 * Sets the steps in this recipe
+	 * @param steps the steps to set
+	 * @throws NullPointerException if steps is null
+	 */
+	public void setSteps(@NonNull List<Step> steps) {
+		Objects.requireNonNull(steps, "steps must not be null");
+		mSteps = new ArrayList<>(steps);
+	}
+	/**
 	 * Add step to end of the list of steps
-	 * Caller responsibility that Step is properly formed
+	 * @param step the step to add
+	 * @throws NullPointerException if step is null
 	 */
-	public void addStep(Step step) {
-		steps.add(step);
+	public void addStep(@NonNull Step step) {
+		Objects.requireNonNull(step, "step must not be null");
+		mSteps.add(step);
 	}
+
 	/*
-	 * Remove step with given index
-	 * Does nothing if index is out of bounds
+	 * Returns a List of all the ingredients required by all the steps of the recipe
 	 */
-	public void removeStep(int index) {
-		if (index < steps.size() && index >= 0) steps.remove(index);
-	}
-	/*
-	 * Returns a List of all the ingredients across the recipes' steps
-	 */
+	@NonNull
 	public List<Ingredient> getIngredients() {
-		List<Ingredient> ings = new ArrayList<Ingredient>();
-		for (Step s: steps) {
+		List<Ingredient> ings = new ArrayList<>();
+		for (Step s: mSteps) {
 			for (Ingredient ingredient: s.getIngredients()) {
 				ings.add(ingredient);
 			}
@@ -71,24 +118,22 @@ public class Recipe {
 		return ings;
 	}
 	/*
-	 * Returns the total estimated time of all the recipes' steps
+	 * Returns the total estimated time of all the recipe's mSteps
 	 */
-	public int getTotalTime() {
-		int time = 0;
-		for (Step s: steps) {
-			time += s.getTime();
+	@NonNull
+	public Duration getTotalTime() {
+		Duration time = Duration.ZERO;
+		for (Step s: mSteps) {
+			time = time.withDurationAdded(s.getTime(), 1);
 		}
 		return time;
 	}
-	public List<Step> getSteps() {
-		return steps;
-	}
+	@NonNull
 	public String getTitle() {
-		return title;
+		return mTitle;
 	}
+	@NonNull
 	public String getAuthor() {
-		if (author == null) {
-			return "";
-		} else return author;
+		return mAuthor;
 	}
 }

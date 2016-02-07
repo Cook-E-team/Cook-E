@@ -19,35 +19,94 @@
 
 package org.cook_e.data;
 
+import android.support.annotation.NonNull;
+
+import org.atteo.evo.inflector.English;
+
 /*
  * Class representing an ingredient 
- * Has a type, amount, and units for the amount
+ * Has a mType, mAmount, and units for the mAmount
+ *
+ * The mAmount is positive. The mType and mUnit are not null. The mType is not empty. The mUnit may be
+ * empty if the ingredient comes in discrete units (for example, eggs).
+ *
+ * Objects of this class are immutable.
  */
-public class Ingredient {
-	private String type;
-	private int amount;
-	private String unit;
-	
-	public Ingredient(String type, int amount, String unit) {
-		if (type == null || type.length() == 0) throw new IllegalArgumentException("ingredient type is empty");
+public final class Ingredient {
+	/**
+	 * The name of this ingredient
+	 */
+	@NonNull
+	private final String mType;
+	/**
+	 * The amount of units of this ingredient
+	 */
+	private final double mAmount;
+	/**
+	 * The unit of measurement used for the mAmount field
+	 */
+	@NonNull
+	private final String mUnit;
+
+	/**
+	 * Creates a new ingredient
+	 * @param type the name of the ingredient
+	 * @param amount the mAmount of the ingredient to use
+	 * @param unit the units of measure
+	 */
+	public Ingredient(@NonNull String type, double amount, @NonNull String unit) {
+		if (type == null || type.isEmpty()) throw new IllegalArgumentException("ingredient type is empty");
 		if (amount <= 0) throw new IllegalArgumentException("amount is <= 0");
-		if (unit == null || unit.length() == 0) throw new IllegalArgumentException("unit is empty");
+		if (unit == null) throw new IllegalArgumentException("unit is null");
 
-		this.type = type;
-		this.amount = amount;
-		this.unit = unit;
+		this.mType = type;
+		this.mAmount = amount;
+		this.mUnit = unit;
 	}
 
+	/**
+	 * Returns the type of this ingredient
+	 * @return the type
+	 */
+	@NonNull
 	public String getType() {
-		return type;
+		return mType;
 	}
 
-	public int getAmount() {
-		return amount;
+	/**
+	 * Returns the amount of this ingredient
+	 * @return the amount
+	 */
+	public double getAmount() {
+		return mAmount;
 	}
 
+	/**
+	 * Returns the unit name of this ingredient
+	 * @return the unit name
+	 */
+	@NonNull
 	public String getUnit() {
-		return unit;
+		return mUnit;
+	}
+
+	/**
+	 * Returns the unit name of this ingredient. If the quantity of this ingredient is less than or,
+	 * equal to 1, the unit name will be in plural form.
+	 * @return the unit name
+	 */
+	@NonNull
+	public String getUnitPluralized() {
+		if (mUnit.isEmpty()) {
+			return mUnit;
+		}
+
+		if (mAmount <= 1) {
+			return getUnit();
+		}
+		else {
+			return English.plural(getUnit());
+		}
 	}
 
 }
