@@ -13,7 +13,12 @@ test:
         parallel: true
   post:
     # Run tests on emulator
-    - circle-android wait-for-boot; export TERM="dumb"; ./gradlew connectedAndroidTest
+    - circle-android wait-for-boot; export TERM="dumb"
+    # unlock the emulator screen
+    - sleep 30
+    - adb shell input keyevent 82
+    # run tests  on the emulator.
+    - ./gradlew connectedAndroidTest -PdisablePreDex
     # Run lint checks and get test results
     - export TERM="dumb"; ./gradlew lint
     - mkdir -p $CIRCLE_TEST_REPORTS/junit/
