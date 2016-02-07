@@ -29,12 +29,12 @@ public class UnitTestSharedData {
             this.plural = plural;
         }
     }
-    public static final String ACTIONS = {
+    public static final String[] ACTIONS = {
             "BOIL",
             "BAKE",
             "FRY",
             "Stir"
-    }
+    };
     public static final WordPair[] COMMON_UNITS = {
             // SI mass
             new WordPair("microgram", "micrograms"),

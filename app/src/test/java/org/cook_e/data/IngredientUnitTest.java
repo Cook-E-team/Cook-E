@@ -23,7 +23,7 @@ import org.atteo.evo.inflector.English;
 import org.cook_e.data.Ingredient;
 import org.junit.Test;
 import org.cook_e.data.UnitTestSharedData;
-import java.lang.NullPointerException;
+import org.cook_e.data.UnitTestSharedData.WordPair;
 
 import static org.junit.Assert.*;
 
