@@ -137,4 +137,22 @@ public class IngredientSanityCheck {
 			}
 		}
 	}
+	@Test
+	public void testNonNullExceptionNoType() {
+		try {
+			final Ingredient ingredient = new Ingredient(null, 1, COMMON_UNITS[0].word);
+
+		} catch (NullPointerException) {
+
+		}
+	}
+	@Test
+	public void testNonNullExceptionNoUnit() {
+		try {
+			final Ingredient ingredient = new Ingredient(INGREDIENTS[0], 1, null);
+
+		} catch (NullPointerException) {
+			
+		}
+	}
 }
