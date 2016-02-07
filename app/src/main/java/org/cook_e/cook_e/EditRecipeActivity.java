@@ -19,8 +19,6 @@ public class EditRecipeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_recipe);
 
-        String[] steps = {"step 1", "step 2", "step 3", "step 4", "step 5", "step 6",
-                            "step 7", "step 8", "step 9", "step 10"};
         ListAdapter stepsAdapter = new StepListAdapter(this);
         ListView stepsList = (ListView) findViewById(R.id.recipeSteps);
         stepsList.setAdapter(stepsAdapter);
@@ -30,11 +28,6 @@ public class EditRecipeActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.edit_recipe_menu, menu);
-        //MenuItem recipeNameItem = (MenuItem) menu.findItem(R.id.recipe_name);
-        //recipeNameItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-        //recipeNameItem.setTitle("The real title.");
-        //recipeNameItem.setDisplayHomeAsUpEnabled(true);
-        //getActionBar().setDisplayShowTitleEnabled(false);
         MenuItem finishItem = (MenuItem) menu.findItem(R.id.finish);
         finishItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
 
