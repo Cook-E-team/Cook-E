@@ -9,8 +9,8 @@ test:
   pre:
     # Start emulator for later testing
     - emulator -avd circleci-android22 -no-audio -no-window:
-      background: true
-      parallel: true
+        background: true
+        parallel: true
   post:
     # Run tests on emulator
     - circle-android wait-for-boot; export TERM="dumb"; ./gradlew connectedAndroidTest
