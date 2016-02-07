@@ -23,6 +23,8 @@ import org.atteo.evo.inflector.English;
 import org.cook_e.data.Ingredient;
 import org.junit.Test;
 
+import java.lang.NullPointerException;
+
 import static org.junit.Assert.*;
 
 /**
@@ -137,22 +139,12 @@ public class IngredientSanityCheck {
 			}
 		}
 	}
-	@Test
+	@Test(expected = NullPointerException.class)
 	public void testNonNullExceptionNoType() {
-		try {
-			final Ingredient ingredient = new Ingredient(null, 1, COMMON_UNITS[0].word);
-
-		} catch (NullPointerException) {
-
-		}
+		final Ingredient ingredient = new Ingredient(null, 1, COMMON_UNITS[0].word);
 	}
-	@Test
+	@Test(expected = NullPointerException.class)
 	public void testNonNullExceptionNoUnit() {
-		try {
-			final Ingredient ingredient = new Ingredient(INGREDIENTS[0], 1, null);
-
-		} catch (NullPointerException) {
-			
-		}
+		final Ingredient ingredient = new Ingredient(INGREDIENTS[0], 1, null);
 	}
 }
