@@ -20,6 +20,7 @@
 package org.cook_e.cook_e.ui;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.View;
@@ -29,6 +30,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.cook_e.cook_e.R;
+import org.cook_e.data.Objects;
 
 /**
  * A view that shows a recipe and allows it to be added to something
@@ -74,7 +76,7 @@ public class RecipeAddItemView extends LinearLayout {
 		mContext = context;
 
 		mTitleView = new TextView(context, null, android.R.attr.textAppearanceLarge);
-		mTitleView.setText("Recipe");
+		mTitleView.setText(R.string.recipe);
 
 		mAddButton = new ImageButton(context, null, android.R.attr.borderlessButtonStyle);
 		mAddButton.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_add_box_black_24dp));
@@ -94,5 +96,15 @@ public class RecipeAddItemView extends LinearLayout {
 		titleParams.gravity = Gravity.CENTER_VERTICAL | Gravity.LEFT;
 		addView(mTitleView, titleParams);
 		addView(mAddButton, new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, 0.1f));
+	}
+
+	/**
+	 * Sets the recipe title to display
+	 * @param title the title
+	 * @throws NullPointerException if title is null
+	 */
+	public void setTitle(@NonNull String title) {
+		Objects.requireNonNull(title, "title must not be null");
+		mTitleView.setText(title);
 	}
 }

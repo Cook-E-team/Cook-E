@@ -125,8 +125,8 @@ public final class Step implements Parcelable {
 			final String description = source.readString();
 			final String action = source.readString();
 			final Duration duration = (Duration) source.readSerializable();
-			final Ingredient[] ingredients = (Ingredient[])
-					source.readParcelableArray(ClassLoader.getSystemClassLoader());
+			final Ingredient[] ingredients = Objects.castArray(
+					source.readParcelableArray(ClassLoader.getSystemClassLoader()), Ingredient[].class);
 			return new Step(Arrays.asList(ingredients), action, description, duration);
 		}
 
@@ -134,6 +134,7 @@ public final class Step implements Parcelable {
 		public Step[] newArray(int size) {
 			return new Step[size];
 		}
+
 	};
 
 	@Override

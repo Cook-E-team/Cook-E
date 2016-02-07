@@ -21,16 +21,26 @@ package org.cook_e.cook_e;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ListView;
 
+import org.cook_e.data.Recipe;
+import org.cook_e.data.Step;
+
+import java.util.ArrayList;
+import java.util.Collections;
+
 public class MealViewActivity extends AppCompatActivity {
+	private static final String TAG = MealViewActivity.class.getSimpleName();
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -52,9 +62,20 @@ public class MealViewActivity extends AppCompatActivity {
 			public void onClick(View v) {
 				// Open item add view
 				final Intent intent = new Intent(MealViewActivity.this, MealRecipeAddActivity.class);
-				startActivity(intent);
+				intent.putExtra(MealRecipeAddActivity.EXTRA_RECIPES, new Recipe[] {
+						new Recipe("Apple turnover", "Clamify Flumingaster", new ArrayList<Step>()),
+						new Recipe("Maple walnut scone", "Scallopify Fragilistigaster", new ArrayList<Step>()),
+				});
+				startActivityForResult(intent, MealRecipeAddActivity.REQUEST_ADD_RECIPES);
 			}
 		});
+	}
+
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		if (requestCode == MealRecipeAddActivity.REQUEST_ADD_RECIPES && resultCode == RESULT_OK) {
+			final Parcelable[] parcelables = data.getParcelableArrayExtra(MealRecipeAddActivity.EXTRA_RECIPES);
+		}
 	}
 
 	private void setUpActionBar() {
