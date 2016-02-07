@@ -175,7 +175,8 @@ public final class Recipe implements Parcelable {
 
 		@Override
 		public Recipe createFromParcel(Parcel source) {
-			final Step[] steps = Objects.castArray(source.readParcelableArray(ClassLoader.getSystemClassLoader()), Step[].class);
+			final Step[] steps = Objects.castArray(
+					source.readParcelableArray(Step.class.getClassLoader()), Step[].class);
 			final String title = source.readString();
 			final String author = source.readString();
 			return new Recipe(title, author, Arrays.asList(steps));

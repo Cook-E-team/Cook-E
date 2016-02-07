@@ -159,7 +159,7 @@ public final class Step implements Parcelable {
 			final String action = source.readString();
 			final Duration duration = (Duration) source.readSerializable();
 			final Ingredient[] ingredients = Objects.castArray(
-					source.readParcelableArray(ClassLoader.getSystemClassLoader()), Ingredient[].class);
+					source.readParcelableArray(Ingredient.class.getClassLoader()), Ingredient[].class);
 			return new Step(Arrays.asList(ingredients), action, description, duration);
 		}
 

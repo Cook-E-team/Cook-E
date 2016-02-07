@@ -159,7 +159,7 @@ public final class Bunch implements Parcelable {
 		public Bunch createFromParcel(Parcel source) {
 			final String title = source.readString();
 			final Recipe[] recipes = Objects.castArray(
-					source.readParcelableArray(ClassLoader.getSystemClassLoader()), Recipe[].class);
+					source.readParcelableArray(Recipe.class.getClassLoader()), Recipe[].class);
 			return new Bunch(title, Arrays.asList(recipes));
 		}
 
