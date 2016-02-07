@@ -1,4 +1,8 @@
 
+machine:
+  environment:
+    TERM: "dumb"
+
 # Get artifacts from the correct directories
 general:
   artifacts:
@@ -12,16 +16,18 @@ test:
         background: true
         parallel: true
   post:
-    # Run tests on emulator
-    - circle-android wait-for-boot; export TERM="dumb"
+    # Run lint checks
+    - ./gradlew lint
+    # Wait for emulator to start
+    - circle-android wait-for-boot
     # unlock the emulator screen
-    - sleep 30
+    - sleep 10
     - adb shell input keyevent 82
-    # run tests  on the emulator.
-    - ./gradlew connectedAndroidTest -PdisablePreDex
-    # Run lint checks and get test results
-    - export TERM="dumb"; ./gradlew lint
+    # Run tests on the emulator.
+    - ./gradlew connectedAndroidTest
+    # Get test results
     - mkdir -p $CIRCLE_TEST_REPORTS/junit/
     - find . -type f -regex ".*/build/test-results/.*xml" -exec cp {} $CIRCLE_TEST_REPORTS/junit/ \;
+    - find . -type f -regex ".*/build/outputs/androidTest-results/connected/.*xml" -exec cp {} $CIRCLE_TEST_REPORTS/junit/ \;
     # Assemble APKs
     - export TERM="dumb"; ./gradlew assemble
