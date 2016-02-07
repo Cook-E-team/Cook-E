@@ -26,6 +26,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
 import org.cook_e.cook_e.R;
+import org.cook_e.data.Recipe;
 
 /**
  * An activity that displays a list of recipes and allows the user to add one or more of them

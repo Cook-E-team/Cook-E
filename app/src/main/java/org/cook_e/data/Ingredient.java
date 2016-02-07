@@ -19,6 +19,8 @@
 
 package org.cook_e.data;
 
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
 
 import org.atteo.evo.inflector.English;
@@ -32,7 +34,7 @@ import org.atteo.evo.inflector.English;
  *
  * Objects of this class are immutable.
  */
-public final class Ingredient {
+public final class Ingredient implements Parcelable {
 	/**
 	 * The name of this ingredient
 	 */
@@ -109,4 +111,33 @@ public final class Ingredient {
 		}
 	}
 
+	// Parceling section
+
+	public static final Parcelable.Creator<Ingredient> CREATOR = new Parcelable.Creator<Ingredient>() {
+
+		@Override
+		public Ingredient createFromParcel(Parcel source) {
+			final String type = source.readString();
+			final double amount = source.readDouble();
+			final String unit = source.readString();
+			return new Ingredient(type, amount, unit);
+		}
+
+		@Override
+		public Ingredient[] newArray(int size) {
+			return new Ingredient[size];
+		}
+	};
+
+	@Override
+	public int describeContents() {
+		return 0;
+	}
+
+	@Override
+	public void writeToParcel(Parcel dest, int flags) {
+		dest.writeString(mType);
+		dest.writeDouble(mAmount);
+		dest.writeString(mUnit);
+	}
 }

@@ -71,4 +71,13 @@ public class MealViewActivity extends AppCompatActivity {
 		return true;
 	}
 
+	/**
+	 * Saves the current menu
+	 * @param outState the state to save to
+	 */
+	@Override
+	protected void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+		// TODO
+	}
 }
