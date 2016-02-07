@@ -5,10 +5,18 @@ general:
     - "app/build/outputs"
     - "app/build/reports/tests"
 
-# Run lint checks and get test results
 test:
+  pre:
+    # Start emulator for later testing
+    - emulator -avd circleci-android22 -no-audio -no-window:
+      background: true
+      parallel: true
   post:
-    - export TERM="dumb"; if [ -e ./gradlew ]; then ./gradlew lint; else gradle lint; fi
+    # Run tests on emulator
+    - circle-android wait-for-boot; export TERM="dumb"; ./gradlew connectedAndroidTest
+    # Run lint checks and get test results
+    - export TERM="dumb"; ./gradlew lint
     - mkdir -p $CIRCLE_TEST_REPORTS/junit/
     - find . -type f -regex ".*/build/test-results/.*xml" -exec cp {} $CIRCLE_TEST_REPORTS/junit/ \;
-    - export TERM="dumb"; if [ -e ./gradlew ]; then ./gradlew assemble; else gradle assemble; fi
+    # Assemble APKs
+    - export TERM="dumb"; ./gradlew assemble
