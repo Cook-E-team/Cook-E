@@ -44,7 +44,7 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <activity android:name=".ui.MealRecipeAddActivity"
+        <activity android:name=".MealRecipeAddActivity"
             android:parentActivityName=".MealViewActivity"
                   tools:ignore="UnusedAttribute">
             <meta-data android:name="android.support.PARENT_ACTIVITY" android:value=".MealViewActivity" />

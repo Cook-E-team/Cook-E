@@ -30,8 +30,6 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ListView;
 
-import org.cook_e.cook_e.ui.MealRecipeAddActivity;
-
 public class MealViewActivity extends AppCompatActivity {
 
 	@Override
