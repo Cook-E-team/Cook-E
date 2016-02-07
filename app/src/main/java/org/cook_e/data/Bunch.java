@@ -124,6 +124,33 @@ public final class Bunch implements Parcelable {
 		}
 	}
 
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+
+		Bunch bunch = (Bunch) o;
+
+		if (!mTitle.equals(bunch.mTitle)) return false;
+		return mRecipes.equals(bunch.mRecipes);
+
+	}
+
+	@Override
+	public int hashCode() {
+		int result = mTitle.hashCode();
+		result = 31 * result + mRecipes.hashCode();
+		return result;
+	}
+
+	@Override
+	public String toString() {
+		return "Bunch{" +
+				"mTitle='" + mTitle + '\'' +
+				", mRecipes=" + mRecipes +
+				'}';
+	}
+
 	// Parceling section
 
 	public static final Parcelable.Creator<Bunch> CREATOR = new Parcelable.Creator<Bunch>() {
