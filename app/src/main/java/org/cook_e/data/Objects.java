@@ -46,7 +46,7 @@ public class Objects {
 	/**
 	 * Converts an array of type T to an array of type U by casting each item
 	 * @param in the array to convert
-	 * @param outClass The class of an array of the output type
+	 * @param outClass The class of an array of the output type (should be U[].class)
 	 * @param <T> the input type
 	 * @param <U> the output type
 	 * @return an array of T objects containing the same objects as the input array

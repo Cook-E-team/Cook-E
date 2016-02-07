@@ -110,6 +110,39 @@ public final class Ingredient implements Parcelable {
 		}
 	}
 
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+
+		Ingredient that = (Ingredient) o;
+
+		if (Double.compare(that.mAmount, mAmount) != 0) return false;
+		if (!mType.equals(that.mType)) return false;
+		return mUnit.equals(that.mUnit);
+
+	}
+
+	@Override
+	public int hashCode() {
+		int result;
+		long temp;
+		result = mType.hashCode();
+		temp = Double.doubleToLongBits(mAmount);
+		result = 31 * result + (int) (temp ^ (temp >>> 32));
+		result = 31 * result + mUnit.hashCode();
+		return result;
+	}
+
+	@Override
+	public String toString() {
+		return "Ingredient{" +
+				"mType='" + mType + '\'' +
+				", mAmount=" + mAmount +
+				", mUnit='" + mUnit + '\'' +
+				'}';
+	}
+
 	// Parceling section
 
 	public static final Parcelable.Creator<Ingredient> CREATOR = new Parcelable.Creator<Ingredient>() {

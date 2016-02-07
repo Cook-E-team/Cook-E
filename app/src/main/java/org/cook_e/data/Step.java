@@ -116,6 +116,39 @@ public final class Step implements Parcelable {
 		return mAction;
 	}
 
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+
+		Step step = (Step) o;
+
+		if (!mDescription.equals(step.mDescription)) return false;
+		if (!mAction.equals(step.mAction)) return false;
+		if (!mTime.equals(step.mTime)) return false;
+		return mIngredients.equals(step.mIngredients);
+
+	}
+
+	@Override
+	public int hashCode() {
+		int result = mDescription.hashCode();
+		result = 31 * result + mAction.hashCode();
+		result = 31 * result + mTime.hashCode();
+		result = 31 * result + mIngredients.hashCode();
+		return result;
+	}
+
+	@Override
+	public String toString() {
+		return "Step{" +
+				"mDescription='" + mDescription + '\'' +
+				", mAction='" + mAction + '\'' +
+				", mTime=" + mTime +
+				", mIngredients=" + mIngredients +
+				'}';
+	}
+
 	// Parceling section
 
 	public static final Parcelable.Creator<Step> CREATOR = new Parcelable.Creator<Step>() {
@@ -126,7 +159,7 @@ public final class Step implements Parcelable {
 			final String action = source.readString();
 			final Duration duration = (Duration) source.readSerializable();
 			final Ingredient[] ingredients = Objects.castArray(
-					source.readParcelableArray(ClassLoader.getSystemClassLoader()), Ingredient[].class);
+					source.readParcelableArray(Ingredient.class.getClassLoader()), Ingredient[].class);
 			return new Step(Arrays.asList(ingredients), action, description, duration);
 		}
 

@@ -140,12 +140,43 @@ public final class Recipe implements Parcelable {
 		return mAuthor;
 	}
 
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+
+		Recipe recipe = (Recipe) o;
+
+		if (!mSteps.equals(recipe.mSteps)) return false;
+		if (!mTitle.equals(recipe.mTitle)) return false;
+		return mAuthor.equals(recipe.mAuthor);
+
+	}
+
+	@Override
+	public int hashCode() {
+		int result = mSteps.hashCode();
+		result = 31 * result + mTitle.hashCode();
+		result = 31 * result + mAuthor.hashCode();
+		return result;
+	}
+
+	@Override
+	public String toString() {
+		return "Recipe{" +
+				"mSteps=" + mSteps +
+				", mTitle='" + mTitle + '\'' +
+				", mAuthor='" + mAuthor + '\'' +
+				'}';
+	}
+
 	// Parceling section
 	public static final Parcelable.Creator<Recipe> CREATOR = new Parcelable.Creator<Recipe>() {
 
 		@Override
 		public Recipe createFromParcel(Parcel source) {
-			final Step[] steps = Objects.castArray(source.readParcelableArray(ClassLoader.getSystemClassLoader()), Step[].class);
+			final Step[] steps = Objects.castArray(
+					source.readParcelableArray(Step.class.getClassLoader()), Step[].class);
 			final String title = source.readString();
 			final String author = source.readString();
 			return new Recipe(title, author, Arrays.asList(steps));
