@@ -83,7 +83,7 @@ public class CookStep extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_cook_step, container, false);
-        view.findViewById(R.id.listView);
+        
         return view;
     }
 

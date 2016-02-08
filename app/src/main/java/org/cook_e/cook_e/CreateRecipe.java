@@ -102,7 +102,7 @@ public class CreateRecipe extends AppCompatActivity {
             return;
         }
         // TODO: Parcel arguments
-        
+
         final Intent intent = new Intent(this, EditRecipeActivity.class);
         startActivity(intent);
     }
