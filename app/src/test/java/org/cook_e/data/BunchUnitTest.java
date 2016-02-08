@@ -31,7 +31,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.*;
-
+/*
+ * Unit tests for the Bunch class
+ */
 public class BunchUnitTest {
     @Test
     public void testCreation() {

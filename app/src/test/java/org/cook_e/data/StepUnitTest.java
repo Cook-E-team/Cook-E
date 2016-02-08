@@ -34,9 +34,17 @@ import java.util.List;
 import java.lang.NullPointerException;
 
 import static org.junit.Assert.*;
-
+/*
+ * Unit Tests for the Step class
+ */
 public class StepUnitTest {
-    // Create a Step with 1 ingredient
+    /**
+     * Helper method that creates a step with 1 ingredient
+     * @param action_index index into the ACTION array from the UnitTestSharedData class
+     * @param ing_index index into the INGREDIENTS array from the UnitTestSharedData class
+     * @param unit_index index into the  COMMON_UNITS array from the UnitTestSharedData class
+     * @param duration_min the number of minutes the duration of the step should be
+     */
     public static Step createGenericStep(int action_index, int ing_index, int unit_index, int duration_min) {
         List<Ingredient> ings = new ArrayList<Ingredient>();
         String action = UnitTestSharedData.ACTIONS[action_index];

@@ -28,7 +28,9 @@ import java.util.List;
 import java.lang.NullPointerException;
 
 import static org.junit.Assert.*;
-
+/*
+ * Unit Tests for the Recipe class
+ */
 public class RecipeUnitTest {
     @Test
     public void testCreation() {

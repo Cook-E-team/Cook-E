@@ -18,7 +18,9 @@
  */
 
 package org.cook_e.data;
-
+/*
+ * This class contains constants and other data for use in unit tests
+ */
 public class UnitTestSharedData {
     public static class WordPair {
         public final String word;
