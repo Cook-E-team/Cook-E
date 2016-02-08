@@ -1,4 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?><!--
+<?xml version="1.0" encoding="utf-8"?>
+<!--
   ~ Copyright 2016 the Cook-E development team
   ~
   ~ This file is part of Cook-E.
@@ -15,10 +16,11 @@
   ~
   ~ You should have received a copy of the GNU General Public License
   ~ along with Cook-E.  If not, see <http://www.gnu.org/licenses/>.
--->
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    package="org.cook_e.cook_e">
+  -->
+
+<manifest xmlns:tools="http://schemas.android.com/tools"
+          package="org.cook_e.cook_e"
+          xmlns:android="http://schemas.android.com/apk/res/android">
 
     <application
         android:allowBackup="true"
@@ -28,33 +30,27 @@
         android:theme="@style/AppTheme">
 
         <activity android:name=".MainActivity">
-
             <!-- Temporarily not a launcher activity -->
             <!--
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
 
                 <category android:name="android.intent.category.LAUNCHER"/>
-            </intent-filter>
-            -->
+            </intent-filter> -->
         </activity>
         <activity android:name=".MealViewActivity">
-
             <!-- Temporarily make a launcher activity for testing -->
 
         </activity>
         <activity android:name=".MealRecipeAddActivity"
             android:parentActivityName=".MealViewActivity"
-            tools:ignore="UnusedAttribute">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MealViewActivity" />
+                  tools:ignore="UnusedAttribute">
+            <meta-data android:name="android.support.PARENT_ACTIVITY" android:value=".MealViewActivity" />
         </activity>
-        <activity android:name=".ViewRecipeActivity">
+        <activity android:name=".ui.CookActivity">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
         <activity android:name=".CreateRecipe"/>
