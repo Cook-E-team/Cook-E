@@ -31,25 +31,24 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="New Text"
-            android:id="@+id/textView3"
-            android:layout_below="@+id/toolbar"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true" />
+            android:id="@+id/textView3"/>
 
         <EditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/editText2"
-            android:layout_gravity="center_horizontal" />
+            android:layout_gravity="center_horizontal"
+            android:inputType="textCapSentences"/>
 
         <ImageView
             android:layout_width="149dp"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
             android:id="@+id/imageView2"
             android:layout_gravity="center_horizontal"
             android:src="@drawable/test_image_1"
             android:adjustViewBounds="true"
-            android:layout_weight="0.21" />
+            android:layout_weight="0.21"
+            android:contentDescription="@string/recipe_image"/>
 
         <Space
             android:layout_width="match_parent"
@@ -60,13 +59,13 @@
             android:layout_height="wrap_content"
             android:text="New Button"
             android:id="@+id/button2"
-            android:layout_gravity="right" />
+            android:layout_gravity="end" />
 
         <ImageSwitcher
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/imageSwitcher"
-            android:layout_gravity="right" />
+            android:layout_gravity="end" />
 
     </LinearLayout>
 

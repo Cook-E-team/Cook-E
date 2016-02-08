@@ -44,9 +44,7 @@
             android:id="@+id/tab_layout"
             android:layout_width="match_parent"
             android:layout_height="40dp"
-            android:layout_below="@+id/toolbar"
-            android:layout_alignRight="@+id/add_button"
-            android:layout_alignEnd="@+id/add_button" />
+            android:layout_below="@+id/toolbar" />
 
         <android.support.v4.view.ViewPager
             xmlns:android="http://schemas.android.com/apk/res/android"

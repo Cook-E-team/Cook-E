@@ -23,11 +23,15 @@
     <string name="recipe_image_description">Recipe image</string>
     <string name="title">Title</string>
     <string name="description">Description</string>
-
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="add_recipes">Add recipes</string>
     <string name="cancel">Cancel</string>
     <string name="ok">OK</string>
     <string name="recipe">Recipe</string>
+    <string name="recipe_image">Recipe image</string>
+    <string name="recipe_description">Recipe Description</string>
+    <string name="step_title">Step title</string>
+    <string name="delete">Delete</string>
+    <string name="ingredient">Ingredient</string>
+    <string name="action">Action</string>
+    <string name="amount">Amount</string>
 </resources>

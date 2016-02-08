@@ -11,7 +11,7 @@
         android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:contentDescription="Recipe Image"
+        android:contentDescription="@string/recipe_image"
         android:scaleType="fitXY" />
 
     <EditText
@@ -20,13 +20,13 @@
         android:inputType="textMultiLine"
         android:ems="10"
         android:id="@+id/recipeDescription"
-        android:layout_toRightOf="@+id/recipeImage"
+        android:layout_toEndOf="@+id/recipeImage"
         android:layout_alignBottom="@+id/recipeImage"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentTop="true"
-        android:hint="Recipe Description"
-        android:gravity="left|top" />
+        android:hint="@string/recipe_description"
+        android:gravity="start|top" />
 
     <ListView
         android:layout_width="wrap_content"
