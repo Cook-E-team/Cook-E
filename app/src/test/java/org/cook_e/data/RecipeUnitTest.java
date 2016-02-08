@@ -63,6 +63,19 @@ public class RecipeUnitTest {
         assertFalse(r1.equals(r4));
 
     }
+    @Test
+    public void testAddStep() {
+        List<Step> steps = new ArrayList<Step>();
+        steps.add(StepUnitTest.createGenericStep(0, 0, 0, 1));
+
+        Recipe r = new Recipe("My Recipe", "Kyle", new ArrayList<Step>(steps));
+        Step s = StepUnitTest.createGenericStep(1, 1, 1, 1);
+        steps.add(s);
+        r.addStep(s);
+        assertEquals(r.getSteps(), steps);
+
+    }
+
     @Test(expected = NullPointerException.class)
     public void testNonNullExceptionNoAuthor() {
         List<Step> steps = new ArrayList<Step>();
@@ -79,4 +92,5 @@ public class RecipeUnitTest {
     public void testNonNullExceptionNoSteps() {
         final Recipe recipe = new Recipe("test recipe", "kyle", null);
     }
+
 }
