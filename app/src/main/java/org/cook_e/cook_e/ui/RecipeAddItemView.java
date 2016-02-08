@@ -93,7 +93,7 @@ public class RecipeAddItemView extends LinearLayout {
 		});
 
 		final LayoutParams titleParams = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 0.9f);
-		titleParams.gravity = Gravity.CENTER_VERTICAL | Gravity.LEFT;
+		titleParams.gravity = Gravity.CENTER_VERTICAL | Gravity.START;
 		addView(mTitleView, titleParams);
 		addView(mAddButton, new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, 0.1f));
 	}

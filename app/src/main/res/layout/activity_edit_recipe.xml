@@ -40,6 +40,7 @@
         android:ems="10"
         android:id="@+id/recipeDescription"
         android:layout_toEndOf="@+id/recipeImage"
+        android:layout_toRightOf="@+id/recipeImage"
         android:layout_alignBottom="@+id/recipeImage"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
