@@ -50,6 +50,12 @@ public class StepListAdapter extends BaseAdapter {
         testSteps.add(new TestStep("action", "ingredient", "amount", "This is a really long description " +
                 "so that we can see how the application behaves. If the description is displayed here," +
                 "then it may be worth considered limiting the length of it so that it doesn't get out of hand.", 600));
+        testSteps.add(new TestStep("action", "ingredient", "amount", "This is a really long description " +
+                "so that we can see how the application behaves. If the description is displayed here," +
+                "then it may be worth considered limiting the length of it so that it doesn't get out of hand.", 600));
+        testSteps.add(new TestStep("action", "ingredient", "amount", "This is a really long description " +
+                "so that we can see how the application behaves. If the description is displayed here," +
+                "then it may be worth considered limiting the length of it so that it doesn't get out of hand.", 600));
 
         selectedStepIndex = -1;
     }
@@ -96,7 +102,6 @@ public class StepListAdapter extends BaseAdapter {
         System.out.println("getView called!!!");
 
         if (getItemViewType(position) == 0) {
-            // TO-DO: editRecipeView
             View editRecipeView = layoutInflater.inflate(R.layout.edit_recipe_step, parent, false);
 
             ((TextView) editRecipeView.findViewById(R.id.stepTitle)).setText("Step " + (position + 1));
@@ -147,6 +152,18 @@ public class StepListAdapter extends BaseAdapter {
 
         @Override
         public void onClick(View v) {
+            // save fields
+            if (selectedStepIndex >= 0 && selectedStepIndex < testSteps.size()){
+                TestStep closingStep = testSteps.get(selectedStepIndex);
+                //editRecipeView
+                //adapter.getView(selectedStepIndex, null, );
+
+                //closingStep.description = ((TextView) v.findViewById(R.id.stepDescription)).getText().toString();
+                //closingStep.action = ((TextView) v.findViewById(R.id.stepAction)).getText().toString();
+                //closingStep.ingredient = ((TextView) editRecipeView.findViewById(R.id.stepIngredient)).getText();
+                //closingStep.amount = ((TextView) editRecipeView.findViewById(R.id.stepIngredientAmount)).getText();
+            }
+
             selectedStepIndex = position;
             adapter.notifyDataSetChanged();
         }

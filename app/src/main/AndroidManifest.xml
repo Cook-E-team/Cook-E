@@ -58,7 +58,8 @@
         <activity
             android:name=".EditRecipeActivity"
             android:parentActivityName=".MainActivity"
-            android:label="recipe_name">
+            android:label="recipe_name"
+            android:windowSoftInputMode="adjustPan">
             <!-- uncomment this part and comment out
             the same part in .MainActivity to test part c
             of ui for now (edit recipe) -->
