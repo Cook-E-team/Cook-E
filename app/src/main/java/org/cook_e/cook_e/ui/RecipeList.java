@@ -19,8 +19,6 @@
 
 package org.cook_e.cook_e.ui;
 
-import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
 import android.app.Fragment;
 import android.support.design.widget.FloatingActionButton;
@@ -84,8 +82,8 @@ public class RecipeList extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_recipe_list, container, false);
-        view.findViewById(R.id.listView);
+        View view = inflater.inflate(R.layout.fragment_home_list, container, false);
+        view.findViewById(R.id.list_view);
 
         // Set up floating action button
         final FloatingActionButton floatingButton = (FloatingActionButton) view.findViewById(R.id.add_button);
