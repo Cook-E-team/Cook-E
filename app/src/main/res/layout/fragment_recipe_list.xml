@@ -5,11 +5,11 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context="org.cook_e.cook_e.ui.RecipeList">
 
-    <!-- TODO: Update blank fragment layout -->
     <SearchView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/search">
+        android:id="@+id/search"
+        android:iconifiedByDefault="false">
     </SearchView>
 
     <ListView
@@ -32,5 +32,6 @@
         app:pressedTranslationZ="12dp"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
+        android:layout_alignParentEnd="true"
+        android:layout_margin="24dp"/>
 </RelativeLayout>
