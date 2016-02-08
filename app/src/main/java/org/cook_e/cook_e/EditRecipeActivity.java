@@ -24,6 +24,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
 import android.widget.ListView;
@@ -38,9 +39,18 @@ public class EditRecipeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_recipe);
 
-        ListAdapter stepsAdapter = new StepListAdapter(this);
+        final StepListAdapter stepsAdapter = new StepListAdapter(this);
         ListView stepsList = (ListView) findViewById(R.id.recipeSteps);
         stepsList.setAdapter(stepsAdapter);
+
+        ((android.support.design.widget.FloatingActionButton)findViewById(R.id.stepAdd)).setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        stepsAdapter.addStep();
+                    }
+                }
+        );
     }
 
     @Override
