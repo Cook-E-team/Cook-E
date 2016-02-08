@@ -49,7 +49,7 @@ public class RecipeUnitTest {
         List<Step> steps1 = new ArrayList<Step>();
         steps1.add(StepUnitTest.createGenericStep(0, 0, 0, 1));
         List<Step> steps2 = new ArrayList<Step>();
-        steps2.add(StepUnitTest.createGenericStep(5, 0, 0, 1));
+        steps2.add(StepUnitTest.createGenericStep(2, 0, 0, 1));
 
         Recipe r1 = new Recipe("My Recipe 1", "Kyle", steps1);
         Recipe r1_match = new Recipe("My Recipe 1", "Kyle", steps1);
