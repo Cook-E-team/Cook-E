@@ -101,13 +101,13 @@ public class MealRecipeAddActivity extends AppCompatActivity {
 	}
 
 	/*
-		 * This is a workaround for inconsistent behavior.
-		 *
-		 * Pressing the system back button or calling finish() returns a result to the parent activity,
-		 * as expected. However, the default action when the up button is pressed does not send a result
-		 * to the parent. This override ensures that a result is sent when the action bar up button is
-		 * pressed.
-		 */
+	 * This is a workaround for inconsistent behavior.
+	 *
+	 * Pressing the system back button or calling finish() returns a result to the parent activity,
+	 * as expected. However, the default action when the up button is pressed does not send a result
+	 * to the parent. This override ensures that a result is sent when the action bar up button is
+	 * pressed.
+	 */
 	@Override
 	public boolean onSupportNavigateUp() {
 		finish();

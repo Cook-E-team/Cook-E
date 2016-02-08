@@ -45,47 +45,51 @@
         android:weightSum="1"
         android:layout_below="@+id/toolbar"
         android:layout_alignParentEnd="false"
-        android:layout_alignParentRight="false">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="New Text"
-            android:id="@+id/textView3"/>
-
-        <EditText
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/editText2"
-            android:layout_gravity="center_horizontal"
-            android:inputType="textCapSentences"/>
+        android:layout_alignParentRight="false"
+        android:layout_marginLeft="@dimen/activity_horizontal_margin"
+        android:layout_marginRight="@dimen/activity_horizontal_margin"
+        android:layout_marginTop="@dimen/activity_vertical_margin"
+        android:layout_marginBottom="@dimen/activity_vertical_margin">
 
         <ImageView
-            android:layout_width="149dp"
-            android:layout_height="0dp"
-            android:id="@+id/imageView2"
-            android:layout_gravity="center_horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/recipe_image_view"
             android:src="@drawable/test_image_1"
             android:adjustViewBounds="true"
-            android:layout_weight="0.21"
-            android:contentDescription="@string/recipe_image"/>
-
-        <Space
-            android:layout_width="match_parent"
-            android:layout_height="70dp" />
+            android:contentDescription="@string/recipe_image"
+            android:maxHeight="200dp" />
 
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="New Button"
-            android:id="@+id/button2"
-            android:layout_gravity="end" />
+            android:text="@string/select_image"
+            android:id="@+id/image_choose_button"
+            android:layout_gravity="center_horizontal" />
 
-        <ImageSwitcher
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/title_field"
+            android:layout_gravity="center_horizontal"
+            android:inputType="textCapSentences"
+            android:hint="@string/title" />
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textMultiLine|textCapSentences"
+            android:ems="10"
+            android:id="@+id/description_field"
+            android:layout_gravity="center_horizontal"
+            android:hint="@string/description" />
+
+        <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/imageSwitcher"
-            android:layout_gravity="end" />
+            android:text="@string/label_continue"
+            android:id="@+id/continue_button"
+            android:layout_gravity="center_horizontal" />
 
     </LinearLayout>
 

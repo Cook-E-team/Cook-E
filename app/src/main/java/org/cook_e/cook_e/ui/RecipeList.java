@@ -19,6 +19,7 @@
 
 package org.cook_e.cook_e.ui;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.app.Fragment;
 import android.support.design.widget.FloatingActionButton;
@@ -26,6 +27,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import org.cook_e.cook_e.CreateRecipe;
 import org.cook_e.cook_e.R;
 
 /**
@@ -90,9 +92,9 @@ public class RecipeList extends Fragment {
         floatingButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Open item add view
-                //final Intent intent = new Intent(getContext(), );
-                //startActivity(intent);
+                // Open recipe creation view
+                final Intent intent = new Intent(getActivity(), CreateRecipe.class);
+                startActivity(intent);
             }
         });
 

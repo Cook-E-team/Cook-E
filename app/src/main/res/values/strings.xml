@@ -36,4 +36,7 @@
     <string name="amount">Amount</string>
     <string name="meals">Meals</string>
     <string name="recipes">Recipes</string>
+    <string name="create_recipe">Create Recipe</string>
+    <string name="select_image">Select Image</string>
+    <string name="label_continue">Continue</string>
 </resources>

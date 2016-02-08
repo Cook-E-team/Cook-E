@@ -54,7 +54,7 @@ public class HomePageAdapter extends FragmentPagerAdapter {
 
     @Override
     public Fragment getItem(int position) {
-        if(position == 1) {
+        if(position == 0) {
             return getMealList();
         } else {
             return getRecipeList();
