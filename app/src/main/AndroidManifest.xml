@@ -18,9 +18,9 @@
   ~ along with Cook-E.  If not, see <http://www.gnu.org/licenses/>.
   -->
 
-<manifest xmlns:tools="http://schemas.android.com/tools"
-          package="org.cook_e.cook_e"
-          xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest package="org.cook_e.cook_e"
+          xmlns:android="http://schemas.android.com/apk/res/android"
+          xmlns:tools="http://schemas.android.com/tools">
 
     <application
         android:allowBackup="true"
@@ -29,47 +29,31 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
-        <activity android:name=".MainActivity">
-            <!-- Temporarily not a launcher activity -->
-            <!--
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-
-                <category android:name="android.intent.category.LAUNCHER"/>
-            </intent-filter> -->
-        </activity>
-        <activity android:name=".MealViewActivity">
-            <!-- Temporarily make a launcher activity for testing -->
-
-        </activity>
-        <activity android:name=".MealRecipeAddActivity"
-            android:parentActivityName=".MealViewActivity"
-                  tools:ignore="UnusedAttribute">
-            <meta-data android:name="android.support.PARENT_ACTIVITY" android:value=".MealViewActivity" />
-        </activity>
-        <activity android:name=".ui.CookActivity">
+        <activity android:name=".HomeActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
+        </activity>
+        <activity android:name=".MealViewActivity">
+        </activity>
+        <activity
+            android:name=".MealRecipeAddActivity"
+            android:parentActivityName=".MealViewActivity"
+            tools:ignore="UnusedAttribute">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MealViewActivity"/>
+        </activity>
+        <activity android:name=".CookActivity">
         </activity>
         <activity android:name=".CreateRecipe"/>
 
         <activity
             android:name=".EditRecipeActivity"
-            android:parentActivityName=".MainActivity"
             android:label="recipe_name"
+            android:parentActivityName=".HomeActivity"
             android:windowSoftInputMode="adjustPan">
-            <!-- uncomment this part and comment out
-            the same part in .MainActivity to test part c
-            of ui for now (edit recipe) -->
-            <!--
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-
-                <category android:name="android.intent.category.LAUNCHER"/>
-            </intent-filter>
-            -->
         </activity>
     </application>
 

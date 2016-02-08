@@ -1,4 +1,4 @@
-package org.cook_e.cook_e.ui;
+package org.cook_e.cook_e;
 
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -16,6 +16,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import org.cook_e.cook_e.R;
+import org.cook_e.cook_e.ui.CookStep;
 
 public class CookActivity extends AppCompatActivity {
 

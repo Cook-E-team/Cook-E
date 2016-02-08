@@ -17,7 +17,7 @@
  * along with Cook-E.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.cook_e.cook_e.ui;
+package org.cook_e.cook_e;
 
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
@@ -27,6 +27,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
 import org.cook_e.cook_e.R;
+import org.cook_e.cook_e.ui.HomePageAdapter;
 
 
 public class HomeActivity extends AppCompatActivity {
