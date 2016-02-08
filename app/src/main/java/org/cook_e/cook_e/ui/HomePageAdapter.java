@@ -22,13 +22,32 @@ package org.cook_e.cook_e.ui;
 
 import android.app.Fragment;
 import android.app.FragmentManager;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v13.app.FragmentPagerAdapter;
 
 /**
- * Created by zijin on 2016/2/7.
+ * A pager adapter that provides a meal list fragment in position 0 and a recipe list fragment
+ * in position 1
  */
 public class HomePageAdapter extends FragmentPagerAdapter {
 
+    /**
+     * The recipe list fragment
+     */
+    @Nullable
+    private RecipeList mRecipeList;
+
+    /**
+     * The meal list fragment
+     */
+    @Nullable
+    private MealList mMealList;
+
+    /**
+     * Creates a new adapter
+     * @param fm the fragment manager to use
+     */
     public HomePageAdapter(FragmentManager fm) {
         super(fm);
     }
@@ -36,14 +55,37 @@ public class HomePageAdapter extends FragmentPagerAdapter {
     @Override
     public Fragment getItem(int position) {
         if(position == 1) {
-            return new RecipeList();
+            return getMealList();
         } else {
-            return new MealList();
+            return getRecipeList();
         }
     }
 
     @Override
     public int getCount() {
         return 2;
+    }
+
+    /**
+     * Ensures that mRecipeList is not null, then returns it
+     * @return mRecipeList
+     */
+    @NonNull
+    private Fragment getRecipeList() {
+        if (mRecipeList == null) {
+            mRecipeList = new RecipeList();
+        }
+        return mRecipeList;
+    }
+    /**
+     * Ensures that mMealList is not null, then returns it
+     * @return mMealList
+     */
+    @NonNull
+    private Fragment getMealList() {
+        if (mMealList == null) {
+            mMealList = new MealList();
+        }
+        return mMealList;
     }
 }

@@ -34,4 +34,6 @@
     <string name="ingredient">Ingredient</string>
     <string name="action">Action</string>
     <string name="amount">Amount</string>
+    <string name="meals">Meals</string>
+    <string name="recipes">Recipes</string>
 </resources>

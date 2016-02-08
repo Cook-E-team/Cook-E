@@ -28,32 +28,33 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
-import org.cook_e.cook_e.R;
 import org.cook_e.cook_e.ui.HomePageAdapter;
 
 
 public class HomeActivity extends AppCompatActivity {
 
-    private ViewPager viewPager;
+    private ViewPager mViewPager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        viewPager = (ViewPager) findViewById(R.id.pager);
-        setSupportActionBar(toolbar);
 
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
         setUpActionBar();
+
+        mViewPager = (ViewPager) findViewById(R.id.pager);
+
         final TabLayout tabLayout = (TabLayout) findViewById(R.id.tab_layout);
-        tabLayout.addTab(tabLayout.newTab().setText("Meals"));
-        tabLayout.addTab(tabLayout.newTab().setText("Recipes"));
+        tabLayout.addTab(tabLayout.newTab().setText(R.string.meals));
+        tabLayout.addTab(tabLayout.newTab().setText(R.string.recipes));
 
         // Set the page when a tab is selected
         tabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
-                viewPager.setCurrentItem(tab.getPosition());
+                mViewPager.setCurrentItem(tab.getPosition());
             }
 
             @Override
@@ -67,7 +68,7 @@ public class HomeActivity extends AppCompatActivity {
             }
         });
         // Set the selected tab when a page is selected
-        viewPager.addOnPageChangeListener(new OnPageChangeListener() {
+        mViewPager.addOnPageChangeListener(new OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
 
@@ -88,13 +89,13 @@ public class HomeActivity extends AppCompatActivity {
         });
 
         // Set up HomePageAdapter
-        viewPager.setAdapter(new HomePageAdapter(getFragmentManager()));
+        mViewPager.setAdapter(new HomePageAdapter(getFragmentManager()));
     }
 
     private void setUpActionBar() {
         final ActionBar bar = getSupportActionBar();
         assert bar != null;
-        bar.setTitle("Cook-E");
+        bar.setTitle(R.string.app_name);
     }
 
 }
