@@ -23,7 +23,7 @@ import org.atteo.evo.inflector.English;
 import org.cook_e.data.Ingredient;
 import org.junit.Test;
 import org.cook_e.data.UnitTestSharedData;
-import java.lang.NullPointerException;
+import org.cook_e.data.UnitTestSharedData.WordPair;
 
 import static org.junit.Assert.*;
 
@@ -83,7 +83,7 @@ public class IngredientUnitTest {
 	@Test
 	public void testEquals() {
 		final Ingredient ing1 = new Ingredient(UnitTestSharedData.INGREDIENTS[0], 1, UnitTestSharedData.COMMON_UNITS[0].word);
-		final Ingredient ing1_match = new Ingredient(UnitTestSharedData.INGREDIENTS[0], 1, UnitTestSharedData.COMMON_UNITS[0].word);
+		final Ingrdient ing1_match = new Ingredient(UnitTestSharedData.INGREDIENTS[0], 1, UnitTestSharedData.COMMON_UNITS[0].word);
 		final Ingredient ing2 = new Ingredient(UnitTestSharedData.INGREDIENTS[1], 1, UnitTestSharedData.COMMON_UNITS[0].word);
 		final Ingredient ing3 = new Ingredient(UnitTestSharedData.INGREDIENTS[0], 3, UnitTestSharedData.COMMON_UNITS[0].word);
 		final Ingredient ing4 = new Ingredient(UnitTestSharedData.INGREDIENTS[0], 1, UnitTestSharedData.COMMON_UNITS[1].word);

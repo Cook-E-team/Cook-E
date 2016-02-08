@@ -23,8 +23,10 @@ import org.atteo.evo.inflector.English;
 import org.cook_e.data.Ingredient;
 import org.cook_e.data.Step;
 import org.cook_e.data.UnitTestSharedData;
-import javax.xml.datatype.DatatypeFactory;
-import javax.xml.datatype.Duration;
+import java.util.List;
+import java.util.ArrayList;
+
+import org.joda.time.Duration;
 import org.junit.Test;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -38,19 +40,19 @@ public class StepUnitTest {
     public static Step createGenericStep(int action_index, int ing_index, int unit_index, int duration_min) {
         List<Ingredient> ings = new ArrayList<Ingredient>();
         String action = UnitTestSharedData.ACTIONS[action_index];
-        Ingredient ing = new Ingredient(UnitTestSharedData.INGREDIENTS[ing_index]);
-        ings.add(ing, 1, UnitTestSharedData.COMMMON_UNITS[unit_index]);
-        return new Step(ings, action, UnitTestSharedData.generateDescription(ing, action), DatatypeFactory.newDuration(true, 0, 0, 0, 0, duration_min, 0));
+        Ingredient ing = new Ingredient(UnitTestSharedData.INGREDIENTS[ing_index], 1, UnitTestSharedData.COMMON_UNITS[unit_index].word);
+        ings.add(ing);
+        return new Step(ings, action, UnitTestSharedData.generateDescription(ing.getType(), action), Duration.standardMinutes(duration_min));
     }
 
     @Test
     public void testCreation() {
-        List<Ingredient> ings = new ArrayList<Ingredient>();
+        List<Ingredient> ings = new ArrayList<>();
         String action = UnitTestSharedData.ACTIONS[0];
-        Ingredient ing = new Ingredient(UnitTestSharedData.INGREDIENTS[0]);
-        ings.add(ing, 1, UnitTestSharedData.COMMMON_UNITS[0]);
-        String description = UnitTestSharedData.generateDescription(ing, action);
-        Duration duration = DatatypeFactory.newDuration(true, 0, 0, 0, 0, 5, 0);
+        Ingredient ing = new Ingredient(UnitTestSharedData.INGREDIENTS[0], 1, UnitTestSharedData.COMMON_UNITS[0].word);
+        ings.add(ing);
+        String description = UnitTestSharedData.generateDescription(ing.getType(), action);
+        Duration duration = Duration.standardMinutes(1);
         Step s = new Step(ings, action, description, duration);
 
         assertEquals(ings, s.getIngredients());
@@ -67,8 +69,6 @@ public class StepUnitTest {
         Step s3 = createGenericStep(0, 1, 0, 5);
         Step s4 = createGenericStep(0, 0, 1, 5);
         Step s5 = createGenericStep(0, 0, 0, 1);
-
-
         assertEquals(s1, s1_match);
         assertFalse(s1.equals(s2));
         assertFalse(s1.equals(s3));
