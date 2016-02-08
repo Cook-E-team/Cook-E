@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.ListAdapter;
 import android.widget.TextView;
 
@@ -32,6 +33,14 @@ public class StepListAdapter extends BaseAdapter {
             this.amount = amount;
             this.description = description;
             this.estimatedTime = estimatedTime;
+        }
+
+        public TestStep() {
+            this.action = "";
+            this.ingredient = "";
+            this.amount = "";
+            this.description = "";
+            this.estimatedTime = 0;
         }
     }
 
@@ -99,8 +108,6 @@ public class StepListAdapter extends BaseAdapter {
         TestStep step = (TestStep)getItem(position);
         LayoutInflater layoutInflater = LayoutInflater.from(mContext);
 
-        System.out.println("getView called!!!");
-
         if (getItemViewType(position) == 0) {
             View editRecipeView = layoutInflater.inflate(R.layout.edit_recipe_step, parent, false);
 
@@ -110,6 +117,8 @@ public class StepListAdapter extends BaseAdapter {
             ((TextView) editRecipeView.findViewById(R.id.stepIngredient)).setText(step.ingredient);
             ((TextView) editRecipeView.findViewById(R.id.stepIngredientAmount)).setText(step.amount);
 
+            ((Button) editRecipeView.findViewById(R.id.stepDelete)).setOnClickListener(new DeleteStepOnClickListener(this, position));
+
             return editRecipeView;
         } else {
             View viewRecipeView = layoutInflater.inflate(R.layout.view_recipe_step, parent, false);
@@ -117,7 +126,7 @@ public class StepListAdapter extends BaseAdapter {
             ((TextView) viewRecipeView.findViewById(R.id.stepTitle)).setText("Step " + (position + 1));
             ((TextView) viewRecipeView.findViewById(R.id.stepDescription)).setText(step.description);
 
-            viewRecipeView.setOnClickListener(new CustomOnClickListener(this, position));
+            viewRecipeView.setOnClickListener(new EditStepOnClickListener(this, position));
             return viewRecipeView;
         }
     }
@@ -141,30 +150,43 @@ public class StepListAdapter extends BaseAdapter {
         return getCount() == 0;
     }
 
-    private class CustomOnClickListener implements View.OnClickListener {
+
+
+    public void addStep() {
+        testSteps.add(new TestStep());
+        selectedStepIndex = testSteps.size() - 1;
+        this.notifyDataSetChanged();
+    }
+
+    private class EditStepOnClickListener implements View.OnClickListener {
         private StepListAdapter adapter;
         private int position;
 
-        public CustomOnClickListener(StepListAdapter adapter, int position) {
+        public EditStepOnClickListener(StepListAdapter adapter, int position) {
             this.adapter = adapter;
             this.position = position;
         }
 
         @Override
         public void onClick(View v) {
-            // save fields
-            if (selectedStepIndex >= 0 && selectedStepIndex < testSteps.size()){
-                TestStep closingStep = testSteps.get(selectedStepIndex);
-                //editRecipeView
-                //adapter.getView(selectedStepIndex, null, );
-
-                //closingStep.description = ((TextView) v.findViewById(R.id.stepDescription)).getText().toString();
-                //closingStep.action = ((TextView) v.findViewById(R.id.stepAction)).getText().toString();
-                //closingStep.ingredient = ((TextView) editRecipeView.findViewById(R.id.stepIngredient)).getText();
-                //closingStep.amount = ((TextView) editRecipeView.findViewById(R.id.stepIngredientAmount)).getText();
-            }
-
             selectedStepIndex = position;
+            adapter.notifyDataSetChanged();
+        }
+    }
+
+    private class DeleteStepOnClickListener implements View.OnClickListener {
+        private StepListAdapter adapter;
+        private int position;
+
+        public DeleteStepOnClickListener(StepListAdapter adapter, int position) {
+            this.adapter = adapter;
+            this.position = position;
+        }
+
+        @Override
+        public void onClick(View v) {
+            selectedStepIndex = -1;
+            testSteps.remove(position);
             adapter.notifyDataSetChanged();
         }
     }
