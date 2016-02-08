@@ -39,4 +39,36 @@
     <string name="create_recipe">Create Recipe</string>
     <string name="select_image">Select Image</string>
     <string name="label_continue">Continue</string>
+    <string name="website">Website</string>
+    <string name="about">About</string>
+    <string name="about_heading">Cook-E %1$s (%2$d)</string>
+    <string name="about_details"><![CDATA[
+Cook-E is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.\n\n
+
+Cook-E is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.\n\n
+
+You should have received a copy of the GNU General Public License
+along with Cook-E.  If not, see <http://www.gnu.org/licenses/>.\n\n
+
+Cook-E uses the following Free Software libraries:\n\n
+
+Joda-Time:\n\n
+
+This product includes software developed by
+Joda.org (http://www.joda.org/).\n\n
+
+Joda-Time is distributed in accordance with the Apache license, version 2.0.\n\n
+
+Evo Inflector:\n\n
+
+Evo Inflector (https://github.com/atteo/evo-inflector/) is distributed in accordance with the Apache license, version 2.0.
+]]></string>
+    <string name="settings">Settings</string>
+    <string name="tutorial">Tutorial</string>
 </resources>

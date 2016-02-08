@@ -19,6 +19,7 @@
 
 package org.cook_e.cook_e;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.design.widget.TabLayout.Tab;
@@ -27,6 +28,8 @@ import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuItem;
 
 import org.cook_e.cook_e.ui.HomePageAdapter;
 
@@ -98,4 +101,24 @@ public class HomeActivity extends AppCompatActivity {
         bar.setTitle(R.string.app_name);
     }
 
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
+
+        getMenuInflater().inflate(R.menu.topright_menu, menu);
+
+        final MenuItem aboutItem = menu.findItem(R.id.menu_about);
+        aboutItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                // Open the about activity
+                final Intent intent = new Intent(HomeActivity.this, AboutActivity.class);
+                startActivity(intent);
+                return true;
+            }
+        });
+
+        return true;
+    }
 }
