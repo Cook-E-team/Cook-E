@@ -6,15 +6,18 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ArrayAdapter;
-import android.widget.ListAdapter;
 import android.widget.ListView;
 
 /**
  * Created by Tyler on 2/4/2016.
+ *
+ * This is the activity for editing a particular recipe.
  */
 public class EditRecipeActivity extends AppCompatActivity {
 
+    /*
+     * Sets up the main view to edit recipes.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -34,16 +37,21 @@ public class EditRecipeActivity extends AppCompatActivity {
         );
     }
 
+    /*
+     * Sets up the action bar.
+     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.edit_recipe_menu, menu);
         MenuItem finishItem = (MenuItem) menu.findItem(R.id.finish);
         finishItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-
         return true;
     }
 
+    /*
+     * Handles action bar items "onClick" events.
+     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle app bar item clicks here. The app bar
