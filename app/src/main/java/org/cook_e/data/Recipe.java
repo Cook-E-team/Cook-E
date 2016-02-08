@@ -19,11 +19,14 @@
 
 package org.cook_e.data;
 
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
 
 import org.joda.time.Duration;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /*
@@ -32,7 +35,7 @@ import java.util.List;
  * Has an ordered list of steps, a title, and an author.
  * No field may be null.
  */
-public final class Recipe {
+public final class Recipe implements Parcelable {
 	/**
 	 * The steps that this recipe contains
 	 */
@@ -135,5 +138,65 @@ public final class Recipe {
 	@NonNull
 	public String getAuthor() {
 		return mAuthor;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+
+		Recipe recipe = (Recipe) o;
+
+		if (!mSteps.equals(recipe.mSteps)) return false;
+		if (!mTitle.equals(recipe.mTitle)) return false;
+		return mAuthor.equals(recipe.mAuthor);
+
+	}
+
+	@Override
+	public int hashCode() {
+		int result = mSteps.hashCode();
+		result = 31 * result + mTitle.hashCode();
+		result = 31 * result + mAuthor.hashCode();
+		return result;
+	}
+
+	@Override
+	public String toString() {
+		return "Recipe{" +
+				"mSteps=" + mSteps +
+				", mTitle='" + mTitle + '\'' +
+				", mAuthor='" + mAuthor + '\'' +
+				'}';
+	}
+
+	// Parceling section
+	public static final Parcelable.Creator<Recipe> CREATOR = new Parcelable.Creator<Recipe>() {
+
+		@Override
+		public Recipe createFromParcel(Parcel source) {
+			final Step[] steps = Objects.castArray(
+					source.readParcelableArray(Step.class.getClassLoader()), Step[].class);
+			final String title = source.readString();
+			final String author = source.readString();
+			return new Recipe(title, author, Arrays.asList(steps));
+		}
+
+		@Override
+		public Recipe[] newArray(int size) {
+			return new Recipe[size];
+		}
+	};
+
+	@Override
+	public int describeContents() {
+		return 0;
+	}
+
+	@Override
+	public void writeToParcel(Parcel dest, int flags) {
+		dest.writeParcelableArray(mSteps.toArray(new Step[mSteps.size()]), flags);
+		dest.writeString(mTitle);
+		dest.writeString(mAuthor);
 	}
 }

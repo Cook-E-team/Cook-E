@@ -19,9 +19,12 @@
 
 package org.cook_e.data;
 
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -31,7 +34,7 @@ import java.util.Map;
  *
  * Modifiable
  */
-public final class Bunch {
+public final class Bunch implements Parcelable {
 
 	/**
 	 * The title of this bunch
@@ -119,5 +122,61 @@ public final class Bunch {
 			Objects.requireNonNull(recipe, "no recipe in recipes may be null");
 			mRecipes.add(new Recipe(recipe));
 		}
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+
+		Bunch bunch = (Bunch) o;
+
+		if (!mTitle.equals(bunch.mTitle)) return false;
+		return mRecipes.equals(bunch.mRecipes);
+
+	}
+
+	@Override
+	public int hashCode() {
+		int result = mTitle.hashCode();
+		result = 31 * result + mRecipes.hashCode();
+		return result;
+	}
+
+	@Override
+	public String toString() {
+		return "Bunch{" +
+				"mTitle='" + mTitle + '\'' +
+				", mRecipes=" + mRecipes +
+				'}';
+	}
+
+	// Parceling section
+
+	public static final Parcelable.Creator<Bunch> CREATOR = new Parcelable.Creator<Bunch>() {
+
+		@Override
+		public Bunch createFromParcel(Parcel source) {
+			final String title = source.readString();
+			final Recipe[] recipes = Objects.castArray(
+					source.readParcelableArray(Recipe.class.getClassLoader()), Recipe[].class);
+			return new Bunch(title, Arrays.asList(recipes));
+		}
+
+		@Override
+		public Bunch[] newArray(int size) {
+			return new Bunch[size];
+		}
+	};
+
+	@Override
+	public int describeContents() {
+		return 0;
+	}
+
+	@Override
+	public void writeToParcel(Parcel dest, int flags) {
+		dest.writeString(mTitle);
+		dest.writeParcelableArray(mRecipes.toArray(new Recipe[mRecipes.size()]), flags);
 	}
 }

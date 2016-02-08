@@ -19,6 +19,8 @@
 
 package org.cook_e.data;
 
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
 
 import org.atteo.evo.inflector.English;
@@ -32,7 +34,7 @@ import org.atteo.evo.inflector.English;
  *
  * Objects of this class are immutable.
  */
-public final class Ingredient {
+public final class Ingredient implements Parcelable {
 	/**
 	 * The name of this ingredient
 	 */
@@ -55,9 +57,8 @@ public final class Ingredient {
 	 * @param unit the units of measure
 	 */
 	public Ingredient(@NonNull String type, double amount, @NonNull String unit) {
-		if (type == null || type.isEmpty()) throw new IllegalArgumentException("ingredient type is empty");
-		if (amount <= 0) throw new IllegalArgumentException("amount is <= 0");
-		if (unit == null) throw new IllegalArgumentException("unit is null");
+		Objects.requireNonNull(type, "type must not be null");
+		Objects.requireNonNull(unit, "unit must not be null");		
 
 		this.mType = type;
 		this.mAmount = amount;
@@ -109,4 +110,66 @@ public final class Ingredient {
 		}
 	}
 
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+
+		Ingredient that = (Ingredient) o;
+
+		if (Double.compare(that.mAmount, mAmount) != 0) return false;
+		if (!mType.equals(that.mType)) return false;
+		return mUnit.equals(that.mUnit);
+
+	}
+
+	@Override
+	public int hashCode() {
+		int result;
+		long temp;
+		result = mType.hashCode();
+		temp = Double.doubleToLongBits(mAmount);
+		result = 31 * result + (int) (temp ^ (temp >>> 32));
+		result = 31 * result + mUnit.hashCode();
+		return result;
+	}
+
+	@Override
+	public String toString() {
+		return "Ingredient{" +
+				"mType='" + mType + '\'' +
+				", mAmount=" + mAmount +
+				", mUnit='" + mUnit + '\'' +
+				'}';
+	}
+
+	// Parceling section
+
+	public static final Parcelable.Creator<Ingredient> CREATOR = new Parcelable.Creator<Ingredient>() {
+
+		@Override
+		public Ingredient createFromParcel(Parcel source) {
+			final String type = source.readString();
+			final double amount = source.readDouble();
+			final String unit = source.readString();
+			return new Ingredient(type, amount, unit);
+		}
+
+		@Override
+		public Ingredient[] newArray(int size) {
+			return new Ingredient[size];
+		}
+	};
+
+	@Override
+	public int describeContents() {
+		return 0;
+	}
+
+	@Override
+	public void writeToParcel(Parcel dest, int flags) {
+		dest.writeString(mType);
+		dest.writeDouble(mAmount);
+		dest.writeString(mUnit);
+	}
 }
