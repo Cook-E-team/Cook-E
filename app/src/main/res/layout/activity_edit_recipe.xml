@@ -18,55 +18,64 @@
   ~  along with Cook-E.  If not, see <http://www.gnu.org/licenses/>.
   -->
 
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.design.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:focusableInTouchMode="true">
+    android:layout_height="match_parent">
 
-    <ImageButton
-        android:layout_width="150sp"
-        android:layout_height="150sp"
-        android:id="@+id/recipeImage"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:contentDescription="@string/recipe_image"
-        android:scaleType="fitXY" />
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:focusableInTouchMode="true">
 
-    <EditText
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:inputType="textMultiLine"
-        android:ems="10"
-        android:id="@+id/recipeDescription"
-        android:layout_toEndOf="@+id/recipeImage"
-        android:layout_toRightOf="@+id/recipeImage"
-        android:layout_alignBottom="@+id/recipeImage"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentTop="true"
-        android:hint="@string/recipe_description"
-        android:gravity="start|top" />
+        <ImageButton
+            android:layout_width="150sp"
+            android:layout_height="150sp"
+            android:id="@+id/recipeImage"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:contentDescription="@string/recipe_image"
+            android:scaleType="fitXY" />
 
-    <ListView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/recipeSteps"
-        android:layout_below="@+id/recipeImage"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:inputType="textMultiLine"
+            android:ems="10"
+            android:id="@+id/recipeDescription"
+            android:layout_toEndOf="@+id/recipeImage"
+            android:layout_toRightOf="@+id/recipeImage"
+            android:layout_alignBottom="@+id/recipeImage"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentTop="true"
+            android:hint="@string/recipe_description"
+            android:gravity="start|top" />
+
+        <ListView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/recipeSteps"
+            android:layout_below="@+id/recipeImage"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true" />
+    </RelativeLayout>
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/stepAdd"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_margin="32dp"
         android:clickable="true"
-        android:layout_alignBottom="@+id/recipeSteps"
-        android:layout_alignRight="@+id/recipeDescription"
-        android:layout_alignEnd="@+id/recipeDescription" />
+        android:src="@drawable/ic_add_white_36dp"
+        app:layout_anchor="@id/recipeSteps"
+        app:layout_anchorGravity="bottom|right|end"
+        app:elevation="6dp"
+        app:pressedTranslationZ="12dp"/>
 
-</RelativeLayout>
+</android.support.design.widget.CoordinatorLayout>
