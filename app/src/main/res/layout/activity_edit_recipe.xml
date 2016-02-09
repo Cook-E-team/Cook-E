@@ -21,6 +21,7 @@
 <android.support.design.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -29,11 +30,21 @@
         android:layout_height="match_parent"
         android:focusableInTouchMode="true">
 
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="?attr/colorPrimary"
+            android:elevation="4dp"
+            android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
+            app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+            tools:ignore="UnusedAttribute"/>
+
         <ImageButton
             android:layout_width="150sp"
             android:layout_height="150sp"
             android:id="@+id/recipeImage"
-            android:layout_alignParentTop="true"
+            android:layout_below="@+id/toolbar"
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
             android:contentDescription="@string/recipe_image"
@@ -45,14 +56,13 @@
             android:inputType="textMultiLine"
             android:ems="10"
             android:id="@+id/recipeDescription"
-            android:layout_toEndOf="@+id/recipeImage"
-            android:layout_toRightOf="@+id/recipeImage"
-            android:layout_alignBottom="@+id/recipeImage"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentTop="true"
             android:hint="@string/recipe_description"
-            android:gravity="start|top" />
+            android:gravity="start|top"
+            android:layout_below="@+id/toolbar"
+            android:layout_toRightOf="@+id/recipeImage"
+            android:layout_above="@+id/recipeSteps"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true" />
 
         <ListView
             android:layout_width="wrap_content"
