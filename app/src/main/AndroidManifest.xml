@@ -1,6 +1,27 @@
-<?xml version="1.0" encoding="utf-8"?>
-<manifest package="org.cook_e.cook_e"
-          xmlns:android="http://schemas.android.com/apk/res/android">
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Copyright 2016 the Cook-E development team
+  ~
+  ~  This file is part of Cook-E.
+  ~
+  ~  Cook-E is free software: you can redistribute it and/or modify
+  ~  it under the terms of the GNU General Public License as published by
+  ~  the Free Software Foundation, either version 3 of the License, or
+  ~  (at your option) any later version.
+  ~
+  ~  Cook-E is distributed in the hope that it will be useful,
+  ~  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~  GNU General Public License for more details.
+  ~
+  ~  You should have received a copy of the GNU General Public License
+  ~  along with Cook-E.  If not, see <http://www.gnu.org/licenses/>.
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="org.cook_e.cook_e">
+
+    <!-- Reads external storage to get recipe images -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
     <application
         android:allowBackup="true"
@@ -8,13 +29,32 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity">
+        <activity
+            android:name=".HomeActivity"
+            android:windowSoftInputMode="stateHidden">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
+                <action android:name="android.intent.action.MAIN" />
 
-                <category android:name="android.intent.category.LAUNCHER"/>
+                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".MealViewActivity"></activity>
+        <activity
+            android:name=".MealRecipeAddActivity"
+            android:parentActivityName=".MealViewActivity"
+            tools:ignore="UnusedAttribute">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MealViewActivity" />
+        </activity>
+        <activity android:name=".CookActivity"></activity>
+        <activity android:name=".CreateRecipe" />
+        <activity
+            android:name=".EditRecipeActivity"
+            android:label="recipe_name"
+            android:parentActivityName=".HomeActivity"
+            android:windowSoftInputMode="adjustPan"></activity>
+        <activity android:name=".AboutActivity"></activity>
     </application>
 
 </manifest>
