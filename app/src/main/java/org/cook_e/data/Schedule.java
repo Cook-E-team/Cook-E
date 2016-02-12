@@ -4,6 +4,7 @@ import org.cook_e.data.Bunch;
 import org.cook_e.data.Recipe;
 import org.cook_e.data.Step;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -20,6 +21,7 @@ public class Schedule {
      */
     public Schedule(Bunch b) {
         this.recipes = b.getRecipes();
+        this.steps = new ArrayList<Step>();
         for (Recipe r: recipes) {
             steps.addAll(r.getSteps());
         }
