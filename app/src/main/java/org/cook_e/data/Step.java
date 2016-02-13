@@ -45,11 +45,6 @@ public final class Step implements Parcelable {
 	@NonNull
 	private final String mDescription;
 	/**
-	 * The mAction category of this step
-	 */
-	@NonNull
-	private final String mAction;
-	/**
 	 * The expected time required to complete this step
 	 */
 	@NonNull
@@ -70,12 +65,10 @@ public final class Step implements Parcelable {
 	 */
 	public Step(@NonNull List<Ingredient> ingredients, @NonNull String action, @NonNull String description, @NonNull ReadableDuration duration) {
 		Objects.requireNonNull(ingredients, "ingredients must not be null");
-		Objects.requireNonNull(action, "action must not be null");
 		Objects.requireNonNull(description, "description must not be null");
 		Objects.requireNonNull(duration, "duration must not be null");
 
 		mDescription = description;
-		mAction = action;
 		mTime = duration.toDuration();
 		mIngredients = new ArrayList<>(ingredients);
 	}
@@ -107,14 +100,6 @@ public final class Step implements Parcelable {
 		return new ArrayList<>(mIngredients);
 	}
 
-	/**
-	 * Returns the action category of this step
-	 * @return the action category
-	 */
-	@NonNull
-	public String getAction() {
-		return mAction;
-	}
 
 	@Override
 	public boolean equals(Object o) {
@@ -124,7 +109,6 @@ public final class Step implements Parcelable {
 		Step step = (Step) o;
 
 		if (!mDescription.equals(step.mDescription)) return false;
-		if (!mAction.equals(step.mAction)) return false;
 		if (!mTime.equals(step.mTime)) return false;
 		return mIngredients.equals(step.mIngredients);
 
@@ -133,7 +117,6 @@ public final class Step implements Parcelable {
 	@Override
 	public int hashCode() {
 		int result = mDescription.hashCode();
-		result = 31 * result + mAction.hashCode();
 		result = 31 * result + mTime.hashCode();
 		result = 31 * result + mIngredients.hashCode();
 		return result;
@@ -143,7 +126,6 @@ public final class Step implements Parcelable {
 	public String toString() {
 		return "Step{" +
 				"mDescription='" + mDescription + '\'' +
-				", mAction='" + mAction + '\'' +
 				", mTime=" + mTime +
 				", mIngredients=" + mIngredients +
 				'}';
@@ -178,7 +160,6 @@ public final class Step implements Parcelable {
 	@Override
 	public void writeToParcel(Parcel dest, int flags) {
 		dest.writeString(mDescription);
-		dest.writeString(mAction);
 		dest.writeSerializable(mTime);
 		dest.writeParcelableArray(mIngredients.toArray(new Ingredient[mIngredients.size()]), flags);
 	}
