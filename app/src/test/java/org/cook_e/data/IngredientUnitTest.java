@@ -32,65 +32,65 @@ import static org.junit.Assert.*;
  */
 public class IngredientUnitTest {
 
-	@Test
-	public void testPluralizeCommonUnits() {
-		for (WordPair pair : UnitTestSharedData.COMMON_UNITS) {
-			final String singular = pair.word;
-			final String expectedPlural = pair.plural;
-			final String actualPlural = English.plural(singular);
-			assertEquals("Plural of " + singular + " incorrect", expectedPlural, actualPlural);
-		}
-	}
+    @Test
+    public void testPluralizeCommonUnits() {
+        for (WordPair pair : UnitTestSharedData.COMMON_UNITS) {
+            final String singular = pair.word;
+            final String expectedPlural = pair.plural;
+            final String actualPlural = English.plural(singular);
+            assertEquals("Plural of " + singular + " incorrect", expectedPlural, actualPlural);
+        }
+    }
 
-	@Test
-	public void testOneUnit() {
-		for (String ingredientName : UnitTestSharedData.INGREDIENTS) {
-			for (WordPair unitPair : UnitTestSharedData.COMMON_UNITS) {
+    @Test
+    public void testOneUnit() {
+        for (String ingredientName : UnitTestSharedData.INGREDIENTS) {
+            for (WordPair unitPair : UnitTestSharedData.COMMON_UNITS) {
 
-				final Ingredient ingredient = new Ingredient(ingredientName, 1, unitPair.word);
+                final Ingredient ingredient = new Ingredient(ingredientName, 1, unitPair.word);
 
-				assertEquals(ingredientName, ingredient.getType());
-				assertEquals(1, ingredient.getAmount(), 1E-6);
-				assertEquals(unitPair.word, ingredient.getUnit());
-				// Should not pluralize quantity 1
-				assertEquals(unitPair.word, ingredient.getUnitPluralized());
-			}
-		}
-	}
-	@Test
-	public void testThreeUnits() {
-		for (String ingredientName : UnitTestSharedData.INGREDIENTS) {
-			for (WordPair unitPair : UnitTestSharedData.COMMON_UNITS) {
+                assertEquals(ingredientName, ingredient.getType());
+                assertEquals(1, ingredient.getAmount(), 1E-6);
+                assertEquals(unitPair.word, ingredient.getUnit());
+                // Should not pluralize quantity 1
+                assertEquals(unitPair.word, ingredient.getUnitPluralized());
+            }
+        }
+    }
+    @Test
+    public void testThreeUnits() {
+        for (String ingredientName : UnitTestSharedData.INGREDIENTS) {
+            for (WordPair unitPair : UnitTestSharedData.COMMON_UNITS) {
 
-				final Ingredient ingredient = new Ingredient(ingredientName, 3, unitPair.word);
+                final Ingredient ingredient = new Ingredient(ingredientName, 3, unitPair.word);
 
-				assertEquals(ingredientName, ingredient.getType());
-				assertEquals(3, ingredient.getAmount(), 1E-6);
-				assertEquals(unitPair.word, ingredient.getUnit());
-				// Should pluralize quantity 3
-				assertEquals(unitPair.plural, ingredient.getUnitPluralized());
-			}
-		}
-	}
-	@Test(expected = NullPointerException.class)
-	public void testNonNullExceptionNoType() {
-		final Ingredient ingredient = new Ingredient(null, 1, UnitTestSharedData.COMMON_UNITS[0].word);
-	}
-	@Test(expected = NullPointerException.class)
-	public void testNonNullExceptionNoUnit() {
-		final Ingredient ingredient = new Ingredient(UnitTestSharedData.INGREDIENTS[0], 1, null);
-	}
-	@Test
-	public void testEquals() {
-		final Ingredient ing1 = new Ingredient(UnitTestSharedData.INGREDIENTS[0], 1, UnitTestSharedData.COMMON_UNITS[0].word);
-		final Ingredient ing1_match = new Ingredient(UnitTestSharedData.INGREDIENTS[0], 1, UnitTestSharedData.COMMON_UNITS[0].word);
-		final Ingredient ing2 = new Ingredient(UnitTestSharedData.INGREDIENTS[1], 1, UnitTestSharedData.COMMON_UNITS[0].word);
-		final Ingredient ing3 = new Ingredient(UnitTestSharedData.INGREDIENTS[0], 3, UnitTestSharedData.COMMON_UNITS[0].word);
-		final Ingredient ing4 = new Ingredient(UnitTestSharedData.INGREDIENTS[0], 1, UnitTestSharedData.COMMON_UNITS[1].word);
+                assertEquals(ingredientName, ingredient.getType());
+                assertEquals(3, ingredient.getAmount(), 1E-6);
+                assertEquals(unitPair.word, ingredient.getUnit());
+                // Should pluralize quantity 3
+                assertEquals(unitPair.plural, ingredient.getUnitPluralized());
+            }
+        }
+    }
+    @Test(expected = NullPointerException.class)
+    public void testNonNullExceptionNoType() {
+        final Ingredient ingredient = new Ingredient(null, 1, UnitTestSharedData.COMMON_UNITS[0].word);
+    }
+    @Test(expected = NullPointerException.class)
+    public void testNonNullExceptionNoUnit() {
+        final Ingredient ingredient = new Ingredient(UnitTestSharedData.INGREDIENTS[0], 1, null);
+    }
+    @Test
+    public void testEquals() {
+        final Ingredient ing1 = new Ingredient(UnitTestSharedData.INGREDIENTS[0], 1, UnitTestSharedData.COMMON_UNITS[0].word);
+        final Ingredient ing1_match = new Ingredient(UnitTestSharedData.INGREDIENTS[0], 1, UnitTestSharedData.COMMON_UNITS[0].word);
+        final Ingredient ing2 = new Ingredient(UnitTestSharedData.INGREDIENTS[1], 1, UnitTestSharedData.COMMON_UNITS[0].word);
+        final Ingredient ing3 = new Ingredient(UnitTestSharedData.INGREDIENTS[0], 3, UnitTestSharedData.COMMON_UNITS[0].word);
+        final Ingredient ing4 = new Ingredient(UnitTestSharedData.INGREDIENTS[0], 1, UnitTestSharedData.COMMON_UNITS[1].word);
 
-		assertEquals(ing1, ing1_match);
-		assertFalse(ing1.equals(ing2));
-		assertFalse(ing1.equals(ing3));
-		assertFalse(ing1.equals(ing4));
-	}
+        assertEquals(ing1, ing1_match);
+        assertFalse(ing1.equals(ing2));
+        assertFalse(ing1.equals(ing3));
+        assertFalse(ing1.equals(ing4));
+    }
 }
