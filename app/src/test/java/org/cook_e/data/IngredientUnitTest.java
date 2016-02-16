@@ -28,7 +28,7 @@ import org.cook_e.data.UnitTestSharedData.WordPair;
 import static org.junit.Assert.*;
 
 /**
- *
+ *Unit Tests for the Ingredient class
  */
 public class IngredientUnitTest {
 

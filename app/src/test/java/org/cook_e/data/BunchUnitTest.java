@@ -22,11 +22,42 @@ package org.cook_e.data;
 import org.atteo.evo.inflector.English;
 import org.cook_e.data.Ingredient;
 import org.junit.Test;
+import org.cook_e.data.Bunch;
+import org.cook_e.data.Recipe;
+import org.cook_e.data.StepUnitTest;
 
 import java.lang.NullPointerException;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.Assert.*;
-
+/*
+ * Unit tests for the Bunch class
+ */
 public class BunchUnitTest {
+    @Test
+    public void testCreation() {
+        List<Recipe> recipes = new ArrayList<Recipe>();
+	List<Step> steps = new ArrayList<Step>();
+	steps.add(StepUnitTest.createGenericStep(0, 0, 0, 1));
+        Recipe r = new Recipe("My Recipe", "Kyle", steps);
+        recipes.add(r);
+        Bunch b = new Bunch("My Bunch", recipes);
+        assertEquals(b.getTitle(), "My Bunch");
+        assertEquals(b.getRecipes(), recipes);
+    }
+    @Test
+    public void testEquals() {
+        List<Recipe> recipes = new ArrayList<Recipe>();
+	List<Step> steps = new ArrayList<Step>();
+	steps.add(StepUnitTest.createGenericStep(0, 0, 0, 1));
+        Recipe r = new Recipe("My Recipe", "Kyle", steps);
+        recipes.add(r);
+        Bunch b1 = new Bunch("My Bunch", recipes);
+        Bunch b1_match = new Bunch("My Bunch", recipes);
+        Bunch b2 = new Bunch("Bunch 2", recipes);
+        assertEquals(b1, b1_match);
+        assertFalse(b1.equals(b2));
 
+    }
 }
