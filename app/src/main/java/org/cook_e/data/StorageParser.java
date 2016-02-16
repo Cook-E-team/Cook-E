@@ -19,18 +19,17 @@
 
 package org.cook_e.data;
 
-import android.provider.ContactsContract;
-import java.util.List;
-import java.util.ArrayList;
 /**
  * Created by kylewoo on 2/16/16.
  */
-public class DatabaseAccessor {
-    public static final String CONNECTION_TOKEN = "";
-    public Recipe findRecipe(String title, String author) {
+public class StorageParser {
+    public StorageParser() {
+
+    }
+    public Recipe convertStringToRecipe(String description) {
         return null;
     }
-    public List<Recipe> findRecipeLike(String description) {
+    public String convertRecipeToString(Recipe r) {
         return null;
     }
 }

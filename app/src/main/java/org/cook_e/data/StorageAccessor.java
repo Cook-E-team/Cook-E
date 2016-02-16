@@ -25,22 +25,33 @@ package org.cook_e.data;
 public class StorageAccessor {
     private MemoryAccessor memory;
     private DatabaseAccessor database;
+    private StorageParser parser;
     public StorageAccessor() {
         memory = new MemoryAccessor();
         database = new DatabaseAccessor();
+        parser = new StorageParser();
     }
     public void storeRecipe(Recipe r) {
-
+        memory.storeRecipe(r);
     }
     public void storeBunch(Bunch b) {
-
+        memory.storeBunch(b);
     }
     public Recipe loadRecipe(String title, String author) {
         Recipe r = null;
         r = memory.loadRecipe(title, author);
         if (r == null) {
-
+            r = database.findRecipe(title, author); // this section will be expanded when database is implemented
         }
         return r;
+    }
+    public void deleteRecipe(String title, String author) {
+        memory.deleteRecipe(title,author);
+    }
+    public void deleteRecipe(Recipe r) {
+        memory.deleteRecipe(r);
+    }
+    public void deleteBunch(Bunch b) {
+        memory.deleteBunch(b);
     }
 }

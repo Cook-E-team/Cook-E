@@ -18,21 +18,26 @@
  */
 
 package org.cook_e.data;
+import android.content.Context;
+
+import java.io.FileOutputStream;
 import java.util.Map;
 import java.util.HashMap;
 
 public class MemoryAccessor {
     private Map<Pair<String, String>, Recipe> buffer;
     private static final String STORAGE_FILE = "recipe_storage";
+    // TODO: reference to activity that can call openFileOutput
     private static final int BUFFER_LIMIT = 5;
     public MemoryAccessor() {
         buffer = new HashMap<Pair<String, String>, Recipe>();
+
     }
     public void storeRecipe(Recipe r) {
 
     }
     public void storeBunch(Bunch b) {
-
+        //TODO determine what parts of a bunch need to be stored
     }
     public Recipe loadRecipe(String title, String author) {
         return null;
