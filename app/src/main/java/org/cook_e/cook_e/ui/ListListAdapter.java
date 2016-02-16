@@ -41,152 +41,152 @@ import java.util.Set;
  */
 public abstract class ListListAdapter<T> implements ListAdapter {
 
-	/**
-	 * The list of items to display
-	 */
-	// This must be a concrete type for the callbacks to work
-	@NonNull
-	private final ObservableArrayList<? extends T> mItems;
+    /**
+     * The list of items to display
+     */
+    // This must be a concrete type for the callbacks to work
+    @NonNull
+    private final ObservableArrayList<? extends T> mItems;
 
-	/**
-	 * The context provided to subclasses
-	 */
-	@NonNull
-	private final Context mContext;
+    /**
+     * The context provided to subclasses
+     */
+    @NonNull
+    private final Context mContext;
 
-	/**
-	 * The observers that will be notified when the data change
-	 */
-	@NonNull
-	private final Set<DataSetObserver> mObservers;
+    /**
+     * The observers that will be notified when the data change
+     */
+    @NonNull
+    private final Set<DataSetObserver> mObservers;
 
-	/**
-	 * Creates a new adapter
-	 * @param context the context to use to create views
-	 * @param items the items to display
-	 * @throws NullPointerException if items is null
-	 */
-	public ListListAdapter(@NonNull Context context, @NonNull ObservableArrayList<? extends T> items) {
-		Objects.requireNonNull(items, "items must not be null");
-		Objects.requireNonNull(context, "context must not be null");
-		mItems = items;
-		mContext = context;
-		mObservers = new HashSet<>();
+    /**
+     * Creates a new adapter
+     * @param context the context to use to create views
+     * @param items the items to display
+     * @throws NullPointerException if items is null
+     */
+    public ListListAdapter(@NonNull Context context, @NonNull ObservableArrayList<? extends T> items) {
+        Objects.requireNonNull(items, "items must not be null");
+        Objects.requireNonNull(context, "context must not be null");
+        mItems = items;
+        mContext = context;
+        mObservers = new HashSet<>();
 
-		// Set up listeners
-		final ObservableList.OnListChangedCallback<? extends ObservableList<? extends T>> callback = new OnListChangedCallback<ObservableList<? extends T>>() {
-			@Override
-			public void onChanged(ObservableList<? extends T> sender) {
-				notifyObservers();
-			}
+        // Set up listeners
+        final ObservableList.OnListChangedCallback<? extends ObservableList<? extends T>> callback = new OnListChangedCallback<ObservableList<? extends T>>() {
+            @Override
+            public void onChanged(ObservableList<? extends T> sender) {
+                notifyObservers();
+            }
 
-			@Override
-			public void onItemRangeChanged(ObservableList<? extends T> sender, int positionStart, int itemCount) {
-				notifyObservers();
-			}
+            @Override
+            public void onItemRangeChanged(ObservableList<? extends T> sender, int positionStart, int itemCount) {
+                notifyObservers();
+            }
 
-			@Override
-			public void onItemRangeInserted(ObservableList<? extends T> sender, int positionStart, int itemCount) {
-				notifyObservers();
-			}
+            @Override
+            public void onItemRangeInserted(ObservableList<? extends T> sender, int positionStart, int itemCount) {
+                notifyObservers();
+            }
 
-			@Override
-			public void onItemRangeMoved(ObservableList<? extends T> sender, int fromPosition, int toPosition, int itemCount) {
-				notifyObservers();
-			}
+            @Override
+            public void onItemRangeMoved(ObservableList<? extends T> sender, int fromPosition, int toPosition, int itemCount) {
+                notifyObservers();
+            }
 
-			@Override
-			public void onItemRangeRemoved(ObservableList<? extends T> sender, int positionStart, int itemCount) {
-				notifyObservers();
-			}
-		};
-		mItems.addOnListChangedCallback(callback);
-	}
+            @Override
+            public void onItemRangeRemoved(ObservableList<? extends T> sender, int positionStart, int itemCount) {
+                notifyObservers();
+            }
+        };
+        mItems.addOnListChangedCallback(callback);
+    }
 
-	/**
-	 * Notifies all observers that data have changed
-	 */
-	private void notifyObservers() {
-		for (DataSetObserver observer : mObservers) {
-			observer.onChanged();
-		}
-	}
+    /**
+     * Notifies all observers that data have changed
+     */
+    private void notifyObservers() {
+        for (DataSetObserver observer : mObservers) {
+            observer.onChanged();
+        }
+    }
 
-	/**
-	 * Returns a view to represent an item from the list
-	 * @param item the item to display
-	 * @param convertView an existing view to reuse, or null if none is available
-	 * @param parent the parent that this view will eventually be attached to
-	 * @return a view to represent the item
-	 */
-	public abstract View getViewForItem(T item, Context context, View convertView, ViewGroup parent);
+    /**
+     * Returns a view to represent an item from the list
+     * @param item the item to display
+     * @param convertView an existing view to reuse, or null if none is available
+     * @param parent the parent that this view will eventually be attached to
+     * @return a view to represent the item
+     */
+    public abstract View getViewForItem(T item, Context context, View convertView, ViewGroup parent);
 
-	/**
-	 * Returns true to indicate that all items are enabled
-	 * @return true
-	 */
-	@Override
-	public boolean areAllItemsEnabled() {
-		return true;
-	}
+    /**
+     * Returns true to indicate that all items are enabled
+     * @return true
+     */
+    @Override
+    public boolean areAllItemsEnabled() {
+        return true;
+    }
 
-	/**
-	 * Returns true to indicate that all items are enabled
-	 * @param position the item position
-	 * @return true
-	 */
-	@Override
-	public boolean isEnabled(int position) {
-		return true;
-	}
+    /**
+     * Returns true to indicate that all items are enabled
+     * @param position the item position
+     * @return true
+     */
+    @Override
+    public boolean isEnabled(int position) {
+        return true;
+    }
 
-	@Override
-	public void registerDataSetObserver(DataSetObserver observer) {
-		mObservers.add(observer);
-	}
+    @Override
+    public void registerDataSetObserver(DataSetObserver observer) {
+        mObservers.add(observer);
+    }
 
-	@Override
-	public void unregisterDataSetObserver(DataSetObserver observer) {
-		mObservers.remove(observer);
-	}
+    @Override
+    public void unregisterDataSetObserver(DataSetObserver observer) {
+        mObservers.remove(observer);
+    }
 
-	@Override
-	public int getCount() {
-		return mItems.size();
-	}
+    @Override
+    public int getCount() {
+        return mItems.size();
+    }
 
-	@Override
-	public Object getItem(int position) {
-		return mItems.get(position);
-	}
+    @Override
+    public Object getItem(int position) {
+        return mItems.get(position);
+    }
 
-	@Override
-	public long getItemId(int position) {
-		return position;
-	}
+    @Override
+    public long getItemId(int position) {
+        return position;
+    }
 
-	@Override
-	public boolean hasStableIds() {
-		return false;
-	}
+    @Override
+    public boolean hasStableIds() {
+        return false;
+    }
 
-	@Override
-	public View getView(int position, View convertView, ViewGroup parent) {
-		return getViewForItem(mItems.get(position), mContext, convertView, parent);
-	}
+    @Override
+    public View getView(int position, View convertView, ViewGroup parent) {
+        return getViewForItem(mItems.get(position), mContext, convertView, parent);
+    }
 
-	@Override
-	public int getItemViewType(int position) {
-		return 0;
-	}
+    @Override
+    public int getItemViewType(int position) {
+        return 0;
+    }
 
-	@Override
-	public int getViewTypeCount() {
-		return 1;
-	}
+    @Override
+    public int getViewTypeCount() {
+        return 1;
+    }
 
-	@Override
-	public boolean isEmpty() {
-		return mItems.isEmpty();
-	}
+    @Override
+    public boolean isEmpty() {
+        return mItems.isEmpty();
+    }
 }

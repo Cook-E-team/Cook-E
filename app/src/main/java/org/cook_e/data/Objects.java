@@ -19,7 +19,7 @@
 
 package org.cook_e.data;
 
-import android.os.Parcelable;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import java.util.Arrays;
@@ -29,33 +29,34 @@ import java.util.Arrays;
  */
 public class Objects {
 
-	/**
-	 * Throws a {@link NullPointerException} with the specified message if the provided object is
-	 * null
-	 * @param o the object to check
-	 * @param message the message to include in the exception
-	 * @throws NullPointerException if o is null
-	 */
-	public static void requireNonNull(@Nullable Object o, String message) {
-		if (o == null) {
-			throw new NullPointerException(message);
-		}
-	}
+    /**
+     * Throws a {@link NullPointerException} with the specified message if the provided object is
+     * null
+     * @param o the object to check
+     * @param message the message to include in the exception
+     * @throws NullPointerException if o is null
+     */
+    public static void requireNonNull(@Nullable Object o, String message) {
+        if (o == null) {
+            throw new NullPointerException(message);
+        }
+    }
 
 
-	/**
-	 * Converts an array of type T to an array of type U by casting each item
-	 * @param in the array to convert
-	 * @param outClass The class of an array of the output type (should be U[].class)
-	 * @param <T> the input type
-	 * @param <U> the output type
-	 * @return an array of T objects containing the same objects as the input array
-	 * @throws ArrayStoreException if any element of the input array cannot be cast into U
-	 */
-	public static <T, U> U[] castArray(T[] in, Class<? extends U[]> outClass) {
-		return Arrays.copyOf(in, in.length, outClass);
-	}
+    /**
+     * Converts an array of type T to an array of type U by casting each item
+     * @param in the array to convert
+     * @param outClass The class of an array of the output type (should be U[].class)
+     * @param <T> the input type
+     * @param <U> the output type
+     * @return an array of T objects containing the same objects as the input array
+     * @throws ArrayStoreException if any element of the input array cannot be cast into U
+     */
+    @NonNull
+    public static <T, U extends T> U[] castArray(@NonNull T[] in, @NonNull Class<? extends U[]> outClass) {
+        return Arrays.copyOf(in, in.length, outClass);
+    }
 
-	// Prevent construction
-	private Objects() {}
+    // Prevent construction
+    private Objects() {}
 }

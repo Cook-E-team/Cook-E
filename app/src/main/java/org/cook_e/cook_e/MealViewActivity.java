@@ -40,63 +40,63 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 public class MealViewActivity extends AppCompatActivity {
-	private static final String TAG = MealViewActivity.class.getSimpleName();
+    private static final String TAG = MealViewActivity.class.getSimpleName();
 
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_meal_view);
-		Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-		setSupportActionBar(toolbar);
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_meal_view);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
 
-		setUpActionBar();
+        setUpActionBar();
 
-		// Set up recipe list
-		final ListView recipeList = (ListView) findViewById(R.id.recipe_list);
-		recipeList.setAdapter(new MealListAdapter(this));
+        // Set up recipe list
+        final ListView recipeList = (ListView) findViewById(R.id.recipe_list);
+        recipeList.setAdapter(new MealListAdapter(this));
 
-		// Set up floating action button
-		final FloatingActionButton floatingButton = (FloatingActionButton) findViewById(R.id.add_button);
-		floatingButton.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				// Open item add view
-				final Intent intent = new Intent(MealViewActivity.this, MealRecipeAddActivity.class);
-				intent.putExtra(MealRecipeAddActivity.EXTRA_RECIPES, new Recipe[] {
-						new Recipe("Apple turnover", "Clamify Flumingaster", new ArrayList<Step>()),
-						new Recipe("Maple walnut scone", "Scallopify Fragilistigaster", new ArrayList<Step>()),
-				});
-				startActivityForResult(intent, MealRecipeAddActivity.REQUEST_ADD_RECIPES);
-			}
-		});
-	}
+        // Set up floating action button
+        final FloatingActionButton floatingButton = (FloatingActionButton) findViewById(R.id.add_button);
+        floatingButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Open item add view
+                final Intent intent = new Intent(MealViewActivity.this, MealRecipeAddActivity.class);
+                intent.putExtra(MealRecipeAddActivity.EXTRA_RECIPES, new Recipe[] {
+                        new Recipe("Apple turnover", "Clamify Flumingaster", new ArrayList<Step>()),
+                        new Recipe("Maple walnut scone", "Scallopify Fragilistigaster", new ArrayList<Step>()),
+                });
+                startActivityForResult(intent, MealRecipeAddActivity.REQUEST_ADD_RECIPES);
+            }
+        });
+    }
 
-	@Override
-	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		if (requestCode == MealRecipeAddActivity.REQUEST_ADD_RECIPES && resultCode == RESULT_OK) {
-			final Parcelable[] parcelables = data.getParcelableArrayExtra(MealRecipeAddActivity.EXTRA_RECIPES);
-		}
-	}
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == MealRecipeAddActivity.REQUEST_ADD_RECIPES && resultCode == RESULT_OK) {
+            final Parcelable[] parcelables = data.getParcelableArrayExtra(MealRecipeAddActivity.EXTRA_RECIPES);
+        }
+    }
 
-	private void setUpActionBar() {
-		final ActionBar bar = getSupportActionBar();
-		assert bar != null;
-		bar.setTitle("Meal name");
-	}
+    private void setUpActionBar() {
+        final ActionBar bar = getSupportActionBar();
+        assert bar != null;
+        bar.setTitle("Meal name");
+    }
 
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		getMenuInflater().inflate(R.menu.meal_view, menu);
-		return true;
-	}
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.meal_view, menu);
+        return true;
+    }
 
-	/**
-	 * Saves the current menu
-	 * @param outState the state to save to
-	 */
-	@Override
-	protected void onSaveInstanceState(Bundle outState) {
-		super.onSaveInstanceState(outState);
-		// TODO
-	}
+    /**
+     * Saves the current menu
+     * @param outState the state to save to
+     */
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        // TODO
+    }
 }

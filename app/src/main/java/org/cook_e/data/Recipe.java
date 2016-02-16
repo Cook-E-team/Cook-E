@@ -36,6 +36,7 @@ import java.util.List;
  * No field may be null.
  */
 public final class Recipe implements Parcelable {
+
 	/**
 	 * The steps that this recipe contains
 	 */
@@ -198,4 +199,5 @@ public final class Recipe implements Parcelable {
 		dest.writeString(mTitle);
 		dest.writeString(mAuthor);
 	}
+
 }
