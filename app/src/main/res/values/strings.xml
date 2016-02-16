@@ -71,4 +71,5 @@ Evo Inflector (https://github.com/atteo/evo-inflector/) is distributed in accord
 ]]></string>
     <string name="settings">Settings</string>
     <string name="tutorial">Tutorial</string>
+    <string name="step_list_title">Step %d</string>
 </resources>

@@ -24,7 +24,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.Button;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -43,7 +42,7 @@ public class StepListAdapter extends BaseAdapter {
 
     public StepListAdapter(Context mContext) {
         this.mContext = mContext;
-        testSteps = new ArrayList<TestStep>();
+        testSteps = new ArrayList<>();
         selectedStepIndex = -1;
 
         // Temporary code to populate the steps with data.
@@ -98,18 +97,21 @@ public class StepListAdapter extends BaseAdapter {
         if (getItemViewType(position) == 0) {
             View editRecipeView = layoutInflater.inflate(R.layout.edit_recipe_step, parent, false);
 
-            ((TextView) editRecipeView.findViewById(R.id.stepTitle)).setText("Step " + (position + 1));
+            ((TextView) editRecipeView.findViewById(R.id.stepTitle)).setText(
+                    String.format(mContext.getString(R.string.step_list_title), position + 1));
             ((TextView) editRecipeView.findViewById(R.id.stepDescription)).setText(step.description);
             ((TextView) editRecipeView.findViewById(R.id.stepAction)).setText(step.action);
             ((TextView) editRecipeView.findViewById(R.id.stepIngredient)).setText(step.ingredient);
             ((TextView) editRecipeView.findViewById(R.id.stepIngredientAmount)).setText(step.amount);
-            ((Button) editRecipeView.findViewById(R.id.stepDelete)).setOnClickListener(new DeleteStepOnClickListener(this, position));
+            editRecipeView.findViewById(R.id.stepDelete).setOnClickListener(
+                    new DeleteStepOnClickListener(this, position));
 
             return editRecipeView;
         } else {
             View viewRecipeView = layoutInflater.inflate(R.layout.view_recipe_step, parent, false);
 
-            ((TextView) viewRecipeView.findViewById(R.id.stepTitle)).setText("Step " + (position + 1));
+            ((TextView) viewRecipeView.findViewById(R.id.stepTitle)).setText(
+                    String.format(mContext.getString(R.string.step_list_title), position + 1));
             ((TextView) viewRecipeView.findViewById(R.id.stepDescription)).setText(step.description);
 
             viewRecipeView.setOnClickListener(new EditStepOnClickListener(this, position));
