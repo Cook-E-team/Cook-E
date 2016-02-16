@@ -31,28 +31,28 @@ import org.cook_e.data.Recipe;
  * A list adapter that displays recipes in {@link RecipeListItemView} views
  */
 public class RecipeAddListAdapter extends ListListAdapter<Recipe> {
-	/**
-	 * Creates a new adapter
-	 *
-	 * @param items the items to display
-	 * @throws NullPointerException if items is null
-	 */
-	public RecipeAddListAdapter(@NonNull Context context, @NonNull ObservableArrayList<? extends Recipe> items) {
-		super(context, items);
-	}
+    /**
+     * Creates a new adapter
+     *
+     * @param items the items to display
+     * @throws NullPointerException if items is null
+     */
+    public RecipeAddListAdapter(@NonNull Context context, @NonNull ObservableArrayList<? extends Recipe> items) {
+        super(context, items);
+    }
 
-	@Override
-	public View getViewForItem(Recipe item, Context context, View convertView, ViewGroup parent) {
-		RecipeAddItemView view;
-		if (convertView instanceof RecipeAddItemView) {
-			view = (RecipeAddItemView) convertView;
-		}
-		else {
-			view = new RecipeAddItemView(context);
-		}
+    @Override
+    public View getViewForItem(Recipe item, Context context, View convertView, ViewGroup parent) {
+        RecipeAddItemView view;
+        if (convertView instanceof RecipeAddItemView) {
+            view = (RecipeAddItemView) convertView;
+        }
+        else {
+            view = new RecipeAddItemView(context);
+        }
 
-		view.setTitle(item.getTitle());
+        view.setTitle(item.getTitle());
 
-		return view;
-	}
+        return view;
+    }
 }
