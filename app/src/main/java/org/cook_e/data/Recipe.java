@@ -97,6 +97,22 @@ public final class Recipe implements Parcelable {
 		Objects.requireNonNull(steps, "steps must not be null");
 		mSteps = new ArrayList<>(steps);
 	}
+
+	/**
+	 * Set the ith step in this recipe
+	 * The original step will be replaced by the new one
+	 * Do nothing if index is less than 0 or greeter than the max index
+	 * @param step the step to set
+	 * @param i the target index of new step, index start from 0
+	 * @throws NullPointerException if step is null
+	 */
+	public void setStep(@NonNull Step step, int i) {
+		Objects.requireNonNull(step, "step must not be null");
+		if (i >= 0 && i < mSteps.size()) {
+			mSteps.set(i, step);
+		}
+	}
+
 	/**
 	 * Add step to end of the list of steps
 	 * @param step the step to add
@@ -105,6 +121,43 @@ public final class Recipe implements Parcelable {
 	public void addStep(@NonNull Step step) {
 		Objects.requireNonNull(step, "step must not be null");
 		mSteps.add(step);
+	}
+
+	/**
+	 * Add step to the ith place of the list of steps,
+	 * all steps after it will be moved one step backward.
+	 * If index is less than 0, add it to the first of the list.
+	 * If index is greater than max index, add it to the last of the list.
+	 * @param step the step to add
+	 * @param i the target index to add step, index starts from 0
+	 * @throws NullPointerException if step is null
+	 */
+	public void addStep(@NonNull Step step, int i) {
+		Objects.requireNonNull(step, "step must not be null");
+		if (i < 0) {
+			mSteps.add(0, step);
+		} else if (i >= mSteps.size()) {
+			mSteps.add(step);
+		} else {
+			mSteps.add(i, step);
+		}
+	}
+
+	/**
+	 * Remove the ith step in this recipe.
+	 * All steps after it will be moved one step forward.
+	 * Do nothing if index is less than 0 or greater than max index.
+	 * @param i the index of step to remove, index starts from 0.
+	 */
+	public void removeStep(int i) {
+		if (i >= 0 && i < mSteps.size()) mSteps.remove(i);
+	}
+
+	/**
+	 * Remove all steps in this recipe.
+	 */
+	public void clearSteps() {
+		mSteps.clear();
 	}
 
 	/*
@@ -138,6 +191,14 @@ public final class Recipe implements Parcelable {
 	@NonNull
 	public String getAuthor() {
 		return mAuthor;
+	}
+
+	public void setTitle(String title) {
+		mTitle = title;
+	}
+
+	public void setAuthor(String author) {
+		mAuthor = author;
 	}
 
 	@Override
