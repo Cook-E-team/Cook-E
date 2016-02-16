@@ -39,147 +39,147 @@ import java.util.List;
  * Objects of this class are immutable.
  */
 public final class Step implements Parcelable {
-	/**
-	 * A human-readable mDescription of the actions involved in this step
-	 */
-	@NonNull
-	private final String mDescription;
-	/**
-	 * The mAction category of this step
-	 */
-	@NonNull
-	private final String mAction;
-	/**
-	 * The expected time required to complete this step
-	 */
-	@NonNull
-	private final Duration mTime;
-	/**
-	 * The ingredients required for this step
-	 */
-	@NonNull
-	private final List<Ingredient> mIngredients;
+    /**
+     * A human-readable mDescription of the actions involved in this step
+     */
+    @NonNull
+    private final String mDescription;
+    /**
+     * The mAction category of this step
+     */
+    @NonNull
+    private final String mAction;
+    /**
+     * The expected time required to complete this step
+     */
+    @NonNull
+    private final Duration mTime;
+    /**
+     * The ingredients required for this step
+     */
+    @NonNull
+    private final List<Ingredient> mIngredients;
 
-	/**
-	 * Creates a Step
-	 * @param ingredients the ingredients required for this step
-	 * @param action the action category of this step
-	 * @param description a human-readable description of this step
-	 * @param duration an estimate of the time required to complete this step
-	 * @throws NullPointerException if any parameter is null
-	 */
-	public Step(@NonNull List<Ingredient> ingredients, @NonNull String action, @NonNull String description, @NonNull ReadableDuration duration) {
-		Objects.requireNonNull(ingredients, "ingredients must not be null");
-		Objects.requireNonNull(action, "action must not be null");
-		Objects.requireNonNull(description, "description must not be null");
-		Objects.requireNonNull(duration, "duration must not be null");
+    /**
+     * Creates a Step
+     * @param ingredients the ingredients required for this step
+     * @param action the action category of this step
+     * @param description a human-readable description of this step
+     * @param duration an estimate of the time required to complete this step
+     * @throws NullPointerException if any parameter is null
+     */
+    public Step(@NonNull List<Ingredient> ingredients, @NonNull String action, @NonNull String description, @NonNull ReadableDuration duration) {
+        Objects.requireNonNull(ingredients, "ingredients must not be null");
+        Objects.requireNonNull(action, "action must not be null");
+        Objects.requireNonNull(description, "description must not be null");
+        Objects.requireNonNull(duration, "duration must not be null");
 
-		mDescription = description;
-		mAction = action;
-		mTime = duration.toDuration();
-		mIngredients = new ArrayList<>(ingredients);
-	}
+        mDescription = description;
+        mAction = action;
+        mTime = duration.toDuration();
+        mIngredients = new ArrayList<>(ingredients);
+    }
 
-	/**
-	 * Returns the description of this step
-	 * @return the description
-	 */
-	@NonNull
-	public String getDescription() {
-		return mDescription;
-	}
+    /**
+     * Returns the description of this step
+     * @return the description
+     */
+    @NonNull
+    public String getDescription() {
+        return mDescription;
+    }
 
-	/**
-	 * Returns the duration of this step
-	 * @return the duration
-	 */
-	@NonNull
-	public ReadableDuration getTime() {
-		return mTime;
-	}
+    /**
+     * Returns the duration of this step
+     * @return the duration
+     */
+    @NonNull
+    public ReadableDuration getTime() {
+        return mTime;
+    }
 
-	/**
-	 * Returns the ingredients that this step requires
-	 * @return the ingredients
-	 */
-	@NonNull
-	public List<Ingredient> getIngredients() {
-		return new ArrayList<>(mIngredients);
-	}
+    /**
+     * Returns the ingredients that this step requires
+     * @return the ingredients
+     */
+    @NonNull
+    public List<Ingredient> getIngredients() {
+        return new ArrayList<>(mIngredients);
+    }
 
-	/**
-	 * Returns the action category of this step
-	 * @return the action category
-	 */
-	@NonNull
-	public String getAction() {
-		return mAction;
-	}
+    /**
+     * Returns the action category of this step
+     * @return the action category
+     */
+    @NonNull
+    public String getAction() {
+        return mAction;
+    }
 
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
-		Step step = (Step) o;
+        Step step = (Step) o;
 
-		if (!mDescription.equals(step.mDescription)) return false;
-		if (!mAction.equals(step.mAction)) return false;
-		if (!mTime.equals(step.mTime)) return false;
-		return mIngredients.equals(step.mIngredients);
+        if (!mDescription.equals(step.mDescription)) return false;
+        if (!mAction.equals(step.mAction)) return false;
+        if (!mTime.equals(step.mTime)) return false;
+        return mIngredients.equals(step.mIngredients);
 
-	}
+    }
 
-	@Override
-	public int hashCode() {
-		int result = mDescription.hashCode();
-		result = 31 * result + mAction.hashCode();
-		result = 31 * result + mTime.hashCode();
-		result = 31 * result + mIngredients.hashCode();
-		return result;
-	}
+    @Override
+    public int hashCode() {
+        int result = mDescription.hashCode();
+        result = 31 * result + mAction.hashCode();
+        result = 31 * result + mTime.hashCode();
+        result = 31 * result + mIngredients.hashCode();
+        return result;
+    }
 
-	@Override
-	public String toString() {
-		return "Step{" +
-				"mDescription='" + mDescription + '\'' +
-				", mAction='" + mAction + '\'' +
-				", mTime=" + mTime +
-				", mIngredients=" + mIngredients +
-				'}';
-	}
+    @Override
+    public String toString() {
+        return "Step{" +
+                "mDescription='" + mDescription + '\'' +
+                ", mAction='" + mAction + '\'' +
+                ", mTime=" + mTime +
+                ", mIngredients=" + mIngredients +
+                '}';
+    }
 
-	// Parceling section
+    // Parceling section
 
-	public static final Parcelable.Creator<Step> CREATOR = new Parcelable.Creator<Step>() {
+    public static final Parcelable.Creator<Step> CREATOR = new Parcelable.Creator<Step>() {
 
-		@Override
-		public Step createFromParcel(Parcel source) {
-			final String description = source.readString();
-			final String action = source.readString();
-			final Duration duration = (Duration) source.readSerializable();
-			final Ingredient[] ingredients = Objects.castArray(
-					source.readParcelableArray(Ingredient.class.getClassLoader()), Ingredient[].class);
-			return new Step(Arrays.asList(ingredients), action, description, duration);
-		}
+        @Override
+        public Step createFromParcel(Parcel source) {
+            final String description = source.readString();
+            final String action = source.readString();
+            final Duration duration = (Duration) source.readSerializable();
+            final Ingredient[] ingredients = Objects.castArray(
+                    source.readParcelableArray(Ingredient.class.getClassLoader()), Ingredient[].class);
+            return new Step(Arrays.asList(ingredients), action, description, duration);
+        }
 
-		@Override
-		public Step[] newArray(int size) {
-			return new Step[size];
-		}
+        @Override
+        public Step[] newArray(int size) {
+            return new Step[size];
+        }
 
-	};
+    };
 
-	@Override
-	public int describeContents() {
-		return 0;
-	}
+    @Override
+    public int describeContents() {
+        return 0;
+    }
 
-	@Override
-	public void writeToParcel(Parcel dest, int flags) {
-		dest.writeString(mDescription);
-		dest.writeString(mAction);
-		dest.writeSerializable(mTime);
-		dest.writeParcelableArray(mIngredients.toArray(new Ingredient[mIngredients.size()]), flags);
-	}
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(mDescription);
+        dest.writeString(mAction);
+        dest.writeSerializable(mTime);
+        dest.writeParcelableArray(mIngredients.toArray(new Ingredient[mIngredients.size()]), flags);
+    }
 }
