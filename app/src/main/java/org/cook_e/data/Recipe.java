@@ -53,9 +53,10 @@ public final class Recipe implements Parcelable {
 	private String mAuthor;
 	/**
 	 * Constructor
-	 *
-	 * Takes a list of mSteps, mTitle and an mAuthor.
-	 * 
+	 *@param title the title of the recipe, must not be null
+	 *@param author the author of the recipe, must not be null
+	 *@param steps the list of steps for the recipe, must not be null
+	 *@throws NullPointerException if any of the parameters passed to it are null
 	 */
 	public Recipe(@NonNull String title, @NonNull String author, @NonNull List<Step> steps) {
 		Objects.requireNonNull(title, "title must not be null");
@@ -107,7 +108,7 @@ public final class Recipe implements Parcelable {
 		mSteps.add(step);
 	}
 
-	/*
+	/**
 	 * Returns a List of all the ingredients required by all the steps of the recipe
 	 */
 	@NonNull
@@ -120,7 +121,7 @@ public final class Recipe implements Parcelable {
 		}
 		return ings;
 	}
-	/*
+	/**
 	 * Returns the total estimated time of all the recipe's mSteps
 	 */
 	@NonNull
@@ -147,9 +148,7 @@ public final class Recipe implements Parcelable {
 
 		Recipe recipe = (Recipe) o;
 
-		if (!mSteps.equals(recipe.mSteps)) return false;
-		if (!mTitle.equals(recipe.mTitle)) return false;
-		return mAuthor.equals(recipe.mAuthor);
+		return mAuthor.equals(recipe.mAuthor) && mSteps.equals(recipe.mSteps) && mTitle.equals(recipe.mTitle);
 
 	}
 
