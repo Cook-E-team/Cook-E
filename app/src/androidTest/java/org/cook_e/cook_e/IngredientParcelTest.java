@@ -32,26 +32,26 @@ import android.os.Parcel;
  */
 public class IngredientParcelTest {
 
-	@Test
-	public void testNewArray() {
-		final int size = 32;
-		final Ingredient[] array = Ingredient.CREATOR.newArray(size);
-		assertNotNull(array);
-		assertEquals("Incorrect array length", size, array.length);
-	}
+    @Test
+    public void testNewArray() {
+        final int size = 32;
+        final Ingredient[] array = Ingredient.CREATOR.newArray(size);
+        assertNotNull(array);
+        assertEquals("Incorrect array length", size, array.length);
+    }
 
-	@Test
-	public void testParcelUnparcelBasic() {
-		final Parcel parcel = Parcel.obtain();
-		final Ingredient original = new Ingredient("White truffle oil", 50, "milliliter");
+    @Test
+    public void testParcelUnparcelBasic() {
+        final Parcel parcel = Parcel.obtain();
+        final Ingredient original = new Ingredient("White truffle oil", 50, "milliliter");
 
-		original.writeToParcel(parcel, 0);
-		parcel.setDataPosition(0);
+        original.writeToParcel(parcel, 0);
+        parcel.setDataPosition(0);
 
-		final Ingredient unparceled = Ingredient.CREATOR.createFromParcel(parcel);
+        final Ingredient unparceled = Ingredient.CREATOR.createFromParcel(parcel);
 
-		assertNotNull(unparceled);
-		assertEquals(original, unparceled);
-	}
+        assertNotNull(unparceled);
+        assertEquals(original, unparceled);
+    }
 
 }
