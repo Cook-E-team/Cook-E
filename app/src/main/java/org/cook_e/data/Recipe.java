@@ -107,7 +107,7 @@ public final class Recipe implements Parcelable {
 		mSteps.add(step);
 	}
 
-	/*
+	/**
 	 * Returns a List of all the ingredients required by all the steps of the recipe
 	 */
 	@NonNull
@@ -120,7 +120,7 @@ public final class Recipe implements Parcelable {
 		}
 		return ings;
 	}
-	/*
+	/**
 	 * Returns the total estimated time of all the recipe's mSteps
 	 */
 	@NonNull
@@ -147,9 +147,7 @@ public final class Recipe implements Parcelable {
 
 		Recipe recipe = (Recipe) o;
 
-		if (!mSteps.equals(recipe.mSteps)) return false;
-		if (!mTitle.equals(recipe.mTitle)) return false;
-		return mAuthor.equals(recipe.mAuthor);
+		return mAuthor.equals(recipe.mAuthor) && mSteps.equals(recipe.mSteps) && mTitle.equals(recipe.mTitle);
 
 	}
 
