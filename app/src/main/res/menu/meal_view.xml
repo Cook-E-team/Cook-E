@@ -22,5 +22,5 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         app:showAsAction="always"
-        android:title="Start" />
+        android:title="@string/start" />
 </menu>
