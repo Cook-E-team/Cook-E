@@ -27,6 +27,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by kylewoo on 2/17/16.
@@ -35,11 +36,11 @@ public class SQLiteAccessor {
     private Map<Pair<String, String>, Recipe> buffer;
     private StorageParser parser;
     private RecipeOpenHelper helper;
-    private static final int BUFFER_LIMIT = 5;
-    private static final String DATABASE_NAME = "Recipes";
-    private static final String TABLE_NAME = "recipes";
+    private static final int BUFFER_LIMIT = 10;
+    private static final String DATABASE_NAME = "RecipesDatabase";
+    private static final String RECIPE_TABLE_NAME = "Recipes";
     private static final String[] recipe_columns = {"name", "author", "description"}; // note the column number and index are 1 off
-
+    private static final String RECIPE_IMAGE_TABLE_NAME = "RecipeImages";
      public SQLiteAccessor(Context c, StorageParser parser) {
         buffer = new HashMap<Pair<String, String>, Recipe>();
          helper = new RecipeOpenHelper(c);
@@ -51,24 +52,29 @@ public class SQLiteAccessor {
         values.put(recipe_columns[0], r.getTitle());
         values.put(recipe_columns[1], r.getAuthor());
         values.put(recipe_columns[2], parser.convertRecipeToString(r));
-        db.insert(TABLE_NAME, null, values);
+        db.insert(RECIPE_TABLE_NAME, null, values);
         db.close();
     }
     public void storeBunch(Bunch b) {
         //TODO determine what parts of a bunch need to be stored
     }
     public Recipe loadRecipe(String title, String author) {
-        SQLiteDatabase db = helper.getReadableDatabase();
-        String[] whereArgs = {title, author};
         Recipe r = null;
-        Cursor c = db.query(TABLE_NAME, recipe_columns, "name = ? AND author = ?", whereArgs, null,
-                null, "name");
-        if (c != null) {
-            c.moveToFirst();
-            String description = c.getString(2);
-            r = parser.convertStringToRecipe(title, author, description);
+        r = buffer.get(new Pair<String, String>(title, author));
+        if (r == null) {
+            SQLiteDatabase db = helper.getReadableDatabase();
+            String[] whereArgs = {title, author};
+            Cursor c = db.query(RECIPE_TABLE_NAME, recipe_columns, "name = ? AND author = ?", whereArgs,
+                    null,
+                    null, "name");
+            if (c != null) {
+                c.moveToFirst();
+                String description = c.getString(2);
+                r = parser.convertStringToRecipe(title, author, description);
+                if (r != null) addToBuffer(r);
+            }
+            db.close();
         }
-        db.close();
         return r;
     }
     public void deleteRecipe(Recipe r) {
@@ -77,16 +83,24 @@ public class SQLiteAccessor {
     public void deleteRecipe(String title, String author) {
         SQLiteDatabase db = helper.getWritableDatabase();
         String[] whereArgs = {title, author};
-        db.delete(TABLE_NAME, "name = ? AND author = ?", whereArgs);
+        db.delete(RECIPE_TABLE_NAME, "name = ? AND author = ?", whereArgs);
     }
     public void deleteBunch(Bunch b) {
 
     }
-
+    private void addToBuffer(Recipe r) {
+        Set<Pair<String, String>> buffer_keys = buffer.keySet();
+        if (buffer_keys.size() > BUFFER_LIMIT) {
+            for (Pair<String, String> p: buffer_keys) {
+                buffer.remove(p);
+                break; //basic way to maintain buffer, remove first element in buffer when it gets to obig
+            }
+        }
+    }
     private class RecipeOpenHelper extends SQLiteOpenHelper {
         private static final int DATABASE_VERSION = 2;
         private final String RECIPE_TABLE_CREATE =
-                "CREATE TABLE " + TABLE_NAME + " (" +
+                "CREATE TABLE " + RECIPE_TABLE_NAME + " (" +
                         " \"" + recipe_columns[0]  +"\" TEXT NOT NULL DEFAULT \"\"" +
                         " \"" + recipe_columns[1]  + "\" TEXT NOT NULL DEFAULT \"\"" +
                         " \"" + recipe_columns[2]  + "\" TEXT NOT NULL DEFAULT \"\"" +
