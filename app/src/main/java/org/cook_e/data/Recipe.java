@@ -188,7 +188,7 @@ public final class Recipe implements Parcelable {
         if (!mSteps.equals(recipe.mSteps)) return false;
         if (!mTitle.equals(recipe.mTitle)) return false;
         if (!mAuthor.equals(recipe.mAuthor)) return false;
-        return !(mImage != null ? !mImage.equals(recipe.mImage) : recipe.mImage != null);
+        return !(mImage != null ? !mImage.sameAs(recipe.mImage) : recipe.mImage != null);
 
     }
 

@@ -19,12 +19,16 @@
 
 package org.cook_e.cook_e;
 
+import android.content.Context;
+import android.graphics.BitmapFactory;
 import android.os.Parcel;
+import android.support.test.InstrumentationRegistry;
 
 import org.cook_e.data.Ingredient;
 import org.cook_e.data.Recipe;
 import org.cook_e.data.Step;
 import org.joda.time.Duration;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -39,6 +43,19 @@ import static org.junit.Assert.assertNotNull;
  */
 public class RecipeParcelTest {
 
+
+    /**
+     * The application context used to access resources
+     */
+    private Context context;
+
+    @Before
+    public void setUp() {
+        // Get the application context
+        context = InstrumentationRegistry.getTargetContext();
+        assertNotNull(context);
+    }
+
     @Test
     public void testNewArray() {
         final int size = 32;
@@ -51,6 +68,7 @@ public class RecipeParcelTest {
     public void testParcelBasic() {
         final Parcel parcel = Parcel.obtain();
         final Recipe original = new Recipe("Recipe title", "Clamify Flumingaster", new ArrayList<Step>());
+        original.setImage(BitmapFactory.decodeResource(context.getResources(), R.drawable.test_image_1));
 
         original.writeToParcel(parcel, 0);
         parcel.setDataPosition(0);
@@ -65,6 +83,7 @@ public class RecipeParcelTest {
         final Ingredient scallops = new Ingredient("Scallops", 4, "");
         final Step step = new Step(Collections.singletonList(scallops), "Poach", "Gently poach the scallops", Duration.standardMinutes(3));
         final Recipe original = new Recipe("Recipe title", "Clamify Flumingaster", Collections.singletonList(step));
+        original.setImage(BitmapFactory.decodeResource(context.getResources(), R.drawable.test_image_1));
 
         original.writeToParcel(parcel, 0);
         parcel.setDataPosition(0);
@@ -87,6 +106,7 @@ public class RecipeParcelTest {
         final Step step2 = new Step(Collections.singletonList(butter),
                 "Melt", "Melt the butter", Duration.standardMinutes(10));
         final Recipe original = new Recipe("Recipe title", "Clamify Flumingaster", Arrays.asList(step1, step2));
+        original.setImage(BitmapFactory.decodeResource(context.getResources(), R.drawable.test_image_1));
 
         original.writeToParcel(parcel, 0);
         parcel.setDataPosition(0);
