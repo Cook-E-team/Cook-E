@@ -35,14 +35,6 @@
         app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
         tools:ignore="UnusedAttribute"/>
 
-    <org.cook_e.cook_e.ui.RecipeAddItemView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/view"
-        android:layout_below="@+id/toolbar">
-
-    </org.cook_e.cook_e.ui.RecipeAddItemView>
-
     <ListView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -50,6 +42,6 @@
         android:layout_gravity="start|top"
         android:layout_alignParentStart="true"
         android:layout_alignParentLeft="true"
-        android:layout_below="@+id/view"/>
+        android:layout_below="@+id/toolbar"/>
 
 </RelativeLayout>

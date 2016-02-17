@@ -29,6 +29,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -38,6 +39,7 @@ import org.cook_e.data.Recipe;
 import org.cook_e.data.Step;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 
 public class MealViewActivity extends AppCompatActivity {
@@ -66,10 +68,8 @@ public class MealViewActivity extends AppCompatActivity {
             public void onClick(View v) {
                 // Open item add view
                 final Intent intent = new Intent(MealViewActivity.this, MealRecipeAddActivity.class);
-                intent.putExtra(MealRecipeAddActivity.EXTRA_RECIPES, new Recipe[] {
-                        new Recipe("Apple turnover", "Clamify Flumingaster", new ArrayList<Step>()),
-                        new Recipe("Maple walnut scone", "Scallopify Fragilistigaster", new ArrayList<Step>()),
-                });
+                intent.putExtra(MealRecipeAddActivity.EXTRA_RECIPES,
+                        testRecipes.toArray(new Recipe[testRecipes.size()]));
                 startActivityForResult(intent, MealRecipeAddActivity.REQUEST_ADD_RECIPES);
             }
         });
@@ -79,6 +79,7 @@ public class MealViewActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == MealRecipeAddActivity.REQUEST_ADD_RECIPES && resultCode == RESULT_OK) {
             final Parcelable[] parcelables = data.getParcelableArrayExtra(MealRecipeAddActivity.EXTRA_RECIPES);
+            Log.d(TAG, "Got recipes to add: " + Arrays.toString(parcelables));
         }
     }
 

@@ -22,32 +22,42 @@ package org.cook_e.cook_e;
 
 import android.content.Intent;
 import android.databinding.ObservableArrayList;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.Button;
 import android.widget.ListView;
 
-import org.cook_e.cook_e.R;
 import org.cook_e.cook_e.ui.RecipeAddListAdapter;
 import org.cook_e.data.Objects;
 import org.cook_e.data.Recipe;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
  * An activity that displays a list of recipes and allows the user to add one or more of them
  * to a meal
+ *
+ * When starting this activity, the parent must provide an extra with a key of {@link #EXTRA_RECIPES}
+ * that contains an array of Recipe objects. The user will be able to select zero or more of
+ * the provided recipes.
+ *
+ * The parent should request a result with the request code {@link #REQUEST_ADD_RECIPES} to get a
+ * result.
+ *
+ * This activity will return a result with code {@link #REQUEST_ADD_RECIPES}. The result will contain
+ * an extra with the key {@link #EXTRA_RECIPES} containing an array
+ * of Recipe objects. The array will contain the recipes that the user selected to add.
  */
 public class MealRecipeAddActivity extends AppCompatActivity {
 
+    /**
+     * The class tag, used for logging
+     */
     private static final String TAG = MealRecipeAddActivity.class.getSimpleName();
 
     /**
@@ -62,9 +72,17 @@ public class MealRecipeAddActivity extends AppCompatActivity {
      */
     public static String EXTRA_RECIPES = MealRecipeAddActivity.class.getName() + ".RECIPES";
 
+    /**
+     * The recipes the user has selected to add
+     */
+    private List<Recipe> mSelectedRecipes;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        mSelectedRecipes = new ArrayList<>();
+
         setContentView(R.layout.activity_meal_recipe_add);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -74,23 +92,54 @@ public class MealRecipeAddActivity extends AppCompatActivity {
         // Unpack recipes
         final ObservableArrayList<Recipe> recipes = unpackRecipes();
 
-        Log.d(TAG, "Recipes: " + recipes);
-
         // Initialize view
         final ListView list = (ListView) findViewById(R.id.recipe_list);
-        list.setAdapter(new RecipeAddListAdapter(this, recipes));
+        final RecipeAddListAdapter adapter = new RecipeAddListAdapter(this, recipes);
+        adapter.setAddListener(new RecipeAddListAdapter.RecipeAddListener() {
+            @Override
+            public void recipeAddRequested(Recipe recipe) {
+                // Verify that the added recipe is actually in the recipe list
+                if (BuildConfig.DEBUG) {
+                    boolean found = false;
+                    for (Recipe existingRecipe : recipes) {
+                        if (existingRecipe.equals(recipe)) {
+                            found = true;
+                        }
+                    }
+                    if (!found) {
+                        throw new IllegalArgumentException(
+                                "The recipe added by the user is not in the recipe list");
+                    }
+                }
+                // Add to list of recipes to add
+                mSelectedRecipes.add(recipe);
+                updateResult();
+            }
+        });
+        list.setAdapter(adapter);
 
         // Set initial result
-        final Intent resultIntent = new Intent(Intent.ACTION_DEFAULT);
-        resultIntent.putExtra(EXTRA_RECIPES, new Recipe[0]);
-        setResult(RESULT_OK, resultIntent);
+        updateResult();
     }
 
+    /**
+     * Sets up the action bar for this activity
+     */
     private void setUpActionBar() {
         final ActionBar bar = getSupportActionBar();
         assert bar != null;
         bar.setTitle(R.string.add_recipes);
         bar.setDisplayHomeAsUpEnabled(true);
+    }
+
+    /**
+     * Updates the result of this activity to contain the contents of {@link #mSelectedRecipes}
+     */
+    private void updateResult() {
+        final Intent resultIntent = new Intent(Intent.ACTION_DEFAULT);
+        resultIntent.putExtra(EXTRA_RECIPES,
+                mSelectedRecipes.toArray(new Recipe[mSelectedRecipes.size()]));
+        setResult(RESULT_OK, resultIntent);
     }
 
     @Override
@@ -114,9 +163,16 @@ public class MealRecipeAddActivity extends AppCompatActivity {
         return true;
     }
 
+    /**
+     * Unpacks the recipes extra from the intent that started this activity and returns an
+     * ObservableArrayList containing the same recipes.
+     *
+     * @return a list of recipes
+     */
     private ObservableArrayList<Recipe> unpackRecipes() {
         final Parcelable[] parcelables = getIntent().getParcelableArrayExtra(EXTRA_RECIPES);
-        Objects.requireNonNull(parcelables, "MealRecipeAddActivity must be started with a recipes extra");
+        Objects.requireNonNull(parcelables,
+                "MealRecipeAddActivity must be started with a recipes extra");
         final ObservableArrayList<Recipe> recipes = new ObservableArrayList<>();
         recipes.ensureCapacity(parcelables.length);
         for (Parcelable parcelable : parcelables) {
