@@ -25,33 +25,29 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-
 /**
  * Created by kylewoo on 2/17/16.
  */
 public class SQLiteAccessor {
-    private Map<Pair<String, String>, Recipe> buffer;
     private StorageParser parser;
     private RecipeOpenHelper helper;
-    private static final int BUFFER_LIMIT = 10;
     private static final String DATABASE_NAME = "RecipesDatabase";
     private static final String RECIPE_TABLE_NAME = "Recipes";
-    private static final String[] recipe_columns = {"name", "author", "description"}; // note the column number and index are 1 off
+    private static final String[] RECIPE_COLUMNS = {"name", "author", "description"}; // note the indexes are 0 based
     private static final String RECIPE_IMAGE_TABLE_NAME = "RecipeImages";
-     public SQLiteAccessor(Context c, StorageParser parser) {
-        buffer = new HashMap<Pair<String, String>, Recipe>();
-         helper = new RecipeOpenHelper(c);
-         this.parser = parser;
+    private static final String[] RECIPE_IMAGE_COLUMNS = {"name", "author", "image"};
+    private static final String BUNCH_TABLE_NAME = "Bunches";
+    private static final String[] BUNCH_COLUMNS = {};
+    public SQLiteAccessor(Context c, StorageParser parser) {
+        helper = new RecipeOpenHelper(c);
+        this.parser = parser;
     }
     public void storeRecipe(Recipe r) {
         SQLiteDatabase db = helper.getWritableDatabase();
         ContentValues values = new ContentValues();
-        values.put(recipe_columns[0], r.getTitle());
-        values.put(recipe_columns[1], r.getAuthor());
-        values.put(recipe_columns[2], parser.convertRecipeToString(r));
+        values.put(RECIPE_COLUMNS[0], r.getTitle());
+        values.put(RECIPE_COLUMNS[1], r.getAuthor());
+        values.put(RECIPE_COLUMNS[2], parser.convertRecipeToString(r));
         db.insert(RECIPE_TABLE_NAME, null, values);
         db.close();
     }
@@ -60,21 +56,18 @@ public class SQLiteAccessor {
     }
     public Recipe loadRecipe(String title, String author) {
         Recipe r = null;
-        r = buffer.get(new Pair<String, String>(title, author));
-        if (r == null) {
-            SQLiteDatabase db = helper.getReadableDatabase();
-            String[] whereArgs = {title, author};
-            Cursor c = db.query(RECIPE_TABLE_NAME, recipe_columns, "name = ? AND author = ?", whereArgs,
-                    null,
-                    null, "name");
-            if (c != null) {
-                c.moveToFirst();
-                String description = c.getString(2);
-                r = parser.convertStringToRecipe(title, author, description);
-                if (r != null) addToBuffer(r);
-            }
-            db.close();
+        SQLiteDatabase db = helper.getReadableDatabase();
+        String[] whereArgs = {title, author};
+        Cursor c = db.query(RECIPE_TABLE_NAME, RECIPE_COLUMNS, "name = ? AND author = ?", whereArgs,
+                null,
+                null, "name");
+        if (c != null) {
+            c.moveToFirst();
+            String description = c.getString(2);
+            r = parser.convertStringToRecipe(title, author, description);
         }
+        db.close();
+
         return r;
     }
     public void deleteRecipe(Recipe r) {
@@ -88,29 +81,29 @@ public class SQLiteAccessor {
     public void deleteBunch(Bunch b) {
 
     }
-    private void addToBuffer(Recipe r) {
-        Set<Pair<String, String>> buffer_keys = buffer.keySet();
-        if (buffer_keys.size() > BUFFER_LIMIT) {
-            for (Pair<String, String> p: buffer_keys) {
-                buffer.remove(p);
-                break; //basic way to maintain buffer, remove first element in buffer when it gets to obig
-            }
-        }
-    }
+
     private class RecipeOpenHelper extends SQLiteOpenHelper {
         private static final int DATABASE_VERSION = 2;
         private final String RECIPE_TABLE_CREATE =
                 "CREATE TABLE " + RECIPE_TABLE_NAME + " (" +
-                        " \"" + recipe_columns[0]  +"\" TEXT NOT NULL DEFAULT \"\"" +
-                        " \"" + recipe_columns[1]  + "\" TEXT NOT NULL DEFAULT \"\"" +
-                        " \"" + recipe_columns[2]  + "\" TEXT NOT NULL DEFAULT \"\"" +
-                        "PRIMARY KEY (" + recipe_columns[0] +", " + recipe_columns[1] + "));";
+                        " \"" + RECIPE_COLUMNS[0]  +"\" TEXT NOT NULL DEFAULT \"\"" +
+                        " \"" + RECIPE_COLUMNS[1]  + "\" TEXT NOT NULL DEFAULT \"\"" +
+                        " \"" + RECIPE_COLUMNS[2]  + "\" TEXT NOT NULL DEFAULT \"\"" +
+                        " PRIMARY KEY (" + RECIPE_COLUMNS[0] +", " + RECIPE_COLUMNS[1] + "));";
+        private final String RECIPE_IMAGE_TABLE_CREATE = "" +
+                "CREATE TABLE " + RECIPE_IMAGE_TABLE_NAME + " (" +
+                " \"" + RECIPE_IMAGE_COLUMNS[0] + "\" TEXT NOT NULL DEFAULT \"\"" +
+                " \"" + RECIPE_IMAGE_COLUMNS[1] + "\" TEXT NOT NULL DEFAULT \"\"" +
+                " \"" + RECIPE_IMAGE_COLUMNS[2] + "\" BLOB NOT NULL" +
+                " PRIMARY KEY (" + RECIPE_IMAGE_COLUMNS[0] + ", " + RECIPE_IMAGE_COLUMNS[1] + ", " +
+                RECIPE_IMAGE_COLUMNS[2] + "));";
         public RecipeOpenHelper(Context c) {
             super(c, DATABASE_NAME, null, DATABASE_VERSION);
         }
         @Override
         public void onCreate(SQLiteDatabase db) {
             db.execSQL(RECIPE_TABLE_CREATE);
+            db.execSQL(RECIPE_IMAGE_TABLE_CREATE);
         }
         @Override
         public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
