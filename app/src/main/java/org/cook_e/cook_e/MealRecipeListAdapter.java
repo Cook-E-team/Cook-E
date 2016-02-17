@@ -36,7 +36,7 @@ import org.cook_e.data.Recipe;
  *
  * A space is added at the bottom of the list for compatibility with floating action buttons.
  */
-public class MealListAdapter extends ListListAdapter<Recipe> {
+public class MealRecipeListAdapter extends ListListAdapter<Recipe> {
 
     /**
      * Creates a new adapter
@@ -45,7 +45,7 @@ public class MealListAdapter extends ListListAdapter<Recipe> {
      * @param items   the items to display
      * @throws NullPointerException if items is null
      */
-    public MealListAdapter(@NonNull Context context, @NonNull ObservableArrayList<? extends Recipe> items) {
+    public MealRecipeListAdapter(@NonNull Context context, @NonNull ObservableArrayList<? extends Recipe> items) {
         super(context, items);
     }
 
@@ -67,7 +67,6 @@ public class MealListAdapter extends ListListAdapter<Recipe> {
         else {
             view.setImage(null);
         }
-        view.setCount(4);
 
         return view;
     }

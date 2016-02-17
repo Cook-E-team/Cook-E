@@ -57,7 +57,7 @@ public class MealViewActivity extends AppCompatActivity {
 
         // Set up recipe list
         final ListView recipeList = (ListView) findViewById(R.id.recipe_list);
-        recipeList.setAdapter(new MealListAdapter(this, testRecipes));
+        recipeList.setAdapter(new MealRecipeListAdapter(this, testRecipes));
 
         // Set up floating action button
         final FloatingActionButton floatingButton = (FloatingActionButton) findViewById(R.id.add_button);

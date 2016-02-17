@@ -25,8 +25,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.view.Gravity;
 import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.ImageView.ScaleType;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -45,12 +43,8 @@ public class RecipeListItemView extends LinearLayout {
     /**
      * Maximum width and height of the image, in some pixel-like units
      */
-    private static final int MAX_IMAGE_DIMENSION = 300;
+    private static final int IMAGE_DIMENSION = 150;
 
-    /**
-     * The view that displays the image
-     */
-    final ImageView mImageView;
     /**
      * The text view that displays the title
      */
@@ -71,18 +65,20 @@ public class RecipeListItemView extends LinearLayout {
         // Set up layout
         setOrientation(LinearLayout.HORIZONTAL);
         setPadding(PADDING, PADDING, PADDING, PADDING);
-
-        // Create image view
-        mImageView = new ImageView(context);
-        mImageView.setScaleType(ScaleType.FIT_CENTER);
-        mImageView.setAdjustViewBounds(true);
-        mImageView.setMaxHeight(MAX_IMAGE_DIMENSION);
-        mImageView.setMaxWidth(MAX_IMAGE_DIMENSION);
+//
+//        // Create image view
+//        mImageView = new ImageView(context);
+//        mImageView.setScaleType(ScaleType.FIT_CENTER);
+//        mImageView.setAdjustViewBounds(true);
+//        mImageView.setMaxHeight(MAX_IMAGE_DIMENSION);
+//        mImageView.setMaxWidth(MAX_IMAGE_DIMENSION);
 
         // Create title view
         mTitleView = new TextView(context);
         mTitleView.setPadding(PADDING, PADDING, PADDING, PADDING);
         mTitleView.setTextAppearance(context, android.R.style.TextAppearance_Large);
+        mTitleView.setCompoundDrawablePadding(PADDING);
+        mTitleView.setGravity(Gravity.CENTER_VERTICAL | Gravity.START);
 
 //        // Create quantity selector
 //        mNumberPicker = new CompactNumberSelector(context);
@@ -93,10 +89,6 @@ public class RecipeListItemView extends LinearLayout {
         deleteButton.setMinimumWidth(1);
         deleteButton.setMaxWidth(10);
 
-
-        final LayoutParams imageParams = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, 0.2f);
-        imageParams.gravity = Gravity.CENTER;
-        addView(mImageView, imageParams);
         final LayoutParams titleParams = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 0.4f);
         titleParams.gravity = Gravity.CENTER;
         addView(mTitleView, titleParams);
@@ -114,7 +106,8 @@ public class RecipeListItemView extends LinearLayout {
      */
     @Nullable
     public Drawable getImage() {
-        return mImageView.getDrawable();
+        final Drawable[] drawables = mTitleView.getCompoundDrawables();
+        return drawables[0];
     }
 
     /**
@@ -122,7 +115,13 @@ public class RecipeListItemView extends LinearLayout {
      * @param image an image to display, or null to display no image
      */
     public void setImage(@Nullable Drawable image) {
-        mImageView.setImageDrawable(image);
+        if (image != null) {
+            // Call mutate() so that changing the bounds will not affect other users of the same
+            // Drawable
+            image = image.mutate();
+            image.setBounds(0, 0, IMAGE_DIMENSION, IMAGE_DIMENSION);
+        }
+        mTitleView.setCompoundDrawables(image, null, null, null);
     }
 
     /**
