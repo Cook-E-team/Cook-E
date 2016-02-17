@@ -31,14 +31,14 @@
         android:theme="@style/AppTheme">
         <activity
             android:name=".HomeActivity"
-            android:windowSoftInputMode="stateHidden">
+            android:windowSoftInputMode="stateHidden" />
+        <activity android:name=".MealViewActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".MealViewActivity"></activity>
         <activity
             android:name=".MealRecipeAddActivity"
             android:parentActivityName=".MealViewActivity"
@@ -47,14 +47,14 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MealViewActivity" />
         </activity>
-        <activity android:name=".CookActivity"></activity>
+        <activity android:name=".CookActivity"/>
         <activity android:name=".CreateRecipe" />
         <activity
             android:name=".EditRecipeActivity"
             android:label="recipe_name"
             android:parentActivityName=".HomeActivity"
-            android:windowSoftInputMode="adjustPan"></activity>
-        <activity android:name=".AboutActivity"></activity>
+            android:windowSoftInputMode="adjustPan"/>
+        <activity android:name=".AboutActivity"/>
     </application>
 
 </manifest>

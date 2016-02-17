@@ -24,18 +24,16 @@ import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.view.Gravity;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.LinearLayout;
-import android.widget.NumberPicker;
 import android.widget.TextView;
 
 import org.cook_e.cook_e.R;
 
 /**
- * A view group that displays a drawable image, and a title
+ * A view group that displays a drawable image and a title
  */
 public class RecipeListItemView extends LinearLayout {
 
@@ -57,10 +55,10 @@ public class RecipeListItemView extends LinearLayout {
      * The text view that displays the title
      */
     final TextView mTitleView;
-    /**
-     * The number picker used to select the number of recipe quantities to prepare
-     */
-    final CompactNumberSelector mNumberPicker;
+//    /**
+//     * The number picker used to select the number of recipe quantities to prepare
+//     */
+//    final CompactNumberSelector mNumberPicker;
 
     /**
      * Creates a new view
@@ -86,8 +84,8 @@ public class RecipeListItemView extends LinearLayout {
         mTitleView.setPadding(PADDING, PADDING, PADDING, PADDING);
         mTitleView.setTextAppearance(context, android.R.style.TextAppearance_Large);
 
-        // Create quantity selector
-        mNumberPicker = new CompactNumberSelector(context);
+//        // Create quantity selector
+//        mNumberPicker = new CompactNumberSelector(context);
 
         // Create delete button
         final ImageButton deleteButton = new ImageButton(context, null, android.R.attr.borderlessButtonStyle);
@@ -102,9 +100,9 @@ public class RecipeListItemView extends LinearLayout {
         final LayoutParams titleParams = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 0.4f);
         titleParams.gravity = Gravity.CENTER;
         addView(mTitleView, titleParams);
-        final LayoutParams numberPickerParams = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-        numberPickerParams.gravity = Gravity.CENTER;
-        addView(mNumberPicker, numberPickerParams);
+//        final LayoutParams numberPickerParams = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+//        numberPickerParams.gravity = Gravity.CENTER;
+//        addView(mNumberPicker, numberPickerParams);
         final LayoutParams deleteButtonParams = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
         deleteButtonParams.gravity = Gravity.CENTER;
         addView(deleteButton, deleteButtonParams);
@@ -144,20 +142,20 @@ public class RecipeListItemView extends LinearLayout {
         mTitleView.setText(title);
     }
 
-    /**
-     * Returns the displayed count
-     * @return the count
-     */
-    public int getCount() {
-        return mNumberPicker.getValue();
-    }
-
-    /**
-     * Sets the count to display
-     * @param count the count
-     * @throws IllegalArgumentException if count < 0
-     */
-    public void setCount(int count) {
-        mNumberPicker.setValue(count);
-    }
+//    /**
+//     * Returns the displayed count
+//     * @return the count
+//     */
+//    public int getCount() {
+//        return mNumberPicker.getValue();
+//    }
+//
+//    /**
+//     * Sets the count to display
+//     * @param count the count
+//     * @throws IllegalArgumentException if count < 0
+//     */
+//    public void setCount(int count) {
+//        mNumberPicker.setValue(count);
+//    }
 }

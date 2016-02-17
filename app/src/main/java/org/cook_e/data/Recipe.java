@@ -19,9 +19,11 @@
 
 package org.cook_e.data;
 
+import android.graphics.Bitmap;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import org.joda.time.Duration;
 
@@ -32,8 +34,8 @@ import java.util.List;
 /*
  * Represents a recipe
  *
- * Has an ordered list of steps, a title, and an author.
- * No field may be null.
+ * Has an ordered list of steps, a title, an author, and an image. The image may be null; all
+ * other fields may not be null.
  */
 public final class Recipe implements Parcelable {
     /**
@@ -51,6 +53,13 @@ public final class Recipe implements Parcelable {
      */
     @NonNull
     private String mAuthor;
+
+    /**
+     * The image associated with this recipe, or null if the recipe has no image
+     */
+    @Nullable
+    private Bitmap mImage;
+
     /**
      * Constructor
      *@param title the title of the recipe, must not be null
@@ -66,6 +75,7 @@ public final class Recipe implements Parcelable {
         mSteps = new ArrayList<>(steps);
         mTitle = title;
         mAuthor = author;
+        mImage = null;
     }
 
     /**
@@ -141,14 +151,44 @@ public final class Recipe implements Parcelable {
         return mAuthor;
     }
 
+    /**
+     * Returns the image associated with this recipe
+     * @return an immutable image, or null if this recipe has no image
+     */
+    @Nullable
+    public Bitmap getImage() {
+        if (mImage != null) {
+            return Bitmap.createBitmap(mImage);
+        }
+        else {
+            return null;
+        }
+    }
+
+    /**
+     * Sets the image to associate with this recipe
+     * @param image the image to set, or null to set no image
+     */
+    public void setImage(@Nullable Bitmap image) {
+        if (image != null) {
+            mImage = Bitmap.createBitmap(image);
+        }
+        else {
+            mImage = null;
+        }
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        Recipe recipe = (Recipe) o;
+        final Recipe recipe = (Recipe) o;
 
-        return mAuthor.equals(recipe.mAuthor) && mSteps.equals(recipe.mSteps) && mTitle.equals(recipe.mTitle);
+        if (!mSteps.equals(recipe.mSteps)) return false;
+        if (!mTitle.equals(recipe.mTitle)) return false;
+        if (!mAuthor.equals(recipe.mAuthor)) return false;
+        return !(mImage != null ? !mImage.equals(recipe.mImage) : recipe.mImage != null);
 
     }
 
@@ -157,6 +197,7 @@ public final class Recipe implements Parcelable {
         int result = mSteps.hashCode();
         result = 31 * result + mTitle.hashCode();
         result = 31 * result + mAuthor.hashCode();
+        result = 31 * result + (mImage != null ? mImage.hashCode() : 0);
         return result;
     }
 
@@ -166,6 +207,7 @@ public final class Recipe implements Parcelable {
                 "mSteps=" + mSteps +
                 ", mTitle='" + mTitle + '\'' +
                 ", mAuthor='" + mAuthor + '\'' +
+                ", mImage=" + mImage +
                 '}';
     }
 
@@ -178,7 +220,16 @@ public final class Recipe implements Parcelable {
                     source.readParcelableArray(Step.class.getClassLoader()), Step[].class);
             final String title = source.readString();
             final String author = source.readString();
-            return new Recipe(title, author, Arrays.asList(steps));
+
+            final byte hasImage = source.readByte();
+            Bitmap image = null;
+            if (hasImage == 1) {
+                image = Bitmap.CREATOR.createFromParcel(source);
+            }
+
+            final Recipe recipe = new Recipe(title, author, Arrays.asList(steps));
+            recipe.setImage(image);
+            return recipe;
         }
 
         @Override
@@ -197,5 +248,10 @@ public final class Recipe implements Parcelable {
         dest.writeParcelableArray(mSteps.toArray(new Step[mSteps.size()]), flags);
         dest.writeString(mTitle);
         dest.writeString(mAuthor);
+        // Write has image: 0 (false) or 1 (true)
+        dest.writeByte(mImage != null ? (byte) 1 : (byte) 0);
+        if (mImage != null) {
+            mImage.writeToParcel(dest, 0);
+        }
     }
 }
