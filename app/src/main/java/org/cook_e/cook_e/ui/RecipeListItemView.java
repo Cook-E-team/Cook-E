@@ -24,6 +24,7 @@ import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.view.Gravity;
+import android.view.View;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -34,6 +35,17 @@ import org.cook_e.cook_e.R;
  * A view group that displays a drawable image and a title
  */
 public class RecipeListItemView extends LinearLayout {
+
+    /**
+     * An interface for listeners that can handle requests from the user to remove a recipe from
+     * a meal
+     */
+    public interface OnRecipeRemoveListener {
+        /**
+         * Called when the user asks that the recipe that this view represents be removed
+         */
+        void recipeRemoveRequested();
+    }
 
     /**
      * Padding for selected elements, in some pixel-like units
@@ -48,11 +60,13 @@ public class RecipeListItemView extends LinearLayout {
     /**
      * The text view that displays the title
      */
-    final TextView mTitleView;
-//    /**
-//     * The number picker used to select the number of recipe quantities to prepare
-//     */
-//    final CompactNumberSelector mNumberPicker;
+    private final TextView mTitleView;
+
+    /**
+     * The recipe removal listener, or null if none is associated
+     */
+    @Nullable
+    private OnRecipeRemoveListener mRemoveListener;
 
     /**
      * Creates a new view
@@ -65,13 +79,6 @@ public class RecipeListItemView extends LinearLayout {
         // Set up layout
         setOrientation(LinearLayout.HORIZONTAL);
         setPadding(PADDING, PADDING, PADDING, PADDING);
-//
-//        // Create image view
-//        mImageView = new ImageView(context);
-//        mImageView.setScaleType(ScaleType.FIT_CENTER);
-//        mImageView.setAdjustViewBounds(true);
-//        mImageView.setMaxHeight(MAX_IMAGE_DIMENSION);
-//        mImageView.setMaxWidth(MAX_IMAGE_DIMENSION);
 
         // Create title view
         mTitleView = new TextView(context);
@@ -80,21 +87,25 @@ public class RecipeListItemView extends LinearLayout {
         mTitleView.setCompoundDrawablePadding(PADDING);
         mTitleView.setGravity(Gravity.CENTER_VERTICAL | Gravity.START);
 
-//        // Create quantity selector
-//        mNumberPicker = new CompactNumberSelector(context);
 
         // Create delete button
         final ImageButton deleteButton = new ImageButton(context, null, android.R.attr.borderlessButtonStyle);
         deleteButton.setImageResource(R.drawable.ic_remove_circle_black_24dp);
         deleteButton.setMinimumWidth(1);
         deleteButton.setMaxWidth(10);
+        deleteButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mRemoveListener != null) {
+                    mRemoveListener.recipeRemoveRequested();
+                }
+            }
+        });
 
         final LayoutParams titleParams = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 0.4f);
         titleParams.gravity = Gravity.CENTER;
         addView(mTitleView, titleParams);
-//        final LayoutParams numberPickerParams = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-//        numberPickerParams.gravity = Gravity.CENTER;
-//        addView(mNumberPicker, numberPickerParams);
+
         final LayoutParams deleteButtonParams = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
         deleteButtonParams.gravity = Gravity.CENTER;
         addView(deleteButton, deleteButtonParams);
@@ -141,20 +152,12 @@ public class RecipeListItemView extends LinearLayout {
         mTitleView.setText(title);
     }
 
-//    /**
-//     * Returns the displayed count
-//     * @return the count
-//     */
-//    public int getCount() {
-//        return mNumberPicker.getValue();
-//    }
-//
-//    /**
-//     * Sets the count to display
-//     * @param count the count
-//     * @throws IllegalArgumentException if count < 0
-//     */
-//    public void setCount(int count) {
-//        mNumberPicker.setValue(count);
-//    }
+    /**
+     * Sets the recipe removal listener. The listener will be notified when the user asks to
+     * remove this recipe. If a removal listener is already present, it will be replaced.
+     * @param removeListener the listener, or null to set no listener
+     */
+    public void setRemoveListener(@Nullable OnRecipeRemoveListener removeListener) {
+        mRemoveListener = removeListener;
+    }
 }

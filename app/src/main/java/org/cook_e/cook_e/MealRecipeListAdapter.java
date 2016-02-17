@@ -31,12 +31,22 @@ import org.cook_e.cook_e.ui.ListListAdapter;
 import org.cook_e.cook_e.ui.RecipeListItemView;
 import org.cook_e.data.Recipe;
 
+import java.util.List;
+
 /**
  * A list adapter that displays a list of meals, with each meal shown in a {@link RecipeListItemView}
  *
  * A space is added at the bottom of the list for compatibility with floating action buttons.
  */
 public class MealRecipeListAdapter extends ListListAdapter<Recipe> {
+
+    /**
+     * The recipes displayed in this list
+     *
+     * This is a reference to the same list that the superclass uses, so it can modify the list
+     * data source.
+     */
+    private final List<? extends Recipe> recipes;
 
     /**
      * Creates a new adapter
@@ -47,11 +57,12 @@ public class MealRecipeListAdapter extends ListListAdapter<Recipe> {
      */
     public MealRecipeListAdapter(@NonNull Context context, @NonNull ObservableArrayList<? extends Recipe> items) {
         super(context, items);
+        recipes = items;
     }
 
 
     @Override
-    public View getViewForItem(Recipe item, Context context, View convertView, ViewGroup parent) {
+    public View getViewForItem(final Recipe item, Context context, View convertView, ViewGroup parent) {
         RecipeListItemView view;
         if (convertView instanceof RecipeListItemView) {
             view = (RecipeListItemView) convertView;
@@ -67,6 +78,13 @@ public class MealRecipeListAdapter extends ListListAdapter<Recipe> {
         else {
             view.setImage(null);
         }
+        // Set up listener
+        view.setRemoveListener(new RecipeListItemView.OnRecipeRemoveListener() {
+            @Override
+            public void recipeRemoveRequested() {
+                recipes.remove(item);
+            }
+        });
 
         return view;
     }
