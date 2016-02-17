@@ -87,6 +87,7 @@ public final class Recipe implements Parcelable {
         // Ingredient, Step, and String are immutable, so they do not need to be copied.
         // The delegated constructor copies the list of steps.
         this(other.getTitle(), other.getAuthor(), other.getSteps());
+        setImage(other.getImage());
     }
 
 
