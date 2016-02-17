@@ -68,13 +68,16 @@ public class SQLiteAccessor {
             String description = c.getString(2);
             r = parser.convertStringToRecipe(title, author, description);
         }
+        db.close();
         return r;
     }
     public void deleteRecipe(Recipe r) {
-
+        deleteRecipe(r.getTitle(), r.getAuthor());
     }
     public void deleteRecipe(String title, String author) {
-
+        SQLiteDatabase db = helper.getWritableDatabase();
+        String[] whereArgs = {title, author};
+        db.delete(TABLE_NAME, "name = ? AND author = ?", whereArgs);
     }
     public void deleteBunch(Bunch b) {
 
