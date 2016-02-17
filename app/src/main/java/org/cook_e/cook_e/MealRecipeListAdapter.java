@@ -20,12 +20,14 @@
 package org.cook_e.cook_e;
 
 import android.content.Context;
+import android.content.Intent;
 import android.databinding.ObservableArrayList;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.support.annotation.NonNull;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import org.cook_e.cook_e.ui.ListListAdapter;
 import org.cook_e.cook_e.ui.RecipeListItemView;
@@ -62,7 +64,7 @@ public class MealRecipeListAdapter extends ListListAdapter<Recipe> {
 
 
     @Override
-    public View getViewForItem(final Recipe item, Context context, View convertView, ViewGroup parent) {
+    public View getViewForItem(final Recipe item, final Context context, View convertView, ViewGroup parent) {
         RecipeListItemView view;
         if (convertView instanceof RecipeListItemView) {
             view = (RecipeListItemView) convertView;
@@ -78,11 +80,22 @@ public class MealRecipeListAdapter extends ListListAdapter<Recipe> {
         else {
             view.setImage(null);
         }
-        // Set up listener
+        // Set up listener for removal
         view.setRemoveListener(new RecipeListItemView.OnRecipeRemoveListener() {
             @Override
             public void recipeRemoveRequested() {
                 recipes.remove(item);
+            }
+        });
+
+        // Set up listener for recipe viewing
+        view.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Start an activity to view the recipe
+                final Intent intent = new Intent(context, EditRecipeActivity.class);
+                // TODO: Provide recipe to the activity
+                context.startActivity(intent);
             }
         });
 
