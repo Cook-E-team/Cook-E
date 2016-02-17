@@ -25,8 +25,12 @@ import java.util.ArrayList;
 /**
  * Created by kylewoo on 2/16/16.
  */
-public class DatabaseAccessor {
-    public static final String CONNECTION_TOKEN = "";
+public class SQLServerAccessor {
+    private static final String CONNECTION_TOKEN = "";
+    private StorageParser parser;
+    public SQLServerAccessor(StorageParser parser) {
+        this.parser = parser;
+    }
     public Recipe findRecipe(String title, String author) {
         return null;
     }

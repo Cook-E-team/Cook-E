@@ -26,7 +26,7 @@ public class StorageParser {
     public StorageParser() {
 
     }
-    public Recipe convertStringToRecipe(String description) {
+    public Recipe convertStringToRecipe(String title, String author, String description) {
         return null;
     }
     public String convertRecipeToString(Recipe r) {

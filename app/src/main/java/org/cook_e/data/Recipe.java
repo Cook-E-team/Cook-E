@@ -156,7 +156,7 @@ public final class Recipe implements Parcelable {
 	@Override
 	public int hashCode() {
 		int result = mSteps.hashCode();
-		result = 31 * result + mTitle.hashCode();
+		result = 31 + mTitle.hashCode();
 		result = 31 * result + mAuthor.hashCode();
 		return result;
 	}

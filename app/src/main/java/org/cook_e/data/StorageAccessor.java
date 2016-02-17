@@ -19,39 +19,42 @@
 
 package org.cook_e.data;
 
+import android.content.Context;
+
 /**
  * Created by kylewoo on 2/16/16.
  */
 public class StorageAccessor {
-    private MemoryAccessor memory;
-    private DatabaseAccessor database;
+    private SQLiteAccessor sqlite;
+    private SQLServerAccessor sqlserver;
     private StorageParser parser;
-    public StorageAccessor() {
-        memory = new MemoryAccessor();
-        database = new DatabaseAccessor();
+    public StorageAccessor(Context c) {
+        sqlite = new SQLiteAccessor(c, parser);
+        sqlserver = new SQLServerAccessor(parser);
         parser = new StorageParser();
     }
     public void storeRecipe(Recipe r) {
-        memory.storeRecipe(r);
+        sqlite.storeRecipe(r);
     }
     public void storeBunch(Bunch b) {
-        memory.storeBunch(b);
+        sqlite.storeBunch(b);
     }
     public Recipe loadRecipe(String title, String author) {
         Recipe r = null;
-        r = memory.loadRecipe(title, author);
+        r = sqlite.loadRecipe(title, author);
         if (r == null) {
-            r = database.findRecipe(title, author); // this section will be expanded when database is implemented
+            r = sqlserver.findRecipe(title, author); // this section will be expanded when database is implemented
+            if (r != null) sqlite.storeRecipe(r);
         }
         return r;
     }
     public void deleteRecipe(String title, String author) {
-        memory.deleteRecipe(title,author);
+        sqlite.deleteRecipe(title,author);
     }
     public void deleteRecipe(Recipe r) {
-        memory.deleteRecipe(r);
+        sqlite.deleteRecipe(r);
     }
     public void deleteBunch(Bunch b) {
-        memory.deleteBunch(b);
+        sqlite.deleteBunch(b);
     }
 }
