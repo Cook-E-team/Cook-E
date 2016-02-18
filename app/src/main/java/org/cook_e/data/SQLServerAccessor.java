@@ -23,14 +23,32 @@ import android.provider.ContactsContract;
 import java.util.List;
 import java.util.ArrayList;
 /**
- * Created by kylewoo on 2/16/16.
+ * This class implements methods for storing and accessing an external sqlserver database
  */
 public class SQLServerAccessor {
+    /**
+     * Connection token that will be used to setup a connection with the sqlserver database
+     */
     private static final String CONNECTION_TOKEN = "";
+    /**
+     * Parser used for transforming strings to recipes and recipes to strings
+     */
     private StorageParser parser;
+
+    /**
+     * Constructor
+     * @param parser StorageParser that can transform strings to recipes and recipes to strings
+     */
     public SQLServerAccessor(StorageParser parser) {
         this.parser = parser;
     }
+
+    /**
+     * Search for a recipe
+     * @param title
+     * @param author
+     * @return
+     */
     public Recipe findRecipe(String title, String author) {
         return null;
     }

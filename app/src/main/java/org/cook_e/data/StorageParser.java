@@ -20,15 +20,29 @@
 package org.cook_e.data;
 
 /**
- * Created by kylewoo on 2/16/16.
+ * This class represents a parser that allows for transforming recipes to strings and strings to recipes
  */
 public class StorageParser {
     public StorageParser() {
 
     }
+
+    /**
+     * Method for converting a description text blob into a recipe
+     * @param title String title of the recipe
+     * @param author String author of the recipe
+     * @param description String blob of steps
+     * @return Recipe object containing the fields above
+     */
     public Recipe convertStringToRecipe(String title, String author, String description) {
         return null;
     }
+
+    /**
+     * Method for taking a recipe and generating a description text blob of its steps
+     * @param r Recipe to convert
+     * @return String description blob of steps
+     */
     public String convertRecipeToString(Recipe r) {
         return null;
     }
