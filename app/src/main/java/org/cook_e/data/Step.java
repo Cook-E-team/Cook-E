@@ -138,11 +138,20 @@ public final class Step implements Parcelable {
 		return "Step{" +
 				"mDescription='" + mDescription + '\'' +
 				", mTime=" + mTime +
-				", mIngredients=" + mIngredients +
+				", mIngredients=" + ListToString(mIngredients) +
 				", mSimultaneous=" + mSimultaneous +
 				'}';
 	}
 
+	public static String ListToString(List<String> lst) {
+		String ans = "";
+		int i = 0;
+		for (String curr: lst) {
+			i++;
+			ans += curr + ((i != lst.size()) ? "," : "");
+		}
+		return ans;
+	}
 	// Parceling section
 
 	public static final Parcelable.Creator<Step> CREATOR = new Parcelable.Creator<Step>() {

@@ -33,6 +33,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.lang.NullPointerException;
 
+import dalvik.annotation.TestTarget;
+
 import static org.junit.Assert.*;
 /*
  * Unit Tests for the Step class
@@ -83,5 +85,12 @@ public class StepUnitTest {
         assertFalse(s1.equals(s4));
         assertFalse(s1.equals(s5));
     }
-
+    @Test
+    public void testListToString() {
+        List<String> lst = new ArrayList<String>();
+        lst.add("hello");
+        lst.add("goodbye");
+        lst.add("test");
+        assertEquals("hello,goodbye,test", Step.ListToString(lst));
+    }
 }
