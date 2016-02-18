@@ -52,19 +52,6 @@
     </LinearLayout>
 
     <TextView
-        android:id="@+id/stepActionLabel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/action"
-        android:textAppearance="?android:attr/textAppearanceMedium"/>
-
-    <EditText
-        android:id="@+id/stepAction"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:inputType="textCapSentences"/>
-
-    <TextView
         android:id="@+id/stepIngredientLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -76,20 +63,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:inputType="textCapSentences"/>
-
-    <TextView
-        android:id="@+id/stepIngredientAmountLabel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/amount"
-        android:textAppearance="?android:attr/textAppearanceMedium"/>
-
-    <EditText
-        android:id="@+id/stepIngredientAmount"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:ems="10"
-        android:inputType="textCapSentences|numberDecimal"/>
 
     <TextView
         android:id="@+id/stepDescriptionLabel"

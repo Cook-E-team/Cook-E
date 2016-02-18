@@ -100,9 +100,7 @@ public class StepListAdapter extends BaseAdapter {
             ((TextView) editRecipeView.findViewById(R.id.stepTitle)).setText(
                     String.format(mContext.getString(R.string.step_list_title), position + 1));
             ((TextView) editRecipeView.findViewById(R.id.stepDescription)).setText(step.description);
-            ((TextView) editRecipeView.findViewById(R.id.stepAction)).setText(step.action);
             ((TextView) editRecipeView.findViewById(R.id.stepIngredient)).setText(step.ingredient);
-            ((TextView) editRecipeView.findViewById(R.id.stepIngredientAmount)).setText(step.amount);
             editRecipeView.findViewById(R.id.stepDelete).setOnClickListener(
                     new DeleteStepOnClickListener(this, position));
 
