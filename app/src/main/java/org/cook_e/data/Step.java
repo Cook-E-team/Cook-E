@@ -53,7 +53,7 @@ public final class Step implements Parcelable {
 	 * The ingredients required for this step
 	 */
 	@NonNull
-	private final List<Ingredient> mIngredients;
+	private final List<String> mIngredients;
 
 	/**
 	 * Creates a Step
@@ -63,7 +63,7 @@ public final class Step implements Parcelable {
 	 * @param duration an estimate of the time required to complete this step
 	 * @throws NullPointerException if any parameter is null
 	 */
-	public Step(@NonNull List<Ingredient> ingredients, @NonNull String action, @NonNull String description, @NonNull ReadableDuration duration) {
+	public Step(@NonNull List<String> ingredients, @NonNull String action, @NonNull String description, @NonNull ReadableDuration duration) {
 		Objects.requireNonNull(ingredients, "ingredients must not be null");
 		Objects.requireNonNull(description, "description must not be null");
 		Objects.requireNonNull(duration, "duration must not be null");
@@ -96,7 +96,7 @@ public final class Step implements Parcelable {
 	 * @return the ingredients
 	 */
 	@NonNull
-	public List<Ingredient> getIngredients() {
+	public List<String> getIngredients() {
 		return new ArrayList<>(mIngredients);
 	}
 
@@ -140,8 +140,8 @@ public final class Step implements Parcelable {
 			final String description = source.readString();
 			final String action = source.readString();
 			final Duration duration = (Duration) source.readSerializable();
-			final Ingredient[] ingredients = Objects.castArray(
-					source.readParcelableArray(Ingredient.class.getClassLoader()), Ingredient[].class);
+			final String[] ingredients = Objects.castArray(
+					source.readParcelableArray(String.class.getClassLoader()), String[].class);
 			return new Step(Arrays.asList(ingredients), action, description, duration);
 		}
 
@@ -161,6 +161,6 @@ public final class Step implements Parcelable {
 	public void writeToParcel(Parcel dest, int flags) {
 		dest.writeString(mDescription);
 		dest.writeSerializable(mTime);
-		dest.writeParcelableArray(mIngredients.toArray(new Ingredient[mIngredients.size()]), flags);
+		dest.writeStringArray((String[])mIngredients.toArray());
 	}
 }

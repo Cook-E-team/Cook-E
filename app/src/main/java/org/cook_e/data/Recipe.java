@@ -111,10 +111,10 @@ public final class Recipe implements Parcelable {
 	 * Returns a List of all the ingredients required by all the steps of the recipe
 	 */
 	@NonNull
-	public List<Ingredient> getIngredients() {
-		List<Ingredient> ings = new ArrayList<>();
+	public List<String> getIngredients() {
+		List<String> ings = new ArrayList<>();
 		for (Step s: mSteps) {
-			for (Ingredient ingredient: s.getIngredients()) {
+			for (String ingredient: s.getIngredients()) {
 				ings.add(ingredient);
 			}
 		}
