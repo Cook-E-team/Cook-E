@@ -21,6 +21,8 @@ package org.cook_e.data;
 
 import android.content.Context;
 
+import java.util.Map;
+
 /**
  * Created by kylewoo on 2/16/16.
  */
@@ -28,33 +30,84 @@ public class StorageAccessor {
     private SQLiteAccessor sqlite;
     private SQLServerAccessor sqlserver;
     private StorageParser parser;
+    private static int recipe_counter = 0; // these are local counters, they do not apply to external databases
+    private static int bunch_counter = 0;
+    private Map<Pair<String, String>, Integer> recipe_ids;
+    private Map<String, Integer> bunch_ids;
     public StorageAccessor(Context c) {
         sqlite = new SQLiteAccessor(c, parser);
         sqlserver = new SQLServerAccessor(parser);
         parser = new StorageParser();
     }
     public void storeRecipe(Recipe r) {
-        sqlite.storeRecipe(r);
+        Integer id = getRecipeId(r);
+        if (id == null) recipe_ids.put(new Pair<String, String>(r.getTitle(), r.getAuthor()), recipe_counter++);
+        sqlite.storeRecipe(r, (int)id);
     }
+
+    /**
+     * Assumes that all recipes in the bunch are stored already
+     * @param b
+     */
     public void storeBunch(Bunch b) {
-        sqlite.storeBunch(b);
+        Integer id = getBunchId(b);
+        if (id == null) bunch_ids.put(b.getTitle(), bunch_counter++);
+        sqlite.storeBunch(b, (int) id, recipe_ids);
     }
     public Recipe loadRecipe(String title, String author) {
         Recipe r = null;
-        r = sqlite.loadRecipe(title, author);
+        Integer id = getRecipeId(title, author);
+        //if (id == null) // search database
+        r = sqlite.loadRecipe((int)id);
         if (r == null) {
-            r = sqlserver.findRecipe(title, author); // this section will be expanded when database is implemented
-            if (r != null) sqlite.storeRecipe(r);
+            //r = sqlserver.findRecipe(title, author); // this section will be expanded when database is implemented
+            if (r != null) sqlite.storeRecipe(r, id);
         }
         return r;
     }
+    public Bunch loadBunch(String name) {
+        Integer id = getBunchId(name);
+        //if (id == null) // could this happen?
+        Bunch b = sqlite.loadBunch((int)id);
+        return b;
+    }
+    public void editRecipe(Recipe r) {
+        Integer id = getRecipeId(r);
+        if (id != null) sqlite.editRecipe(r, (int)id);
+
+    }
+    public void editBunch(Bunch b) {
+        Integer id = getBunchId(b);
+        if (id != null) {
+            sqlite.editBunch(b, (int)id, recipe_ids);
+        }
+    }
     public void deleteRecipe(String title, String author) {
-        sqlite.deleteRecipe(title,author);
+        Integer id = getRecipeId(title, author);
+        if (id != null) {
+            sqlite.deleteRecipe(id);
+        }
     }
     public void deleteRecipe(Recipe r) {
-        sqlite.deleteRecipe(r);
+        deleteRecipe(r.getTitle(), r.getAuthor());
     }
     public void deleteBunch(Bunch b) {
-        sqlite.deleteBunch(b);
+        Integer id = getBunchId(b);
+        sqlite.deleteBunch(id);
+    }
+    private Integer getRecipeId(Recipe r) {
+        return getRecipeId(r.getTitle(), r.getAuthor());
+    }
+    private Integer getRecipeId(String title, String author) {
+        Pair<String, String> r_name = new Pair<String, String>(title, author);
+        Integer id = recipe_ids.get(r_name);
+        return id;
+    }
+    private Integer getBunchId(Bunch b) {
+        return getBunchId(b.getTitle());
+    }
+    private Integer getBunchId(String name) {
+        Integer id = bunch_ids.get(name);
+        return id;
     }
 }
