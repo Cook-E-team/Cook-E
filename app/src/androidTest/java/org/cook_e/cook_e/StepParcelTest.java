@@ -21,7 +21,6 @@ package org.cook_e.cook_e;
 
 import android.os.Parcel;
 
-import org.cook_e.data.Ingredient;
 import org.cook_e.data.Step;
 import org.joda.time.Duration;
 import org.junit.Test;
@@ -49,8 +48,8 @@ public class StepParcelTest {
     @Test
     public void testParcelBasic() {
         final Parcel parcel = Parcel.obtain();
-        final Step original = new Step(new ArrayList<Ingredient>(), "Something",
-                "Do something with particular qualities", Duration.standardSeconds(30));
+        final Step original = new Step(new ArrayList<String>(), "Something",
+                "Do something with particular qualities", Duration.standardSeconds(30), false);
 
         original.writeToParcel(parcel, 0);
         parcel.setDataPosition(0);
@@ -62,8 +61,8 @@ public class StepParcelTest {
     @Test
     public void testParcelOneIngredient() {
         final Parcel parcel = Parcel.obtain();
-        final Ingredient scallops = new Ingredient("Scallops", 4, "");
-        final Step original = new Step(Collections.singletonList(scallops), "Poach", "Gently poach the scallops", Duration.standardMinutes(3));
+        final String scallopsIng = "4 Scallops";
+        final Step original = new Step(Collections.singletonList(scallopsIng), "Poach", "Gently poach the scallops", Duration.standardMinutes(3), false);
 
         original.writeToParcel(parcel, 0);
         parcel.setDataPosition(0);
@@ -72,17 +71,17 @@ public class StepParcelTest {
         assertNotNull(unparceled);
         assertEquals(original, unparceled);
 
-        final Ingredient unparceledIngredient = unparceled.getIngredients().get(0);
-        assertEquals(scallops, unparceledIngredient);
+        final String unparceledIngredient = unparceled.getIngredients().get(0);
+        assertEquals(scallopsIng, unparceledIngredient);
     }
 
     @Test
     public void testParcelTwoIngredients() {
         final Parcel parcel = Parcel.obtain();
-        final Ingredient scallops = new Ingredient("Scallops", 4, "");
-        final Ingredient butter = new Ingredient("Butter", 1, "kilogram");
-        final Step original = new Step(Arrays.asList(scallops, butter),
-                "Poach", "Gently poach (fry?) the scallops in butter", Duration.standardMinutes(2));
+        final String scallopsIng = "4 Scallops";
+        final String butterIng = "1 kilogram Butter";
+        final Step original = new Step(Arrays.asList(scallopsIng, butterIng),
+                "Poach", "Gently poach (fry?) the scallops in butter", Duration.standardMinutes(2), false);
 
         original.writeToParcel(parcel, 0);
         parcel.setDataPosition(0);
@@ -91,10 +90,10 @@ public class StepParcelTest {
         assertNotNull(unparceled);
         assertEquals(original, unparceled);
 
-        final Ingredient unparceledScallops = unparceled.getIngredients().get(0);
-        assertEquals(scallops, unparceledScallops);
+        final String unparceledScallops = unparceled.getIngredients().get(0);
+        assertEquals(scallopsIng, unparceledScallops);
 
-        final Ingredient unparceledButter = unparceled.getIngredients().get(1);
-        assertEquals(butter, unparceledButter);
+        final String unparceledButter = unparceled.getIngredients().get(1);
+        assertEquals(butterIng, unparceledButter);
     }
 }
