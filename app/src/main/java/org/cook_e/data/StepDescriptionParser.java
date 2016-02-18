@@ -19,6 +19,10 @@
 
 package org.cook_e.data;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * A static class for parsing out information about descriptions.
  */
@@ -37,6 +41,9 @@ public final class StepDescriptionParser {
 
         ////////// TEMPORARY simple solution //////////
         description = description.toLowerCase();
+
+        Set<String> simulAction = new HashSet<String>(Arrays.asList("bake", "boil"));
+
         if (description.contains("boil") || description.contains("bake")) {
             return true;
         } else {

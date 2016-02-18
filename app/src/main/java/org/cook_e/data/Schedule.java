@@ -33,6 +33,7 @@ import java.util.TreeMap;
 public class Schedule {
     private final Map<Step, Recipe> stepToRecipeMap;
     private final List<Step> finalSteps;
+    private int currentStepIndexInFinalList = 0;
 
     /**
      * Creates a schedule based on the given Bunch.
@@ -64,6 +65,47 @@ public class Schedule {
             Step nextStep = getNextScheduledStep(unscheduledRecipeStepsList);
             this.finalSteps.add(nextStep);
         }
+    }
+
+    /**
+     *
+     * @param s Step to find it's reciept it belongs to
+     *
+     * @return the Recipe if there is a Receipt asssociated with such step. Return null otherwise
+     */
+    public Recipe getRecipeFromStep(Step s) {
+        if (stepToRecipeMap.containsKey(s)) {
+            return stepToRecipeMap.get(s);
+
+        }
+        return null;
+    }
+
+    /**
+     * After done populating the final scheduled step list. This function will return the nextStep
+     *
+     * @return The NextStep after the current Step. If already last step, return null
+     */
+    public Step getNextStep() {
+        if (currentStepIndexInFinalList < getStepCount() - 1) {
+            currentStepIndexInFinalList += 1;
+            return finalSteps.get(currentStepIndexInFinalList);
+        }
+        return null;
+    }
+
+    /**
+     * After done populating the final scheduled step list. This function will return the previous step
+     * of the current Step
+     *
+     * @return The PrevStep before the current Step
+     */
+    public Step getPrevStep() {
+        if (currentStepIndexInFinalList > 0) {
+            currentStepIndexInFinalList -= 1;
+            return finalSteps.get(currentStepIndexInFinalList);
+        }
+        return null;
     }
 
     /**
