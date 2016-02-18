@@ -67,10 +67,10 @@ public class StorageAccessor {
     }
 
     /**
-     * 
-     * @param title
-     * @param author
-     * @return
+     * Retrieve a recipe from storage
+     * @param title String title of the recipe
+     * @param author String author of the recipe
+     * @return Recipe object or null if recipe could not be found
      */
     public Recipe loadRecipe(String title, String author) {
         Recipe r = null;
@@ -83,47 +83,104 @@ public class StorageAccessor {
         }
         return r;
     }
+
+    /**
+     * Retrieve a bunch from storage
+     * @param name String name of the Bunch
+     * @return Bunch object or null if bunch could not be found
+     */
     public Bunch loadBunch(String name) {
         Integer id = getBunchId(name);
         //if (id == null) // could this happen?
         Bunch b = sqlite.loadBunch((int)id);
         return b;
     }
+
+    /**
+     * Update a recipe on the local database
+     * @param r Recipe to update
+     */
     public void editRecipe(Recipe r) {
         Integer id = getRecipeId(r);
         if (id != null) sqlite.editRecipe(r, (int)id);
 
     }
+
+    /**
+     * update a bunch on the local database
+     * @param b Bunch to update
+     */
     public void editBunch(Bunch b) {
         Integer id = getBunchId(b);
         if (id != null) {
             sqlite.editBunch(b, (int)id, recipe_ids);
         }
     }
+
+    /**
+     * delete a recipe on the local database
+     * @param title String title of the recipe to delete
+     * @param author String author of the recipe to delete
+     */
     public void deleteRecipe(String title, String author) {
         Integer id = getRecipeId(title, author);
         if (id != null) {
             sqlite.deleteRecipe(id);
         }
     }
+
+    /**
+     * delete a recipe on the local database
+     * @param r Recipe to delete
+     */
     public void deleteRecipe(Recipe r) {
         deleteRecipe(r.getTitle(), r.getAuthor());
     }
+
+    /**
+     * delete a bunch on the local database
+     * @param b Bunch to delete
+     */
     public void deleteBunch(Bunch b) {
         Integer id = getBunchId(b);
         sqlite.deleteBunch(id);
     }
+
+    /**
+     * Helper that returns id of a recipe
+     * @param r Recipe to get id of
+     * @return id or null if no id for that recipe exists
+     */
     private Integer getRecipeId(Recipe r) {
         return getRecipeId(r.getTitle(), r.getAuthor());
     }
+
+    /**
+     * Helper that returns id of a recipe
+     * @param title String title of the recipe to get id of
+     * @param author String author of the recipe to get id of
+     * @return id or null if no id for that recipe exists
+     */
     private Integer getRecipeId(String title, String author) {
         Pair<String, String> r_name = new Pair<String, String>(title, author);
         Integer id = recipe_ids.get(r_name);
         return id;
     }
+
+    /**
+     * Helper that returns id of a bunch
+     * @param b Bunch to get id of
+     * @return id or null if no id for that bunch exists
+     */
     private Integer getBunchId(Bunch b) {
         return getBunchId(b.getTitle());
     }
+
+    /**
+     * Helper that returns id of a bunch
+     * @param name String name of the bunch to get id of
+     * @return id or null if no id for that bunch exists
+     */
     private Integer getBunchId(String name) {
         Integer id = bunch_ids.get(name);
         return id;
