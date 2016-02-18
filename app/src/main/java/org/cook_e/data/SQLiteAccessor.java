@@ -248,10 +248,10 @@ public class SQLiteAccessor {
     }
 
     /**
-     * Helper that creates a ContentValues object
-     * @param r
-     * @param id
-     * @return
+     * Helper that creates a ContentValues object for the Recipes table
+     * @param r Recipe object to take values from
+     * @param id int id of recipe
+     * @return ContentValues containing the mapping from column name to value for Recipes Table
      */
     private ContentValues createContentValues(Recipe r, int id) {
         ContentValues values = new ContentValues();
@@ -261,12 +261,26 @@ public class SQLiteAccessor {
         values.put(RECIPE_COLUMNS[3], parser.convertRecipeToString(r));
         return values;
     }
+    /**
+     * Helper that creates a ContentValues object for the Bunches table
+     * @param b Bunch object to take values from
+     * @param id int id of bunch
+     * @return ContentValues containing the mapping from column name to value for Bunches Table
+     */
     private ContentValues createContentValues(Bunch b, int id) {
         ContentValues values = new ContentValues();
         values.put(RECIPE_COLUMNS[0], id);
         values.put(RECIPE_COLUMNS[1], b.getTitle());
         return values;
     }
+
+    /**
+     * Helper that creates a list of ContentValues for the Bunch Recipes table
+     * @param b Bunch object
+     * @param bunch_id int id of bunch
+     * @param recipe_ids Map of (recipe name, recipe author) to recipe id
+     * @return List of ContentValues containing the mapping from column name to value for the Bunch Recipes table
+     */
     private List<ContentValues> createContentValues(Bunch b, int bunch_id, Map<Pair<String, String>, Integer> recipe_ids) {
         List<ContentValues> values_list = new ArrayList<>();
         for (Recipe r: b.getRecipes()) {
@@ -275,18 +289,30 @@ public class SQLiteAccessor {
         }
         return values_list;
     }
+
+    /**
+     * Helper that creates a ContentValues object for the Bunch Recipes table
+     * @param bunch_id int id of bunch
+     * @param recipe_id int id of recipe
+     * @return ContentValues object containing the mapping from column name to value for the Bunch Recipes Table
+     */
     private ContentValues createContentValues(int bunch_id, int recipe_id) {
         ContentValues values = new ContentValues();
         values.put(BUNCH_RECIPE_COLUMNS[0], bunch_id);
         values.put(BUNCH_RECIPE_COLUMNS[1], recipe_id);
         return values;
     }
+
+    /**
+     * Private helper class that has methods that allows for access to the underlying android sqlite database
+     */
     private class RecipeOpenHelper extends SQLiteOpenHelper {
         private static final int DATABASE_VERSION = 2;
 
         public RecipeOpenHelper(Context c) {
             super(c, DATABASE_NAME, null, DATABASE_VERSION);
         }
+
         @Override
         public void onCreate(SQLiteDatabase db) {
             db.execSQL(RECIPE_TABLE_CREATE);

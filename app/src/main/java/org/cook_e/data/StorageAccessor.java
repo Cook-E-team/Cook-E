@@ -24,7 +24,7 @@ import android.content.Context;
 import java.util.Map;
 
 /**
- * Created by kylewoo on 2/16/16.
+ * Class that handles storing and retrieving recipes and bunches from the local sqlite database and external sqlserver database
  */
 public class StorageAccessor {
     private SQLiteAccessor sqlite;
@@ -34,11 +34,21 @@ public class StorageAccessor {
     private static int bunch_counter = 0;
     private Map<Pair<String, String>, Integer> recipe_ids;
     private Map<String, Integer> bunch_ids;
+
+    /**
+     * Constructor
+     * @param c Context of the activity that wants to store/retrieve data
+     */
     public StorageAccessor(Context c) {
         sqlite = new SQLiteAccessor(c, parser);
         sqlserver = new SQLServerAccessor(parser);
         parser = new StorageParser();
     }
+
+    /**
+     * Store a recipe onto the local sqlite database
+     * @param r Recipe to store
+     */
     public void storeRecipe(Recipe r) {
         Integer id = getRecipeId(r);
         if (id == null) recipe_ids.put(new Pair<String, String>(r.getTitle(), r.getAuthor()), recipe_counter++);
@@ -46,6 +56,7 @@ public class StorageAccessor {
     }
 
     /**
+     * Store a bunch onto the local sqlite database
      * Assumes that all recipes in the bunch are stored already
      * @param b
      */
@@ -54,6 +65,13 @@ public class StorageAccessor {
         if (id == null) bunch_ids.put(b.getTitle(), bunch_counter++);
         sqlite.storeBunch(b, (int) id, recipe_ids);
     }
+
+    /**
+     * 
+     * @param title
+     * @param author
+     * @return
+     */
     public Recipe loadRecipe(String title, String author) {
         Recipe r = null;
         Integer id = getRecipeId(title, author);
