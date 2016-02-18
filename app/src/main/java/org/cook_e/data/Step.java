@@ -54,7 +54,11 @@ public final class Step implements Parcelable {
 	 */
 	@NonNull
 	private final List<String> mIngredients;
-
+	/**
+	 * Whether this step can be done simultaneously
+	 */
+	@NonNull
+	private final boolean mSimultaneous;
 	/**
 	 * Creates a Step
 	 * @param ingredients the ingredients required for this step
@@ -63,14 +67,15 @@ public final class Step implements Parcelable {
 	 * @param duration an estimate of the time required to complete this step
 	 * @throws NullPointerException if any parameter is null
 	 */
-	public Step(@NonNull List<String> ingredients, @NonNull String action, @NonNull String description, @NonNull ReadableDuration duration) {
+	public Step(@NonNull List<String> ingredients, @NonNull String action, @NonNull String description, @NonNull ReadableDuration duration, @NonNull boolean isSimultaneous) {
 		Objects.requireNonNull(ingredients, "ingredients must not be null");
 		Objects.requireNonNull(description, "description must not be null");
 		Objects.requireNonNull(duration, "duration must not be null");
-
+		Objects.requireNonNull(isSimultaneous, "is simultaneous must not be null");
 		mDescription = description;
 		mTime = duration.toDuration();
 		mIngredients = new ArrayList<>(ingredients);
+		this.mSimultaneous = isSimultaneous;
 	}
 
 	/**
@@ -100,7 +105,12 @@ public final class Step implements Parcelable {
 		return new ArrayList<>(mIngredients);
 	}
 
-
+	/**
+	 * Returns if this step can be done simultaneously
+	 * @return true if this step can be done simultaneously
+	 */
+	@NonNull
+	public boolean isSimultaneous() { return mSimultaneous; };
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
@@ -128,6 +138,7 @@ public final class Step implements Parcelable {
 				"mDescription='" + mDescription + '\'' +
 				", mTime=" + mTime +
 				", mIngredients=" + mIngredients +
+				", mSimultaneous=" + mSimultaneous +
 				'}';
 	}
 
@@ -140,9 +151,10 @@ public final class Step implements Parcelable {
 			final String description = source.readString();
 			final String action = source.readString();
 			final Duration duration = (Duration) source.readSerializable();
+			final Boolean simultaneous = (Boolean) source.readSerializable();
 			final String[] ingredients = Objects.castArray(
 					source.readParcelableArray(String.class.getClassLoader()), String[].class);
-			return new Step(Arrays.asList(ingredients), action, description, duration);
+			return new Step(Arrays.asList(ingredients), action, description, duration, simultaneous);
 		}
 
 		@Override
@@ -161,6 +173,7 @@ public final class Step implements Parcelable {
 	public void writeToParcel(Parcel dest, int flags) {
 		dest.writeString(mDescription);
 		dest.writeSerializable(mTime);
-		dest.writeStringArray((String[])mIngredients.toArray());
+		dest.writeStringArray((String[]) mIngredients.toArray());
+		dest.writeSerializable(mSimultaneous);
 	}
 }
