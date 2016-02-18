@@ -37,7 +37,29 @@ public class SQLiteAccessor {
     private static final String RECIPE_IMAGE_TABLE_NAME = "RecipeImages";
     private static final String[] RECIPE_IMAGE_COLUMNS = {"name", "author", "image"};
     private static final String BUNCH_TABLE_NAME = "Bunches";
-    private static final String[] BUNCH_COLUMNS = {};
+    private static final String[] BUNCH_COLUMNS = {"bunch name", "recipe name", "author"};
+    private static final String RECIPE_TABLE_CREATE =
+            "CREATE TABLE " + RECIPE_TABLE_NAME + " (" +
+                    " \"" + RECIPE_COLUMNS[0]  +"\" TEXT NOT NULL DEFAULT \"\"" +
+                    " \"" + RECIPE_COLUMNS[1]  + "\" TEXT NOT NULL DEFAULT \"\"" +
+                    " \"" + RECIPE_COLUMNS[2]  + "\" TEXT NOT NULL DEFAULT \"\"" +
+                    " PRIMARY KEY (" + RECIPE_COLUMNS[0] +", " + RECIPE_COLUMNS[1] + "));";
+
+    private static final String RECIPE_IMAGE_TABLE_CREATE =
+            "CREATE TABLE " + RECIPE_IMAGE_TABLE_NAME + " (" +
+            " \"" + RECIPE_IMAGE_COLUMNS[0] + "\" TEXT NOT NULL DEFAULT \"\"" +
+            " \"" + RECIPE_IMAGE_COLUMNS[1] + "\" TEXT NOT NULL DEFAULT \"\"" +
+            " \"" + RECIPE_IMAGE_COLUMNS[2] + "\" BLOB NOT NULL" +
+            " PRIMARY KEY (" + RECIPE_IMAGE_COLUMNS[0] + ", " + RECIPE_IMAGE_COLUMNS[1] + ", " +
+            RECIPE_IMAGE_COLUMNS[2] + "));";
+
+    private static final String BUNCH_TABLE_CREATE =
+            "CREATE TABLE " + BUNCH_TABLE_NAME + " (" +
+                    " \"" + BUNCH_COLUMNS[0] + "\" TEXT NOT NULL DEFAULT \"\"" +
+                    " \"" + BUNCH_COLUMNS[1] + "\" TEXT NOT NULL DEFAULT \"\"" +
+                    " \"" + BUNCH_COLUMNS[2] + "\" TEXT NOT NULL DEFAULT \"\"" +
+                    " PRIMARY KEY (" + BUNCH_COLUMNS[0] + ", " + BUNCH_COLUMNS[1] + ", " +
+                    BUNCH_COLUMNS[2] + "));";
     public SQLiteAccessor(Context c, StorageParser parser) {
         helper = new RecipeOpenHelper(c);
         this.parser = parser;
@@ -70,6 +92,13 @@ public class SQLiteAccessor {
 
         return r;
     }
+    public Bunch loadBunch(String name) {
+        Bunch b = null;
+        SQLiteDatabase db = helper.getReadableDatabase();
+        String[] whereArgs = {name};
+
+        return b;
+    }
     public void deleteRecipe(Recipe r) {
         deleteRecipe(r.getTitle(), r.getAuthor());
     }
@@ -84,19 +113,7 @@ public class SQLiteAccessor {
 
     private class RecipeOpenHelper extends SQLiteOpenHelper {
         private static final int DATABASE_VERSION = 2;
-        private final String RECIPE_TABLE_CREATE =
-                "CREATE TABLE " + RECIPE_TABLE_NAME + " (" +
-                        " \"" + RECIPE_COLUMNS[0]  +"\" TEXT NOT NULL DEFAULT \"\"" +
-                        " \"" + RECIPE_COLUMNS[1]  + "\" TEXT NOT NULL DEFAULT \"\"" +
-                        " \"" + RECIPE_COLUMNS[2]  + "\" TEXT NOT NULL DEFAULT \"\"" +
-                        " PRIMARY KEY (" + RECIPE_COLUMNS[0] +", " + RECIPE_COLUMNS[1] + "));";
-        private final String RECIPE_IMAGE_TABLE_CREATE = "" +
-                "CREATE TABLE " + RECIPE_IMAGE_TABLE_NAME + " (" +
-                " \"" + RECIPE_IMAGE_COLUMNS[0] + "\" TEXT NOT NULL DEFAULT \"\"" +
-                " \"" + RECIPE_IMAGE_COLUMNS[1] + "\" TEXT NOT NULL DEFAULT \"\"" +
-                " \"" + RECIPE_IMAGE_COLUMNS[2] + "\" BLOB NOT NULL" +
-                " PRIMARY KEY (" + RECIPE_IMAGE_COLUMNS[0] + ", " + RECIPE_IMAGE_COLUMNS[1] + ", " +
-                RECIPE_IMAGE_COLUMNS[2] + "));";
+
         public RecipeOpenHelper(Context c) {
             super(c, DATABASE_NAME, null, DATABASE_VERSION);
         }
