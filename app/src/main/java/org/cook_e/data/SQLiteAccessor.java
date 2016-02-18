@@ -30,11 +30,21 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Created by kylewoo on 2/17/16.
+ * This class implements methods allowing for storage and access to an android local sqlite database
  */
 public class SQLiteAccessor {
+    /**
+     * Parser for transforming a string description into a Recipe and vice versa
+     */
     private StorageParser parser;
+    /**
+     * Helper that has methods for accessing the android local sqlite database
+     */
     private RecipeOpenHelper helper;
+
+    /**
+     * Constants for use in creating and accessing columns for the tables
+     */
     private static final String DATABASE_NAME = "RecipesDatabase";
     private static final String RECIPE_TABLE_NAME = "Recipes";
     private static final String[] RECIPE_COLUMNS = {"id", "name", "author", "description"}; // note the indexes are 0 based
@@ -44,6 +54,9 @@ public class SQLiteAccessor {
     private static final String[] BUNCH_COLUMNS = {"id", "name"};
     private static final String BUNCH_RECIPES_TABLE_NAME = "Bunch Recipes";
     private static final String[] BUNCH_RECIPE_COLUMNS = {"bunch id", "recipe id"};
+    /**
+     * Schema of the Recipes table: (id, name, author, description)
+     */
     private static final String RECIPE_TABLE_CREATE =
             "CREATE TABLE " + RECIPE_TABLE_NAME + " (" +
                     " \"" + RECIPE_COLUMNS[0] + "\" INT NOT NULL DEFAULT 0" +
@@ -51,33 +64,60 @@ public class SQLiteAccessor {
                     " \"" + RECIPE_COLUMNS[2]  + "\" TEXT NOT NULL DEFAULT \"\"" +
                     " \"" + RECIPE_COLUMNS[3]  + "\" TEXT NOT NULL DEFAULT \"\"" +
                     " PRIMARY KEY (" + RECIPE_COLUMNS[0] + "));";
-
+    /**
+     * Schema of the Recipe Images table: (id, image)
+     */
     private static final String RECIPE_IMAGE_TABLE_CREATE =
             "CREATE TABLE " + RECIPE_IMAGE_TABLE_NAME + " (" +
             " \"" + RECIPE_IMAGE_COLUMNS[0] + "\" INT NOT NULL DEFAULT 0" +
             " \"" + RECIPE_IMAGE_COLUMNS[1] + "\" BLOB NOT NULL" +
             " PRIMARY KEY (" + RECIPE_IMAGE_COLUMNS[0] + ", " + RECIPE_IMAGE_COLUMNS[1] + "));";
-
+    /**
+     * Schema of the Bunches table: (id, name)
+     */
     private static final String BUNCH_TABLE_CREATE =
             "CREATE TABLE " + BUNCH_TABLE_NAME + " (" +
                     " \"" + BUNCH_COLUMNS[0] + "\" INT NOT NULL DEFAULT 0" +
                     " \"" + BUNCH_COLUMNS[1] + "\" TEXT NOT NULL DEFAULT \"\"" +
                     " PRIMARY KEY (" + BUNCH_COLUMNS[0] + "));";
+    /**
+     * Schema of the Bunch Recipes table: (bunch id, recipe id)
+     */
     private static final String BUNCH_RECIPE_TABLE_CREATE =
             "CREATE TABLE " + BUNCH_RECIPES_TABLE_NAME + " (" +
                     " \"" + BUNCH_RECIPE_COLUMNS[0] + "\" INT NOT NULL DEFAULT 0" +
                     " \"" + BUNCH_RECIPE_COLUMNS[1] + "\" INT NOT NULL DEFAULT 0" +
                     " PRIMARY KEY (" + BUNCH_RECIPE_COLUMNS[0] + ", " + BUNCH_RECIPE_COLUMNS[1] + "));";
+
+    /**
+     * Constructor
+     * @param c Context of the activity that will be using the sqlite database
+     * @param parser Parser that will implement String > Recipe and Recipe > String transformation
+     */
     public SQLiteAccessor(Context c, StorageParser parser) {
         helper = new RecipeOpenHelper(c);
         this.parser = parser;
     }
+
+    /**
+     * Store a recipe on the sqlite database
+     * @param r Recipe object to store
+     * @param id int id of the recipe
+     */
     public void storeRecipe(Recipe r, int id) {
         SQLiteDatabase db = helper.getWritableDatabase();
         ContentValues values = createContentValues(r, id);
         db.insert(RECIPE_TABLE_NAME, null, values);
         db.close();
     }
+
+    /**
+     * Store a bunch on the sqlite database
+     * Assumes that all recipes within this bunch have been stored on the database
+     * @param b Bunch object to store
+     * @param bunch_id int id of the bunch
+     * @param recipe_ids Map of (recipe name, recipe author) to recipe ids
+     */
     public void storeBunch(Bunch b, int bunch_id, Map<Pair<String, String>,Integer> recipe_ids) {
         SQLiteDatabase db = helper.getWritableDatabase();
         List<ContentValues> values_list = createContentValues(b, bunch_id, recipe_ids);
@@ -89,6 +129,12 @@ public class SQLiteAccessor {
         db.close();
 
     }
+
+    /**
+     * Edit a recipe stored on the sqlite database
+     * @param r Recipe object to update
+     * @param id int id of recipe
+     */
     public void editRecipe(Recipe r, int id) {
         SQLiteDatabase db = helper.getWritableDatabase();
         ContentValues values = createContentValues(r, id);
@@ -96,6 +142,13 @@ public class SQLiteAccessor {
         db.update(RECIPE_TABLE_NAME, values, "id = ?", whereArgs);
         db.close();
     }
+
+    /**
+     * Edit a bunch stored on the sqlite database
+     * @param b Bunch object to edit
+     * @param bunch_id int id of bunch
+     * @param recipe_ids Map of (recipe name, recipe author) to recipe id
+     */
     public void editBunch(Bunch b, int bunch_id, Map<Pair<String, String>, Integer> recipe_ids) {
         SQLiteDatabase db = helper.getWritableDatabase();
         ContentValues bunch_values = createContentValues(b, bunch_id);
@@ -108,6 +161,12 @@ public class SQLiteAccessor {
         }
         db.close();
     }
+
+    /**
+     * Load a recipe off the database
+     * @param id int id of the recipe
+     * @return Recipe object
+     */
     public Recipe loadRecipe(int id) {
         Recipe r = null;
         SQLiteDatabase db = helper.getReadableDatabase();
@@ -125,6 +184,12 @@ public class SQLiteAccessor {
 
         return r;
     }
+
+    /**
+     * Load a bunch off the database (and all its contained recipes)
+     * @param id
+     * @return Bunch object
+     */
     public Bunch loadBunch(int id) {
         Bunch b = null;
         SQLiteDatabase db = helper.getReadableDatabase();
@@ -158,16 +223,36 @@ public class SQLiteAccessor {
         db.close();
         return b;
     }
+
+    /**
+     * Delete a recipe from the database
+     * @param id int id of recipe
+     */
     public void deleteRecipe(int id) {
         SQLiteDatabase db = helper.getWritableDatabase();
         String[] whereArgs = {String.valueOf(id)};
         db.delete(RECIPE_TABLE_NAME, "id = ?", whereArgs);
+        db.close();
     }
+
+    /**
+     * Delete a bunch from the database
+     * @param id int id of bunch
+     */
     public void deleteBunch(int id) {
         SQLiteDatabase db = helper.getWritableDatabase();
         String[] whereArgs = {String.valueOf(id)};
         db.delete(BUNCH_TABLE_NAME, "id = ?", whereArgs);
+        db.delete(BUNCH_RECIPES_TABLE_NAME, "bunch id = ?", whereArgs);
+        db.close();
     }
+
+    /**
+     * Helper that creates a ContentValues object
+     * @param r
+     * @param id
+     * @return
+     */
     private ContentValues createContentValues(Recipe r, int id) {
         ContentValues values = new ContentValues();
         values.put(RECIPE_COLUMNS[0], id);
