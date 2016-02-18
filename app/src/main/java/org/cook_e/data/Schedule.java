@@ -21,46 +21,59 @@ package org.cook_e.data;
 
 
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * A class that produces and manages a schedule for a Bunch.
  */
 public class Schedule {
-    private final List<Recipe> recipes;
-    private final List<Step> steps;
+    private final Map<Step, Recipe> stepToRecipeMap;
+    private final List<Step> finalSteps;
 
     /**
      * Creates a schedule based on the given Bunch.
      *
-     * @param b the Bunch to schedule steps from
+     * @param b the Bunch to schedule finalSteps from
      */
     public Schedule(Bunch b) {
-        this.recipes = b.getRecipes();
-        this.steps = new ArrayList<Step>();
+        this.finalSteps = new ArrayList<Step>();
+        this.stepToRecipeMap = new HashMap<Step, Recipe>();
 
-        // Each UnscheduledSteps element is the the list of unscheduled steps for
-        // a particular recipe.
-        List<UnscheduledSteps> unscheduledRecipeSteps = new ArrayList<UnscheduledSteps>();
-        for (Recipe r: recipes) {
-            unscheduledRecipeSteps.add(new UnscheduledSteps(r));
+        // populate stepToRecipeMap.
+        // TODO: does not work if two steps are the same but from different recipes
+        List<Recipe> recipes = b.getRecipes();
+        for(Recipe recipe : recipes) {
+            for(Step step : recipe.getSteps()) {
+                stepToRecipeMap.put(step, recipe);
+            }
         }
 
-        // Schedules the steps.
-        while (unscheduledRecipeSteps.size() > 0) {
-            Step nextStep = getNextScheduledStep(unscheduledRecipeSteps);
-            this.steps.add(nextStep);
+        // populate UnscheduledRecipeStepsList
+        List<UnscheduledRecipeSteps> unscheduledRecipeStepsList = new ArrayList<UnscheduledRecipeSteps>();
+        for (Recipe r: recipes) {
+            if(r.getSteps().isEmpty()) continue;
+            unscheduledRecipeStepsList.add(new UnscheduledRecipeSteps(r));
+        }
+
+        // Schedules the finalSteps.
+        while (unscheduledRecipeStepsList.size() > 0) {
+            Step nextStep = getNextScheduledStep(unscheduledRecipeStepsList);
+            this.finalSteps.add(nextStep);
         }
     }
 
     /**
-     * Returns the total number of steps scheduled. This value
+     * Returns the total number of finalSteps scheduled. This value
      * will not change over the lifetime of the Schedule.
      *
-     * @return the total number of steps scheduled
+     * @return the total number of finalSteps scheduled
      */
     public int getStepCount() {
-        return steps.size();
+        return finalSteps.size();
     }
 
     /**
@@ -71,23 +84,23 @@ public class Schedule {
      * @return the step at the given index
      */
     public Step getStep(int index) {
-        if (index < 0 || index >= steps.size())
+        if (index < 0 || index >= finalSteps.size())
             throw new IndexOutOfBoundsException(index + " is not a valid step index." +
-                    " There are " + steps.size() + " steps.");
+                    " There are " + finalSteps.size() + " finalSteps.");
 
-        return steps.get(index);
+        return finalSteps.get(index);
     }
 
 
     /*
      * Removes and returns the step to schedule for shortest cooking time.
-     * The given steps is also modified such that each element in the list
+     * The given finalSteps is also modified such that each element in the list
      * has its busy time shifted properly.
      *
-     * @param steps the unscheduled steps to pick a next step from
+     * @param finalSteps the unscheduled finalSteps to pick a next step from
      * @return the next step to schedule for shortest cooking time
      */
-    private Step getNextScheduledStep(List<UnscheduledSteps> steps) {
+    private Step getNextScheduledStep(List<UnscheduledRecipeSteps> unscheduledRecipeStepsList) {
 
         // Finds the recipe with the longest time from the first simultaneous step
         // to the last step that is ready and the recipe with the shortest busy time
@@ -96,11 +109,12 @@ public class Schedule {
         int maxSimultaneousToEndTime = -1;
         int bestBusyIndex = -1;
         int minBusyTime = -1;
-        for (int i = 0; i < steps.size(); i++) {
-            UnscheduledSteps currSteps = steps.get(i);
+        for (int i = 0; i < unscheduledRecipeStepsList.size(); i++) {
+            UnscheduledRecipeSteps currSteps = unscheduledRecipeStepsList.get(i);
             if (currSteps.busyTime == 0) {
                 // handles ready case
                 int currSimultaneousToEndTime = currSteps.getSimultaneousToEndTime();
+                // if we haven't picked an index yet or this Simultaneous to end time is larger
                 if (bestReadyIndex == -1 || currSimultaneousToEndTime > maxSimultaneousToEndTime) {
                     bestReadyIndex = i;
                     maxSimultaneousToEndTime = currSimultaneousToEndTime;
@@ -114,30 +128,19 @@ public class Schedule {
             }
         }
 
-        // Removes and returns the chosen step.
-        Step nextScheduledStep;
-        if (bestReadyIndex == -1) {
-            // no ready steps case
-            Step busyStep = steps.get(bestBusyIndex).removeNextStep();
-            int readyStepTime = minBusyTime + StepDescriptionParser.getTime(busyStep.getDescription());
-
-            // TO-DO: update busy time values
-
-            if (steps.get(bestBusyIndex).isEmpty()) {
-                steps.remove(bestBusyIndex);
-            }
-            nextScheduledStep = busyStep;
-        } else {
-            // ready step case
-            Step readyStep = steps.get(bestReadyIndex).removeNextStep();
-            int readyStepTime = StepDescriptionParser.getTime(readyStep.getDescription());
-
-            // TO-DO: update busy time values
-
-            if (steps.get(bestReadyIndex).isEmpty()) {
-                steps.remove(bestReadyIndex);
-            }
-            nextScheduledStep = readyStep;
+        // Removes and returns the chosen step
+        int chosenRecipeIndex = (bestReadyIndex == -1) ? bestBusyIndex : bestReadyIndex;
+        Step nextScheduledStep =  unscheduledRecipeStepsList.get(chosenRecipeIndex).removeNextStep();
+        int nextScheduledStepTime = ((bestReadyIndex == - 1) ? minBusyTime : 0) +
+                            StepDescriptionParser.getTime(nextScheduledStep.getDescription());
+        // Update busytimes for all other UnscheduledRecipeSteps
+        for (int i = 0; i < unscheduledRecipeStepsList.size(); i++) {
+            UnscheduledRecipeSteps currSteps = unscheduledRecipeStepsList.get(i);
+            if(i != chosenRecipeIndex)
+                currSteps.busyTime = Math.max(currSteps.busyTime - nextScheduledStepTime, 0);
+        }
+        if (unscheduledRecipeStepsList.get(chosenRecipeIndex).isEmpty()) {
+            unscheduledRecipeStepsList.remove(chosenRecipeIndex);
         }
         return nextScheduledStep;
     }
@@ -146,8 +149,8 @@ public class Schedule {
      * A private helper class used in the process of generating
      * the schedule.
      */
-    private class UnscheduledSteps {
-        // The list of unscheduled steps.
+    private class UnscheduledRecipeSteps {
+        // The list of unscheduled finalSteps.
         private final List<Step> steps;
         // The time in seconds from the first simultaneous step to the end of the last step.
         private int simultaneousToEndTime;
@@ -160,7 +163,7 @@ public class Schedule {
          *
          * @param r
          */
-        public UnscheduledSteps(Recipe r) {
+        public UnscheduledRecipeSteps(Recipe r) {
             this.steps = r.getSteps();
             this.busyTime = 0;
 
@@ -172,7 +175,7 @@ public class Schedule {
                     this.simultaneousToEndTime += StepDescriptionParser.getTime(currStep.getDescription());
                 } else if (StepDescriptionParser.isSimultaneous(currStep.getDescription())) {
                     simultaneousSeen = true;
-                    this.simultaneousToEndTime += StepDescriptionParser.getTime(currStep.getDescription());
+                    this.simultaneousToEndTime = StepDescriptionParser.getTime(currStep.getDescription());
                 }
             }
         }
@@ -195,7 +198,7 @@ public class Schedule {
             }
             Step nextStep = this.steps.remove(0);
             if (StepDescriptionParser.isSimultaneous(nextStep.getDescription())) {
-                // recalculate simultaneousToEndTime
+                busyTime = StepDescriptionParser.getTime(nextStep.getDescription());
                 this.simultaneousToEndTime -= StepDescriptionParser.getTime(nextStep.getDescription());
                 for (Step currStep : this.steps) {
                     if (StepDescriptionParser.isSimultaneous(nextStep.getDescription())) {
@@ -216,4 +219,6 @@ public class Schedule {
             return this.steps.size() == 0;
         }
     }
+
+
 }
