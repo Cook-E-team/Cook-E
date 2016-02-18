@@ -121,6 +121,7 @@ public final class Step implements Parcelable {
 
 		if (!mDescription.equals(step.mDescription)) return false;
 		if (!mTime.equals(step.mTime)) return false;
+		if (!(isSimultaneous() && step.isSimultaneous())) return false;
 		return mIngredients.equals(step.mIngredients);
 
 	}
