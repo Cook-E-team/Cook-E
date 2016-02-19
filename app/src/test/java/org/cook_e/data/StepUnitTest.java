@@ -52,21 +52,21 @@ public class StepUnitTest {
         String action = UnitTestSharedData.ACTIONS[action_index];
         String ing = UnitTestSharedData.INGREDIENTS[ing_index];
         ings.add(ing);
-        return new Step(ings, action, UnitTestSharedData.generateDescription(ing.getType(), action), Duration.standardMinutes(duration_min), isSimultaneous);
+        return new Step(ings,UnitTestSharedData.generateDescription(ing.getType(), action), Duration.standardMinutes(duration_min), isSimultaneous);
     }
 
     @Test
     public void testCreation() {
-        List<Ingredient> ings = new ArrayList<>();
-        String action = UnitTestSharedData.ACTIONS[0];
-        Ingredient ing = new Ingredient(UnitTestSharedData.INGREDIENTS[0], 1, UnitTestSharedData.COMMON_UNITS[0].word);
+        List<String> ings = new ArrayList<String>();
+        String ing = UnitTestSharedData.INGREDIENTS[0];
         ings.add(ing);
-        String description = UnitTestSharedData.generateDescription(ing.getType(), action);
+        String action = UnitTestSharedData.ACTIONS[0];
+
+        String description = UnitTestSharedData.generateDescription(ing, action);
         Duration duration = Duration.standardMinutes(1);
-        Step s = new Step(ings, action, description, duration, false);
+        Step s = new Step(ings, description, duration, false);
 
         assertEquals(ings, s.getIngredients());
-        assertEquals(action, s.getAction());
         assertEquals(description, s.getDescription());
         assertEquals(duration, s.getTime());
         assertEquals(false, s.isSimultaneous());
