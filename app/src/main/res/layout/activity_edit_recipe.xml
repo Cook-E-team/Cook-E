@@ -60,6 +60,7 @@
             android:gravity="start|top"
             android:layout_below="@+id/toolbar"
             android:layout_toRightOf="@+id/recipeImage"
+            android:layout_toEndOf="@+id/recipeImage"
             android:layout_above="@+id/recipeSteps"
             android:layout_alignParentRight="true"
             android:layout_alignParentEnd="true" />

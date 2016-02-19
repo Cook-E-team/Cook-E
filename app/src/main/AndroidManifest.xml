@@ -24,6 +24,7 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
     <application
+        android:name=".App"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -38,7 +39,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".MealViewActivity"></activity>
+        <activity android:name=".MealViewActivity" />
         <activity
             android:name=".MealRecipeAddActivity"
             android:parentActivityName=".MealViewActivity"
@@ -47,14 +48,17 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MealViewActivity" />
         </activity>
-        <activity android:name=".CookActivity"></activity>
+        <activity android:name=".CookActivity" />
         <activity android:name=".CreateRecipe" />
         <activity
             android:name=".EditRecipeActivity"
             android:label="recipe_name"
             android:parentActivityName=".HomeActivity"
-            android:windowSoftInputMode="adjustPan"></activity>
-        <activity android:name=".AboutActivity"></activity>
+            android:windowSoftInputMode="adjustPan" />
+        <activity android:name=".AboutActivity" />
+        <activity android:name=".SchedulerActivity">
+
+        </activity>
     </application>
 
 </manifest>

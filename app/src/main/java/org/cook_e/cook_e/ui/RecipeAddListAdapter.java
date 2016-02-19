@@ -22,6 +22,7 @@ package org.cook_e.cook_e.ui;
 import android.content.Context;
 import android.databinding.ObservableArrayList;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -31,6 +32,24 @@ import org.cook_e.data.Recipe;
  * A list adapter that displays recipes in {@link RecipeListItemView} views
  */
 public class RecipeAddListAdapter extends ListListAdapter<Recipe> {
+
+    /**
+     * An interface for listeners to respond to requests from the user to add a recipe
+     */
+    public interface RecipeAddListener {
+        /**
+         * Called when the user asks that a recipe be added
+         * @param recipe the recipe to add
+         */
+        void recipeAddRequested(Recipe recipe);
+    }
+
+    /**
+     * The add listener, or null if none is present
+     */
+    @Nullable
+    private RecipeAddListener mAddListener;
+
     /**
      * Creates a new adapter
      *
@@ -41,8 +60,16 @@ public class RecipeAddListAdapter extends ListListAdapter<Recipe> {
         super(context, items);
     }
 
+    /**
+     * Sets the listener to be notified when the user asks to add a recipe
+     * @param addListener the listener, or null if none should be notified
+     */
+    public void setAddListener(@Nullable RecipeAddListener addListener) {
+        mAddListener = addListener;
+    }
+
     @Override
-    public View getViewForItem(Recipe item, Context context, View convertView, ViewGroup parent) {
+    public View getViewForItem(final Recipe item, Context context, View convertView, ViewGroup parent) {
         RecipeAddItemView view;
         if (convertView instanceof RecipeAddItemView) {
             view = (RecipeAddItemView) convertView;
@@ -52,6 +79,15 @@ public class RecipeAddListAdapter extends ListListAdapter<Recipe> {
         }
 
         view.setTitle(item.getTitle());
+
+        view.setAddListener(new RecipeAddItemView.RecipeAddListener() {
+            @Override
+            public void recipeAddRequested() {
+                if (mAddListener != null) {
+                    mAddListener.recipeAddRequested(item);
+                }
+            }
+        });
 
         return view;
     }

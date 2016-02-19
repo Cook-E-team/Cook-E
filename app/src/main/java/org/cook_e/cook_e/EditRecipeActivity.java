@@ -19,7 +19,10 @@
 
 package org.cook_e.cook_e;
 
+import android.content.Intent;
+import android.databinding.ObservableArrayList;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -27,6 +30,13 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ListView;
+import android.widget.TextView;
+
+import org.cook_e.data.Recipe;
+import org.cook_e.data.Step;
+import org.joda.time.Duration;
+
+import java.util.Collections;
 
 /**
  * Created by Tyler on 2/4/2016.
@@ -34,6 +44,21 @@ import android.widget.ListView;
  * This is the activity for editing a particular recipe.
  */
 public class EditRecipeActivity extends AppCompatActivity {
+
+    /**
+     * Intent extra that provides the activity to edit
+     */
+    public static final String EXTRA_ACTIVITY = EditRecipeActivity.class.getName() + ".ACTIVITY";
+
+    /**
+     * The recipe being added
+     */
+    private Recipe mRecipe;
+
+    /**
+     * The steps being edited
+     */
+    private ObservableArrayList<Step> mSteps;
 
     /*
      * Sets up the main view to edit recipes.
@@ -43,19 +68,37 @@ public class EditRecipeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_recipe);
 
+        mRecipe = unpackRecipe();
+        mSteps = new ObservableArrayList<>();
+        mSteps.addAll(mRecipe.getSteps());
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        final ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setTitle(mRecipe.getTitle());
+        }
 
-        final StepListAdapter stepsAdapter = new StepListAdapter(this);
+        // Set up recipe description
+        final TextView descriptionView = (TextView) findViewById(R.id.recipeDescription);
+        // TODO: Make clear that this text field contains the author
+        descriptionView.setText(mRecipe.getAuthor());
+        // TODO: Set recipe image
+
+        final StepListAdapter stepsAdapter = new StepListAdapter(this, mSteps);
         ListView stepsList = (ListView) findViewById(R.id.recipeSteps);
         stepsList.setAdapter(stepsAdapter);
 
-        ((android.support.design.widget.FloatingActionButton)findViewById(R.id.stepAdd)).setOnClickListener(
+        (findViewById(R.id.stepAdd)).setOnClickListener(
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        stepsAdapter.addStep();
+                        // Add a step
+                        final Step newStep = new Step(Collections.<String>emptyList(), "",
+                                Duration.ZERO, false);
+                        mSteps.add(newStep);
+                        mRecipe.setSteps(mSteps);
+                        stepsAdapter.notifyDataSetChanged();
                     }
                 }
         );
@@ -68,7 +111,7 @@ public class EditRecipeActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.edit_recipe_menu, menu);
-        MenuItem finishItem = (MenuItem) menu.findItem(R.id.finish);
+        MenuItem finishItem = menu.findItem(R.id.finish);
         finishItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
         return true;
     }
@@ -87,6 +130,34 @@ public class EditRecipeActivity extends AppCompatActivity {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    /**
+     * Accesses the recipe to be edited
+     * @return
+     */
+    private Recipe unpackRecipe() {
+        final Intent intent = getIntent();
+        final Recipe recipe = intent.getParcelableExtra(EXTRA_ACTIVITY);
+        if (recipe == null) {
+            throw new IllegalStateException("No activity extra provided in intent");
+        }
+        return recipe;
+    }
+
+
+    /*
+     * This is a workaround for inconsistent behavior.
+     *
+     * Pressing the system back button or calling finish() returns a result to the parent activity,
+     * as expected. However, the default action when the up button is pressed does not send a result
+     * to the parent. This override ensures that a result is sent when the action bar up button is
+     * pressed.
+     */
+    @Override
+    public boolean onSupportNavigateUp() {
+        finish();
+        return true;
     }
 
 }

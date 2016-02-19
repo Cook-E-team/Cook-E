@@ -89,6 +89,7 @@ public final class Bunch implements Parcelable {
         if (title.isEmpty()) throw new IllegalArgumentException("title must not be empty");
         mTitle = title;
     }
+
     /**
      * Adds a recipe to this bunch
      * @param recipe the recipe to add
@@ -110,6 +111,14 @@ public final class Bunch implements Parcelable {
     }
 
     /**
+     * Returns number of recipes in this bunch
+     * @return number of recipes
+     */
+    public int getNumOfRecipes() {
+        return mRecipes.size();
+    }
+
+    /**
      * Sets the recipes in this bunch
      * @param recipes the recipes to set
      * @throws NullPointerException if recipes or any recipe it contains is null
@@ -122,6 +131,36 @@ public final class Bunch implements Parcelable {
             Objects.requireNonNull(recipe, "no recipe in recipes may be null");
             mRecipes.add(new Recipe(recipe));
         }
+    }
+
+    /**
+     * Remove recipe r from this bunch, if present.
+     * All recipes after it will be moved one step forward.
+     * @param r recipe to remove
+     * @return true if recipe r is present and removed, otherwise false
+     */
+    public boolean removeRecipe(@NonNull Recipe r) {
+        Objects.requireNonNull(r, "recipe must not be null");
+        return mRecipes.remove(r);
+    }
+
+    /**
+     * Remove the ith recipe from this bunch.
+     * All recipes after it will be moved one step forward.
+     * Doesn't modify bunch if index is less than 0 or greater than max index,
+     * @param i The index of recipe to remove, index starts from 0.
+     * @return The removed recipe if succeeded, null if failed.
+     */
+    public Recipe removeRecipe(int i) {
+        if (i >= 0 && i < mRecipes.size()) return mRecipes.remove(i);
+        else return null;
+    }
+
+    /**
+     * Remove all recipes in this bunch
+     */
+    public void clearRecipes() {
+    	mRecipes.clear();;
     }
 
     @Override

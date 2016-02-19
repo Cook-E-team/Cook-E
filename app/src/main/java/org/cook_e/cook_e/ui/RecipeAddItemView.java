@@ -21,13 +21,13 @@ package org.cook_e.cook_e.ui;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import org.cook_e.cook_e.R;
 import org.cook_e.data.Objects;
@@ -36,6 +36,16 @@ import org.cook_e.data.Objects;
  * A view that shows a recipe and allows it to be added to something
  */
 public class RecipeAddItemView extends LinearLayout {
+
+    /**
+     * An interface for listeners to respond to requests from the user to add a recipe
+     */
+    public interface RecipeAddListener {
+        /**
+         * Called when the user asks that a recipe be added
+         */
+        void recipeAddRequested();
+    }
 
     /**
      * Padding in this view
@@ -54,6 +64,12 @@ public class RecipeAddItemView extends LinearLayout {
      * The context used to get resources
      */
     private Context mContext;
+
+    /**
+     * The recipe add listener, or null if none is present
+     */
+    @Nullable
+    private RecipeAddListener mAddListener;
 
     public RecipeAddItemView(Context context) {
         super(context);
@@ -79,32 +95,81 @@ public class RecipeAddItemView extends LinearLayout {
         mTitleView.setText(R.string.recipe);
 
         mAddButton = new ImageButton(context, null, android.R.attr.borderlessButtonStyle);
-        mAddButton.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_add_box_black_24dp));
         mAddButton.setMinimumWidth(1);
         mAddButton.setMaxWidth(10);
+        enableAddButton();
 
         mAddButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                mAddButton.setImageDrawable(mContext.getResources().getDrawable(R.drawable.ic_check_box_black_24dp));
-                mAddButton.setEnabled(false);
-                Toast.makeText(mContext, "Recipe added to meal", Toast.LENGTH_SHORT).show();
+                disableAddButton();
+                if (mAddListener != null) {
+                    mAddListener.recipeAddRequested();
+                }
             }
         });
 
-        final LayoutParams titleParams = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 0.9f);
+        final LayoutParams titleParams = new LayoutParams(LayoutParams.MATCH_PARENT,
+                LayoutParams.WRAP_CONTENT, 0.9f);
         titleParams.gravity = Gravity.CENTER_VERTICAL | Gravity.START;
         addView(mTitleView, titleParams);
-        addView(mAddButton, new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, 0.1f));
+        addView(mAddButton,
+                new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, 0.1f));
+
+
+        // Tapping the list entry adds the recipe, as if the add button were pressed
+        this.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mAddButton.performClick();
+            }
+        });
     }
 
     /**
      * Sets the recipe title to display
+     *
+     * If the new title is not equal to the current title, this method also resets the add button
+     * to its default state.
+     *
      * @param title the title
      * @throws NullPointerException if title is null
      */
     public void setTitle(@NonNull String title) {
         Objects.requireNonNull(title, "title must not be null");
+
+        final String currentTitle = mTitleView.getText().toString();
+        if (!currentTitle.equals(title)) {
+            enableAddButton();
+        }
+
         mTitleView.setText(title);
+    }
+
+    /**
+     * Enables the add button and sets it to display an add icon
+     */
+    private void enableAddButton() {
+        mAddButton.setImageDrawable(
+                mContext.getResources().getDrawable(R.drawable.ic_add_box_black_24dp));
+        mAddButton.setEnabled(true);
+    }
+
+    /**
+     * Disables the add button and sets it to display a check mark icon
+     */
+    private void disableAddButton() {
+        mAddButton.setImageDrawable(
+                mContext.getResources().getDrawable(R.drawable.ic_check_box_black_24dp));
+        mAddButton.setEnabled(false);
+    }
+
+    /**
+     * Sets the listener to be notified when the user asks to add the displayed recipe
+     *
+     * @param addListener the listener, or null to set no listener
+     */
+    public void setAddListener(@Nullable RecipeAddListener addListener) {
+        mAddListener = addListener;
     }
 }

@@ -19,9 +19,11 @@
 
 package org.cook_e.data;
 
+import android.graphics.Bitmap;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import org.joda.time.Duration;
 
@@ -36,6 +38,7 @@ import java.util.List;
  * No field may be null.
  */
 public final class Recipe implements Parcelable {
+
     /**
      * The steps that this recipe contains
      */
@@ -51,6 +54,12 @@ public final class Recipe implements Parcelable {
      */
     @NonNull
     private String mAuthor;
+
+    /**
+     * The image associated with this recipe, or null if the recipe has no image
+     */
+    @Nullable
+    private Bitmap mImage;
     /**
      * Constructor
      *@param title the title of the recipe, must not be null
@@ -66,6 +75,7 @@ public final class Recipe implements Parcelable {
         mSteps = new ArrayList<>(steps);
         mTitle = title;
         mAuthor = author;
+        mImage = null;
     }
 
     /**
@@ -74,20 +84,12 @@ public final class Recipe implements Parcelable {
      * @param other the recipe to copy from
      */
     public Recipe(Recipe other) {
-        // Ingredient, Step, and String are immutable, so they do not need to be copied.
+        // Step, and String are immutable, so they do not need to be copied.
         // The delegated constructor copies the list of steps.
         this(other.getTitle(), other.getAuthor(), other.getSteps());
+        setImage(other.getImage());
     }
 
-
-    /**
-     * Returns the steps in this recipe
-     * @return the steps
-     */
-    @NonNull
-    public List<Step> getSteps() {
-        return new ArrayList<>(mSteps);
-    }
 
     /**
      * Sets the steps in this recipe
@@ -98,6 +100,22 @@ public final class Recipe implements Parcelable {
         Objects.requireNonNull(steps, "steps must not be null");
         mSteps = new ArrayList<>(steps);
     }
+
+    /**
+     * Set the ith step in this recipe
+     * The original step will be replaced by the new one
+     * Do nothing if index is less than 0 or greeter than the max index
+     * @param step the step to set
+     * @param i the target index of new step, index start from 0
+     * @throws NullPointerException if step is null
+     */
+    public void setStep(@NonNull Step step, int i) {
+        Objects.requireNonNull(step, "step must not be null");
+        if (i >= 0 && i < mSteps.size()) {
+            mSteps.set(i, step);
+        }
+    }
+
     /**
      * Add step to end of the list of steps
      * @param step the step to add
@@ -107,15 +125,23 @@ public final class Recipe implements Parcelable {
         Objects.requireNonNull(step, "step must not be null");
         mSteps.add(step);
     }
+    /**
+     * Returns the steps in this recipe
+     * @return the steps
+     */
+    @NonNull
+    public List<Step> getSteps() {
+        return new ArrayList<>(mSteps);
+    }
 
     /**
      * Returns a List of all the ingredients required by all the steps of the recipe
      */
     @NonNull
-    public List<Ingredient> getIngredients() {
-        List<Ingredient> ings = new ArrayList<>();
+    public List<String> getIngredients() {
+        List<String> ings = new ArrayList<>();
         for (Step s: mSteps) {
-            for (Ingredient ingredient: s.getIngredients()) {
+            for (String ingredient: s.getIngredients()) {
                 ings.add(ingredient);
             }
         }
@@ -141,14 +167,66 @@ public final class Recipe implements Parcelable {
         return mAuthor;
     }
 
+	/**
+	 * Remove the ith step in this recipe.
+	 * All steps after it will be moved one step forward.
+	 * Doesn't modify recipe if index is less than 0 or greater than max index.
+	 * @param i the index of step to remove, index starts from 0.
+	 * @return The removed step if succeeded, null if failed.
+	 */
+	public Step removeStep(int i) {
+		if (i >= 0 && i < mSteps.size()) return mSteps.remove(i);
+		else return null;
+	}
+
+    /**
+     * Returns the image associated with this recipe
+     * @return an immutable image, or null if this recipe has no image
+     */
+    @Nullable
+    public Bitmap getImage() {
+        if (mImage != null) {
+            return Bitmap.createBitmap(mImage);
+        }
+        else {
+            return null;
+        }
+    }
+
+    /**
+     * Sets the image to associate with this recipe
+     * @param image the image to set, or null to set no image
+     */
+    public void setImage(@Nullable Bitmap image) {
+        if (image != null) {
+            mImage = Bitmap.createBitmap(image);
+        }
+        else {
+            mImage = null;
+        }
+    }
+
+	public void setTitle(@NonNull String title) {
+		Objects.requireNonNull(title, "title must not be null");
+		mTitle = title;
+	}
+
+	public void setAuthor(@NonNull String author) {
+		Objects.requireNonNull(author, "author must not be null");
+		mAuthor = author;
+	}
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        Recipe recipe = (Recipe) o;
+        final Recipe recipe = (Recipe) o;
 
-        return mAuthor.equals(recipe.mAuthor) && mSteps.equals(recipe.mSteps) && mTitle.equals(recipe.mTitle);
+        if (!mSteps.equals(recipe.mSteps)) return false;
+        if (!mTitle.equals(recipe.mTitle)) return false;
+        if (!mAuthor.equals(recipe.mAuthor)) return false;
+        return !(mImage != null ? !mImage.equals(recipe.mImage) : recipe.mImage != null);
 
     }
 
@@ -157,6 +235,7 @@ public final class Recipe implements Parcelable {
         int result = mSteps.hashCode();
         result = 31 * result + mTitle.hashCode();
         result = 31 * result + mAuthor.hashCode();
+        result = 31 * result + (mImage != null ? mImage.hashCode() : 0);
         return result;
     }
 
@@ -166,6 +245,7 @@ public final class Recipe implements Parcelable {
                 "mSteps=" + mSteps +
                 ", mTitle='" + mTitle + '\'' +
                 ", mAuthor='" + mAuthor + '\'' +
+                ", mImage=" + mImage +
                 '}';
     }
 
@@ -178,7 +258,16 @@ public final class Recipe implements Parcelable {
                     source.readParcelableArray(Step.class.getClassLoader()), Step[].class);
             final String title = source.readString();
             final String author = source.readString();
-            return new Recipe(title, author, Arrays.asList(steps));
+
+            final byte hasImage = source.readByte();
+            Bitmap image = null;
+            if (hasImage == 1) {
+                image = Bitmap.CREATOR.createFromParcel(source);
+            }
+
+            final Recipe recipe = new Recipe(title, author, Arrays.asList(steps));
+            recipe.setImage(image);
+            return recipe;
         }
 
         @Override
@@ -197,5 +286,11 @@ public final class Recipe implements Parcelable {
         dest.writeParcelableArray(mSteps.toArray(new Step[mSteps.size()]), flags);
         dest.writeString(mTitle);
         dest.writeString(mAuthor);
+        // Write has image: 0 (false) or 1 (true)
+        dest.writeByte(mImage != null ? (byte) 1 : (byte) 0);
+        if (mImage != null) {
+            mImage.writeToParcel(dest, 0);
+        }
     }
+
 }
