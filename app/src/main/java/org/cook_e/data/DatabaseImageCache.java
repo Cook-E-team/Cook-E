@@ -315,7 +315,7 @@ public class DatabaseImageCache implements ImageCache {
         public void onCreate(SQLiteDatabase db) {
             db.execSQL("CREATE TABLE " + TABLE_NAME + "(" + COL_CRC + " INTEGER PRIMARY KEY," +
                     " " + COL_REFCOUNT + " INTEGER NOT NULL DEFAULT 0," +
-                    " data BLOB NOT NULL)");
+                    " " + COL_DATA + " BLOB NOT NULL)");
         }
 
         @Override
