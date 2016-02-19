@@ -1,5 +1,7 @@
 package org.cook_e.data;
 
+import android.support.annotation.NonNull;
+
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +18,7 @@ public class BunchManager {
      * @param sa StorageAccessor to access storage
      * @throws SQLException when an error happened in reading bunches
      */
-    public BunchManager(StorageAccessor sa) throws SQLException{
+    public BunchManager(@NonNull StorageAccessor sa) throws SQLException{
         this.sa = sa;
         try {
             bunchList = sa.loadAllBunches();
@@ -30,6 +32,7 @@ public class BunchManager {
      * return a copy of current bunches, doesn't reflect changes
      * @return list of bunches
      */
+    @NonNull
     public List<Bunch> getAllBunches() {
         return new ArrayList<Bunch>(bunchList);
     }
@@ -40,6 +43,7 @@ public class BunchManager {
      * this list doesn't reflect changes
      * @return list of titles
      */
+    @NonNull
     public List<String> getAllBunchTitles() {
         List<String> res = new ArrayList<String>();
         for (int i = 0; i < bunchList.size(); i++) {
@@ -53,6 +57,7 @@ public class BunchManager {
      * @param i index of the bunch, index start from 0
      * @return bunch at ith position
      */
+    @NonNull
     public Bunch getBunch(int i) {
         return bunchList.get(i);
     }
@@ -63,7 +68,7 @@ public class BunchManager {
      * @param b bunch to add
      * @return true on success, false on failure
      */
-    public boolean addBunch(Bunch b) {
+    public boolean addBunch(@NonNull Bunch b) {
         try {
             sa.storeBunch(b);
         } catch (SQLException e) {
@@ -81,7 +86,7 @@ public class BunchManager {
      * @param recipes list of recipes in new bunch
      * @return true on success, false on failure
      */
-    public boolean addNewBunch(String title, List<Recipe> recipes) {
+    public boolean addNewBunch(@NonNull String title, @NonNull List<Recipe> recipes) {
         Bunch b = new Bunch(title, recipes);
         return addBunch(b);
     }
@@ -91,8 +96,10 @@ public class BunchManager {
      * if deletion failed, nothing is changed
      * @param i index of bunch to remove, index starts from 0
      * @return true on success, false on failure
+     * @throws IllegalArgumentException if index i is not valid
      */
-    public boolean deleteBunch(int i) {
+    public boolean deleteBunch(int i) throws IllegalArgumentException{
+        indexCheck(i);
         Bunch b = bunchList.get(i);
         try {
             sa.deleteBunch(b);
@@ -109,7 +116,7 @@ public class BunchManager {
      * @param b bunch to delete
      * @return true on success, false on failure
      */
-    public boolean deleteBunch(Bunch b) {
+    public boolean deleteBunch(@NonNull Bunch b) {
         try {
             sa.deleteBunch(b);
         } catch (SQLException e) {
@@ -124,8 +131,10 @@ public class BunchManager {
      * @param i index of bunch to edit, index starts from 0
      * @param r recipe to add
      * @return true on success, false on failure
+     * @throws IllegalArgumentException if index i is not valid
      */
-    public boolean addRecipeToBunch(int i, Recipe r) {
+    public boolean addRecipeToBunch(int i, @NonNull Recipe r) throws IllegalArgumentException{
+        indexCheck(i);
         Bunch b = bunchList.get(i);
         b.addRecipe(r);
         try {
@@ -143,8 +152,10 @@ public class BunchManager {
      * @param i index of bunch to edit, index starts from 0
      * @param r recipe to remove
      * @return true on success, false on failure
+     * @throws IllegalArgumentException if index i is not valid
      */
-    public boolean deleteRecipeFromBunch(int i, Recipe r) {
+    public boolean deleteRecipeFromBunch(int i, @NonNull Recipe r) throws IllegalArgumentException{
+        indexCheck(i);
         Bunch b = bunchList.get(i);
         boolean res = b.removeRecipe(r);
         if (!res) return false;
@@ -163,8 +174,10 @@ public class BunchManager {
      * @param i index of bunch to edit, index starts from 0
      * @param title new title for the bunch
      * @return true on success, false on failure
+     * @throws IllegalArgumentException if index i is not valid
      */
-    public boolean changeBunchTitle(int i, String title) {
+    public boolean changeBunchTitle(int i, @NonNull String title) throws IllegalArgumentException{
+        indexCheck(i);
         Bunch b = bunchList.get(i);
         String otitle = b.getTitle();
         b.setTitle(title);
@@ -175,5 +188,16 @@ public class BunchManager {
             return false;
         }
         return true;
+    }
+
+    /**
+     * check if index i is valid for bunch list
+     * @param i index to check
+     * @throws IllegalArgumentException if index i is not valid
+     */
+    private void indexCheck(int i) throws IllegalArgumentException{
+        if (i < 0 || i >= bunchList.size()) {
+            throw new IllegalArgumentException("index out of bound.");
+        }
     }
 }

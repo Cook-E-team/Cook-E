@@ -18,7 +18,7 @@ public class RecipeManager {
      * @param sa StorageAccessor to access storage
      * @throws SQLException when an error happened in reading recipes
      */
-    public RecipeManager(StorageAccessor sa) throws SQLException{
+    public RecipeManager(@NonNull StorageAccessor sa) throws SQLException{
         this.sa = sa;
         try {
             recipeList = sa.loadAllRecipes();
@@ -32,6 +32,7 @@ public class RecipeManager {
      * return a copy of current recipes, doesn't reflect changes
      * @return list of recipes
      */
+    @NonNull
     public List<Recipe> getAllRecipes() {
         return new ArrayList<Recipe>(recipeList);
     }
@@ -42,6 +43,7 @@ public class RecipeManager {
      * this list doesn't reflect changes
      * @return list of titles
      */
+    @NonNull
     public List<String> getAllRecipeTitles() {
         List<String> res = new ArrayList<String>();
         for (int i = 0; i < recipeList.size(); i++) {
@@ -54,8 +56,11 @@ public class RecipeManager {
      * get the ith recipe in the current recipe list
      * @param i index of the recipe, index start from 0
      * @return recipe at ith position
+     * @throws IllegalArgumentException if index i is not valid
      */
-    public Recipe getRecipe(int i) {
+    @NonNull
+    public Recipe getRecipe(int i) throws IllegalArgumentException{
+        indexCheck(i);
         return recipeList.get(i);
     }
 
@@ -65,7 +70,7 @@ public class RecipeManager {
      * @param r recipe to add
      * @return true on success, false on failure
      */
-    public boolean addRecipe(Recipe r) {
+    public boolean addRecipe(@NonNull Recipe r) {
         try {
             sa.storeRecipe(r);
         } catch (SQLException e) {
@@ -80,8 +85,10 @@ public class RecipeManager {
      * if deletion failed, nothing is changed
      * @param i index of recipe to remove
      * @return true on success, false on failure
+     * @throws IllegalArgumentException if index i is not valid
      */
-    public boolean deleteRecipe(int i) {
+    public boolean deleteRecipe(int i) throws IllegalArgumentException{
+        indexCheck(i);
         Recipe r = recipeList.get(i);
         try {
             sa.deleteRecipe(r);
@@ -98,7 +105,7 @@ public class RecipeManager {
      * @param r recipe to delete
      * @return true on success, false on failure
      */
-    public boolean deleteRecipe(Recipe r) {
+    public boolean deleteRecipe(@NonNull Recipe r) {
         try {
             sa.deleteRecipe(r);
         } catch (SQLException e) {
@@ -107,5 +114,14 @@ public class RecipeManager {
         return recipeList.remove(r);
     }
 
-
+    /**
+     * check if index i is valid for recipe list
+     * @param i index to check
+     * @throws IllegalArgumentException if index i is not valid
+     */
+    private void indexCheck(int i) throws IllegalArgumentException{
+        if (i < 0 || i >= recipeList.size()) {
+            throw new IllegalArgumentException("index out of bound.");
+        }
+    }
 }
