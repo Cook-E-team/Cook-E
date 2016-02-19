@@ -66,31 +66,44 @@ public class SqliteUnitTest {
     public void testTableInsert() {
         Recipe r = RecipeUnitTest.createGenericRecipe("My Recipe", "Kyle Woo", 0, 0, 0, 5, false);
         int id = 1;
+        try {
         accessor.storeRecipe(r, id);
         Recipe result = accessor.loadRecipe(id);
-        assertEquals(r, result);
+            assertEquals(r, result);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
     }
     @Test
     public void testTableDelete() {
         Recipe r = RecipeUnitTest.createGenericRecipe("My Recipe", "Kyle Woo", 0, 0, 0, 5, false);
         int id = 1;
-        accessor.storeRecipe(r, id);
-        accessor.deleteRecipe(id);
-        Recipe result = accessor.loadRecipe(id);
-        assertNull(result);
+        try {
+            accessor.storeRecipe(r, id);
+            accessor.deleteRecipe(id);
+            Recipe result = accessor.loadRecipe(id);
+            assertNull(result);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
     @Test
     public void testTableEdit() {
         Recipe r = RecipeUnitTest.createGenericRecipe("My Recipe", "Kyle Woo", 0, 0, 0, 5, false);
         Recipe edited_r = RecipeUnitTest.createGenericRecipe("My Recipe", "Kyle Woo", 1, 1, 0, 5, false);
         int id = 1;
+        try {
         accessor.storeRecipe(r, id);
         Recipe result = accessor.loadRecipe(id);
         assertEquals(r, result);
         accessor.editRecipe(edited_r, id);
         result = accessor.loadRecipe(id);
         assertEquals(edited_r, result);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
     @Test
     public void testBunchInsert() {
@@ -99,11 +112,15 @@ public class SqliteUnitTest {
         int bunch_id = 1;
         ArrayList<Recipe> recipes = new ArrayList<Recipe>();
         recipes.add(r);
+        try {
         accessor.storeRecipe(r, 1);
         Bunch b = new Bunch("My Bunch", recipes);
         accessor.storeBunch(b, bunch_id, recipe_ids);
         Bunch result = accessor.loadBunch(bunch_id);
         assertEquals(b, result);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
     @Test
     public void testBunchDelete() {
@@ -112,12 +129,16 @@ public class SqliteUnitTest {
         int bunch_id = 1;
         ArrayList<Recipe> recipes = new ArrayList<Recipe>();
         recipes.add(r);
+        try {
         accessor.storeRecipe(r, 1);
         Bunch b = new Bunch("My Bunch", recipes);
         accessor.storeBunch(b, bunch_id, recipe_ids);
         accessor.deleteBunch(bunch_id);
         Bunch result = accessor.loadBunch(bunch_id);
         assertNull(result);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
     @Test
     public void testBunchEdit() {
@@ -128,6 +149,7 @@ public class SqliteUnitTest {
         int bunch_id = 1;
         ArrayList<Recipe> recipes = new ArrayList<Recipe>();
         recipes.add(r);
+        try {
         accessor.storeRecipe(r, recipe_id);
         accessor.storeRecipe(r2, recipe2_id);
         Bunch b = new Bunch("My Bunch", recipes);
@@ -140,5 +162,8 @@ public class SqliteUnitTest {
         accessor.editBunch(b, bunch_id, recipe_ids);
         result = accessor.loadBunch(bunch_id);
         assertEquals(b, result);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
