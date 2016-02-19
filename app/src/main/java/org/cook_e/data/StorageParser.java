@@ -55,7 +55,7 @@ public class StorageParser {
             trailIndex = forwardIndex + ", mSimultaneous=".length();
             forwardIndex = step.indexOf("}");
             boolean simul = step.substring(trailIndex, forwardIndex).equals("true");
-            newSteps.add(new Step(ingredients, "", mDescription, time, simul));
+            newSteps.add(new Step(ingredients, mDescription, time, simul));
         }
         return new Recipe(title, author, newSteps);
     }
