@@ -129,46 +129,51 @@ public class Schedule {
     private Step getNextScheduledStep(List<UnscheduledRecipeSteps> unscheduledRecipeStepsList) {
 
         // Finds the recipe with the longest time from the first simultaneous step
-        // to the last step that is ready and the recipe with the shortest busy time
-        // that is busy.
-        int bestReadyIndex = -1;
+        // to the last step that is ready and finds the smallest busy time.
+        int chosenIndex = -1;
         int maxSimultaneousToEndTime = -1;
-        int bestBusyIndex = -1;
-        int minBusyTime = -1;
+        int minBusyTime = unscheduledRecipeStepsList.get(0).busyTime;
         for (int i = 0; i < unscheduledRecipeStepsList.size(); i++) {
             UnscheduledRecipeSteps currSteps = unscheduledRecipeStepsList.get(i);
+            if (currSteps.busyTime < minBusyTime) {
+                // updates minBusyTime if we've found a smaller one
+                minBusyTime = currSteps.busyTime;
+            }
             if (currSteps.busyTime == 0) {
-                // handles ready case
+                // if the recipe is ready, then check if it is the new best choice
+                // and update accordingly
                 int currSimultaneousToEndTime = currSteps.getSimultaneousToEndTime();
-                // if we haven't picked an index yet or this Simultaneous to end time is larger
-                if (bestReadyIndex == -1 || currSimultaneousToEndTime > maxSimultaneousToEndTime) {
-                    bestReadyIndex = i;
+                if (currSimultaneousToEndTime > maxSimultaneousToEndTime) {
+                    chosenIndex = i;
                     maxSimultaneousToEndTime = currSimultaneousToEndTime;
-                }
-            } else {
-                // handles busy case
-                if (bestBusyIndex == -1 || currSteps.busyTime < minBusyTime) {
-                    bestBusyIndex = i;
-                    minBusyTime = currSteps.busyTime;
                 }
             }
         }
 
-        // Removes and returns the chosen step
-        int chosenRecipeIndex = (bestReadyIndex == -1) ? bestBusyIndex : bestReadyIndex;
-        Step nextScheduledStep =  unscheduledRecipeStepsList.get(chosenRecipeIndex).removeNextStep();
-        int nextScheduledStepTime = ((bestReadyIndex == - 1) ? minBusyTime : 0) +
-                            StepDescriptionParser.getTime(nextScheduledStep.getDescription());
-        // Update busytimes for all other UnscheduledRecipeSteps
-        for (int i = 0; i < unscheduledRecipeStepsList.size(); i++) {
-            UnscheduledRecipeSteps currSteps = unscheduledRecipeStepsList.get(i);
-            if(i != chosenRecipeIndex)
-                currSteps.busyTime = Math.max(currSteps.busyTime - nextScheduledStepTime, 0);
+        if (minBusyTime > 0) {
+            // Handles case where all recipes are busy by "fast-forwarding" all recipes
+            // by the smallest busy time found and returning the result of a recursive call.
+            for (UnscheduledRecipeSteps currUnscheduledRecipeStep : unscheduledRecipeStepsList) {
+                currUnscheduledRecipeStep.busyTime = Math.max(
+                        currUnscheduledRecipeStep.busyTime - minBusyTime, 0);
+            }
+            return getNextScheduledStep(unscheduledRecipeStepsList);
+        } else {
+            // Handles case where one or more recipes were ready by removing and
+            // returning the chosen step.
+            Step nextScheduledStep = unscheduledRecipeStepsList.get(chosenIndex).removeNextStep();
+            int nextScheduledStepTime = StepDescriptionParser.getTime(nextScheduledStep.getDescription());
+            // Updates busyTimes for all other UnscheduledRecipeSteps
+            for (int i = 0; i < unscheduledRecipeStepsList.size(); i++) {
+                UnscheduledRecipeSteps currSteps = unscheduledRecipeStepsList.get(i);
+                if (i != chosenIndex)
+                    currSteps.busyTime = Math.max(currSteps.busyTime - nextScheduledStepTime, 0);
+            }
+            if (unscheduledRecipeStepsList.get(chosenIndex).isEmpty()) {
+                unscheduledRecipeStepsList.remove(chosenIndex);
+            }
+            return nextScheduledStep;
         }
-        if (unscheduledRecipeStepsList.get(chosenRecipeIndex).isEmpty()) {
-            unscheduledRecipeStepsList.remove(chosenRecipeIndex);
-        }
-        return nextScheduledStep;
     }
 
     /**
