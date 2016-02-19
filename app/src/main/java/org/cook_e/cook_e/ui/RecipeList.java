@@ -31,6 +31,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
 
+import org.cook_e.cook_e.App;
 import org.cook_e.cook_e.CreateRecipe;
 import org.cook_e.cook_e.R;
 import org.cook_e.data.Recipe;
@@ -53,10 +54,9 @@ public class RecipeList extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        final StorageAccessor accessor = new StorageAccessor(getActivity());
         try {
             mRecipes = new ObservableArrayList<>();
-            mRecipes.addAll(accessor.loadAllRecipes());
+            mRecipes.addAll(App.getAccessor().loadAllRecipes());
             Log.v(TAG, "Read recipes from database: " + mRecipes);
 
         } catch (SQLException e) {
@@ -64,6 +64,7 @@ public class RecipeList extends Fragment {
                     .setTitle("Failed to load recipes")
                     .setMessage(e.getLocalizedMessage())
                     .show();
+            Log.e(TAG, "Failed to load recipes", e);
         }
     }
 

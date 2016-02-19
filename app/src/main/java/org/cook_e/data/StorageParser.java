@@ -41,7 +41,7 @@ public class StorageParser {
      */
     public Recipe convertStringToRecipe(String title, String author, String description) {
         List<Step> newSteps = new ArrayList<Step>();
-        String[] strArray = description.split("\n");
+        String[] strArray = description.isEmpty() ? new String[0] : description.split("\n");
         for (String step: strArray) {
             int trailIndex = step.indexOf("mDescription='") + "mDescription='".length();
             int forwardIndex = step.indexOf("', mTime=");

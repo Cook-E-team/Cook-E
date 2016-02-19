@@ -44,9 +44,9 @@ public class StorageAccessor {
      * @param c Context of the activity that wants to store/retrieve data
      */
     public StorageAccessor(Context c) {
+        parser = new StorageParser();
         sqlite = new SQLiteAccessor(c, parser);
         sqlserver = new SQLServerAccessor(parser);
-        parser = new StorageParser();
         recipe_ids = new HashMap<>();
         bunch_ids = new HashMap<>();
     }

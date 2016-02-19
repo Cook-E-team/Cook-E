@@ -40,7 +40,6 @@ import org.cook_e.data.Recipe;
 import org.cook_e.data.Step;
 import org.cook_e.data.StorageAccessor;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -103,7 +102,7 @@ public class MealViewActivity extends AppCompatActivity {
         });
 
         // Set up accessor
-        mAccessor = new StorageAccessor(getApplicationContext());
+        mAccessor = App.getAccessor();
     }
 
     @Override

@@ -255,7 +255,7 @@ public class SQLiteAccessor {
                     String[] whereArgs = {String.valueOf(bunch_id)};
                     Cursor recipe_bunch_cursor = db.query(BUNCH_RECIPES_TABLE_NAME, BUNCH_RECIPE_COLUMNS, "bunch_id = ?", whereArgs,
                             null, null, null);
-                    if (recipe_bunch_cursor != null) {
+                    if (recipe_bunch_cursor.getCount() > 0) {
                         recipe_bunch_cursor.moveToFirst();
                         do {
                             int recipe_id = recipe_bunch_cursor.getInt(1);
