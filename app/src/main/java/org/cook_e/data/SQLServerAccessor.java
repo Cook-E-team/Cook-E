@@ -29,7 +29,15 @@ public class SQLServerAccessor {
     /**
      * Connection token that will be used to setup a connection with the sqlserver database
      */
-    private static final String CONNECTION_TOKEN = "";
+    private static final String CONNECTION_TOKEN =
+            "jdbc:sqlserver://cook-e.database.windows.net:1433" +
+            ";database=Cook-E;" +
+            "user=cook-e-admin@cook-e;" +
+            "password=Developer1;" +
+            "encrypt=true;" +
+            "trustServerCertificate=false;" +
+            "hostNameInCertificate=*.database.windows.net;" +
+            "loginTimeout=30;";
     /**
      * Parser used for transforming strings to recipes and recipes to strings
      */

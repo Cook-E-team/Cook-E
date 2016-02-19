@@ -119,4 +119,24 @@ public class SqliteUnitTest {
         Bunch result = accessor.loadBunch(bunch_id);
         assertNull(result);
     }
+    @Test
+    public void testBunchEdit() {
+        Recipe r = RecipeUnitTest.createGenericRecipe("My Recipe", "Kyle Woo", 0, 0, 0, 5, false);
+        int recipe_id = 1;
+        Recipe r2 = RecipeUnitTest.createGenericRecipe("My Recipe 2", "Kyle Woo", 0, 0, 0, 5, false);
+        int recipe2_id = 2;
+        int bunch_id = 1;
+        ArrayList<Recipe> recipes = new ArrayList<Recipe>();
+        recipes.add(r);
+        accessor.storeRecipe(r, recipe_id);
+        accessor.storeRecipe(r2, recipe2_id);
+        Bunch b = new Bunch("My Bunch", recipes);
+        accessor.storeBunch(b, bunch_id, recipe_ids);
+        recipes.clear();
+        recipes.add(r2);
+        b.setRecipes(recipes);
+        accessor.editBunch(b, bunch_id, recipe_ids);
+        Bunch result = accessor.loadBunch(bunch_id);
+        assertNull(result);
+    }
 }
