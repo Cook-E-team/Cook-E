@@ -37,7 +37,7 @@ public class ScheduleTest {
         Schedule schedule = new Schedule(testBunch);
         assertEquals(schedule.getStepCount(), 4);
         for(int i = 0; i < 4; i++) {
-            assertEquals((i % 2 == 0) ? step0 : step1, schedule.getStep(i));
+            assertEquals((i % 2 == 0) ? step0 : step1, schedule.getNextStep());
         }
     }
 
@@ -60,10 +60,10 @@ public class ScheduleTest {
         Bunch testBunch = new Bunch("test me", testList);
         Schedule schedule = new Schedule(testBunch);
         assertEquals(schedule.getStepCount(), 4);
-        assertEquals(step0, schedule.getStep(0));
-        assertEquals(step2, schedule.getStep(1));
-        assertEquals(step1, schedule.getStep(2));
-        assertEquals(step1, schedule.getStep(3));
+        assertEquals(step0, schedule.getNextStep());
+        assertEquals(step2, schedule.getNextStep());
+        assertEquals(step1, schedule.getNextStep());
+        assertEquals(step1, schedule.getNextStep());
     }
 
     @Test
@@ -93,12 +93,12 @@ public class ScheduleTest {
         Bunch testBunch = new Bunch("test me", testList);
         Schedule schedule = new Schedule(testBunch);
         assertEquals(schedule.getStepCount(), 7);
-        assertEquals(step3, schedule.getStep(0));
-        assertEquals(step4, schedule.getStep(1));
-        assertEquals(step0, schedule.getStep(2));
-        assertEquals(step2, schedule.getStep(3));
-        assertEquals(step3, schedule.getStep(4));
-        assertEquals(step1, schedule.getStep(5));
-        assertEquals(step1, schedule.getStep(6));
+        assertEquals(step3, schedule.getNextStep());
+        assertEquals(step4, schedule.getNextStep());
+        assertEquals(step0, schedule.getNextStep());
+        assertEquals(step2, schedule.getNextStep());
+        assertEquals(step3, schedule.getNextStep());
+        assertEquals(step1, schedule.getNextStep());
+        assertEquals(step1, schedule.getNextStep());
     }
 }

@@ -118,22 +118,6 @@ public class Schedule {
         return finalSteps.size();
     }
 
-    /**
-     * Returns the step at the given index. If index is < 0 or
-     * >= step count, then an IndexOutOfBoundsException is is thrown.
-     *
-     * @param index the step to return
-     * @return the step at the given index
-     */
-    public Step getStep(int index) {
-        if (index < 0 || index >= finalSteps.size())
-            throw new IndexOutOfBoundsException(index + " is not a valid step index." +
-                    " There are " + finalSteps.size() + " finalSteps.");
-
-        return finalSteps.get(index);
-    }
-
-
     /*
      * Removes and returns the step to schedule for shortest cooking time.
      * The given finalSteps is also modified such that each element in the list
