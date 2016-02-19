@@ -115,6 +115,15 @@ public class RecipeAddItemView extends LinearLayout {
         addView(mTitleView, titleParams);
         addView(mAddButton,
                 new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, 0.1f));
+
+
+        // Tapping the list entry adds the recipe, as if the add button were pressed
+        this.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mAddButton.performClick();
+            }
+        });
     }
 
     /**

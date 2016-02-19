@@ -21,30 +21,33 @@ package org.cook_e.cook_e;
 
 import android.content.Intent;
 import android.databinding.ObservableArrayList;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ListView;
 
+import org.cook_e.data.Objects;
 import org.cook_e.data.Recipe;
 import org.cook_e.data.Step;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 public class MealViewActivity extends AppCompatActivity {
     private static final String TAG = MealViewActivity.class.getSimpleName();
+
+
+    /**
+     * The recipes in the meal being displayed
+     */
+    private ObservableArrayList<Recipe> mRecipes;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,11 +59,13 @@ public class MealViewActivity extends AppCompatActivity {
         setUpActionBar();
         
         // Create some recipes for testing
-        final ObservableArrayList<Recipe> testRecipes = createTestRecipes();
+        mRecipes = createTestRecipes();
+        mRecipes.remove(2);
+        mRecipes.remove(4);
 
         // Set up recipe list
         final ListView recipeList = (ListView) findViewById(R.id.recipe_list);
-        recipeList.setAdapter(new MealRecipeListAdapter(this, testRecipes));
+        recipeList.setAdapter(new MealRecipeListAdapter(this, mRecipes));
 
         // Set up floating action button
         final FloatingActionButton floatingButton = (FloatingActionButton) findViewById(R.id.add_button);
@@ -69,8 +74,10 @@ public class MealViewActivity extends AppCompatActivity {
             public void onClick(View v) {
                 // Open item add view
                 final Intent intent = new Intent(MealViewActivity.this, MealRecipeAddActivity.class);
+                // TODO: Get actual available recipes from a data source
+                final List<Recipe> availableRecipes = createTestRecipes();
                 intent.putExtra(MealRecipeAddActivity.EXTRA_RECIPES,
-                        testRecipes.toArray(new Recipe[testRecipes.size()]));
+                        availableRecipes.toArray(new Recipe[availableRecipes.size()]));
                 startActivityForResult(intent, MealRecipeAddActivity.REQUEST_ADD_RECIPES);
             }
         });
@@ -80,7 +87,14 @@ public class MealViewActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == MealRecipeAddActivity.REQUEST_ADD_RECIPES && resultCode == RESULT_OK) {
             final Parcelable[] parcelables = data.getParcelableArrayExtra(MealRecipeAddActivity.EXTRA_RECIPES);
-            Log.d(TAG, "Got recipes to add: " + Arrays.toString(parcelables));
+            final Recipe[] recipesToAdd = Objects.castArray(parcelables, Recipe[].class);
+            // Add recipes
+            for (Recipe newRecipe : recipesToAdd) {
+                if (!mRecipes.contains(newRecipe)) {
+                    mRecipes.add(newRecipe);
+                }
+            }
+            // TODO: Save meal to storage
         }
     }
 
@@ -130,24 +144,17 @@ public class MealViewActivity extends AppCompatActivity {
     private ObservableArrayList<Recipe> createTestRecipes() {
         final ObservableArrayList<Recipe> recipes = new ObservableArrayList<>();
 
-        final Bitmap testImage = BitmapFactory.decodeResource(getResources(), R.drawable.test_image_1);
         final Recipe lasagna = new Recipe("Lasagna", "Clamify Flumingaster", Collections.<Step>emptyList());
-        lasagna.setImage(testImage);
         recipes.add(lasagna);
         final Recipe pie = new Recipe("Pie", "Clamify Flumingaster", Collections.<Step>emptyList());
-        pie.setImage(testImage);
         recipes.add(pie);
         final Recipe operaCake = new Recipe("Opera Cake", "Clamify Flumingaster", Collections.<Step>emptyList());
-        operaCake.setImage(testImage);
         recipes.add(operaCake);
         final Recipe bananaBread = new Recipe("Banana Bread", "Clamify Flumingaster", Collections.<Step>emptyList());
-        bananaBread.setImage(testImage);
         recipes.add(bananaBread);
         final Recipe lemonCake = new Recipe("Lemon Cake", "Clamify Flumingaster", Collections.<Step>emptyList());
-        lemonCake.setImage(testImage);
         recipes.add(lemonCake);
         final Recipe pesto = new Recipe("Pesto", "Clamify Flumingaster", Collections.<Step>emptyList());
-        pesto.setImage(testImage);
         recipes.add(pesto);
 
 

@@ -111,6 +111,7 @@ public class MealRecipeAddActivity extends AppCompatActivity {
                                 "The recipe added by the user is not in the recipe list");
                     }
                 }
+                Log.d(TAG, "Added recipe " + recipe);
                 // Add to list of recipes to add
                 mSelectedRecipes.add(recipe);
                 updateResult();
@@ -136,7 +137,7 @@ public class MealRecipeAddActivity extends AppCompatActivity {
      * Updates the result of this activity to contain the contents of {@link #mSelectedRecipes}
      */
     private void updateResult() {
-        final Intent resultIntent = new Intent(Intent.ACTION_DEFAULT);
+        final Intent resultIntent = new Intent();
         resultIntent.putExtra(EXTRA_RECIPES,
                 mSelectedRecipes.toArray(new Recipe[mSelectedRecipes.size()]));
         setResult(RESULT_OK, resultIntent);
