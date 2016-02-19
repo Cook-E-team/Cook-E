@@ -63,12 +63,11 @@ public final class Step implements Parcelable {
 	/**
 	 * Creates a Step
 	 * @param ingredients the ingredients required for this step
-	 * @param action the action category of this step
 	 * @param description a human-readable description of this step
 	 * @param duration an estimate of the time required to complete this step
 	 * @throws NullPointerException if any parameter is null
 	 */
-	public Step(@NonNull List<String> ingredients, @NonNull String action, @NonNull String description, @NonNull ReadableDuration duration, @NonNull boolean isSimultaneous) {
+	public Step(@NonNull List<String> ingredients, @NonNull String description, @NonNull ReadableDuration duration, @NonNull boolean isSimultaneous) {
 		Objects.requireNonNull(ingredients, "ingredients must not be null");
 		Objects.requireNonNull(description, "description must not be null");
 		Objects.requireNonNull(duration, "duration must not be null");
@@ -121,7 +120,7 @@ public final class Step implements Parcelable {
 
 		if (!mDescription.equals(step.mDescription)) return false;
 		if (!mTime.equals(step.mTime)) return false;
-		if (!(isSimultaneous() && step.isSimultaneous())) return false;
+		if (isSimultaneous() != step.isSimultaneous()) return false;
 		return mIngredients.equals(step.mIngredients);
 
 	}
@@ -160,12 +159,11 @@ public final class Step implements Parcelable {
 		@Override
 		public Step createFromParcel(Parcel source) {
 			final String description = source.readString();
-			final String action = source.readString();
 			final Duration duration = (Duration) source.readSerializable();
 			final Boolean simultaneous = (Boolean) source.readSerializable();
 			final List<String> ingredients = new ArrayList<String>();
             source.readStringList(ingredients);
-			return new Step(ingredients, action, description, duration, simultaneous);
+			return new Step(ingredients, description, duration, simultaneous);
 		}
 
 		@Override
@@ -184,7 +182,7 @@ public final class Step implements Parcelable {
 	public void writeToParcel(Parcel dest, int flags) {
 		dest.writeString(mDescription);
 		dest.writeSerializable(mTime);
-		dest.writeStringArray((String[]) mIngredients.toArray());
 		dest.writeSerializable(mSimultaneous);
+		dest.writeStringList(mIngredients);
 	}
 }

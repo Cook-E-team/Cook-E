@@ -64,7 +64,7 @@ public class BunchParcelTest {
     public void testParcelOneRecipe() {
         final Parcel parcel = Parcel.obtain();
         final String scallopsIng = "4 Scallops";
-        final Step step = new Step(Collections.singletonList(scallopsIng), "Poach", "Gently poach the scallops", Duration.standardMinutes(3), false);
+        final Step step = new Step(Collections.singletonList(scallopsIng), "Gently poach the scallops", Duration.standardMinutes(3), false);
         final Recipe recipe = new Recipe("Recipe title", "Clamify Flumingaster", Collections.singletonList(step));
         final Bunch original = new Bunch("Meal 83", Collections.singletonList(recipe));
 
@@ -82,9 +82,9 @@ public class BunchParcelTest {
         final String scallopsIng = "4 Scallops";
         final String butterIng = "1 kilogram Butter";
         final Step step1 = new Step(Collections.singletonList(scallopsIng),
-                "Poach", "Gently poach the scallops", Duration.standardMinutes(2), false);
+                "Gently poach the scallops", Duration.standardMinutes(2), false);
         final Step step2 = new Step(Collections.singletonList(butterIng),
-                "Melt", "Melt the butter", Duration.standardMinutes(10), false);
+                "Melt the butter", Duration.standardMinutes(10), false);
         final Recipe recipe1 = new Recipe("Recipe title", "Clamify Flumingaster", Arrays.asList(step1, step2));
         final Recipe recipe2 = createRecipe2();
         final Bunch original = new Bunch("Some meal", Arrays.asList(recipe1, recipe2));
@@ -102,14 +102,14 @@ public class BunchParcelTest {
         final String lemonJuiceIng = "140 milliliter Lemon juice";
 
         final List<Step> steps = new ArrayList<>();
-        steps.add(new Step(Collections.singletonList(lemonJuiceIng), "Slice", "Slice the lemon juice", Duration.standardMinutes(1), false));
-        steps.add(new Step(Collections.singletonList(whippedCreamIng), "Saute", "Saute the whipped cream", Duration.standardMinutes(3), false));
-        steps.add(new Step(Collections.<String>emptyList(), "Microwave", "Microwave the whipped cream", Duration.standardMinutes(2), false));
-        steps.add(new Step(Collections.<String>emptyList(), "Heat", "Heat the whipped cream", Duration.standardMinutes(2), false));
-        steps.add(new Step(Collections.<String>emptyList(), "Add", "Add the whipped cream", Duration.standardMinutes(1), false));
-        steps.add(new Step(Collections.<String>emptyList(), "Stir", "Stir the lemon juice", Duration.standardMinutes(4), false));
-        steps.add(new Step(Collections.<String>emptyList(), "Boil", "Bring the whipped cream to the boil", Duration.standardMinutes(10), false));
-        steps.add(new Step(Collections.<String>emptyList(), "Order", "Order out", Duration.standardMinutes(30), false));
+        steps.add(new Step(Collections.singletonList(lemonJuiceIng), "Slice the lemon juice", Duration.standardMinutes(1), false));
+        steps.add(new Step(Collections.singletonList(whippedCreamIng), "Saute the whipped cream", Duration.standardMinutes(3), false));
+        steps.add(new Step(Collections.<String>emptyList(), "Microwave the whipped cream", Duration.standardMinutes(2), false));
+        steps.add(new Step(Collections.<String>emptyList(), "Heat the whipped cream", Duration.standardMinutes(2), false));
+        steps.add(new Step(Collections.<String>emptyList(), "Add the whipped cream", Duration.standardMinutes(1), false));
+        steps.add(new Step(Collections.<String>emptyList(), "Stir the lemon juice", Duration.standardMinutes(4), false));
+        steps.add(new Step(Collections.<String>emptyList(), "Bring the whipped cream to the boil", Duration.standardMinutes(10), false));
+        steps.add(new Step(Collections.<String>emptyList(), "Order out", Duration.standardMinutes(30), false));
 
         return new Recipe("Battered whipped cream", "Random recipe generator", steps);
     }
