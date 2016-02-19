@@ -66,7 +66,7 @@ public class SqliteUnitTest {
     public void testTableInsert() {
         Recipe r = RecipeUnitTest.createGenericRecipe("My Recipe", "Kyle Woo", 0, 0, 0, 5, false);
         int id = 1;
-        accessor.storeRecipe(r, 1);
+        accessor.storeRecipe(r, id);
         Recipe result = accessor.loadRecipe(id);
         assertEquals(r, result);
 
@@ -75,8 +75,8 @@ public class SqliteUnitTest {
     public void testTableDelete() {
         Recipe r = RecipeUnitTest.createGenericRecipe("My Recipe", "Kyle Woo", 0, 0, 0, 5, false);
         int id = 1;
-        accessor.storeRecipe(r, 1);
-        accessor.deleteRecipe(1);
+        accessor.storeRecipe(r, id);
+        accessor.deleteRecipe(id);
         Recipe result = accessor.loadRecipe(id);
         assertNull(result);
     }
