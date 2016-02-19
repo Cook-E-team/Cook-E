@@ -76,7 +76,6 @@ public class EditRecipeActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         final ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(true);
             actionBar.setTitle(mRecipe.getTitle());
         }
 
