@@ -28,11 +28,11 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Class that handles storing and retrieving recipes and bunches from the local sqlite database and external sqlserver database
+ * Class that handles storing and retrieving recipes and bunches from the local database and external database
  */
 public class StorageAccessor {
-    private SQLiteAccessor sqlite;
-    private SQLServerAccessor sqlserver;
+    private SQLAccessor local;
+    private SQLAccessor external;
     private StorageParser parser;
     private static int recipe_counter = 0; // these are local counters, they do not apply to external databases
     private static int bunch_counter = 0;
@@ -45,14 +45,14 @@ public class StorageAccessor {
      */
     public StorageAccessor(Context c) {
         parser = new StorageParser();
-        sqlite = new SQLiteAccessor(c, parser);
-        sqlserver = new SQLServerAccessor(parser);
+        local = new SQLiteAccessor(c, parser);
+        external = new SQLServerAccessor(parser);
         recipe_ids = new HashMap<>();
         bunch_ids = new HashMap<>();
     }
 
     /**
-     * Store a recipe onto the local sqlite database
+     * Store a recipe onto the local database
      * @param r Recipe to store
      */
     public void storeRecipe(Recipe r) throws SQLException {
@@ -62,14 +62,14 @@ public class StorageAccessor {
             recipe_ids.put(new Pair<String, String>(r.getTitle(), r.getAuthor()), id);
         }
         try {
-            sqlite.storeRecipe(r, (int) id);
+            local.storeRecipe(r, (int) id);
         } catch (Exception e) {
             throw new SQLException(e);
         }
     }
 
     /**
-     * Store a bunch onto the local sqlite database
+     * Store a bunch onto the local database
      * Assumes that all recipes in the bunch are stored already
      * @param b
      */
@@ -80,7 +80,7 @@ public class StorageAccessor {
             bunch_ids.put(b.getTitle(), id);
         }
         try {
-            sqlite.storeBunch(b, (int) id, recipe_ids);
+            local.storeBunch(b, (int) id, recipe_ids);
         } catch (Exception e) {
             throw new SQLException(e);
         }
@@ -97,10 +97,9 @@ public class StorageAccessor {
         Integer id = getRecipeId(title, author);
         //if (id == null) // search database
         try {
-            r = sqlite.loadRecipe((int) id);
+            r = local.loadRecipe((int) id);
             if (r == null) {
-                //r = sqlserver.findRecipe(title, author); // this section will be expanded when database is implemented
-                if (r != null) sqlite.storeRecipe(r, id);
+                if (r != null) local.storeRecipe(r, id);
             }
         } catch (Exception e) {
             throw new SQLException(e);
@@ -118,7 +117,7 @@ public class StorageAccessor {
         //if (id == null) // could this happen?
         Bunch b = null;
         try {
-            b = sqlite.loadBunch((int) id);
+            b = local.loadBunch((int) id);
         } catch (Exception e) {
             throw new SQLException(e);
         }
@@ -132,7 +131,7 @@ public class StorageAccessor {
     public List<Recipe> loadAllRecipes() throws SQLException {
         List<Recipe> recipes = null;
         try {
-            recipes = sqlite.loadAllRecipes();
+            recipes = local.loadAllRecipes();
         } catch (Exception e) {
             throw new SQLException(e);
         }
@@ -146,7 +145,7 @@ public class StorageAccessor {
     public List<Bunch> loadAllBunches() throws SQLException {
         List<Bunch> bunches = null;
         try {
-            bunches = sqlite.loadAllBunches();
+            bunches = local.loadAllBunches();
         } catch (Exception e) {
             throw new SQLException(e);
         }
@@ -159,7 +158,7 @@ public class StorageAccessor {
     public void editRecipe(Recipe r) throws SQLException {
         Integer id = getRecipeId(r);
         try {
-            if (id != null) sqlite.editRecipe(r, (int)id);
+            if (id != null) local.editRecipe(r, (int)id);
         } catch (Exception e) {
             throw new SQLException(e);
         }
@@ -174,7 +173,7 @@ public class StorageAccessor {
         Integer id = getBunchId(b);
         try {
             if (id != null) {
-                sqlite.editBunch(b, (int) id, recipe_ids);
+                local.editBunch(b, (int) id, recipe_ids);
             }
         } catch (Exception e) {
             throw new SQLException(e);
@@ -190,7 +189,7 @@ public class StorageAccessor {
         Integer id = getRecipeId(title, author);
         try {
             if (id != null) {
-                sqlite.deleteRecipe(id);
+                local.deleteRecipe(id);
             }
         } catch (Exception e) {
             throw new SQLException(e);
@@ -217,7 +216,7 @@ public class StorageAccessor {
     public void deleteBunch(Bunch b) throws SQLException {
         Integer id = getBunchId(b);
         try {
-            sqlite.deleteBunch(id);
+            local.deleteBunch(id);
         } catch (Exception e) {
             throw new SQLException(e);
         }
