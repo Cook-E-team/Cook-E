@@ -110,16 +110,17 @@ public final class Step implements Parcelable {
      * @return true if this step can be done simultaneously
      */
     public boolean isSimultaneous() { return mSimultaneous; };
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        Step step = (Step) o;
+        final Step step = (Step) o;
 
+        if (mSimultaneous != step.mSimultaneous) return false;
         if (!mDescription.equals(step.mDescription)) return false;
         if (!mTime.equals(step.mTime)) return false;
-        if (isSimultaneous() != step.isSimultaneous()) return false;
         return mIngredients.equals(step.mIngredients);
 
     }
@@ -129,6 +130,7 @@ public final class Step implements Parcelable {
         int result = mDescription.hashCode();
         result = 31 * result + mTime.hashCode();
         result = 31 * result + mIngredients.hashCode();
+        result = 31 * result + (mSimultaneous ? 1 : 0);
         return result;
     }
 

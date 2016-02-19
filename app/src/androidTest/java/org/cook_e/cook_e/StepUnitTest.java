@@ -19,6 +19,8 @@
 
 package org.cook_e.cook_e;
 
+import android.util.Log;
+
 import org.atteo.evo.inflector.English;
 import org.cook_e.data.Ingredient;
 import org.cook_e.data.Step;
@@ -43,20 +45,19 @@ public class StepUnitTest {
      * Helper method that creates a step with 1 ingredient
      * @param action_index index into the ACTION array from the UnitTestSharedData class
      * @param ing_index index into the INGREDIENTS array from the UnitTestSharedData class
-     * @param unit_index index into the  COMMON_UNITS array from the UnitTestSharedData class
      * @param duration_min the number of minutes the duration of the step should be
      */
-    public static Step createGenericStep(int action_index, int ing_index, int unit_index, int duration_min, boolean isSimultaneous) {
-        List<String> ings = new ArrayList<String>();
+    public static Step createGenericStep(int action_index, int ing_index, int duration_min, boolean isSimultaneous) {
+        List<String> ings = new ArrayList<>();
         String action = UnitTestSharedData.ACTIONS[action_index];
         String ing = UnitTestSharedData.INGREDIENTS[ing_index];
         ings.add(ing);
-        return new Step(ings,UnitTestSharedData.generateDescription(ing, action), Duration.standardMinutes(duration_min), isSimultaneous);
+        return new Step(ings, UnitTestSharedData.generateDescription(ing, action), Duration.standardMinutes(duration_min), isSimultaneous);
     }
 
     @Test
     public void testCreation() {
-        List<String> ings = new ArrayList<String>();
+        List<String> ings = new ArrayList<>();
         String ing = UnitTestSharedData.INGREDIENTS[0];
         ings.add(ing);
         String action = UnitTestSharedData.ACTIONS[0];
@@ -73,11 +74,11 @@ public class StepUnitTest {
     @Test
     public void testEquals() {
 
-        Step s1 = createGenericStep(0, 0, 0, 5, false);
-        Step s1_match = createGenericStep(0, 0, 0, 5, false);
-        Step s2 = createGenericStep(1, 0, 0, 5, false);
-        Step s3 = createGenericStep(0, 1, 0, 5, false);
-        Step s4 = createGenericStep(0, 0, 1, 5, false);
+        Step s1 = createGenericStep(0, 0, 5, false);
+        Step s1_match = createGenericStep(0, 0, 5, false);
+        Step s2 = createGenericStep(1, 0, 5, false);
+        Step s3 = createGenericStep(0, 1, 5, false);
+        Step s4 = createGenericStep(0, 0, 5, true);
         assertEquals(s1, s1_match);
         assertFalse(s1.equals(s2));
         assertFalse(s1.equals(s3));
@@ -85,7 +86,7 @@ public class StepUnitTest {
     }
     @Test
     public void testListToString() {
-        List<String> lst = new ArrayList<String>();
+        List<String> lst = new ArrayList<>();
         lst.add("hello");
         lst.add("goodbye");
         lst.add("test");
