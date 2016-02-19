@@ -132,11 +132,13 @@ public class SqliteUnitTest {
         accessor.storeRecipe(r2, recipe2_id);
         Bunch b = new Bunch("My Bunch", recipes);
         accessor.storeBunch(b, bunch_id, recipe_ids);
+        Bunch result = accessor.loadBunch(bunch_id);
+        assertEquals(b, result);
         recipes.clear();
         recipes.add(r2);
         b.setRecipes(recipes);
         accessor.editBunch(b, bunch_id, recipe_ids);
-        Bunch result = accessor.loadBunch(bunch_id);
-        assertNull(result);
+        result = accessor.loadBunch(bunch_id);
+        assertEquals(b, result);
     }
 }

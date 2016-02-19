@@ -59,34 +59,34 @@ public class SQLiteAccessor {
      */
     private static final String RECIPE_TABLE_CREATE =
             "CREATE TABLE " + RECIPE_TABLE_NAME + " (" +
-                    " \"" + RECIPE_COLUMNS[0] + "\" INT NOT NULL DEFAULT 0" +
-                    " \"" + RECIPE_COLUMNS[1]  +"\" TEXT NOT NULL DEFAULT \"\"" +
-                    " \"" + RECIPE_COLUMNS[2]  + "\" TEXT NOT NULL DEFAULT \"\"" +
-                    " \"" + RECIPE_COLUMNS[3]  + "\" TEXT NOT NULL DEFAULT \"\"" +
+                    " \"" + RECIPE_COLUMNS[0] + "\" INT NOT NULL DEFAULT 0," +
+                    " \"" + RECIPE_COLUMNS[1]  +"\" TEXT NOT NULL DEFAULT \"\"," +
+                    " \"" + RECIPE_COLUMNS[2]  + "\" TEXT NOT NULL DEFAULT \"\"," +
+                    " \"" + RECIPE_COLUMNS[3]  + "\" TEXT NOT NULL DEFAULT \"\"," +
                     " PRIMARY KEY (" + RECIPE_COLUMNS[0] + "));";
     /**
      * Schema of the Recipe Images table: (id, image)
      */
     private static final String RECIPE_IMAGE_TABLE_CREATE =
             "CREATE TABLE " + RECIPE_IMAGE_TABLE_NAME + " (" +
-            " \"" + RECIPE_IMAGE_COLUMNS[0] + "\" INT NOT NULL DEFAULT 0" +
-            " \"" + RECIPE_IMAGE_COLUMNS[1] + "\" BLOB NOT NULL" +
+            " \"" + RECIPE_IMAGE_COLUMNS[0] + "\" INT NOT NULL DEFAULT 0," +
+            " \"" + RECIPE_IMAGE_COLUMNS[1] + "\" BLOB NOT NULL," +
             " PRIMARY KEY (" + RECIPE_IMAGE_COLUMNS[0] + ", " + RECIPE_IMAGE_COLUMNS[1] + "));";
     /**
      * Schema of the Bunches table: (id, name)
      */
     private static final String BUNCH_TABLE_CREATE =
             "CREATE TABLE " + BUNCH_TABLE_NAME + " (" +
-                    " \"" + BUNCH_COLUMNS[0] + "\" INT NOT NULL DEFAULT 0" +
-                    " \"" + BUNCH_COLUMNS[1] + "\" TEXT NOT NULL DEFAULT \"\"" +
+                    " \"" + BUNCH_COLUMNS[0] + "\" INT NOT NULL DEFAULT 0," +
+                    " \"" + BUNCH_COLUMNS[1] + "\" TEXT NOT NULL DEFAULT \"\"," +
                     " PRIMARY KEY (" + BUNCH_COLUMNS[0] + "));";
     /**
      * Schema of the Bunch Recipes table: (bunch id, recipe id)
      */
     private static final String BUNCH_RECIPE_TABLE_CREATE =
             "CREATE TABLE " + BUNCH_RECIPES_TABLE_NAME + " (" +
-                    " \"" + BUNCH_RECIPE_COLUMNS[0] + "\" INT NOT NULL DEFAULT 0" +
-                    " \"" + BUNCH_RECIPE_COLUMNS[1] + "\" INT NOT NULL DEFAULT 0" +
+                    " \"" + BUNCH_RECIPE_COLUMNS[0] + "\" INT NOT NULL DEFAULT 0," +
+                    " \"" + BUNCH_RECIPE_COLUMNS[1] + "\" INT NOT NULL DEFAULT 0," +
                     " PRIMARY KEY (" + BUNCH_RECIPE_COLUMNS[0] + ", " + BUNCH_RECIPE_COLUMNS[1] + "));";
 
     /**
