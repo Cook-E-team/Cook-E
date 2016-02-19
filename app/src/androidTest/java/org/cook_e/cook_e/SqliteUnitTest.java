@@ -17,24 +17,26 @@
  * along with Cook-E.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.cook_e.cook_e;
+package org.cook_e.data;
 
 import android.content.Context;
-import android.support.test.InstrumentationRegistry;
+import android.database.sqlite.SQLiteDatabase;
 
-import org.cook_e.data.Recipe;
+import org.atteo.evo.inflector.English;
+import org.cook_e.data.Ingredient;
 import org.cook_e.data.SQLiteAccessor;
 import org.cook_e.data.Step;
-import org.cook_e.data.StorageParser;
-import org.joda.time.Duration;
+import org.cook_e.data.UnitTestSharedData;
+import java.util.List;
+import java.util.ArrayList;
+import android.support.test.InstrumentationRegistry;
+
+import dalvik.annotation.TestTargetClass;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 public class SqliteUnitTest {
     private Context mContext;
@@ -52,7 +54,7 @@ public class SqliteUnitTest {
     }
     @Test
     public void testTableInsert() {
-        Recipe r = createGenericRecipe("My Recipe", "Kyle Woo", 0, 0, 0, 5, false);
+        Recipe r = RecipeUnitTest.createGenericRecipe("My Recipe", "Kyle Woo", 0, 0, 0, 5, false);
         int id = 1;
         accessor.storeRecipe(r, 1);
         Recipe result = accessor.loadRecipe(id);
@@ -61,38 +63,23 @@ public class SqliteUnitTest {
     }
     @Test
     public void testTableDelete() {
-        Recipe r = createGenericRecipe("My Recipe", "Kyle Woo", 0, 0, 0, 5, false);
+        Recipe r = RecipeUnitTest.createGenericRecipe("My Recipe", "Kyle Woo", 0, 0, 0, 5, false);
         int id = 1;
         accessor.storeRecipe(r, 1);
         accessor.deleteRecipe(1);
         Recipe result = accessor.loadRecipe(id);
         assertEquals(null, result);
     }
-
-    /**
-     * Creates generic recipe with 1 step
-     *
-     */
-    public static Recipe createGenericRecipe(String name, String author, int action_index, int ing_index, int unit_index, int duration_min, boolean isSimultaneous) {
-        Step s = createGenericStep(action_index, ing_index, unit_index, duration_min,
-                isSimultaneous);
-        List<Step> steps = new ArrayList<Step>();
-        steps.add(s);
-        return new Recipe(name, author, steps);
-    }
-    /**
-     * Helper method that creates a step with 1 ingredient
-     * @param action_index index into the ACTION array from the UnitTestSharedData class
-     * @param ing_index index into the INGREDIENTS array from the UnitTestSharedData class
-     * @param unit_index index into the  COMMON_UNITS array from the UnitTestSharedData class
-     * @param duration_min the number of minutes the duration of the step should be
-     */
-    public static Step createGenericStep(int action_index, int ing_index, int unit_index, int duration_min, boolean isSimultaneous) {
-        List<String> ings = new ArrayList<>();
-        String action = UnitTestSharedData.ACTIONS[action_index];
-        String ing = UnitTestSharedData.INGREDIENTS[ing_index];
-        ings.add(ing);
-        return new Step(ings,UnitTestSharedData.generateDescription(ing, action), Duration.standardMinutes(
-                duration_min), isSimultaneous);
+    @Test
+    public void testTableEdit() {
+        Recipe r = RecipeUnitTest.createGenericRecipe("My Recipe", "Kyle Woo", 0, 0, 0, 5, false);
+        Recipe edited_r = RecipeUnitTest.createGenericRecipe("My Recipe", "Kyle Woo", 1, 1, 0, 5, false);
+        int id = 1;
+        accessor.storeRecipe(r, id);
+        Recipe result = accessor.loadRecipe(id);
+        assertEquals(r, result);
+        accessor.editRecipe(edited_r, id);
+        Recipe result = accessor.loadRecipe(id);
+        assertEquals(edited_r, result);
     }
 }
