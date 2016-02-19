@@ -34,10 +34,11 @@ import java.util.List;
 /*
  * Represents a recipe
  *
- * Has an ordered list of steps, a title, an author, and an image. The image may be null; all
- * other fields may not be null.
+ * Has an ordered list of steps, a title, and an author.
+ * No field may be null.
  */
 public final class Recipe implements Parcelable {
+
     /**
      * The steps that this recipe contains
      */
@@ -59,7 +60,6 @@ public final class Recipe implements Parcelable {
      */
     @Nullable
     private Bitmap mImage;
-
     /**
      * Constructor
      *@param title the title of the recipe, must not be null
@@ -84,7 +84,7 @@ public final class Recipe implements Parcelable {
      * @param other the recipe to copy from
      */
     public Recipe(Recipe other) {
-        // Ingredient, Step, and String are immutable, so they do not need to be copied.
+        // Step, and String are immutable, so they do not need to be copied.
         // The delegated constructor copies the list of steps.
         this(other.getTitle(), other.getAuthor(), other.getSteps());
         setImage(other.getImage());
@@ -123,10 +123,10 @@ public final class Recipe implements Parcelable {
      * Returns a List of all the ingredients required by all the steps of the recipe
      */
     @NonNull
-    public List<Ingredient> getIngredients() {
-        List<Ingredient> ings = new ArrayList<>();
+    public List<String> getIngredients() {
+        List<String> ings = new ArrayList<>();
         for (Step s: mSteps) {
-            for (Ingredient ingredient: s.getIngredients()) {
+            for (String ingredient: s.getIngredients()) {
                 ings.add(ingredient);
             }
         }
@@ -151,6 +151,7 @@ public final class Recipe implements Parcelable {
     public String getAuthor() {
         return mAuthor;
     }
+
 
     /**
      * Returns the image associated with this recipe
@@ -255,4 +256,5 @@ public final class Recipe implements Parcelable {
             mImage.writeToParcel(dest, 0);
         }
     }
+
 }

@@ -87,7 +87,6 @@ public class RecipeListItemView extends LinearLayout {
         mTitleView.setCompoundDrawablePadding(PADDING);
         mTitleView.setGravity(Gravity.CENTER_VERTICAL | Gravity.START);
 
-
         // Create delete button
         final ImageButton deleteButton = new ImageButton(context, null, android.R.attr.borderlessButtonStyle);
         deleteButton.setImageResource(R.drawable.ic_remove_circle_black_24dp);

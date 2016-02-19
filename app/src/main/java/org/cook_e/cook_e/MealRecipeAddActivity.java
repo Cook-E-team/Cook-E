@@ -22,7 +22,6 @@ package org.cook_e.cook_e;
 
 import android.content.Intent;
 import android.databinding.ObservableArrayList;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.v7.app.ActionBar;

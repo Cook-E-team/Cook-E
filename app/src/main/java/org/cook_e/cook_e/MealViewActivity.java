@@ -43,7 +43,6 @@ import java.util.List;
 public class MealViewActivity extends AppCompatActivity {
     private static final String TAG = MealViewActivity.class.getSimpleName();
 
-
     /**
      * The recipes in the meal being displayed
      */
