@@ -17,12 +17,11 @@
  * along with Cook-E.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.cook_e.data;
+package org.cook_e.cook_e;
 
 import org.atteo.evo.inflector.English;
 import org.cook_e.data.Ingredient;
 import org.cook_e.data.Step;
-import org.cook_e.data.UnitTestSharedData;
 import java.util.List;
 import java.util.ArrayList;
 

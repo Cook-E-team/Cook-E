@@ -17,16 +17,17 @@
  * along with Cook-E.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.cook_e.data;
+package org.cook_e.cook_e;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 
 import org.atteo.evo.inflector.English;
-import org.cook_e.data.Ingredient;
+import org.cook_e.data.Recipe;
 import org.cook_e.data.SQLiteAccessor;
 import org.cook_e.data.Step;
-import org.cook_e.data.UnitTestSharedData;
+import org.cook_e.data.StorageParser;
+
 import java.util.List;
 import java.util.ArrayList;
 import android.support.test.InstrumentationRegistry;
@@ -79,7 +80,7 @@ public class SqliteUnitTest {
         Recipe result = accessor.loadRecipe(id);
         assertEquals(r, result);
         accessor.editRecipe(edited_r, id);
-        Recipe result = accessor.loadRecipe(id);
+        result = accessor.loadRecipe(id);
         assertEquals(edited_r, result);
     }
 }

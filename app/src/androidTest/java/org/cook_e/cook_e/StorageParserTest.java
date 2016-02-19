@@ -17,8 +17,11 @@
  * along with Cook-E.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.cook_e.data;
+package org.cook_e.cook_e;
 
+import org.cook_e.data.Recipe;
+import org.cook_e.data.Step;
+import org.cook_e.data.StorageParser;
 import org.joda.time.Duration;
 import org.junit.Test;
 
