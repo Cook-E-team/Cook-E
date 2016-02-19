@@ -33,9 +33,11 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ListView;
 
+import org.cook_e.data.Bunch;
 import org.cook_e.data.Objects;
 import org.cook_e.data.Recipe;
 import org.cook_e.data.Step;
+import org.cook_e.data.StorageAccessor;
 
 import java.util.Collections;
 import java.util.List;
@@ -47,6 +49,15 @@ public class MealViewActivity extends AppCompatActivity {
      * The recipes in the meal being displayed
      */
     private ObservableArrayList<Recipe> mRecipes;
+    /**
+     * The meal being displayed
+     */
+    private Bunch mMeal;
+
+    /**
+     * The accessor used to access storage
+     */
+    private StorageAccessor mAccessor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,13 +84,16 @@ public class MealViewActivity extends AppCompatActivity {
             public void onClick(View v) {
                 // Open item add view
                 final Intent intent = new Intent(MealViewActivity.this, MealRecipeAddActivity.class);
-                // TODO: Get actual available recipes from a data source
-                final List<Recipe> availableRecipes = createTestRecipes();
+
+                final List<Recipe> availableRecipes = mAccessor.loadAllRecipes();
                 intent.putExtra(MealRecipeAddActivity.EXTRA_RECIPES,
                         availableRecipes.toArray(new Recipe[availableRecipes.size()]));
                 startActivityForResult(intent, MealRecipeAddActivity.REQUEST_ADD_RECIPES);
             }
         });
+
+        // Set up accessor
+        mAccessor = new StorageAccessor(getApplicationContext());
     }
 
     @Override
@@ -93,7 +107,9 @@ public class MealViewActivity extends AppCompatActivity {
                     mRecipes.add(newRecipe);
                 }
             }
-            // TODO: Save meal to storage
+            // Save meal to storage
+            mMeal.setRecipes(mRecipes);
+            mAccessor.editBunch(mMeal);
         }
     }
 
