@@ -22,7 +22,6 @@ package org.cook_e.cook_e;
 import android.util.Log;
 
 import org.atteo.evo.inflector.English;
-import org.cook_e.data.Ingredient;
 import org.cook_e.data.Step;
 import java.util.List;
 import java.util.ArrayList;

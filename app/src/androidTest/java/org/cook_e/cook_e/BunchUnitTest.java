@@ -20,7 +20,6 @@
 package org.cook_e.cook_e;
 
 import org.atteo.evo.inflector.English;
-import org.cook_e.data.Ingredient;
 import org.cook_e.data.Step;
 import org.junit.Test;
 import org.cook_e.data.Bunch;

@@ -7,7 +7,6 @@ import android.os.Parcel;
 import android.util.Log;
 
 import org.cook_e.data.Bunch;
-import org.cook_e.data.Ingredient;
 import org.cook_e.data.Recipe;
 import org.cook_e.data.Schedule;
 import org.cook_e.data.Step;
