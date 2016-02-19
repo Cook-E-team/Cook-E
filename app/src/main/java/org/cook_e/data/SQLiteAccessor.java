@@ -186,6 +186,68 @@ public class SQLiteAccessor {
     }
 
     /**
+     * Load all recipes off the database
+     * @return List of Recipes
+     */
+    public List<Recipe> loadAllRecipes() {
+        List<Recipe> recipes = new ArrayList<Recipe>();
+        SQLiteDatabase db = helper.getReadableDatabase();
+        Cursor c = db.query(RECIPE_TABLE_NAME, RECIPE_COLUMNS, null, null, null, null, "name");
+        if (c != null) {
+            c.moveToFirst();
+            do {
+
+                String title = c.getString(1);
+                String author = c.getString(2);
+                String description = c.getString(3);
+                Recipe r = parser.convertStringToRecipe(title, author, description);
+                recipes.add(r);
+            } while (c.moveToNext());
+        }
+        db.close();
+        return recipes;
+    }
+
+    /**
+     * Load all bunches off the database
+     * @return List of bunches
+     */
+    public List<Bunch> loadAllBunches() {
+        List<Bunch> bunches = new ArrayList<Bunch>();
+        SQLiteDatabase db = helper.getReadableDatabase();
+        Cursor c = db.query(BUNCH_TABLE_NAME, BUNCH_COLUMNS, null, null, null, null, "name");
+        if (c != null) {
+            c.moveToFirst();
+            do {
+                List<Recipe> recipes = new ArrayList<Recipe>();
+                int bunch_id = c.getInt(0);
+                String name = c.getString(1);
+                String[] whereArgs = {String.valueOf(bunch_id)};
+                Cursor recipe_bunch_cursor = db.query(BUNCH_RECIPES_TABLE_NAME, BUNCH_RECIPE_COLUMNS, "bunch id = ?", whereArgs,
+                        null, null, null);
+                if (recipe_bunch_cursor != null) {
+                    recipe_bunch_cursor.moveToFirst();
+                    do {
+                        int recipe_id = recipe_bunch_cursor.getInt(1);
+                        String[] recipeWhereArgs = {String.valueOf(recipe_id)};
+                        Cursor recipe_cursor = db.query(RECIPE_TABLE_NAME, RECIPE_COLUMNS, "id = ?", recipeWhereArgs,
+                                null, null, null);
+                        Recipe r = null;
+                        String title = recipe_cursor.getString(1);
+                        String author = recipe_cursor.getString(2);
+                        String description = recipe_cursor.getString(3);
+                        r = parser.convertStringToRecipe(title, author, description);
+                        recipes.add(r);
+                    } while (recipe_bunch_cursor.moveToNext());
+                }
+                Bunch b = new Bunch(name, recipes);
+                bunches.add(b);
+            } while (c.moveToNext());
+        }
+        return bunches;
+
+    }
+    /**
      * Load a bunch off the database (and all its contained recipes)
      * @param id
      * @return Bunch object
@@ -201,7 +263,7 @@ public class SQLiteAccessor {
             c.moveToFirst();
             String name = c.getString(1);
             Cursor recipe_bunch_cursor = db.query(BUNCH_RECIPES_TABLE_NAME, BUNCH_RECIPE_COLUMNS,
-                    "id = ?", whereArgs,
+                    "bunch id = ?", whereArgs,
                     null, null, null);
             if (recipe_bunch_cursor != null) {
                 recipe_bunch_cursor.moveToFirst();
