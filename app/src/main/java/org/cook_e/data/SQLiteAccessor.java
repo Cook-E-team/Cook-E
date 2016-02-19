@@ -179,6 +179,7 @@ public class SQLiteAccessor {
             String author = c.getString(2);
             String description = c.getString(3);
             r = parser.convertStringToRecipe(title, author, description);
+            c.close();
         }
         db.close();
 
@@ -203,6 +204,7 @@ public class SQLiteAccessor {
                 Recipe r = parser.convertStringToRecipe(title, author, description);
                 recipes.add(r);
             } while (c.moveToNext());
+            c.close();
         }
         db.close();
         return recipes;
@@ -238,11 +240,14 @@ public class SQLiteAccessor {
                         String description = recipe_cursor.getString(3);
                         r = parser.convertStringToRecipe(title, author, description);
                         recipes.add(r);
+                        recipe_cursor.close();
                     } while (recipe_bunch_cursor.moveToNext());
+                    recipe_bunch_cursor.close();
                 }
                 Bunch b = new Bunch(name, recipes);
                 bunches.add(b);
             } while (c.moveToNext());
+            c.close();
         }
         return bunches;
 
@@ -278,9 +283,12 @@ public class SQLiteAccessor {
                     String description = recipe_cursor.getString(3);
                     r = parser.convertStringToRecipe(title, author, description);
                     recipes.add(r);
+                    recipe_cursor.close();
                 } while (recipe_bunch_cursor.moveToNext());
+                recipe_bunch_cursor.close();
                 b = new Bunch(name, recipes);
             }
+            c.close();
         }
         db.close();
         return b;
