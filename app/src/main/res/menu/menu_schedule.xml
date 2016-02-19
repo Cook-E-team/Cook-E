@@ -22,6 +22,6 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         app:showAsAction="always"
-        android:id="@+id/schedule"
-        android:title="schedule" />
+        android:id="@+id/start"
+        android:title="start" />
 </menu>
