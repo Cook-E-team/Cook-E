@@ -19,6 +19,7 @@
 
 package org.cook_e.cook_e;
 
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.databinding.ObservableArrayList;
 import android.os.Bundle;
@@ -39,6 +40,7 @@ import org.cook_e.data.Recipe;
 import org.cook_e.data.Step;
 import org.cook_e.data.StorageAccessor;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -85,10 +87,18 @@ public class MealViewActivity extends AppCompatActivity {
                 // Open item add view
                 final Intent intent = new Intent(MealViewActivity.this, MealRecipeAddActivity.class);
 
-                final List<Recipe> availableRecipes = mAccessor.loadAllRecipes();
-                intent.putExtra(MealRecipeAddActivity.EXTRA_RECIPES,
-                        availableRecipes.toArray(new Recipe[availableRecipes.size()]));
-                startActivityForResult(intent, MealRecipeAddActivity.REQUEST_ADD_RECIPES);
+                try {
+                    final List<Recipe> availableRecipes = mAccessor.loadAllRecipes();
+                    intent.putExtra(MealRecipeAddActivity.EXTRA_RECIPES,
+                            availableRecipes.toArray(new Recipe[availableRecipes.size()]));
+                    startActivityForResult(intent, MealRecipeAddActivity.REQUEST_ADD_RECIPES);
+                }
+                catch (Exception e) {
+                    new AlertDialog.Builder(MealViewActivity.this)
+                            .setTitle("Failed to load recipes")
+                            .setMessage(e.getLocalizedMessage())
+                            .show();
+                }
             }
         });
 
@@ -109,7 +119,15 @@ public class MealViewActivity extends AppCompatActivity {
             }
             // Save meal to storage
             mMeal.setRecipes(mRecipes);
-            mAccessor.editBunch(mMeal);
+            try {
+                mAccessor.editBunch(mMeal);
+            }
+            catch (Exception e) {
+                new AlertDialog.Builder(MealViewActivity.this)
+                        .setTitle("Failed to load recipes")
+                        .setMessage(e.getLocalizedMessage())
+                        .show();
+            }
         }
     }
 
