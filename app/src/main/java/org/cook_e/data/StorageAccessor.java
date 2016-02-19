@@ -54,8 +54,10 @@ public class StorageAccessor {
      */
     public void storeRecipe(Recipe r) throws SQLException {
         Integer id = getRecipeId(r);
-        if (id == null)
-            recipe_ids.put(new Pair<String, String>(r.getTitle(), r.getAuthor()), recipe_counter++);
+        if (id == null) {
+            id = recipe_counter++;
+            recipe_ids.put(new Pair<String, String>(r.getTitle(), r.getAuthor()), id);
+        }
         try {
             sqlite.storeRecipe(r, (int) id);
         } catch (Exception e) {
@@ -70,7 +72,10 @@ public class StorageAccessor {
      */
     public void storeBunch(Bunch b) throws SQLException {
         Integer id = getBunchId(b);
-        if (id == null) bunch_ids.put(b.getTitle(), bunch_counter++);
+        if (id == null) {
+            id = bunch_counter++;
+            bunch_ids.put(b.getTitle(), id);
+        }
         try {
             sqlite.storeBunch(b, (int) id, recipe_ids);
         } catch (Exception e) {
