@@ -52,7 +52,7 @@ public class SQLiteAccessor {
     private static final String[] RECIPE_IMAGE_COLUMNS = {"id", "image"};
     private static final String BUNCH_TABLE_NAME = "Bunches";
     private static final String[] BUNCH_COLUMNS = {"id", "name"};
-    private static final String BUNCH_RECIPES_TABLE_NAME = "Bunch Recipes";
+    private static final String BUNCH_RECIPES_TABLE_NAME = "BunchRecipes";
     private static final String[] BUNCH_RECIPE_COLUMNS = {"bunch id", "recipe id"};
     /**
      * Schema of the Recipes table: (id, name, author, description)
