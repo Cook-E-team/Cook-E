@@ -218,7 +218,7 @@ public class SQLiteAccessor {
         try {
             SQLiteDatabase db = helper.getReadableDatabase();
             Cursor c = db.query(RECIPE_TABLE_NAME, RECIPE_COLUMNS, null, null, null, null, "name");
-            if (c != null) {
+            if (c.getCount() > 0) {
                 c.moveToFirst();
                 do {
 
@@ -246,7 +246,7 @@ public class SQLiteAccessor {
         try {
             SQLiteDatabase db = helper.getReadableDatabase();
             Cursor c = db.query(BUNCH_TABLE_NAME, BUNCH_COLUMNS, null, null, null, null, "name");
-            if (c != null) {
+            if (c.getCount() > 0) {
                 c.moveToFirst();
                 do {
                     List<Recipe> recipes = new ArrayList<Recipe>();
