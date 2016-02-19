@@ -52,8 +52,9 @@ public class StorageAccessor {
      */
     public void storeRecipe(Recipe r) {
         Integer id = getRecipeId(r);
-        if (id == null) recipe_ids.put(new Pair<String, String>(r.getTitle(), r.getAuthor()), recipe_counter++);
-        sqlite.storeRecipe(r, (int)id);
+        if (id == null)
+            recipe_ids.put(new Pair<String, String>(r.getTitle(), r.getAuthor()), recipe_counter++);
+        sqlite.storeRecipe(r, (int) id);
     }
 
     /**

@@ -53,40 +53,40 @@ public class SQLiteAccessor {
     private static final String BUNCH_TABLE_NAME = "Bunches";
     private static final String[] BUNCH_COLUMNS = {"id", "name"};
     private static final String BUNCH_RECIPES_TABLE_NAME = "BunchRecipes";
-    private static final String[] BUNCH_RECIPE_COLUMNS = {"bunch id", "recipe id"};
+    private static final String[] BUNCH_RECIPE_COLUMNS = {"bunch_id", "recipe_id"};
     /**
      * Schema of the Recipes table: (id, name, author, description)
      */
     private static final String RECIPE_TABLE_CREATE =
             "CREATE TABLE " + RECIPE_TABLE_NAME + " (" +
-                    " \"" + RECIPE_COLUMNS[0] + "\" INT NOT NULL DEFAULT 0," +
-                    " \"" + RECIPE_COLUMNS[1]  +"\" TEXT NOT NULL DEFAULT \"\"," +
-                    " \"" + RECIPE_COLUMNS[2]  + "\" TEXT NOT NULL DEFAULT \"\"," +
-                    " \"" + RECIPE_COLUMNS[3]  + "\" TEXT NOT NULL DEFAULT \"\"," +
+                    RECIPE_COLUMNS[0] + " INT NOT NULL DEFAULT 0," +
+                    RECIPE_COLUMNS[1]  +" TEXT NOT NULL DEFAULT \"\"," +
+                    RECIPE_COLUMNS[2]  + " TEXT NOT NULL DEFAULT \"\"," +
+                    RECIPE_COLUMNS[3]  + " TEXT NOT NULL DEFAULT \"\"," +
                     " PRIMARY KEY (" + RECIPE_COLUMNS[0] + "));";
     /**
      * Schema of the Recipe Images table: (id, image)
      */
     private static final String RECIPE_IMAGE_TABLE_CREATE =
             "CREATE TABLE " + RECIPE_IMAGE_TABLE_NAME + " (" +
-            " \"" + RECIPE_IMAGE_COLUMNS[0] + "\" INT NOT NULL DEFAULT 0," +
-            " \"" + RECIPE_IMAGE_COLUMNS[1] + "\" BLOB NOT NULL," +
+            RECIPE_IMAGE_COLUMNS[0] + " INT NOT NULL DEFAULT 0," +
+            RECIPE_IMAGE_COLUMNS[1] + " BLOB NOT NULL," +
             " PRIMARY KEY (" + RECIPE_IMAGE_COLUMNS[0] + ", " + RECIPE_IMAGE_COLUMNS[1] + "));";
     /**
      * Schema of the Bunches table: (id, name)
      */
     private static final String BUNCH_TABLE_CREATE =
             "CREATE TABLE " + BUNCH_TABLE_NAME + " (" +
-                    " \"" + BUNCH_COLUMNS[0] + "\" INT NOT NULL DEFAULT 0," +
-                    " \"" + BUNCH_COLUMNS[1] + "\" TEXT NOT NULL DEFAULT \"\"," +
+                    BUNCH_COLUMNS[0] + " INT NOT NULL DEFAULT 0," +
+                    BUNCH_COLUMNS[1] + " TEXT NOT NULL DEFAULT \"\"," +
                     " PRIMARY KEY (" + BUNCH_COLUMNS[0] + "));";
     /**
-     * Schema of the Bunch Recipes table: (bunch id, recipe id)
+     * Schema of the Bunch Recipes table: (bunch_id, recipe_id)
      */
     private static final String BUNCH_RECIPE_TABLE_CREATE =
             "CREATE TABLE " + BUNCH_RECIPES_TABLE_NAME + " (" +
-                    " \"" + BUNCH_RECIPE_COLUMNS[0] + "\" INT NOT NULL DEFAULT 0," +
-                    " \"" + BUNCH_RECIPE_COLUMNS[1] + "\" INT NOT NULL DEFAULT 0," +
+                    BUNCH_RECIPE_COLUMNS[0] + " INT NOT NULL DEFAULT 0," +
+                    BUNCH_RECIPE_COLUMNS[1] + " INT NOT NULL DEFAULT 0," +
                     " PRIMARY KEY (" + BUNCH_RECIPE_COLUMNS[0] + ", " + BUNCH_RECIPE_COLUMNS[1] + "));";
 
     /**
@@ -223,7 +223,7 @@ public class SQLiteAccessor {
                 int bunch_id = c.getInt(0);
                 String name = c.getString(1);
                 String[] whereArgs = {String.valueOf(bunch_id)};
-                Cursor recipe_bunch_cursor = db.query(BUNCH_RECIPES_TABLE_NAME, BUNCH_RECIPE_COLUMNS, "bunch id = ?", whereArgs,
+                Cursor recipe_bunch_cursor = db.query(BUNCH_RECIPES_TABLE_NAME, BUNCH_RECIPE_COLUMNS, "bunch_id = ?", whereArgs,
                         null, null, null);
                 if (recipe_bunch_cursor != null) {
                     recipe_bunch_cursor.moveToFirst();
@@ -305,7 +305,7 @@ public class SQLiteAccessor {
         SQLiteDatabase db = helper.getWritableDatabase();
         String[] whereArgs = {String.valueOf(id)};
         db.delete(BUNCH_TABLE_NAME, "id = ?", whereArgs);
-        db.delete(BUNCH_RECIPES_TABLE_NAME, "bunch id = ?", whereArgs);
+        db.delete(BUNCH_RECIPES_TABLE_NAME, "bunch_id = ?", whereArgs);
         db.close();
     }
 
