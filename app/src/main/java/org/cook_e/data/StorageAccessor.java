@@ -23,6 +23,7 @@ import android.content.Context;
 
 
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -46,6 +47,8 @@ public class StorageAccessor {
         sqlite = new SQLiteAccessor(c, parser);
         sqlserver = new SQLServerAccessor(parser);
         parser = new StorageParser();
+        recipe_ids = new HashMap<>();
+        bunch_ids = new HashMap<>();
     }
 
     /**
