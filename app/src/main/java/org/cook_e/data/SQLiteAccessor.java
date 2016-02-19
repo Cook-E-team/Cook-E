@@ -25,6 +25,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -69,9 +70,9 @@ public class SQLiteAccessor {
      */
     private static final String RECIPE_IMAGE_TABLE_CREATE =
             "CREATE TABLE " + RECIPE_IMAGE_TABLE_NAME + " (" +
-            RECIPE_IMAGE_COLUMNS[0] + " INT NOT NULL DEFAULT 0," +
-            RECIPE_IMAGE_COLUMNS[1] + " BLOB NOT NULL," +
-            " PRIMARY KEY (" + RECIPE_IMAGE_COLUMNS[0] + ", " + RECIPE_IMAGE_COLUMNS[1] + "));";
+                    RECIPE_IMAGE_COLUMNS[0] + " INT NOT NULL DEFAULT 0," +
+                    RECIPE_IMAGE_COLUMNS[1] + " BLOB NOT NULL," +
+                    " PRIMARY KEY (" + RECIPE_IMAGE_COLUMNS[0] + ", " + RECIPE_IMAGE_COLUMNS[1] + "));";
     /**
      * Schema of the Bunches table: (id, name)
      */
@@ -104,11 +105,15 @@ public class SQLiteAccessor {
      * @param r Recipe object to store
      * @param id int id of the recipe
      */
-    public void storeRecipe(Recipe r, int id) {
-        SQLiteDatabase db = helper.getWritableDatabase();
-        ContentValues values = createContentValues(r, id);
-        db.insert(RECIPE_TABLE_NAME, null, values);
-        db.close();
+    public void storeRecipe(Recipe r, int id) throws SQLException{
+        try {
+            SQLiteDatabase db = helper.getWritableDatabase();
+            ContentValues values = createContentValues(r, id);
+            db.insert(RECIPE_TABLE_NAME, null, values);
+            db.close();
+        } catch (Exception e) {
+            throw new SQLException(e);
+        }
     }
 
     /**
@@ -118,16 +123,19 @@ public class SQLiteAccessor {
      * @param bunch_id int id of the bunch
      * @param recipe_ids Map of (recipe name, recipe author) to recipe ids
      */
-    public void storeBunch(Bunch b, int bunch_id, Map<Pair<String, String>,Integer> recipe_ids) {
-        SQLiteDatabase db = helper.getWritableDatabase();
-        List<ContentValues> values_list = createContentValues(b, bunch_id, recipe_ids);
-        ContentValues bunch_values = createContentValues(b, bunch_id);
-        db.insert(BUNCH_TABLE_NAME, null, bunch_values);
-        for (ContentValues values: values_list) {
-            db.insert(BUNCH_RECIPES_TABLE_NAME, null, values);
+    public void storeBunch(Bunch b, int bunch_id, Map<Pair<String, String>,Integer> recipe_ids) throws SQLException {
+        try {
+            SQLiteDatabase db = helper.getWritableDatabase();
+            List<ContentValues> values_list = createContentValues(b, bunch_id, recipe_ids);
+            ContentValues bunch_values = createContentValues(b, bunch_id);
+            db.insert(BUNCH_TABLE_NAME, null, bunch_values);
+            for (ContentValues values: values_list) {
+                db.insert(BUNCH_RECIPES_TABLE_NAME, null, values);
+            }
+            db.close();
+        } catch (Exception e) {
+            throw new SQLException(e);
         }
-        db.close();
-
     }
 
     /**
@@ -135,12 +143,16 @@ public class SQLiteAccessor {
      * @param r Recipe object to update
      * @param id int id of recipe
      */
-    public void editRecipe(Recipe r, int id) {
-        SQLiteDatabase db = helper.getWritableDatabase();
-        ContentValues values = createContentValues(r, id);
-        String[] whereArgs = {r.getTitle(), r.getAuthor()};
-        db.update(RECIPE_TABLE_NAME, values, "id = ?", whereArgs);
-        db.close();
+    public void editRecipe(Recipe r, int id) throws SQLException {
+        try {
+            SQLiteDatabase db = helper.getWritableDatabase();
+            ContentValues values = createContentValues(r, id);
+            String[] whereArgs = {r.getTitle(), r.getAuthor()};
+            db.update(RECIPE_TABLE_NAME, values, "id = ?", whereArgs);
+            db.close();
+        } catch (Exception e) {
+            throw new SQLException(e);
+        }
     }
 
     /**
@@ -149,17 +161,21 @@ public class SQLiteAccessor {
      * @param bunch_id int id of bunch
      * @param recipe_ids Map of (recipe name, recipe author) to recipe id
      */
-    public void editBunch(Bunch b, int bunch_id, Map<Pair<String, String>, Integer> recipe_ids) {
-        SQLiteDatabase db = helper.getWritableDatabase();
-        ContentValues bunch_values = createContentValues(b, bunch_id);
-        String[] bunchArgs = {String.valueOf(bunch_id)};
-        db.update(BUNCH_TABLE_NAME, bunch_values, "id = ?", bunchArgs);
-        db.delete(BUNCH_RECIPES_TABLE_NAME, "id = ?", bunchArgs);
-        List<ContentValues> bunch_recipe_values = createContentValues(b, bunch_id, recipe_ids);
-        for (ContentValues cv: bunch_recipe_values) {
-            db.insert(BUNCH_RECIPES_TABLE_NAME, null, cv);
+    public void editBunch(Bunch b, int bunch_id, Map<Pair<String, String>, Integer> recipe_ids) throws SQLException {
+        try {
+            SQLiteDatabase db = helper.getWritableDatabase();
+            ContentValues bunch_values = createContentValues(b, bunch_id);
+            String[] bunchArgs = {String.valueOf(bunch_id)};
+            db.update(BUNCH_TABLE_NAME, bunch_values, "id = ?", bunchArgs);
+            db.delete(BUNCH_RECIPES_TABLE_NAME, "id = ?", bunchArgs);
+            List<ContentValues> bunch_recipe_values = createContentValues(b, bunch_id, recipe_ids);
+            for (ContentValues cv: bunch_recipe_values) {
+                db.insert(BUNCH_RECIPES_TABLE_NAME, null, cv);
+            }
+            db.close();
+        } catch (Exception e) {
+            throw new SQLException(e);
         }
-        db.close();
     }
 
     /**
@@ -167,21 +183,27 @@ public class SQLiteAccessor {
      * @param id int id of the recipe
      * @return Recipe object
      */
-    public Recipe loadRecipe(int id) {
+    public Recipe loadRecipe(int id) throws SQLException {
         Recipe r = null;
-        SQLiteDatabase db = helper.getReadableDatabase();
-        String[] whereArgs = {String.valueOf(id)};
-        Cursor c = db.query(RECIPE_TABLE_NAME, RECIPE_COLUMNS, "id = ?", whereArgs,
-                null, null, "name");
-        if (c != null) {
-            c.moveToFirst();
-            String title = c.getString(1);
-            String author = c.getString(2);
-            String description = c.getString(3);
-            r = parser.convertStringToRecipe(title, author, description);
-            c.close();
+
+        try {
+
+            SQLiteDatabase db = helper.getReadableDatabase();
+            String[] whereArgs = {String.valueOf(id)};
+            Cursor c = db.query(RECIPE_TABLE_NAME, RECIPE_COLUMNS, "id = ?", whereArgs,
+                    null, null, "name");
+            if (c != null) {
+                c.moveToFirst();
+                String title = c.getString(1);
+                String author = c.getString(2);
+                String description = c.getString(3);
+                r = parser.convertStringToRecipe(title, author, description);
+                c.close();
+            }
+            db.close();
+        } catch (Exception e) {
+            throw new SQLException(e);
         }
-        db.close();
 
         return r;
     }
@@ -190,23 +212,28 @@ public class SQLiteAccessor {
      * Load all recipes off the database
      * @return List of Recipes
      */
-    public List<Recipe> loadAllRecipes() {
-        List<Recipe> recipes = new ArrayList<Recipe>();
-        SQLiteDatabase db = helper.getReadableDatabase();
-        Cursor c = db.query(RECIPE_TABLE_NAME, RECIPE_COLUMNS, null, null, null, null, "name");
-        if (c != null) {
-            c.moveToFirst();
-            do {
+    public List<Recipe> loadAllRecipes() throws SQLException {
 
-                String title = c.getString(1);
-                String author = c.getString(2);
-                String description = c.getString(3);
-                Recipe r = parser.convertStringToRecipe(title, author, description);
-                recipes.add(r);
-            } while (c.moveToNext());
-            c.close();
+        List<Recipe> recipes = new ArrayList<Recipe>();
+        try {
+            SQLiteDatabase db = helper.getReadableDatabase();
+            Cursor c = db.query(RECIPE_TABLE_NAME, RECIPE_COLUMNS, null, null, null, null, "name");
+            if (c != null) {
+                c.moveToFirst();
+                do {
+
+                    String title = c.getString(1);
+                    String author = c.getString(2);
+                    String description = c.getString(3);
+                    Recipe r = parser.convertStringToRecipe(title, author, description);
+                    recipes.add(r);
+                } while (c.moveToNext());
+                c.close();
+            }
+            db.close();
+        } catch (Exception e) {
+            throw new SQLException(e);
         }
-        db.close();
         return recipes;
     }
 
@@ -214,18 +241,66 @@ public class SQLiteAccessor {
      * Load all bunches off the database
      * @return List of bunches
      */
-    public List<Bunch> loadAllBunches() {
+    public List<Bunch> loadAllBunches() throws SQLException {
         List<Bunch> bunches = new ArrayList<Bunch>();
-        SQLiteDatabase db = helper.getReadableDatabase();
-        Cursor c = db.query(BUNCH_TABLE_NAME, BUNCH_COLUMNS, null, null, null, null, "name");
-        if (c != null) {
-            c.moveToFirst();
-            do {
-                List<Recipe> recipes = new ArrayList<Recipe>();
-                int bunch_id = c.getInt(0);
+        try {
+            SQLiteDatabase db = helper.getReadableDatabase();
+            Cursor c = db.query(BUNCH_TABLE_NAME, BUNCH_COLUMNS, null, null, null, null, "name");
+            if (c != null) {
+                c.moveToFirst();
+                do {
+                    List<Recipe> recipes = new ArrayList<Recipe>();
+                    int bunch_id = c.getInt(0);
+                    String name = c.getString(1);
+                    String[] whereArgs = {String.valueOf(bunch_id)};
+                    Cursor recipe_bunch_cursor = db.query(BUNCH_RECIPES_TABLE_NAME, BUNCH_RECIPE_COLUMNS, "bunch_id = ?", whereArgs,
+                            null, null, null);
+                    if (recipe_bunch_cursor != null) {
+                        recipe_bunch_cursor.moveToFirst();
+                        do {
+                            int recipe_id = recipe_bunch_cursor.getInt(1);
+                            String[] recipeWhereArgs = {String.valueOf(recipe_id)};
+                            Cursor recipe_cursor = db.query(RECIPE_TABLE_NAME, RECIPE_COLUMNS, "id = ?", recipeWhereArgs,
+                                    null, null, null);
+                            Recipe r = null;
+                            String title = recipe_cursor.getString(1);
+                            String author = recipe_cursor.getString(2);
+                            String description = recipe_cursor.getString(3);
+                            r = parser.convertStringToRecipe(title, author, description);
+                            recipes.add(r);
+                            recipe_cursor.close();
+                        } while (recipe_bunch_cursor.moveToNext());
+                        recipe_bunch_cursor.close();
+                    }
+                    Bunch b = new Bunch(name, recipes);
+                    bunches.add(b);
+                } while (c.moveToNext());
+                c.close();
+            }
+        } catch (Exception e) {
+            throw new SQLException(e);
+        }
+        return bunches;
+
+    }
+    /**
+     * Load a bunch off the database (and all its contained recipes)
+     * @param id
+     * @return Bunch object
+     */
+    public Bunch loadBunch(int id) throws SQLException {
+        Bunch b = null;
+        try {
+            SQLiteDatabase db = helper.getReadableDatabase();
+            String[] whereArgs = {String.valueOf(id)};
+            Cursor c = db.query(BUNCH_TABLE_NAME, BUNCH_COLUMNS, "id = ?", whereArgs,
+                    null, null, "name");
+            List<Recipe> recipes = new ArrayList<Recipe>();
+            if (c != null) {
+                c.moveToFirst();
                 String name = c.getString(1);
-                String[] whereArgs = {String.valueOf(bunch_id)};
-                Cursor recipe_bunch_cursor = db.query(BUNCH_RECIPES_TABLE_NAME, BUNCH_RECIPE_COLUMNS, "bunch_id = ?", whereArgs,
+                Cursor recipe_bunch_cursor = db.query(BUNCH_RECIPES_TABLE_NAME, BUNCH_RECIPE_COLUMNS,
+                        "bunch id = ?", whereArgs,
                         null, null, null);
                 if (recipe_bunch_cursor != null) {
                     recipe_bunch_cursor.moveToFirst();
@@ -243,54 +318,14 @@ public class SQLiteAccessor {
                         recipe_cursor.close();
                     } while (recipe_bunch_cursor.moveToNext());
                     recipe_bunch_cursor.close();
+                    b = new Bunch(name, recipes);
                 }
-                Bunch b = new Bunch(name, recipes);
-                bunches.add(b);
-            } while (c.moveToNext());
-            c.close();
-        }
-        return bunches;
-
-    }
-    /**
-     * Load a bunch off the database (and all its contained recipes)
-     * @param id
-     * @return Bunch object
-     */
-    public Bunch loadBunch(int id) {
-        Bunch b = null;
-        SQLiteDatabase db = helper.getReadableDatabase();
-        String[] whereArgs = {String.valueOf(id)};
-        Cursor c = db.query(BUNCH_TABLE_NAME, BUNCH_COLUMNS, "id = ?", whereArgs,
-                null, null, "name");
-        List<Recipe> recipes = new ArrayList<Recipe>();
-        if (c != null) {
-            c.moveToFirst();
-            String name = c.getString(1);
-            Cursor recipe_bunch_cursor = db.query(BUNCH_RECIPES_TABLE_NAME, BUNCH_RECIPE_COLUMNS,
-                    "bunch id = ?", whereArgs,
-                    null, null, null);
-            if (recipe_bunch_cursor != null) {
-                recipe_bunch_cursor.moveToFirst();
-                do {
-                    int recipe_id = recipe_bunch_cursor.getInt(1);
-                    String[] recipeWhereArgs = {String.valueOf(recipe_id)};
-                    Cursor recipe_cursor = db.query(RECIPE_TABLE_NAME, RECIPE_COLUMNS, "id = ?", recipeWhereArgs,
-                    null, null, null);
-                    Recipe r = null;
-                    String title = recipe_cursor.getString(1);
-                    String author = recipe_cursor.getString(2);
-                    String description = recipe_cursor.getString(3);
-                    r = parser.convertStringToRecipe(title, author, description);
-                    recipes.add(r);
-                    recipe_cursor.close();
-                } while (recipe_bunch_cursor.moveToNext());
-                recipe_bunch_cursor.close();
-                b = new Bunch(name, recipes);
+                c.close();
             }
-            c.close();
+            db.close();
+        } catch (Exception e) {
+            throw new SQLException(e);
         }
-        db.close();
         return b;
     }
 
@@ -298,23 +333,31 @@ public class SQLiteAccessor {
      * Delete a recipe from the database
      * @param id int id of recipe
      */
-    public void deleteRecipe(int id) {
-        SQLiteDatabase db = helper.getWritableDatabase();
-        String[] whereArgs = {String.valueOf(id)};
-        db.delete(RECIPE_TABLE_NAME, "id = ?", whereArgs);
-        db.close();
+    public void deleteRecipe(int id) throws SQLException {
+        try {
+            SQLiteDatabase db = helper.getWritableDatabase();
+            String[] whereArgs = {String.valueOf(id)};
+            db.delete(RECIPE_TABLE_NAME, "id = ?", whereArgs);
+            db.close();
+        } catch (Exception e) {
+            throw new SQLException(e);
+        }
     }
 
     /**
      * Delete a bunch from the database
      * @param id int id of bunch
      */
-    public void deleteBunch(int id) {
-        SQLiteDatabase db = helper.getWritableDatabase();
-        String[] whereArgs = {String.valueOf(id)};
-        db.delete(BUNCH_TABLE_NAME, "id = ?", whereArgs);
-        db.delete(BUNCH_RECIPES_TABLE_NAME, "bunch_id = ?", whereArgs);
-        db.close();
+    public void deleteBunch(int id) throws SQLException {
+        try {
+            SQLiteDatabase db = helper.getWritableDatabase();
+            String[] whereArgs = {String.valueOf(id)};
+            db.delete(BUNCH_TABLE_NAME, "id = ?", whereArgs);
+            db.delete(BUNCH_RECIPES_TABLE_NAME, "bunch_id = ?", whereArgs);
+            db.close();
+        } catch (Exception e) {
+            throw new SQLException(e);
+        }
     }
 
     /**
