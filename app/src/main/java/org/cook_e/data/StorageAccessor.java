@@ -133,6 +133,11 @@ public class StorageAccessor {
         List<Recipe> recipes = null;
         try {
             recipes = sqlite.loadAllRecipes();
+            // Add recipe IDs to cache
+            for (Recipe recipe : recipes) {
+                int id = recipe_counter++;
+                recipe_ids.put(new Pair<>(recipe.getTitle(), recipe.getAuthor()), id);
+            }
         } catch (Exception e) {
             throw new SQLException(e);
         }
@@ -147,6 +152,11 @@ public class StorageAccessor {
         List<Bunch> bunches = null;
         try {
             bunches = sqlite.loadAllBunches();
+            // Add bunch IDs to cache
+            for (Bunch bunch : bunches) {
+                int id = bunch_counter++;
+                bunch_ids.put(bunch.getTitle(), id);
+            }
         } catch (Exception e) {
             throw new SQLException(e);
         }
@@ -175,6 +185,9 @@ public class StorageAccessor {
         try {
             if (id != null) {
                 sqlite.editBunch(b, (int) id, recipe_ids);
+            }
+            else {
+                throw new SQLException("The bunch being updated was never inserted into the database");
             }
         } catch (Exception e) {
             throw new SQLException(e);

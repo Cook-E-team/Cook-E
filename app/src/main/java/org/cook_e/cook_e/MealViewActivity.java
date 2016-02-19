@@ -44,7 +44,13 @@ import java.util.Collections;
 import java.util.List;
 
 public class MealViewActivity extends AppCompatActivity {
+    @SuppressWarnings("unused")
     private static final String TAG = MealViewActivity.class.getSimpleName();
+
+    /**
+     * The extra key used when sending a meal to display in an Intent
+     */
+    public static final String EXTRA_MEAL = MealViewActivity.class.getName() + ".EXTRA_MEAL";
 
     /**
      * The recipes in the meal being displayed
@@ -63,16 +69,18 @@ public class MealViewActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        mMeal = unpackMeal();
+
         setContentView(R.layout.activity_meal_view);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         setUpActionBar();
         
-        // Create some recipes for testing
-        mRecipes = createTestRecipes();
-        mRecipes.remove(2);
-        mRecipes.remove(4);
+        // Get recipes
+        mRecipes = new ObservableArrayList<>();
+        mRecipes.addAll(mMeal.getRecipes());
 
         // Set up recipe list
         final ListView recipeList = (ListView) findViewById(R.id.recipe_list);
@@ -133,7 +141,7 @@ public class MealViewActivity extends AppCompatActivity {
     private void setUpActionBar() {
         final ActionBar bar = getSupportActionBar();
         assert bar != null;
-        bar.setTitle("Meal name");
+        bar.setTitle(mMeal.getTitle());
     }
 
     @Override
@@ -155,7 +163,6 @@ public class MealViewActivity extends AppCompatActivity {
                 // If we got here, the user's action was not recognized.
                 // Invoke the superclass to handle it.
                 return super.onOptionsItemSelected(item);
-
         }
     }
 
@@ -191,5 +198,14 @@ public class MealViewActivity extends AppCompatActivity {
 
 
         return recipes;
+    }
+
+    private Bunch unpackMeal() {
+        final Intent intent = getIntent();
+        final Bunch meal = intent.getParcelableExtra(EXTRA_MEAL);
+        if (meal == null) {
+            throw new IllegalStateException("No meal extra in intent");
+        }
+        return meal;
     }
 }

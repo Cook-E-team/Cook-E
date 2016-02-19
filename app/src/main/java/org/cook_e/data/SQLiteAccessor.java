@@ -167,7 +167,7 @@ public class SQLiteAccessor {
             ContentValues bunch_values = createContentValues(b, bunch_id);
             String[] bunchArgs = {String.valueOf(bunch_id)};
             db.update(BUNCH_TABLE_NAME, bunch_values, "id = ?", bunchArgs);
-            db.delete(BUNCH_RECIPES_TABLE_NAME, "id = ?", bunchArgs);
+            db.delete(BUNCH_RECIPES_TABLE_NAME, "bunch_id = ?", bunchArgs);
             List<ContentValues> bunch_recipe_values = createContentValues(b, bunch_id, recipe_ids);
             for (ContentValues cv: bunch_recipe_values) {
                 db.insert(BUNCH_RECIPES_TABLE_NAME, null, cv);
