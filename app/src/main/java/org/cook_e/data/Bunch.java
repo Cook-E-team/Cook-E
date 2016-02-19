@@ -126,6 +126,16 @@ public final class Bunch implements Parcelable {
     }
 
     /**
+     * Remove recipe r from this bunch, if present.
+     * All recipes after it will be moved one step forward.
+     * @param r recipe to remove
+     * @return true if recipe r is present and removed, otherwise false
+     */
+    public boolean removeRecipe(@NonNull Recipe r) {
+        return mRecipes.remove(r);
+    }
+
+    /**
      * Remove the ith recipe from this bunch.
      * All recipes after it will be moved one step forward.
      * Do nothing if index is less than 0 or greater than max index,

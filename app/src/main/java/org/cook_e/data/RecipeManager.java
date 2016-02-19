@@ -1,5 +1,7 @@
 package org.cook_e.data;
 
+import android.support.annotation.NonNull;
+
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +18,7 @@ public class RecipeManager {
      * @param sa StorageAccessor to access storage
      * @throws SQLException when an error happened in reading recipes
      */
-    RecipeManager(StorageAccessor sa) throws SQLException{
+    public RecipeManager(StorageAccessor sa) throws SQLException{
         this.sa = sa;
         try {
             recipeList = sa.loadAllRecipes();
@@ -104,4 +106,6 @@ public class RecipeManager {
         }
         return recipeList.remove(r);
     }
+
+
 }
