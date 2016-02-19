@@ -25,9 +25,11 @@ import android.databinding.ObservableArrayList;
 import android.os.Bundle;
 import android.app.Fragment;
 import android.support.design.widget.FloatingActionButton;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ListView;
 
 import org.cook_e.cook_e.CreateRecipe;
 import org.cook_e.cook_e.R;
@@ -35,27 +37,30 @@ import org.cook_e.data.Recipe;
 import org.cook_e.data.StorageAccessor;
 
 import java.sql.SQLException;
-import java.util.List;
 
 /**
  * A fragment that displays a list of recipes
  */
 public class RecipeList extends Fragment {
+    private static final String TAG = RecipeList.class.getSimpleName();
 
     /**
      * The recipes to display
      */
-    private List<Recipe> mRecipes;
+    private ObservableArrayList<Recipe> mRecipes;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        final StorageAccessor accessor = new StorageAccessor(getContext());
+        final StorageAccessor accessor = new StorageAccessor(getActivity());
         try {
-            final ObservableArrayList<Recipe> recipes = new ObservableArrayList<>(accessor.loadAllRecipes());
+            mRecipes = new ObservableArrayList<>();
+            mRecipes.addAll(accessor.loadAllRecipes());
+            Log.v(TAG, "Read recipes from database: " + mRecipes);
+
         } catch (SQLException e) {
-            new AlertDialog.Builder(getContext())
+            new AlertDialog.Builder(getActivity())
                     .setTitle("Failed to load recipes")
                     .setMessage(e.getLocalizedMessage())
                     .show();
@@ -67,7 +72,8 @@ public class RecipeList extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_home_list, container, false);
-        view.findViewById(R.id.list_view);
+        final ListView recipeList = (ListView) view.findViewById(R.id.list_view);
+        recipeList.setAdapter(new RecipeListAdapter(getActivity(), mRecipes));
 
         // Set up floating action button
         final FloatingActionButton floatingButton = (FloatingActionButton) view.findViewById(R.id.add_button);

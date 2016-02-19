@@ -32,14 +32,14 @@
         android:theme="@style/AppTheme">
         <activity
             android:name=".HomeActivity"
-            android:windowSoftInputMode="stateHidden" />
-        <activity android:name=".MealViewActivity">
+            android:windowSoftInputMode="stateHidden">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".MealViewActivity" />
         <activity
             android:name=".MealRecipeAddActivity"
             android:parentActivityName=".MealViewActivity"
