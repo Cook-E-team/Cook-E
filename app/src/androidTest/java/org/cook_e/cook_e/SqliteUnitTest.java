@@ -23,13 +23,18 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 
 import org.atteo.evo.inflector.English;
+import org.cook_e.data.Bunch;
+import org.cook_e.data.Pair;
 import org.cook_e.data.Recipe;
 import org.cook_e.data.SQLiteAccessor;
 import org.cook_e.data.Step;
 import org.cook_e.data.StorageParser;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Map;
+
 import android.support.test.InstrumentationRegistry;
 
 import dalvik.annotation.TestTargetClass;
@@ -38,20 +43,24 @@ import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 public class SqliteUnitTest {
     private Context mContext;
     private SQLiteAccessor accessor;
+    private Map<Pair<String, String>, Integer> recipe_ids;
     @Before
     public void setup() {
         StorageParser parser = new StorageParser();
         mContext = InstrumentationRegistry.getTargetContext();
         accessor = new SQLiteAccessor(mContext, parser);
+        recipe_ids = new HashMap<Pair<String, String>, Integer>();
 
     }
     @After
     public void teardown() {
         accessor = null;
+        recipe_ids = null;
     }
     @Test
     public void testTableInsert() {
@@ -69,7 +78,7 @@ public class SqliteUnitTest {
         accessor.storeRecipe(r, 1);
         accessor.deleteRecipe(1);
         Recipe result = accessor.loadRecipe(id);
-        assertEquals(null, result);
+        assertNull(result);
     }
     @Test
     public void testTableEdit() {
@@ -82,5 +91,32 @@ public class SqliteUnitTest {
         accessor.editRecipe(edited_r, id);
         result = accessor.loadRecipe(id);
         assertEquals(edited_r, result);
+    }
+    @Test
+    public void testBunchInsert() {
+        Recipe r = RecipeUnitTest.createGenericRecipe("My Recipe", "Kyle Woo", 0, 0, 0, 5, false);
+        int recipe_id = 1;
+        int bunch_id = 1;
+        ArrayList<Recipe> recipes = new ArrayList<Recipe>();
+        recipes.add(r);
+        accessor.storeRecipe(r, 1);
+        Bunch b = new Bunch("My Bunch", recipes);
+        accessor.storeBunch(b, bunch_id, recipe_ids);
+        Bunch result = accessor.loadBunch(bunch_id);
+        assertEquals(b, result);
+    }
+    @Test
+    public void testBunchDelete() {
+        Recipe r = RecipeUnitTest.createGenericRecipe("My Recipe", "Kyle Woo", 0, 0, 0, 5, false);
+        int recipe_id = 1;
+        int bunch_id = 1;
+        ArrayList<Recipe> recipes = new ArrayList<Recipe>();
+        recipes.add(r);
+        accessor.storeRecipe(r, 1);
+        Bunch b = new Bunch("My Bunch", recipes);
+        accessor.storeBunch(b, bunch_id, recipe_ids);
+        accessor.deleteBunch(bunch_id);
+        Bunch result = accessor.loadBunch(bunch_id);
+        assertNull(result);
     }
 }
