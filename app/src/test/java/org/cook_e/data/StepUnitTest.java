@@ -52,7 +52,7 @@ public class StepUnitTest {
         String action = UnitTestSharedData.ACTIONS[action_index];
         String ing = UnitTestSharedData.INGREDIENTS[ing_index];
         ings.add(ing);
-        return new Step(ings,UnitTestSharedData.generateDescription(ing.getType(), action), Duration.standardMinutes(duration_min), isSimultaneous);
+        return new Step(ings,UnitTestSharedData.generateDescription(ing, action), Duration.standardMinutes(duration_min), isSimultaneous);
     }
 
     @Test
