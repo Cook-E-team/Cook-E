@@ -27,8 +27,9 @@ import org.joda.time.Duration;
 import org.joda.time.ReadableDuration;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /*
  * Class representing a step in a recipe
@@ -45,37 +46,80 @@ public final class Step implements Parcelable {
 	 */
 	@NonNull
 	private final String mDescription;
+
 	/**
 	 * The expected time required to complete this step
 	 */
 	@NonNull
 	private final Duration mTime;
+
 	/**
 	 * The ingredients required for this step
 	 */
 	@NonNull
 	private final List<String> mIngredients;
+
 	/**
 	 * Whether this step can be done simultaneously
 	 */
 	@NonNull
 	private final boolean mSimultaneous;
+
+	/**
+	 * The set of all string patterns in the description
+	 * that indicates this step can be done simultaneously
+	 */
+	private static final Set<String> simultaneousPatterns = new HashSet<String>() {{
+		add("boil");
+		add("bak");
+		add("microwav");
+	}};
 	/**
 	 * Creates a Step
 	 * @param ingredients the ingredients required for this step
 	 * @param description a human-readable description of this step
 	 * @param duration an estimate of the time required to complete this step
+	 * @param isSimultaneous if this step can be done simultaneously
 	 * @throws NullPointerException if any parameter is null
 	 */
-	public Step(@NonNull List<String> ingredients, @NonNull String description, @NonNull ReadableDuration duration, @NonNull boolean isSimultaneous) {
+	public Step(@NonNull List<String> ingredients, @NonNull String description,
+				@NonNull ReadableDuration duration, boolean isSimultaneous) {
 		Objects.requireNonNull(ingredients, "ingredients must not be null");
 		Objects.requireNonNull(description, "description must not be null");
 		Objects.requireNonNull(duration, "duration must not be null");
-		Objects.requireNonNull(isSimultaneous, "is simultaneous must not be null");
 		mDescription = description;
 		mTime = duration.toDuration();
 		mIngredients = new ArrayList<>(ingredients);
 		this.mSimultaneous = isSimultaneous;
+	}
+
+	/**
+	 * Creates a Step without knowing if step can be done simultaneously
+	 * @param ingredients the ingredients required for this step
+	 * @param description a human-readable description of this step
+	 * @param duration an estimate of the time required to complete this step
+	 * @throws NullPointerException if any parameter is null
+	 */
+	public Step(@NonNull List<String> ingredients, @NonNull String description,
+				@NonNull ReadableDuration duration) {
+		this(ingredients, description, duration, isSimultaneousParser(description));
+	}
+
+	/**
+	 * Identifies if a step can be done simultaneously
+	 * @param description description of the step
+	 * @return true if this step can be done simultaneously, false otherwise
+	 */
+	private static boolean isSimultaneousParser(@NonNull String description) {
+		Objects.requireNonNull(description, "description must not be null");
+		String[] words = description.split(" ");
+		for (String word : words) {
+			String lowerCaseWord = word.toLowerCase();
+			for (String pattern : simultaneousPatterns) {
+				if (lowerCaseWord.contains(pattern)) return true;
+			}
+		}
+		return false;
 	}
 
 	/**
