@@ -14,13 +14,10 @@ import org.joda.time.Duration;
 import org.junit.Test;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static junit.framework.Assert.assertEquals;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 
 public class ScheduleTest {
     final Ingredient scallops = new Ingredient("Scallops", 4, "");
