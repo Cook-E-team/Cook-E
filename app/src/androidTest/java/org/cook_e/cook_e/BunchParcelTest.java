@@ -81,8 +81,10 @@ public class BunchParcelTest {
         final Parcel parcel = Parcel.obtain();
         final String scallopsIng = "4 Scallops";
         final String butterIng = "1 kilogram Butter";
+
         final Step step1 = new Step(Collections.singletonList(scallopsIng), "Gently poach the scallops", Duration.standardMinutes(2), false);
         final Step step2 = new Step(Collections.singletonList(butterIng),"Melt the butter", Duration.standardMinutes(10), false);
+
         final Recipe recipe1 = new Recipe("Recipe title", "Clamify Flumingaster", Arrays.asList(step1, step2));
         final Recipe recipe2 = createRecipe2();
         final Bunch original = new Bunch("Some meal", Arrays.asList(recipe1, recipe2));

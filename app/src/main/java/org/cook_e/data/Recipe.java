@@ -150,7 +150,6 @@ public final class Recipe implements Parcelable {
 		Recipe recipe = (Recipe) o;
 
 		return mAuthor.equals(recipe.mAuthor) && mSteps.equals(recipe.mSteps) && mTitle.equals(recipe.mTitle);
-
 	}
 
 	@Override

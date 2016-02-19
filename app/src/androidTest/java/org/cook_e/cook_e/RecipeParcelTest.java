@@ -81,8 +81,10 @@ public class RecipeParcelTest {
         final Parcel parcel = Parcel.obtain();
         final String scallopsIng = "4 Scallops";
         final String butterIng = "1 kilogram Butter";
+
         final Step step1 = new Step(Collections.singletonList(scallopsIng),"Gently poach the scallops", Duration.standardMinutes(2), false);
         final Step step2 = new Step(Collections.singletonList(butterIng),"Melt the butter", Duration.standardMinutes(10), false);
+
         final Recipe original = new Recipe("Recipe title", "Clamify Flumingaster", Arrays.asList(step1, step2));
 
         original.writeToParcel(parcel, 0);

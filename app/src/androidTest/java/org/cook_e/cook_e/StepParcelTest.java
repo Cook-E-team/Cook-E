@@ -62,6 +62,7 @@ public class StepParcelTest {
     public void testParcelOneIngredient() {
         final Parcel parcel = Parcel.obtain();
         final String scallopsIng = "4 Scallops";
+
         final Step original = new Step(Collections.singletonList(scallopsIng),"Gently poach the scallops", Duration.standardMinutes(3), false);
 
         original.writeToParcel(parcel, 0);
@@ -80,8 +81,9 @@ public class StepParcelTest {
         final Parcel parcel = Parcel.obtain();
         final String scallopsIng = "4 Scallops";
         final String butterIng = "1 kilogram Butter";
-        final Step original = new Step(Arrays.asList(scallopsIng, butterIng), "Gently poach (fry?) the scallops in butter", Duration.standardMinutes(2), false);
 
+        final Step original = new Step(Arrays.asList(scallopsIng, butterIng),
+                "Gently poach (fry?) the scallops in butter", Duration.standardMinutes(2), false);
         original.writeToParcel(parcel, 0);
         parcel.setDataPosition(0);
         final Step unparceled = Step.CREATOR.createFromParcel(parcel);

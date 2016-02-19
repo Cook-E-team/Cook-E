@@ -120,7 +120,7 @@ public final class Step implements Parcelable {
 
 		if (!mDescription.equals(step.mDescription)) return false;
 		if (!mTime.equals(step.mTime)) return false;
-		if (!(isSimultaneous() && step.isSimultaneous())) return false;
+		if (isSimultaneous() != step.isSimultaneous()) return false;
 		return mIngredients.equals(step.mIngredients);
 
 	}
@@ -182,7 +182,7 @@ public final class Step implements Parcelable {
 	public void writeToParcel(Parcel dest, int flags) {
 		dest.writeString(mDescription);
 		dest.writeSerializable(mTime);
-		dest.writeStringArray(mIngredients.toArray(new String[0]));
 		dest.writeSerializable(mSimultaneous);
+		dest.writeStringList(mIngredients);
 	}
 }
