@@ -4,6 +4,7 @@ package org.cook_e.cook_e;
  * Created by Shan Yaang on 2/17/2016.
  */
 import android.os.Parcel;
+import android.util.Log;
 
 import org.cook_e.data.Bunch;
 import org.cook_e.data.Ingredient;
@@ -24,6 +25,7 @@ public class ScheduleTest {
 
     @Test
     public void testTwoNonSimulRecipeScheduler() {
+        //TODO
         final Step step0 = new Step(Collections.singletonList(scallops), "Gently poach the scallops", Duration.standardMinutes(3), false);
         final Step step1 = new Step(Collections.singletonList(scallops), "Aggresively poach the scallops", Duration.standardMinutes(3), false);
         List<Step> testSteps = new ArrayList<>();
@@ -43,6 +45,7 @@ public class ScheduleTest {
 
     @Test
     public void test1NonSimul1SimulRecipeScheduler() {
+        //TODO
         final Step step0 = new Step(Collections.singletonList(scallops), "Gently poach the scallops", Duration.standardMinutes(3), true);
         final Step step1 = new Step(Collections.singletonList(scallops), "Aggresively poach the scallops", Duration.standardMinutes(3), false);
         final Step step2 = new Step(Collections.singletonList(scallops), "Aggresively bake the scallops", Duration.standardMinutes(3), true);
@@ -68,6 +71,7 @@ public class ScheduleTest {
 
     @Test
     public void test1NonSimul2SimulRecipeScheduler() {
+        //TODO
         final Step step0 = new Step(Collections.singletonList(scallops), "Gently poach the scallops", Duration.standardMinutes(3), false);
         final Step step1 = new Step(Collections.singletonList(scallops), "Aggresively poach the scallops", Duration.standardMinutes(3), true);
         final Step step2 = new Step(Collections.singletonList(scallops), "Aggresively bake the scallops", Duration.standardMinutes(3), false);
@@ -93,12 +97,18 @@ public class ScheduleTest {
         Bunch testBunch = new Bunch("test me", testList);
         Schedule schedule = new Schedule(testBunch);
         assertEquals(schedule.getStepCount(), 7);
-        assertEquals(step3, schedule.getNextStep());
-        assertEquals(step4, schedule.getNextStep());
-        assertEquals(step0, schedule.getNextStep());
-        assertEquals(step2, schedule.getNextStep());
-        assertEquals(step3, schedule.getNextStep());
-        assertEquals(step1, schedule.getNextStep());
-        assertEquals(step1, schedule.getNextStep());
+        List<Step> steps = new ArrayList<Step>();
+        for (int i = 0; i < 7; i++) steps.add(schedule.getNextStep());
+        Log.v("Schedule Test", steps.toString());
+        List<Step> expected_steps = new ArrayList<Step>();
+        expected_steps.add(step3);
+        expected_steps.add(step4);
+        expected_steps.add(step0);
+        expected_steps.add(step2);
+        expected_steps.add(step3);
+        expected_steps.add(step1);
+        expected_steps.add(step1);
+
+        assertEquals(expected_steps, steps);
     }
 }
