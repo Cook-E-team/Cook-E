@@ -21,6 +21,7 @@ package org.cook_e.data;
 
 import android.content.Context;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -96,6 +97,25 @@ public class StorageAccessor {
         return b;
     }
 
+    /**
+     * Retrieve all recipes from storage
+     * @return List of Recipe objects
+     */
+    public List<Recipe> loadAllRecipes() {
+        List<Recipe> recipes = null;
+        recipes = sqlite.loadAllRecipes();
+        return recipes;
+    }
+
+    /**
+     * Retrieve all bunches from storage
+     * @return List of Bunch objects
+     */
+    public List<Bunch> loadAllBunches() {
+        List<Bunch> bunches = null;
+        bunches = sqlite.loadAllBunches();
+        return bunches;
+    }
     /**
      * Update a recipe on the local database
      * @param r Recipe to update
