@@ -68,4 +68,16 @@ public class SqliteUnitTest {
         Recipe result = accessor.loadRecipe(id);
         assertEquals(null, result);
     }
+    @Test
+    public void testTableEdit() {
+        Recipe r = RecipeUnitTest.createGenericRecipe("My Recipe", "Kyle Woo", 0, 0, 0, 5, false);
+        Recipe edited_r = RecipeUnitTest.createGenericRecipe("My Recipe", "Kyle Woo", 1, 1, 0, 5, false);
+        int id = 1;
+        accessor.storeRecipe(r, id);
+        Recipe result = accessor.loadRecipe(id);
+        assertEquals(r, result);
+        accessor.editRecipe(edited_r, id);
+        Recipe result = accessor.loadRecipe(id);
+        assertEquals(edited_r, result);
+    }
 }
