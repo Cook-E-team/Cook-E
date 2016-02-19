@@ -33,7 +33,7 @@ import java.util.TreeMap;
 public class Schedule {
     private final Map<Step, Recipe> stepToRecipeMap;
     private final List<Step> finalSteps;
-    private int currentStepIndexInFinalList = 0;
+    private int currSelectedFinalStep = -1;
 
     /**
      * Creates a schedule based on the given Bunch.
@@ -87,9 +87,9 @@ public class Schedule {
      * @return The NextStep after the current Step. If already last step, return null
      */
     public Step getNextStep() {
-        if (currentStepIndexInFinalList < getStepCount() - 1) {
-            currentStepIndexInFinalList += 1;
-            return finalSteps.get(currentStepIndexInFinalList);
+        if (currSelectedFinalStep < getStepCount() - 1) {
+            currSelectedFinalStep++;
+            return finalSteps.get(currSelectedFinalStep);
         }
         return null;
     }
@@ -101,9 +101,9 @@ public class Schedule {
      * @return The PrevStep before the current Step
      */
     public Step getPrevStep() {
-        if (currentStepIndexInFinalList > 0) {
-            currentStepIndexInFinalList -= 1;
-            return finalSteps.get(currentStepIndexInFinalList);
+        if (currSelectedFinalStep > 0) {
+            currSelectedFinalStep--;
+            return finalSteps.get(currSelectedFinalStep);
         }
         return null;
     }
