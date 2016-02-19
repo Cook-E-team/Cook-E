@@ -81,7 +81,7 @@ public class SQLiteAccessor {
                     BUNCH_COLUMNS[1] + " TEXT NOT NULL DEFAULT \"\"," +
                     " PRIMARY KEY (" + BUNCH_COLUMNS[0] + "));";
     /**
-     * Schema of the Bunch Recipes table: (bunch id, recipe id)
+     * Schema of the Bunch Recipes table: (bunch_id, recipe_id)
      */
     private static final String BUNCH_RECIPE_TABLE_CREATE =
             "CREATE TABLE " + BUNCH_RECIPES_TABLE_NAME + " (" +
@@ -223,7 +223,7 @@ public class SQLiteAccessor {
                 int bunch_id = c.getInt(0);
                 String name = c.getString(1);
                 String[] whereArgs = {String.valueOf(bunch_id)};
-                Cursor recipe_bunch_cursor = db.query(BUNCH_RECIPES_TABLE_NAME, BUNCH_RECIPE_COLUMNS, "bunch id = ?", whereArgs,
+                Cursor recipe_bunch_cursor = db.query(BUNCH_RECIPES_TABLE_NAME, BUNCH_RECIPE_COLUMNS, "bunch_id = ?", whereArgs,
                         null, null, null);
                 if (recipe_bunch_cursor != null) {
                     recipe_bunch_cursor.moveToFirst();
@@ -305,7 +305,7 @@ public class SQLiteAccessor {
         SQLiteDatabase db = helper.getWritableDatabase();
         String[] whereArgs = {String.valueOf(id)};
         db.delete(BUNCH_TABLE_NAME, "id = ?", whereArgs);
-        db.delete(BUNCH_RECIPES_TABLE_NAME, "bunch id = ?", whereArgs);
+        db.delete(BUNCH_RECIPES_TABLE_NAME, "bunch_id = ?", whereArgs);
         db.close();
     }
 
