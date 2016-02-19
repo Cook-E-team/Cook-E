@@ -21,6 +21,8 @@ package org.cook_e.data;
 
 import android.content.Context;
 
+
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
@@ -50,11 +52,15 @@ public class StorageAccessor {
      * Store a recipe onto the local sqlite database
      * @param r Recipe to store
      */
-    public void storeRecipe(Recipe r) {
+    public void storeRecipe(Recipe r) throws SQLException {
         Integer id = getRecipeId(r);
         if (id == null)
             recipe_ids.put(new Pair<String, String>(r.getTitle(), r.getAuthor()), recipe_counter++);
-        sqlite.storeRecipe(r, (int) id);
+        try {
+            sqlite.storeRecipe(r, (int) id);
+        } catch (Exception e) {
+            throw new SQLException(e);
+        }
     }
 
     /**
@@ -62,10 +68,14 @@ public class StorageAccessor {
      * Assumes that all recipes in the bunch are stored already
      * @param b
      */
-    public void storeBunch(Bunch b) {
+    public void storeBunch(Bunch b) throws SQLException {
         Integer id = getBunchId(b);
         if (id == null) bunch_ids.put(b.getTitle(), bunch_counter++);
-        sqlite.storeBunch(b, (int) id, recipe_ids);
+        try {
+            sqlite.storeBunch(b, (int) id, recipe_ids);
+        } catch (Exception e) {
+            throw new SQLException(e);
+        }
     }
 
     /**
@@ -74,14 +84,18 @@ public class StorageAccessor {
      * @param author String author of the recipe
      * @return Recipe object or null if recipe could not be found
      */
-    public Recipe loadRecipe(String title, String author) {
+    public Recipe loadRecipe(String title, String author) throws SQLException {
         Recipe r = null;
         Integer id = getRecipeId(title, author);
         //if (id == null) // search database
-        r = sqlite.loadRecipe((int)id);
-        if (r == null) {
-            //r = sqlserver.findRecipe(title, author); // this section will be expanded when database is implemented
-            if (r != null) sqlite.storeRecipe(r, id);
+        try {
+            r = sqlite.loadRecipe((int) id);
+            if (r == null) {
+                //r = sqlserver.findRecipe(title, author); // this section will be expanded when database is implemented
+                if (r != null) sqlite.storeRecipe(r, id);
+            }
+        } catch (Exception e) {
+            throw new SQLException(e);
         }
         return r;
     }
@@ -91,10 +105,15 @@ public class StorageAccessor {
      * @param name String name of the Bunch
      * @return Bunch object or null if bunch could not be found
      */
-    public Bunch loadBunch(String name) {
+    public Bunch loadBunch(String name) throws SQLException {
         Integer id = getBunchId(name);
         //if (id == null) // could this happen?
-        Bunch b = sqlite.loadBunch((int)id);
+        Bunch b = null;
+        try {
+            b = sqlite.loadBunch((int) id);
+        } catch (Exception e) {
+            throw new SQLException(e);
+        }
         return b;
     }
 
@@ -102,9 +121,13 @@ public class StorageAccessor {
      * Retrieve all recipes from storage
      * @return List of Recipe objects
      */
-    public List<Recipe> loadAllRecipes() {
+    public List<Recipe> loadAllRecipes() throws SQLException {
         List<Recipe> recipes = null;
-        recipes = sqlite.loadAllRecipes();
+        try {
+            recipes = sqlite.loadAllRecipes();
+        } catch (Exception e) {
+            throw new SQLException(e);
+        }
         return recipes;
     }
 
@@ -112,18 +135,26 @@ public class StorageAccessor {
      * Retrieve all bunches from storage
      * @return List of Bunch objects
      */
-    public List<Bunch> loadAllBunches() {
+    public List<Bunch> loadAllBunches() throws SQLException {
         List<Bunch> bunches = null;
-        bunches = sqlite.loadAllBunches();
+        try {
+            bunches = sqlite.loadAllBunches();
+        } catch (Exception e) {
+            throw new SQLException(e);
+        }
         return bunches;
     }
     /**
      * Update a recipe on the local database
      * @param r Recipe to update
      */
-    public void editRecipe(Recipe r) {
+    public void editRecipe(Recipe r) throws SQLException {
         Integer id = getRecipeId(r);
-        if (id != null) sqlite.editRecipe(r, (int)id);
+        try {
+            if (id != null) sqlite.editRecipe(r, (int)id);
+        } catch (Exception e) {
+            throw new SQLException(e);
+        }
 
     }
 
@@ -131,10 +162,14 @@ public class StorageAccessor {
      * update a bunch on the local database
      * @param b Bunch to update
      */
-    public void editBunch(Bunch b) {
+    public void editBunch(Bunch b) throws SQLException {
         Integer id = getBunchId(b);
-        if (id != null) {
-            sqlite.editBunch(b, (int)id, recipe_ids);
+        try {
+            if (id != null) {
+                sqlite.editBunch(b, (int) id, recipe_ids);
+            }
+        } catch (Exception e) {
+            throw new SQLException(e);
         }
     }
 
@@ -143,10 +178,14 @@ public class StorageAccessor {
      * @param title String title of the recipe to delete
      * @param author String author of the recipe to delete
      */
-    public void deleteRecipe(String title, String author) {
+    public void deleteRecipe(String title, String author) throws SQLException {
         Integer id = getRecipeId(title, author);
-        if (id != null) {
-            sqlite.deleteRecipe(id);
+        try {
+            if (id != null) {
+                sqlite.deleteRecipe(id);
+            }
+        } catch (Exception e) {
+            throw new SQLException(e);
         }
     }
 
@@ -154,17 +193,26 @@ public class StorageAccessor {
      * delete a recipe on the local database
      * @param r Recipe to delete
      */
-    public void deleteRecipe(Recipe r) {
-        deleteRecipe(r.getTitle(), r.getAuthor());
+    public void deleteRecipe(Recipe r) throws SQLException {
+
+        try {
+            deleteRecipe(r.getTitle(), r.getAuthor());
+        } catch (Exception e) {
+            throw new SQLException(e);
+        }
     }
 
     /**
      * delete a bunch on the local database
      * @param b Bunch to delete
      */
-    public void deleteBunch(Bunch b) {
+    public void deleteBunch(Bunch b) throws SQLException {
         Integer id = getBunchId(b);
-        sqlite.deleteBunch(id);
+        try {
+            sqlite.deleteBunch(id);
+        } catch (Exception e) {
+            throw new SQLException(e);
+        }
     }
 
     /**

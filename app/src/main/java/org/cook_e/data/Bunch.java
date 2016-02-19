@@ -89,6 +89,7 @@ public final class Bunch implements Parcelable {
         if (title.isEmpty()) throw new IllegalArgumentException("title must not be empty");
         mTitle = title;
     }
+
     /**
      * Adds a recipe to this bunch
      * @param recipe the recipe to add
@@ -122,6 +123,23 @@ public final class Bunch implements Parcelable {
             Objects.requireNonNull(recipe, "no recipe in recipes may be null");
             mRecipes.add(new Recipe(recipe));
         }
+    }
+
+    /**
+     * Remove the ith recipe from this bunch.
+     * All recipes after it will be moved one step forward.
+     * Do nothing if index is less than 0 or greater than max index,
+     * @param i The index of recipe to remove, index starts from 0.
+     */
+    public void removeRecipe(int i) {
+        if (i >= 0 && i < mRecipes.size()) mRecipes.remove(i);
+    }
+
+    /**
+     * Remove all recipes in this bunch
+     */
+    public void clearRecipes() {
+    	mRecipes.clear();;
     }
 
     @Override
