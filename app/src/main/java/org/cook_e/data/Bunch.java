@@ -89,6 +89,7 @@ public final class Bunch implements Parcelable {
         if (title.isEmpty()) throw new IllegalArgumentException("title must not be empty");
         mTitle = title;
     }
+
     /**
      * Adds a recipe to this bunch
      * @param recipe the recipe to add
@@ -123,6 +124,7 @@ public final class Bunch implements Parcelable {
             mRecipes.add(new Recipe(recipe));
         }
     }
+
     /**
      * Remove the ith recipe from this bunch.
      * All recipes after it will be moved one step forward.
