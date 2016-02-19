@@ -121,7 +121,7 @@ public class RecipeManager {
      */
     private void indexCheck(int i) throws IllegalArgumentException{
         if (i < 0 || i >= recipeList.size()) {
-            throw new IllegalArgumentException("index out of bound.");
+            throw new IllegalArgumentException("Index of recipe out of bound.");
         }
     }
 }

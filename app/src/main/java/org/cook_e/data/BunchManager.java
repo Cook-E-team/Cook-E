@@ -169,6 +169,31 @@ public class BunchManager {
     }
 
     /**
+     * delete the jth recipe from the ith bunch in the current bunch list
+     * if deletion failed, nothing is changed
+     * @param i index of bunch to edit, index starts from 0
+     * @param j index of recipe to delete, index starts from 0
+     * @return true on success, false on failure
+     * @throws IllegalArgumentException if index i or j is not valid
+     */
+    public boolean deleteRecipeFromBunch(int i, int j) throws IllegalArgumentException{
+        indexCheck(i);
+        Bunch b = bunchList.get(i);
+        if (j < 0 || j >= b.getNumOfRecipes()) {
+            throw new IllegalArgumentException("Index of recipe out of bound.");
+        }
+
+        Recipe r = b.removeRecipe(j);
+        try {
+            sa.editBunch(b);
+        } catch (SQLException e) {
+            b.addRecipe(r);
+            return false;
+        }
+        return true;
+    }
+
+    /**
      * change title of ith bunch in the current bunch list
      * if changing failed, nothing is changed
      * @param i index of bunch to edit, index starts from 0
@@ -197,7 +222,7 @@ public class BunchManager {
      */
     private void indexCheck(int i) throws IllegalArgumentException{
         if (i < 0 || i >= bunchList.size()) {
-            throw new IllegalArgumentException("index out of bound.");
+            throw new IllegalArgumentException("Index of bunch out of bound.");
         }
     }
 }
