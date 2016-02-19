@@ -19,6 +19,7 @@ public class RecipeManager {
      * @throws SQLException when an error happened in reading recipes
      */
     public RecipeManager(@NonNull StorageAccessor sa) throws SQLException{
+        Objects.requireNonNull(sa, "storage accessor must not be null");
         this.sa = sa;
         try {
             recipeList = sa.loadAllRecipes();
@@ -71,6 +72,7 @@ public class RecipeManager {
      * @return true on success, false on failure
      */
     public boolean addRecipe(@NonNull Recipe r) {
+        Objects.requireNonNull(r, "recipe must not be null");
         try {
             sa.storeRecipe(r);
         } catch (SQLException e) {
@@ -106,6 +108,7 @@ public class RecipeManager {
      * @return true on success, false on failure
      */
     public boolean deleteRecipe(@NonNull Recipe r) {
+        Objects.requireNonNull(r, "recipe must not be null");
         try {
             sa.deleteRecipe(r);
         } catch (SQLException e) {

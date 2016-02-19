@@ -19,6 +19,7 @@ public class BunchManager {
      * @throws SQLException when an error happened in reading bunches
      */
     public BunchManager(@NonNull StorageAccessor sa) throws SQLException{
+        Objects.requireNonNull(sa, "storage accessor must not be null");
         this.sa = sa;
         try {
             bunchList = sa.loadAllBunches();
@@ -69,6 +70,7 @@ public class BunchManager {
      * @return true on success, false on failure
      */
     public boolean addBunch(@NonNull Bunch b) {
+        Objects.requireNonNull(b, "bunch must not be null");
         try {
             sa.storeBunch(b);
         } catch (SQLException e) {
@@ -87,6 +89,11 @@ public class BunchManager {
      * @return true on success, false on failure
      */
     public boolean addNewBunch(@NonNull String title, @NonNull List<Recipe> recipes) {
+        Objects.requireNonNull(title, "title must not be null");
+        Objects.requireNonNull(recipes, "recipe list must not be null");
+        for (Recipe r : recipes) {
+            Objects.requireNonNull(r, "recipes in recipe list must not be null");
+        }
         Bunch b = new Bunch(title, recipes);
         return addBunch(b);
     }
@@ -117,6 +124,7 @@ public class BunchManager {
      * @return true on success, false on failure
      */
     public boolean deleteBunch(@NonNull Bunch b) {
+        Objects.requireNonNull(b, "bunch must not be null");
         try {
             sa.deleteBunch(b);
         } catch (SQLException e) {
@@ -134,6 +142,7 @@ public class BunchManager {
      * @throws IllegalArgumentException if index i is not valid
      */
     public boolean addRecipeToBunch(int i, @NonNull Recipe r) throws IllegalArgumentException{
+        Objects.requireNonNull(r, "recipe must not be null");
         indexCheck(i);
         Bunch b = bunchList.get(i);
         b.addRecipe(r);
@@ -155,6 +164,7 @@ public class BunchManager {
      * @throws IllegalArgumentException if index i is not valid
      */
     public boolean deleteRecipeFromBunch(int i, @NonNull Recipe r) throws IllegalArgumentException{
+        Objects.requireNonNull(r, "recipe must not be null");
         indexCheck(i);
         Bunch b = bunchList.get(i);
         boolean res = b.removeRecipe(r);
@@ -202,6 +212,7 @@ public class BunchManager {
      * @throws IllegalArgumentException if index i is not valid
      */
     public boolean changeBunchTitle(int i, @NonNull String title) throws IllegalArgumentException{
+        Objects.requireNonNull(title, "title must not be null");
         indexCheck(i);
         Bunch b = bunchList.get(i);
         String otitle = b.getTitle();

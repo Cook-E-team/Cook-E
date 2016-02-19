@@ -148,11 +148,13 @@ public final class Recipe implements Parcelable {
 	/**
 	 * Remove the ith step in this recipe.
 	 * All steps after it will be moved one step forward.
-	 * Do nothing if index is less than 0 or greater than max index.
+	 * Doesn't modify recipe if index is less than 0 or greater than max index.
 	 * @param i the index of step to remove, index starts from 0.
+	 * @return The removed step if succeeded, null if failed.
 	 */
-	public void removeStep(int i) {
-		if (i >= 0 && i < mSteps.size()) mSteps.remove(i);
+	public Step removeStep(int i) {
+		if (i >= 0 && i < mSteps.size()) return mSteps.remove(i);
+		else return null;
 	}
 
 	/**
@@ -195,11 +197,13 @@ public final class Recipe implements Parcelable {
 		return mAuthor;
 	}
 
-	public void setTitle(String title) {
+	public void setTitle(@NonNull String title) {
+		Objects.requireNonNull(title, "title must not be null");
 		mTitle = title;
 	}
 
-	public void setAuthor(String author) {
+	public void setAuthor(@NonNull String author) {
+		Objects.requireNonNull(author, "author must not be null");
 		mAuthor = author;
 	}
 

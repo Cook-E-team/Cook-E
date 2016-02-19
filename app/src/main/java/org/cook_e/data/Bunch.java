@@ -140,6 +140,7 @@ public final class Bunch implements Parcelable {
      * @return true if recipe r is present and removed, otherwise false
      */
     public boolean removeRecipe(@NonNull Recipe r) {
+        Objects.requireNonNull(r, "recipe must not be null");
         return mRecipes.remove(r);
     }
 
@@ -148,7 +149,7 @@ public final class Bunch implements Parcelable {
      * All recipes after it will be moved one step forward.
      * Doesn't modify bunch if index is less than 0 or greater than max index,
      * @param i The index of recipe to remove, index starts from 0.
-     * @return The removed recipe if success, null if failed.
+     * @return The removed recipe if succeeded, null if failed.
      */
     public Recipe removeRecipe(int i) {
         if (i >= 0 && i < mRecipes.size()) return mRecipes.remove(i);
