@@ -78,7 +78,7 @@ public class ScheduleUnitTest {
         assertEquals(4, sched.getStepCount());
         for(int i = 0; i < sched.getStepCount(); i++) {
             assertEquals((i < 2) ? recipeN5N7.getSteps().get(i) :
-                                   recipeN10N10.getSteps().get(i),
+                                   recipeN10N10.getSteps().get(i - 2),
                                    sched.getNextStep());
         }
     }
