@@ -36,6 +36,11 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 
+import org.cook_e.data.Recipe;
+import org.cook_e.data.Step;
+
+import java.util.Collections;
+
 public class CreateRecipe extends AppCompatActivity {
 
     /**
@@ -101,9 +106,11 @@ public class CreateRecipe extends AppCompatActivity {
                     .show();
             return;
         }
-        // TODO: Parcel arguments
+        // Create a recipe
+        final Recipe recipe = new Recipe(title, description, Collections.<Step>emptyList());
 
         final Intent intent = new Intent(this, EditRecipeActivity.class);
+        intent.putExtra(EditRecipeActivity.EXTRA_ACTIVITY, recipe);
         startActivity(intent);
     }
 

@@ -1,12 +1,14 @@
 package org.cook_e.cook_e.ui;
 
 import android.content.Context;
+import android.content.Intent;
 import android.databinding.ObservableArrayList;
 import android.support.annotation.NonNull;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import org.cook_e.cook_e.EditRecipeActivity;
 import org.cook_e.data.Recipe;
 
 /**
@@ -25,7 +27,7 @@ public class RecipeListAdapter extends ListListAdapter<Recipe> {
     }
 
     @Override
-    public View getViewForItem(Recipe item, Context context, View convertView, ViewGroup parent) {
+    public View getViewForItem(final Recipe item, final Context context, View convertView, ViewGroup parent) {
 
         TextView textView;
         if (convertView instanceof TextView) {
@@ -35,7 +37,21 @@ public class RecipeListAdapter extends ListListAdapter<Recipe> {
             textView = new TextView(context);
         }
 
+        // TODO: Make a separate view class and clean up
+        textView.setTextAppearance(context, android.R.style.TextAppearance_Large);
+        textView.setPadding(30, 30, 30, 30);
         textView.setText(item.getTitle());
+
+        // TODO: Move the activity starting code into an activity, so that this list adapter does
+        // not have to do it
+        textView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final Intent intent = new Intent(context, EditRecipeActivity.class);
+                intent.putExtra(EditRecipeActivity.EXTRA_ACTIVITY, item);
+                context.startActivity(intent);
+            }
+        });
 
         return textView;
     }
