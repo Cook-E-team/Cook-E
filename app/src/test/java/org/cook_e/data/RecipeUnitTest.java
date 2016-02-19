@@ -99,7 +99,7 @@ public class RecipeUnitTest {
      * Creates generic recipe with 1 step
      *
      */
-    public static void createGenericRecipe(String name, String author, int action_index, int ing_index, int unit_index, int duration_min, boolean isSimultaneous) {
+    public static Recipe createGenericRecipe(String name, String author, int action_index, int ing_index, int unit_index, int duration_min, boolean isSimultaneous) {
         Step s = StepUnitTest.createGenericStep(action_index, ing_index, unit_index, duration_min, isSimultaneous);
         List<Step> steps = new ArrayList<Step>();
         steps.add(s);
