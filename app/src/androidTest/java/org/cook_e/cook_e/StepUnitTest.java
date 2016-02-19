@@ -17,12 +17,11 @@
  * along with Cook-E.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.cook_e.data;
+package org.cook_e.cook_e;
 
 import org.atteo.evo.inflector.English;
 import org.cook_e.data.Ingredient;
 import org.cook_e.data.Step;
-import org.cook_e.data.UnitTestSharedData;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -52,7 +51,7 @@ public class StepUnitTest {
         String action = UnitTestSharedData.ACTIONS[action_index];
         String ing = UnitTestSharedData.INGREDIENTS[ing_index];
         ings.add(ing);
-        return new Step(ings,UnitTestSharedData.generateDescription(ing.getType(), action), Duration.standardMinutes(duration_min), isSimultaneous);
+        return new Step(ings,UnitTestSharedData.generateDescription(ing, action), Duration.standardMinutes(duration_min), isSimultaneous);
     }
 
     @Test

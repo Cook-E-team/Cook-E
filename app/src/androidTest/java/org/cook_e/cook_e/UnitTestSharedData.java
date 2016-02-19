@@ -17,7 +17,7 @@
  * along with Cook-E.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.cook_e.data;
+package org.cook_e.cook_e;
 /*
  * This class contains constants and other data for use in unit tests
  */
