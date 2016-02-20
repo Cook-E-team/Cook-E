@@ -101,6 +101,9 @@ public class App extends Application {
                 testMeal.addRecipe(testRecipe);
                 testMeal.addRecipe(testRecipe2);
                 mAccessor.storeBunch(testMeal);
+
+                final List<Bunch> retrievedMeals = mAccessor.loadAllBunches();
+                Log.d(TAG, "After storing, retrieved meals: " + retrievedMeals);
             }
         }
     }
