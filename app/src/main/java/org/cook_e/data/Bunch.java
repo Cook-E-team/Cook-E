@@ -34,7 +34,7 @@ import java.util.Map;
  *
  * Modifiable
  */
-public final class Bunch implements Parcelable {
+public final class Bunch extends DatabaseObject implements Parcelable {
 
     /**
      * The title of this bunch
@@ -196,10 +196,13 @@ public final class Bunch implements Parcelable {
 
         @Override
         public Bunch createFromParcel(Parcel source) {
+            final long id = source.readLong();
             final String title = source.readString();
             final Recipe[] recipes = Objects.castArray(
                     source.readParcelableArray(Recipe.class.getClassLoader()), Recipe[].class);
-            return new Bunch(title, Arrays.asList(recipes));
+            final Bunch bunch = new Bunch(title, Arrays.asList(recipes));
+            bunch.setObjectId(id);
+            return bunch;
         }
 
         @Override
@@ -215,6 +218,7 @@ public final class Bunch implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        dest.writeLong(getObjectId());
         dest.writeString(mTitle);
         dest.writeParcelableArray(mRecipes.toArray(new Recipe[mRecipes.size()]), flags);
     }

@@ -37,7 +37,7 @@ import java.util.List;
  * Has an ordered list of steps, a title, and an author.
  * No field may be null.
  */
-public final class Recipe implements Parcelable {
+public final class Recipe extends DatabaseObject implements Parcelable {
 
     /**
      * The steps that this recipe contains
@@ -167,17 +167,17 @@ public final class Recipe implements Parcelable {
         return mAuthor;
     }
 
-	/**
-	 * Remove the ith step in this recipe.
-	 * All steps after it will be moved one step forward.
-	 * Doesn't modify recipe if index is less than 0 or greater than max index.
-	 * @param i the index of step to remove, index starts from 0.
-	 * @return The removed step if succeeded, null if failed.
-	 */
-	public Step removeStep(int i) {
-		if (i >= 0 && i < mSteps.size()) return mSteps.remove(i);
-		else return null;
-	}
+    /**
+     * Remove the ith step in this recipe.
+     * All steps after it will be moved one step forward.
+     * Doesn't modify recipe if index is less than 0 or greater than max index.
+     * @param i the index of step to remove, index starts from 0.
+     * @return The removed step if succeeded, null if failed.
+     */
+    public Step removeStep(int i) {
+        if (i >= 0 && i < mSteps.size()) return mSteps.remove(i);
+        else return null;
+    }
 
     /**
      * Returns the image associated with this recipe
@@ -206,15 +206,15 @@ public final class Recipe implements Parcelable {
         }
     }
 
-	public void setTitle(@NonNull String title) {
-		Objects.requireNonNull(title, "title must not be null");
-		mTitle = title;
-	}
+    public void setTitle(@NonNull String title) {
+        Objects.requireNonNull(title, "title must not be null");
+        mTitle = title;
+    }
 
-	public void setAuthor(@NonNull String author) {
-		Objects.requireNonNull(author, "author must not be null");
-		mAuthor = author;
-	}
+    public void setAuthor(@NonNull String author) {
+        Objects.requireNonNull(author, "author must not be null");
+        mAuthor = author;
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -254,6 +254,7 @@ public final class Recipe implements Parcelable {
 
         @Override
         public Recipe createFromParcel(Parcel source) {
+            final long id = source.readLong();
             final Step[] steps = Objects.castArray(
                     source.readParcelableArray(Step.class.getClassLoader()), Step[].class);
             final String title = source.readString();
@@ -267,6 +268,7 @@ public final class Recipe implements Parcelable {
 
             final Recipe recipe = new Recipe(title, author, Arrays.asList(steps));
             recipe.setImage(image);
+            recipe.setObjectId(id);
             return recipe;
         }
 
@@ -283,6 +285,7 @@ public final class Recipe implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        dest.writeLong(getObjectId());
         dest.writeParcelableArray(mSteps.toArray(new Step[mSteps.size()]), flags);
         dest.writeString(mTitle);
         dest.writeString(mAuthor);
