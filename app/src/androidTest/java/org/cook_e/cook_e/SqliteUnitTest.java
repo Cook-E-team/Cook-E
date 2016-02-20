@@ -52,7 +52,7 @@ public class SqliteUnitTest {
     }
     @After
     public void teardown() {
-        //accessor.clearAllTables();
+        accessor.clearAllTables();
         accessor = null;
 
     }
@@ -71,7 +71,6 @@ public class SqliteUnitTest {
     @Test
     public void testTableDelete() {
         Recipe r = RecipeUnitTest.createGenericRecipe("My Recipe", "Kyle Woo", 0, 0, 5, false);
-        int id = 1;
         try {
             accessor.storeRecipe(r);
             accessor.deleteRecipe(r);
