@@ -202,7 +202,8 @@ public class SQLiteAccessor implements SQLAccessor {
 
             SQLiteDatabase db = helper.getReadableDatabase();
             String[] whereArgs = {title, author};
-            Cursor c = db.query(RECIPE_TABLE_NAME, RECIPE_COLUMNS, "name = ? AND author = ?", whereArgs,
+            Cursor c = db.query(RECIPE_TABLE_NAME, RECIPE_COLUMNS, "name = ? AND author = ?",
+                    whereArgs,
                     null, null, "name");
             if (c != null) {
                 c.moveToFirst();
@@ -283,13 +284,16 @@ public class SQLiteAccessor implements SQLAccessor {
                             String[] recipeWhereArgs = {String.valueOf(recipe_id)};
                             Cursor recipe_cursor = db.query(RECIPE_TABLE_NAME, RECIPE_COLUMNS, "id = ?", recipeWhereArgs,
                                     null, null, null);
-                            Recipe r = null;
-                            String title = recipe_cursor.getString(1);
-                            String author = recipe_cursor.getString(2);
-                            String description = recipe_cursor.getString(3);
-                            r = parser.convertStringToRecipe(title, author, description);
-                            r.setObjectId(recipe_id);
-                            recipes.add(r);
+                            if (recipe_cursor.getCount() > 0) {
+                                recipe_cursor.moveToFirst();
+                                Recipe r = null;
+                                String title = recipe_cursor.getString(1);
+                                String author = recipe_cursor.getString(2);
+                                String description = recipe_cursor.getString(3);
+                                r = parser.convertStringToRecipe(title, author, description);
+                                r.setObjectId(recipe_id);
+                                recipes.add(r);
+                            }
                             recipe_cursor.close();
                         } while (recipe_bunch_cursor.moveToNext());
                         recipe_bunch_cursor.close();
