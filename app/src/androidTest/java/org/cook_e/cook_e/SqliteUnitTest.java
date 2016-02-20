@@ -26,6 +26,7 @@ import org.cook_e.data.Bunch;
 import org.cook_e.data.Pair;
 import org.cook_e.data.Recipe;
 import org.cook_e.data.SQLiteAccessor;
+import org.cook_e.data.Step;
 import org.cook_e.data.StorageParser;
 import org.junit.After;
 import org.junit.Before;
@@ -33,6 +34,7 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
@@ -82,12 +84,19 @@ public class SqliteUnitTest {
     @Test
     public void testTableEdit() {
         Recipe r = RecipeUnitTest.createGenericRecipe("My Recipe", "Kyle Woo", 0, 0, 5, false);
-        Recipe edited_r = RecipeUnitTest.createGenericRecipe("My Recipe", "Kyle Woo", 1, 1, 5, false);
+        Recipe edited_r = RecipeUnitTest.createGenericRecipe("My Recipe", "Kyle Woo", 1, 1, 5,
+                false);
+        Step s = StepUnitTest.createGenericStep(0, 0, 5, false);
+        Step edited_s = StepUnitTest.createGenericStep(1, 1, 5, false);
+        List<Step> steps = new ArrayList<Step>();
+        steps.add(edited_s);
         try {
         accessor.storeRecipe(r);
         Recipe result = accessor.loadRecipe("My Recipe", "Kyle Woo");
         assertEquals(r, result);
-        accessor.editRecipe(edited_r);
+            r.setSteps(steps);
+
+        accessor.editRecipe(r);
         result = accessor.loadRecipe("My Recipe", "Kyle Woo");
         assertEquals(edited_r, result);
         } catch (Exception e) {

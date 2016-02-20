@@ -47,9 +47,9 @@ public class StorageParserTest {
     @Test
     public void testConvertStringToRecipe() {
         StorageParser parser = new StorageParser();
-        String stepDesc = "Step{mDescription='lalalal', mTime=PT600S, " +
+        String stepDesc = "Step{mDescription='lalalal', mTime=600000, " +
                           "mIngredients=ingredients, mSimultaneous=true}\n" +
-                          "Step{mDescription='lalalal', mTime=PT600S, " +
+                          "Step{mDescription='lalalal', mTime=600000, " +
                           "mIngredients=ingredients, mSimultaneous=false}\n";
         List<Step> steps = new ArrayList<>();
         List<String> ing = new ArrayList<>();
@@ -64,9 +64,9 @@ public class StorageParserTest {
     @Test
     public void testConvertStepToString() {
         StorageParser parser = new StorageParser();
-        String stepDesc = "Step{mDescription='lalalal', mTime=PT600S, " +
+        String stepDesc = "Step{mDescription='lalalal', mTime=600000, " +
                 "mIngredients=ingredients, mSimultaneous=true}\n" +
-                "Step{mDescription='lalalal', mTime=PT600S, " +
+                "Step{mDescription='lalalal', mTime=600000, " +
                 "mIngredients=ingredients, mSimultaneous=false}\n";
         List<Step> steps = new ArrayList<>();
         List<String> ing = new ArrayList<>();
