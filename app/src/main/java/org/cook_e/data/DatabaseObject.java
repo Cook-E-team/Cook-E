@@ -42,4 +42,12 @@ public abstract class DatabaseObject {
         return mObjectId;
     }
 
+    /**
+     * Determines if this object has a valid ID
+     * @return true if this object has a valid ID, otherwise false
+     */
+    public final boolean hasObjectId() {
+        return mObjectId != NO_ID;
+    }
+
 }

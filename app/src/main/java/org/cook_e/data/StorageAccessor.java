@@ -34,10 +34,6 @@ public class StorageAccessor {
     private SQLAccessor local;
     private SQLAccessor external;
     private StorageParser parser;
-    private static int recipe_counter = 0; // these are local counters, they do not apply to external databases
-    private static int bunch_counter = 0;
-    private Map<Pair<String, String>, Integer> recipe_ids;
-    private Map<String, Integer> bunch_ids;
 
     /**
      * Constructor
@@ -47,8 +43,6 @@ public class StorageAccessor {
         parser = new StorageParser();
         local = new SQLiteAccessor(c, parser);
         external = new SQLServerAccessor(parser);
-        recipe_ids = new HashMap<>();
-        bunch_ids = new HashMap<>();
     }
 
     /**
@@ -56,13 +50,8 @@ public class StorageAccessor {
      * @param r Recipe to store
      */
     public void storeRecipe(Recipe r) throws SQLException {
-        Integer id = getRecipeId(r);
-        if (id == null) {
-            id = recipe_counter++;
-            recipe_ids.put(new Pair<String, String>(r.getTitle(), r.getAuthor()), id);
-        }
         try {
-            local.storeRecipe(r, (int) id);
+            local.storeRecipe(r);
         } catch (Exception e) {
             throw new SQLException(e);
         }
@@ -74,13 +63,8 @@ public class StorageAccessor {
      * @param b
      */
     public void storeBunch(Bunch b) throws SQLException {
-        Integer id = getBunchId(b);
-        if (id == null) {
-            id = bunch_counter++;
-            bunch_ids.put(b.getTitle(), id);
-        }
         try {
-            local.storeBunch(b, (int) id, recipe_ids);
+            local.storeBunch(b);
         } catch (Exception e) {
             throw new SQLException(e);
         }
@@ -93,18 +77,11 @@ public class StorageAccessor {
      * @return Recipe object or null if recipe could not be found
      */
     public Recipe loadRecipe(String title, String author) throws SQLException {
-        Recipe r = null;
-        Integer id = getRecipeId(title, author);
-        //if (id == null) // search database
         try {
-            r = local.loadRecipe((int) id);
-            if (r == null) {
-                if (r != null) local.storeRecipe(r, id);
-            }
+            return local.loadRecipe(title, author);
         } catch (Exception e) {
             throw new SQLException(e);
         }
-        return r;
     }
 
     /**
@@ -113,15 +90,11 @@ public class StorageAccessor {
      * @return Bunch object or null if bunch could not be found
      */
     public Bunch loadBunch(String name) throws SQLException {
-        Integer id = getBunchId(name);
-        //if (id == null) // could this happen?
-        Bunch b = null;
         try {
-            b = local.loadBunch((int) id);
+            return local.loadBunch(name);
         } catch (Exception e) {
             throw new SQLException(e);
         }
-        return b;
     }
 
     /**
@@ -132,11 +105,6 @@ public class StorageAccessor {
         List<Recipe> recipes = null;
         try {
             recipes = local.loadAllRecipes();
-            // Add recipe IDs to cache
-            for (Recipe recipe : recipes) {
-                int id = recipe_counter++;
-                recipe_ids.put(new Pair<>(recipe.getTitle(), recipe.getAuthor()), id);
-            }
         } catch (Exception e) {
             throw new SQLException(e);
         }
@@ -151,11 +119,6 @@ public class StorageAccessor {
         List<Bunch> bunches = null;
         try {
             bunches = local.loadAllBunches();
-            // Add bunch IDs to cache
-            for (Bunch bunch : bunches) {
-                int id = bunch_counter++;
-                bunch_ids.put(bunch.getTitle(), id);
-            }
         } catch (Exception e) {
             throw new SQLException(e);
         }
@@ -166,9 +129,8 @@ public class StorageAccessor {
      * @param r Recipe to update
      */
     public void editRecipe(Recipe r) throws SQLException {
-        Integer id = getRecipeId(r);
         try {
-            if (id != null) local.editRecipe(r, (int)id);
+            local.editRecipe(r);
         } catch (Exception e) {
             throw new SQLException(e);
         }
@@ -180,43 +142,21 @@ public class StorageAccessor {
      * @param b Bunch to update
      */
     public void editBunch(Bunch b) throws SQLException {
-        Integer id = getBunchId(b);
         try {
-            if (id != null) {
-                local.editBunch(b, (int) id, recipe_ids);
-            }
-            else {
-                throw new SQLException("The bunch being updated was never inserted into the database");
-            }
+            local.editBunch(b);
         } catch (Exception e) {
             throw new SQLException(e);
         }
     }
 
-    /**
-     * delete a recipe on the local database
-     * @param title String title of the recipe to delete
-     * @param author String author of the recipe to delete
-     */
-    public void deleteRecipe(String title, String author) throws SQLException {
-        Integer id = getRecipeId(title, author);
-        try {
-            if (id != null) {
-                local.deleteRecipe(id);
-            }
-        } catch (Exception e) {
-            throw new SQLException(e);
-        }
-    }
 
     /**
      * delete a recipe on the local database
      * @param r Recipe to delete
      */
     public void deleteRecipe(Recipe r) throws SQLException {
-
         try {
-            deleteRecipe(r.getTitle(), r.getAuthor());
+            local.deleteRecipe(r);
         } catch (Exception e) {
             throw new SQLException(e);
         }
@@ -227,51 +167,10 @@ public class StorageAccessor {
      * @param b Bunch to delete
      */
     public void deleteBunch(Bunch b) throws SQLException {
-        Integer id = getBunchId(b);
         try {
-            local.deleteBunch(id);
+            local.deleteBunch(b);
         } catch (Exception e) {
             throw new SQLException(e);
         }
-    }
-
-    /**
-     * Helper that returns id of a recipe
-     * @param r Recipe to get id of
-     * @return id or null if no id for that recipe exists
-     */
-    private Integer getRecipeId(Recipe r) {
-        return getRecipeId(r.getTitle(), r.getAuthor());
-    }
-
-    /**
-     * Helper that returns id of a recipe
-     * @param title String title of the recipe to get id of
-     * @param author String author of the recipe to get id of
-     * @return id or null if no id for that recipe exists
-     */
-    private Integer getRecipeId(String title, String author) {
-        Pair<String, String> r_name = new Pair<String, String>(title, author);
-        Integer id = recipe_ids.get(r_name);
-        return id;
-    }
-
-    /**
-     * Helper that returns id of a bunch
-     * @param b Bunch to get id of
-     * @return id or null if no id for that bunch exists
-     */
-    private Integer getBunchId(Bunch b) {
-        return getBunchId(b.getTitle());
-    }
-
-    /**
-     * Helper that returns id of a bunch
-     * @param name String name of the bunch to get id of
-     * @return id or null if no id for that bunch exists
-     */
-    private Integer getBunchId(String name) {
-        Integer id = bunch_ids.get(name);
-        return id;
     }
 }
