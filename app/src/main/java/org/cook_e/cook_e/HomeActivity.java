@@ -50,8 +50,9 @@ public class HomeActivity extends AppCompatActivity {
         mViewPager = (ViewPager) findViewById(R.id.pager);
 
         final TabLayout tabLayout = (TabLayout) findViewById(R.id.tab_layout);
+        // Tags identify the tabs for testing.
         tabLayout.addTab(tabLayout.newTab().setText(R.string.meals));
-        tabLayout.addTab(tabLayout.newTab().setText(R.string.recipes));
+        tabLayout.addTab(tabLayout.newTab().setText(R.string.recipes).setTag(1));
 
         // Set the page when a tab is selected
         tabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
