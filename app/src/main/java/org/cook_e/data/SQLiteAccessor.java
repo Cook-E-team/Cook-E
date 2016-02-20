@@ -235,7 +235,8 @@ public class SQLiteAccessor implements SQLAccessor {
                     if (c.getCount() > 0) {
                         c.moveToFirst();
                         String description = c.getString(3);
-                        r = mParser.convertStringToRecipe(title, author, description);
+                        final List<Step> steps = mParser.parseRecipeSteps(description);
+                        r = new Recipe(title, author, steps);
                         r.setObjectId(c.getLong(0));
                         c.close();
                     }
@@ -272,7 +273,8 @@ public class SQLiteAccessor implements SQLAccessor {
                             String title = c.getString(1);
                             String author = c.getString(2);
                             String description = c.getString(3);
-                            Recipe r = mParser.convertStringToRecipe(title, author, description);
+                            final List<Step> steps = mParser.parseRecipeSteps(description);
+                            final Recipe r = new Recipe(title, author, steps);
                             r.setObjectId(c.getLong(0));
                             recipes.add(r);
                         } while (c.moveToNext());
@@ -455,8 +457,9 @@ public class SQLiteAccessor implements SQLAccessor {
                                             String title = recipe_cursor.getString(1);
                                             String author = recipe_cursor.getString(2);
                                             String description = recipe_cursor.getString(3);
-                                            Recipe r = mParser.convertStringToRecipe(title, author,
+                                            final List<Step> steps = mParser.parseRecipeSteps(
                                                     description);
+                                            final Recipe r = new Recipe(title, author, steps);
                                             r.setObjectId(recipe_id);
                                             recipes.add(r);
                                         } else {
@@ -530,8 +533,9 @@ public class SQLiteAccessor implements SQLAccessor {
                                             String title = recipe_cursor.getString(1);
                                             String author = recipe_cursor.getString(2);
                                             String description = recipe_cursor.getString(3);
-                                            Recipe r = mParser.convertStringToRecipe(title, author,
+                                            final List<Step> steps = mParser.parseRecipeSteps(
                                                     description);
+                                            final Recipe r = new Recipe(title, author, steps);
                                             r.setObjectId(recipe_id);
                                             recipes.add(r);
                                         }
@@ -613,7 +617,7 @@ public class SQLiteAccessor implements SQLAccessor {
         values.put(RECIPE_COLUMNS[0], r.getObjectId());
         values.put(RECIPE_COLUMNS[1], r.getTitle());
         values.put(RECIPE_COLUMNS[2], r.getAuthor());
-        values.put(RECIPE_COLUMNS[3], mParser.convertRecipeToString(r));
+        values.put(RECIPE_COLUMNS[3], mParser.serializeRecipeSteps(r.getSteps()));
         return values;
     }
 

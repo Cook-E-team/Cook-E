@@ -70,8 +70,8 @@ public final class Step implements Parcelable {
      */
     private static final Set<String> simultaneousPatterns = new HashSet<String>() {{
         add("boil");
-        add("bak");
-        add("microwav");
+        add("bake");
+        add("microwave");
     }};
     /**
      * Creates a Step
@@ -140,6 +140,18 @@ public final class Step implements Parcelable {
     }
 
     /**
+     * Returns the duration of this step, truncated to minute precision
+     *
+     * The behavior of this method is undefined if the number of minutes in the duration of this
+     * step is greater than Integer.MAX_VALUE.
+     *
+     * @return the duration of this step, in minutes
+     */
+    public int getDurationMinutes() {
+        return (int) mTime.getStandardMinutes();
+    }
+
+    /**
      * Returns the ingredients that this step requires
      * @return the ingredients
      */
@@ -148,11 +160,6 @@ public final class Step implements Parcelable {
         return new ArrayList<>(mIngredients);
     }
 
-    /**
-     * Returns the duration of this step in minutes
-     * @return the duration in minutes reprsented by an int
-     */
-    public int getIntTime() { return (int) mTime.getStandardMinutes(); }
     /**
      * Returns if this step can be done simultaneously
      * @return true if this step can be done simultaneously
@@ -185,8 +192,8 @@ public final class Step implements Parcelable {
     public String toString() {
         return "Step{" +
                 "mDescription='" + mDescription + '\'' +
-                ", mTime=" + mTime.getMillis() +
-                ", mIngredients=" + ListToString(mIngredients) +
+                ", mTime=" + mTime +
+                ", mIngredients=" + mIngredients +
                 ", mSimultaneous=" + mSimultaneous +
                 '}';
     }

@@ -160,7 +160,7 @@ public class Schedule {
             // Handles case where one or more recipes were ready by removing and
             // returning the chosen step.
             Step nextScheduledStep = unscheduledRecipeStepsList.get(chosenIndex).removeNextStep();
-            int nextScheduledStepTime = nextScheduledStep.getIntTime();
+            int nextScheduledStepTime = nextScheduledStep.getDurationMinutes();
             // Updates busyTimes for all other UnscheduledRecipeSteps
             for (int i = 0; i < unscheduledRecipeStepsList.size(); i++) {
                 UnscheduledRecipeSteps currSteps = unscheduledRecipeStepsList.get(i);
@@ -201,10 +201,10 @@ public class Schedule {
             boolean simultaneousSeen = false;
             for (Step currStep : this.steps) {
                 if (simultaneousSeen) {
-                    this.simultaneousToEndTime += currStep.getIntTime();
+                    this.simultaneousToEndTime += currStep.getDurationMinutes();
                 } else if (currStep.isSimultaneous()) {
                     simultaneousSeen = true;
-                    this.simultaneousToEndTime = currStep.getIntTime();
+                    this.simultaneousToEndTime = currStep.getDurationMinutes();
                 }
             }
         }
@@ -227,13 +227,13 @@ public class Schedule {
             }
             Step nextStep = this.steps.remove(0);
             if (nextStep.isSimultaneous()) {
-                busyTime = nextStep.getIntTime();
-                this.simultaneousToEndTime -= nextStep.getIntTime();
+                busyTime = nextStep.getDurationMinutes();
+                this.simultaneousToEndTime -= nextStep.getDurationMinutes();
                 for (Step currStep : this.steps) {
                     if (currStep.isSimultaneous()) {
                         break;
                     }
-                    this.simultaneousToEndTime -= currStep.getIntTime();
+                    this.simultaneousToEndTime -= currStep.getDurationMinutes();
                 }
             }
 

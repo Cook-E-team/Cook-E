@@ -23,9 +23,12 @@ import org.cook_e.data.Recipe;
 import org.cook_e.data.Step;
 import org.cook_e.data.StorageParser;
 import org.joda.time.Duration;
+import org.json.JSONException;
 import org.junit.Test;
 
+import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -34,45 +37,64 @@ import static org.junit.Assert.assertEquals;
  * Unit Tests for the Step class
  */
 public class StorageParserTest {
-    @Test
-    public void testStringToList() {
-        List<String> lst = new ArrayList<>();
-        lst.add("hello");
-        lst.add("goodbye");
-        lst.add("test");
-        assertEquals(StorageParser.toArrayList("hello,goodbye,test"), lst);
-    }
 
     @Test
-    public void testConvertStringToRecipe() {
+    public void testConvertStringToRecipe() throws ParseException {
         StorageParser parser = new StorageParser();
-        String stepDesc = "Step{mDescription='lalalal', mTime=600000, " +
-                          "mIngredients=ingredients, mSimultaneous=true}\n" +
-                          "Step{mDescription='lalalal', mTime=600000, " +
-                          "mIngredients=ingredients, mSimultaneous=false}\n";
+        final String stepDesc = "[{\"description\":\"lalalal\",\"duration_ms\":600000," +
+                "\"ingredients\":[\"ingredients\"],\"simultaneous\":true},{\"description\":" +
+                "\"lalalal\",\"duration_ms\":600000,\"ingredients\":[\"ingredients\"]," +
+                "\"simultaneous\":false}]";
         List<Step> steps = new ArrayList<>();
         List<String> ing = new ArrayList<>();
         ing.add("ingredients");
         steps.add(new Step(ing, "lalalal",Duration.millis(600000),true));
         steps.add(new Step(ing, "lalalal",Duration.millis(600000),false));
-        Recipe recipe = parser.convertStringToRecipe("title", "author", stepDesc);
+        final List<Step> parsedSteps = parser.parseRecipeSteps(stepDesc);
+        Recipe recipe = new Recipe("Title", "Author", parsedSteps);
         assertEquals(recipe.getSteps().get(0), steps.get(0));
         assertEquals(recipe.getSteps().get(1), steps.get(1));
     }
 
     @Test
-    public void testConvertStepToString() {
+    public void testConvertStepToString() throws JSONException {
         StorageParser parser = new StorageParser();
-        String stepDesc = "Step{mDescription='lalalal', mTime=600000, " +
-                "mIngredients=ingredients, mSimultaneous=true}\n" +
-                "Step{mDescription='lalalal', mTime=600000, " +
-                "mIngredients=ingredients, mSimultaneous=false}\n";
+        final String stepDesc = "[{\"description\":\"lalalal\",\"duration_ms\":600000," +
+                "\"ingredients\":[\"ingredients\"],\"simultaneous\":true},{\"description\":" +
+                "\"lalalal\",\"duration_ms\":600000,\"ingredients\":[\"ingredients\"]," +
+                "\"simultaneous\":false}]";
+
         List<Step> steps = new ArrayList<>();
         List<String> ing = new ArrayList<>();
         ing.add("ingredients");
-        steps.add(new Step(ing,"lalalal",Duration.millis(600000),true));
-        steps.add(new Step(ing, "lalalal",Duration.millis(600000),false));
-        String ans = parser.convertRecipeToString(new Recipe("title", "author", steps));
-        assertEquals(ans, stepDesc);
+        steps.add(new Step(ing, "lalalal", Duration.millis(600000), true));
+        steps.add(new Step(ing, "lalalal", Duration.millis(600000), false));
+        String ans = parser.serializeRecipeSteps(steps);
+
+        assertEquals(stepDesc, ans);
+    }
+
+    @Test
+    public void testNoSteps() throws ParseException {
+        checkRoundTrip(Collections.<Step>emptyList());
+    }
+
+    @Test
+    public void testOneStepNoIngredients() throws ParseException {
+        checkRoundTrip(Collections.singletonList(
+                new Step(Collections.<String>emptyList(), "Description of a step",
+                        Duration.standardMinutes(32), true)));
+    }
+
+    /**
+     * Serializes a list of steps, then deserializes it and checks that the deserialized list is equal
+     * to the provided list
+     * @param steps the steps to check
+     */
+    private void checkRoundTrip(List<Step> steps) throws ParseException {
+        final StorageParser parser = new StorageParser();
+        final String serialized = parser.serializeRecipeSteps(steps);
+        final List<Step> deserialized = parser.parseRecipeSteps(serialized);
+        assertEquals(steps, deserialized);
     }
 }
