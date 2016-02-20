@@ -40,7 +40,7 @@ import static org.junit.Assert.assertNull;
 /**
  * Tests the {@link SQLiteAccessor} class
  */
-public class SqliteUnitTest {
+public class SQLiteAccessorTest {
 
     private SQLiteAccessor mAccessor;
 
