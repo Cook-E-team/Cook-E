@@ -157,4 +157,50 @@ public class SqliteUnitTest {
             e.printStackTrace();
         }
     }
+    @Test
+    public void testLoadAllRecipes() {
+        Recipe r = RecipeUnitTest.createGenericRecipe("My Recipe", "Kyle Woo", 0, 0, 5, false);
+        Recipe r2 = RecipeUnitTest.createGenericRecipe("My Recipe 2", "Kyle Woo", 0, 0, 5, false);
+        List<Recipe> expected = new ArrayList<Recipe>();
+        expected.add(r);
+        expected.add(r2);
+        try {
+            accessor.storeRecipe(r);
+            accessor.storeRecipe(r2);
+            List<Recipe> result = accessor.loadAllRecipes();
+            assertEquals(expected, result);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    @Test
+    public void testLoadAllBunches() {
+        Recipe r = RecipeUnitTest.createGenericRecipe("My Recipe", "Kyle Woo", 0, 0, 5, false);
+        Recipe r2 = RecipeUnitTest.createGenericRecipe("My Recipe 2", "Kyle Woo", 0, 0, 5, false);
+        Recipe r3 = RecipeUnitTest.createGenericRecipe("My Recipe 3", "Kyle Woo", 0, 0, 5, false);
+        List<Recipe> b1_list = new ArrayList<>();
+        List<Recipe> b2_list = new ArrayList<>();
+        b1_list.add(r);
+        b1_list.add(r2);
+        b2_list.add(r);
+        b2_list.add(r3);
+        Bunch b1 = new Bunch("Bunch 1", b1_list);
+        Bunch b2 = new Bunch("Bunch 2", b2_list);
+        List<Bunch> expected = new ArrayList<>();
+        expected.add(b1);
+        expected.add(b2);
+        try {
+            accessor.storeRecipe(r);
+            accessor.storeRecipe(r2);
+            accessor.storeRecipe(r3);
+            accessor.storeBunch(b1);
+            accessor.storeBunch(b2);
+            List<Bunch> result = accessor.loadAllBunches();
+            assertEquals(expected, result);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
+    }
 }
