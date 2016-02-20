@@ -19,16 +19,13 @@
 
 package org.cook_e.cook_e.ui;
 
-import android.content.Intent;
 import android.os.SystemClock;
 import android.support.test.espresso.DataInteraction;
-import android.support.test.rule.ActivityTestRule;
 import android.support.v4.view.ViewPager;
 import android.test.ActivityInstrumentationTestCase2;
 import android.view.View;
 
 import org.cook_e.cook_e.HomeActivity;
-import org.cook_e.cook_e.MealViewActivity;
 import org.cook_e.cook_e.R;
 import org.hamcrest.Matcher;
 import org.hamcrest.core.Is;
