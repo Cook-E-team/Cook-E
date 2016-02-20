@@ -47,15 +47,15 @@ public class StorageParserTest {
     @Test
     public void testConvertStringToRecipe() {
         StorageParser parser = new StorageParser();
-        String stepDesc = "Step{mDescription='lalalal', mTime=10, " +
+        String stepDesc = "Step{mDescription='lalalal', mTime=PT600S, " +
                           "mIngredients=ingredients, mSimultaneous=true}\n" +
-                          "Step{mDescription='lalalal', mTime=10, " +
+                          "Step{mDescription='lalalal', mTime=PT600S, " +
                           "mIngredients=ingredients, mSimultaneous=false}\n";
         List<Step> steps = new ArrayList<>();
         List<String> ing = new ArrayList<>();
         ing.add("ingredients");
-        steps.add(new Step(ing, "lalalal",Duration.standardMinutes(10),true));
-        steps.add(new Step(ing, "lalalal",Duration.standardMinutes(10),false));
+        steps.add(new Step(ing, "lalalal",Duration.millis(600000),true));
+        steps.add(new Step(ing, "lalalal",Duration.millis(600000),false));
         Recipe recipe = parser.convertStringToRecipe("title", "author", stepDesc);
         assertEquals(recipe.getSteps().get(0), steps.get(0));
         assertEquals(recipe.getSteps().get(1), steps.get(1));
@@ -71,8 +71,8 @@ public class StorageParserTest {
         List<Step> steps = new ArrayList<>();
         List<String> ing = new ArrayList<>();
         ing.add("ingredients");
-        steps.add(new Step(ing,"lalalal",Duration.standardMinutes(10),true));
-        steps.add(new Step(ing, "lalalal",Duration.standardMinutes(10),false));
+        steps.add(new Step(ing,"lalalal",Duration.millis(600000),true));
+        steps.add(new Step(ing, "lalalal",Duration.millis(600000),false));
         String ans = parser.convertRecipeToString(new Recipe("title", "author", steps));
         assertEquals(ans, stepDesc);
     }
