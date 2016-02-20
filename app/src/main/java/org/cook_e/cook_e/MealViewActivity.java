@@ -77,7 +77,7 @@ public class MealViewActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         setUpActionBar();
-        
+
         // Get recipes
         mRecipes = new ObservableArrayList<>();
         mRecipes.addAll(mMeal.getRecipes());
@@ -156,11 +156,8 @@ public class MealViewActivity extends AppCompatActivity {
             case R.id.start:
                 // User chose the "schedule" item,
                 final Intent intent = new Intent(MealViewActivity.this, CookActivity.class);
-<<<<<<< HEAD
-=======
                 // TODO: Provide correct extra key
                 intent.putExtra("change this", mMeal);
->>>>>>> 5c84444795114dbec0f0453558114d0e947df067
                 startActivity(intent);
                 return true;
 
