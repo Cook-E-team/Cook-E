@@ -139,6 +139,7 @@ public class SQLiteAccessor implements SQLAccessor {
     public void storeBunch(Bunch b) throws SQLException {
         try {
             SQLiteDatabase db = mHelper.getWritableDatabase();
+            db.beginTransaction();
             try {
                 if (!b.hasObjectId()) {
                     b.setObjectId(mBunchCounter++);
@@ -149,7 +150,9 @@ public class SQLiteAccessor implements SQLAccessor {
                 for (ContentValues values : values_list) {
                     db.insert(BUNCH_RECIPES_TABLE_NAME, null, values);
                 }
+                db.setTransactionSuccessful();
             } finally {
+                db.endTransaction();
                 db.close();
             }
         } catch (Exception e) {
@@ -187,6 +190,7 @@ public class SQLiteAccessor implements SQLAccessor {
     public void editBunch(Bunch b) throws SQLException {
         try {
             SQLiteDatabase db = mHelper.getWritableDatabase();
+            db.beginTransaction();
             try {
                 ContentValues bunch_values = createContentValues(b);
                 String[] bunchArgs = {String.valueOf(b.getObjectId())};
@@ -196,7 +200,9 @@ public class SQLiteAccessor implements SQLAccessor {
                 for (ContentValues cv : bunch_recipe_values) {
                     db.insert(BUNCH_RECIPES_TABLE_NAME, null, cv);
                 }
+                db.setTransactionSuccessful();
             } finally {
+                db.endTransaction();
                 db.close();
             }
         } catch (Exception e) {
@@ -581,11 +587,14 @@ public class SQLiteAccessor implements SQLAccessor {
     public void deleteBunch(Bunch b) throws SQLException {
         try {
             SQLiteDatabase db = mHelper.getWritableDatabase();
+            db.beginTransaction();
             try {
                 String[] whereArgs = {String.valueOf(b.getObjectId())};
                 db.delete(BUNCH_TABLE_NAME, "id = ?", whereArgs);
                 db.delete(BUNCH_RECIPES_TABLE_NAME, "bunch_id = ?", whereArgs);
+                db.setTransactionSuccessful();
             } finally {
+                db.endTransaction();
                 db.close();
             }
         } catch (Exception e) {
@@ -724,13 +733,16 @@ public class SQLiteAccessor implements SQLAccessor {
     public void clearAllTables() throws SQLException {
         try {
             SQLiteDatabase db = mHelper.getWritableDatabase();
+            db.beginTransaction();
             try {
                 db.delete(RECIPE_TABLE_NAME, null, null);
                 db.delete(BUNCH_TABLE_NAME, null, null);
                 db.delete(RECIPE_IMAGE_TABLE_NAME, null, null);
                 db.delete(BUNCH_RECIPES_TABLE_NAME, null, null);
+                db.setTransactionSuccessful();
             }
             finally {
+                db.endTransaction();
                 db.close();
             }
         } catch (Exception e) {
