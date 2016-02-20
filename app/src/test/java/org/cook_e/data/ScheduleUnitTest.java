@@ -36,13 +36,13 @@ public class ScheduleUnitTest {
     // @NonNull String description, @NonNull ReadableDuration duration, @NonNull boolean isSimultaneous) {
     // public Recipe(@NonNull String title, @NonNull String author, @NonNull List<Step> steps) {
     public List<String> ingre = new ArrayList<String>();
-    public final Step fiveNonSimul = new Step(ingre, "", "t1", Duration.standardMinutes(5), false);
-    public final Step tenNonSimul = new Step(ingre, "", "t1", Duration.standardMinutes(10), false);
-    public final Step sevenNonSimul = new Step(ingre, "", "t1", Duration.standardMinutes(7), false);
+    public final Step fiveNonSimul = new Step(ingre, "t1", Duration.standardMinutes(5), false);
+    public final Step tenNonSimul = new Step(ingre, "t1", Duration.standardMinutes(10), false);
+    public final Step sevenNonSimul = new Step(ingre, "t1", Duration.standardMinutes(7), false);
 
-    public final Step fiveSimul = new Step(ingre, "", "t1", Duration.standardMinutes(5), true);
-    public final Step tenSimul = new Step(ingre, "", "t1", Duration.standardMinutes(10), true);
-    public final Step sevenSimul = new Step(ingre, "", "t1", Duration.standardMinutes(7), true);
+    public final Step fiveSimul = new Step(ingre, "t1", Duration.standardMinutes(5), true);
+    public final Step tenSimul = new Step(ingre, "t1", Duration.standardMinutes(10), true);
+    public final Step sevenSimul = new Step(ingre, "t1", Duration.standardMinutes(7), true);
 
     @Test
     public void testSchedule1nonSimul() {
