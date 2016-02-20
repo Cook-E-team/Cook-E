@@ -25,6 +25,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.joda.time.Duration;
 import java.util.TreeMap;
 
 /**
@@ -162,7 +163,7 @@ public class Schedule {
             // Handles case where one or more recipes were ready by removing and
             // returning the chosen step.
             Step nextScheduledStep = unscheduledRecipeStepsList.get(chosenIndex).removeNextStep();
-            int nextScheduledStepTime = StepDescriptionParser.getTime(nextScheduledStep.getDescription());
+            int nextScheduledStepTime = nextScheduledStep.getIntTime();
             // Updates busyTimes for all other UnscheduledRecipeSteps
             for (int i = 0; i < unscheduledRecipeStepsList.size(); i++) {
                 UnscheduledRecipeSteps currSteps = unscheduledRecipeStepsList.get(i);
@@ -203,10 +204,10 @@ public class Schedule {
             boolean simultaneousSeen = false;
             for (Step currStep : this.steps) {
                 if (simultaneousSeen) {
-                    this.simultaneousToEndTime += StepDescriptionParser.getTime(currStep.getDescription());
-                } else if (StepDescriptionParser.isSimultaneous(currStep.getDescription())) {
+                    this.simultaneousToEndTime += currStep.getIntTime();
+                } else if (currStep.isSimultaneous()) {
                     simultaneousSeen = true;
-                    this.simultaneousToEndTime = StepDescriptionParser.getTime(currStep.getDescription());
+                    this.simultaneousToEndTime = currStep.getIntTime();
                 }
             }
         }
@@ -228,14 +229,14 @@ public class Schedule {
                 return null;
             }
             Step nextStep = this.steps.remove(0);
-            if (StepDescriptionParser.isSimultaneous(nextStep.getDescription())) {
-                busyTime = StepDescriptionParser.getTime(nextStep.getDescription());
-                this.simultaneousToEndTime -= StepDescriptionParser.getTime(nextStep.getDescription());
+            if (nextStep.isSimultaneous()) {
+                busyTime = nextStep.getIntTime();
+                this.simultaneousToEndTime -= nextStep.getIntTime();
                 for (Step currStep : this.steps) {
-                    if (StepDescriptionParser.isSimultaneous(nextStep.getDescription())) {
+                    if (currStep.isSimultaneous()) {
                         break;
                     }
-                    this.simultaneousToEndTime -= StepDescriptionParser.getTime(currStep.getDescription());
+                    this.simultaneousToEndTime -= currStep.getIntTime();
                 }
             }
 
