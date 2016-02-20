@@ -34,7 +34,7 @@ import java.util.Map;
  *
  * Modifiable
  */
-public final class Bunch implements Parcelable {
+public final class Bunch extends DatabaseObject implements Parcelable {
 
     /**
      * The title of this bunch
@@ -51,6 +51,7 @@ public final class Bunch implements Parcelable {
      * Creates a new bunch with an empty title and no recipes
      */
     public Bunch() {
+        super();
         mTitle = "";
         mRecipes = new ArrayList<>();
     }
@@ -63,6 +64,7 @@ public final class Bunch implements Parcelable {
      * @throws NullPointerException if title or recipes is null
      */
     public Bunch(@NonNull String title, @NonNull List<Recipe> recipes) {
+        super();
         Objects.requireNonNull(title, "title must not be null");
         Objects.requireNonNull(recipes, "recipes must not be null");
         if (title.isEmpty()) throw new IllegalArgumentException("title must not be empty");
@@ -196,10 +198,13 @@ public final class Bunch implements Parcelable {
 
         @Override
         public Bunch createFromParcel(Parcel source) {
+            final long id = source.readLong();
             final String title = source.readString();
             final Recipe[] recipes = Objects.castArray(
                     source.readParcelableArray(Recipe.class.getClassLoader()), Recipe[].class);
-            return new Bunch(title, Arrays.asList(recipes));
+            final Bunch bunch = new Bunch(title, Arrays.asList(recipes));
+            bunch.setObjectId(id);
+            return bunch;
         }
 
         @Override
@@ -215,6 +220,7 @@ public final class Bunch implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        dest.writeLong(getObjectId());
         dest.writeString(mTitle);
         dest.writeParcelableArray(mRecipes.toArray(new Recipe[mRecipes.size()]), flags);
     }

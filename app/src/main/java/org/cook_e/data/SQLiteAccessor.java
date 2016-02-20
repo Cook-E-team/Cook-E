@@ -42,7 +42,14 @@ public class SQLiteAccessor implements SQLAccessor {
      * Helper that has methods for accessing the android local sqlite database
      */
     private RecipeOpenHelper helper;
-
+    /**
+     * constant used to set ids for recipes
+     */
+    private long recipe_counter;
+    /**
+     * constant used to set ids for bunches
+     */
+    private long bunch_counter;
     /**
      * Constants for use in creating and accessing columns for the tables
      */
@@ -50,7 +57,7 @@ public class SQLiteAccessor implements SQLAccessor {
     private static final String RECIPE_TABLE_NAME = "Recipes";
     private static final String[] RECIPE_COLUMNS = {"id", "name", "author", "description"}; // note the indexes are 0 based
     private static final String RECIPE_IMAGE_TABLE_NAME = "RecipeImages";
-    private static final String[] RECIPE_IMAGE_COLUMNS = {"id", "image"};
+    private static final String[] RECIPE_IMAGE_COLUMNS = {"recipe_id", "image"};
     private static final String BUNCH_TABLE_NAME = "Bunches";
     private static final String[] BUNCH_COLUMNS = {"id", "name"};
     private static final String BUNCH_RECIPES_TABLE_NAME = "BunchRecipes";
@@ -60,17 +67,16 @@ public class SQLiteAccessor implements SQLAccessor {
      */
     private static final String RECIPE_TABLE_CREATE =
             "CREATE TABLE " + RECIPE_TABLE_NAME + " (" +
-                    RECIPE_COLUMNS[0] + " INT NOT NULL DEFAULT 0," +
+                    RECIPE_COLUMNS[0] + " INTEGER PRIMARY KEY," +
                     RECIPE_COLUMNS[1]  +" TEXT NOT NULL DEFAULT \"\"," +
                     RECIPE_COLUMNS[2]  + " TEXT NOT NULL DEFAULT \"\"," +
-                    RECIPE_COLUMNS[3]  + " TEXT NOT NULL DEFAULT \"\"," +
-                    " PRIMARY KEY (" + RECIPE_COLUMNS[0] + "));";
+                    RECIPE_COLUMNS[3]  + " TEXT NOT NULL DEFAULT \"\");";
     /**
      * Schema of the Recipe Images table: (id, image)
      */
     private static final String RECIPE_IMAGE_TABLE_CREATE =
             "CREATE TABLE " + RECIPE_IMAGE_TABLE_NAME + " (" +
-                    RECIPE_IMAGE_COLUMNS[0] + " INT NOT NULL DEFAULT 0," +
+                    RECIPE_IMAGE_COLUMNS[0] + " INTEGER NOT NULL," +
                     RECIPE_IMAGE_COLUMNS[1] + " BLOB NOT NULL," +
                     " PRIMARY KEY (" + RECIPE_IMAGE_COLUMNS[0] + ", " + RECIPE_IMAGE_COLUMNS[1] + "));";
     /**
@@ -78,9 +84,8 @@ public class SQLiteAccessor implements SQLAccessor {
      */
     private static final String BUNCH_TABLE_CREATE =
             "CREATE TABLE " + BUNCH_TABLE_NAME + " (" +
-                    BUNCH_COLUMNS[0] + " INT NOT NULL DEFAULT 0," +
-                    BUNCH_COLUMNS[1] + " TEXT NOT NULL DEFAULT \"\"," +
-                    " PRIMARY KEY (" + BUNCH_COLUMNS[0] + "));";
+                    BUNCH_COLUMNS[0] + " INTEGER PRIMARY KEY," +
+                    BUNCH_COLUMNS[1] + " TEXT NOT NULL DEFAULT \"\");";
     /**
      * Schema of the Bunch Recipes table: (bunch_id, recipe_id)
      */
@@ -98,17 +103,21 @@ public class SQLiteAccessor implements SQLAccessor {
     public SQLiteAccessor(Context c, StorageParser parser) {
         helper = new RecipeOpenHelper(c);
         this.parser = parser;
+        setupCounters();
     }
 
     /**
      * Store a recipe on the sqlite database
      * @param r Recipe object to store
-     * @param id int id of the recipe
      */
-    public void storeRecipe(Recipe r, int id) throws SQLException{
+    @Override
+    public void storeRecipe(Recipe r) throws SQLException {
         try {
             SQLiteDatabase db = helper.getWritableDatabase();
-            ContentValues values = createContentValues(r, id);
+            if (!r.hasObjectId()) {
+                r.setObjectId(recipe_counter++);
+            }
+            ContentValues values = createContentValues(r);
             db.insert(RECIPE_TABLE_NAME, null, values);
             db.close();
         } catch (Exception e) {
@@ -120,14 +129,16 @@ public class SQLiteAccessor implements SQLAccessor {
      * Store a bunch on the sqlite database
      * Assumes that all recipes within this bunch have been stored on the database
      * @param b Bunch object to store
-     * @param bunch_id int id of the bunch
-     * @param recipe_ids Map of (recipe name, recipe author) to recipe ids
      */
-    public void storeBunch(Bunch b, int bunch_id, Map<Pair<String, String>,Integer> recipe_ids) throws SQLException {
+    @Override
+    public void storeBunch(Bunch b) throws SQLException {
         try {
             SQLiteDatabase db = helper.getWritableDatabase();
-            List<ContentValues> values_list = createContentValues(b, bunch_id, recipe_ids);
-            ContentValues bunch_values = createContentValues(b, bunch_id);
+            if (!b.hasObjectId()) {
+                b.setObjectId(bunch_counter++);
+            }
+            List<ContentValues> values_list = createContentValuesList(b);
+            ContentValues bunch_values = createContentValues(b);
             db.insert(BUNCH_TABLE_NAME, null, bunch_values);
             for (ContentValues values: values_list) {
                 db.insert(BUNCH_RECIPES_TABLE_NAME, null, values);
@@ -141,13 +152,13 @@ public class SQLiteAccessor implements SQLAccessor {
     /**
      * Edit a recipe stored on the sqlite database
      * @param r Recipe object to update
-     * @param id int id of recipe
      */
-    public void editRecipe(Recipe r, int id) throws SQLException {
+    @Override
+    public void editRecipe(Recipe r) throws SQLException {
         try {
             SQLiteDatabase db = helper.getWritableDatabase();
-            ContentValues values = createContentValues(r, id);
-            String[] whereArgs = {r.getTitle(), r.getAuthor()};
+            ContentValues values = createContentValues(r);
+            String[] whereArgs = {String.valueOf(r.getObjectId())};
             db.update(RECIPE_TABLE_NAME, values, "id = ?", whereArgs);
             db.close();
         } catch (Exception e) {
@@ -158,17 +169,16 @@ public class SQLiteAccessor implements SQLAccessor {
     /**
      * Edit a bunch stored on the sqlite database
      * @param b Bunch object to edit
-     * @param bunch_id int id of bunch
-     * @param recipe_ids Map of (recipe name, recipe author) to recipe id
      */
-    public void editBunch(Bunch b, int bunch_id, Map<Pair<String, String>, Integer> recipe_ids) throws SQLException {
+    @Override
+    public void editBunch(Bunch b) throws SQLException {
         try {
             SQLiteDatabase db = helper.getWritableDatabase();
-            ContentValues bunch_values = createContentValues(b, bunch_id);
-            String[] bunchArgs = {String.valueOf(bunch_id)};
+            ContentValues bunch_values = createContentValues(b);
+            String[] bunchArgs = {String.valueOf(b.getObjectId())};
             db.update(BUNCH_TABLE_NAME, bunch_values, "id = ?", bunchArgs);
             db.delete(BUNCH_RECIPES_TABLE_NAME, "bunch_id = ?", bunchArgs);
-            List<ContentValues> bunch_recipe_values = createContentValues(b, bunch_id, recipe_ids);
+            List<ContentValues> bunch_recipe_values = createContentValuesList(b);
             for (ContentValues cv: bunch_recipe_values) {
                 db.insert(BUNCH_RECIPES_TABLE_NAME, null, cv);
             }
@@ -180,24 +190,25 @@ public class SQLiteAccessor implements SQLAccessor {
 
     /**
      * Load a recipe off the database
-     * @param id int id of the recipe
+     * @param title String title of recipe to load
+     * @param author String author of recipe to load
      * @return Recipe object
      */
-    public Recipe loadRecipe(int id) throws SQLException {
+    @Override
+    public Recipe loadRecipe(String title, String author) throws SQLException {
         Recipe r = null;
 
         try {
 
             SQLiteDatabase db = helper.getReadableDatabase();
-            String[] whereArgs = {String.valueOf(id)};
-            Cursor c = db.query(RECIPE_TABLE_NAME, RECIPE_COLUMNS, "id = ?", whereArgs,
+            String[] whereArgs = {title, author};
+            Cursor c = db.query(RECIPE_TABLE_NAME, RECIPE_COLUMNS, "name = ? AND author = ?", whereArgs,
                     null, null, "name");
             if (c != null) {
                 c.moveToFirst();
-                String title = c.getString(1);
-                String author = c.getString(2);
                 String description = c.getString(3);
                 r = parser.convertStringToRecipe(title, author, description);
+                r.setObjectId(c.getLong(0));
                 c.close();
             }
             db.close();
@@ -212,6 +223,7 @@ public class SQLiteAccessor implements SQLAccessor {
      * Load all recipes off the database
      * @return List of Recipes
      */
+    @Override
     public List<Recipe> loadAllRecipes() throws SQLException {
 
         List<Recipe> recipes = new ArrayList<Recipe>();
@@ -226,6 +238,7 @@ public class SQLiteAccessor implements SQLAccessor {
                     String author = c.getString(2);
                     String description = c.getString(3);
                     Recipe r = parser.convertStringToRecipe(title, author, description);
+                    r.setObjectId(c.getLong(0));
                     recipes.add(r);
                 } while (c.moveToNext());
                 c.close();
@@ -242,11 +255,13 @@ public class SQLiteAccessor implements SQLAccessor {
      * @param description
      * @return
      */
+    @Override
     public List<Recipe> findRecipesLike(String description) { return null; }
     /**
      * Load all bunches off the database
      * @return List of bunches
      */
+    @Override
     public List<Bunch> loadAllBunches() throws SQLException {
         List<Bunch> bunches = new ArrayList<Bunch>();
         try {
@@ -256,7 +271,7 @@ public class SQLiteAccessor implements SQLAccessor {
                 c.moveToFirst();
                 do {
                     List<Recipe> recipes = new ArrayList<Recipe>();
-                    int bunch_id = c.getInt(0);
+                    long bunch_id = c.getLong(0);
                     String name = c.getString(1);
                     String[] whereArgs = {String.valueOf(bunch_id)};
                     Cursor recipe_bunch_cursor = db.query(BUNCH_RECIPES_TABLE_NAME, BUNCH_RECIPE_COLUMNS, "bunch_id = ?", whereArgs,
@@ -264,7 +279,7 @@ public class SQLiteAccessor implements SQLAccessor {
                     if (recipe_bunch_cursor.getCount() > 0) {
                         recipe_bunch_cursor.moveToFirst();
                         do {
-                            int recipe_id = recipe_bunch_cursor.getInt(1);
+                            long recipe_id = recipe_bunch_cursor.getLong(1);
                             String[] recipeWhereArgs = {String.valueOf(recipe_id)};
                             Cursor recipe_cursor = db.query(RECIPE_TABLE_NAME, RECIPE_COLUMNS, "id = ?", recipeWhereArgs,
                                     null, null, null);
@@ -273,12 +288,14 @@ public class SQLiteAccessor implements SQLAccessor {
                             String author = recipe_cursor.getString(2);
                             String description = recipe_cursor.getString(3);
                             r = parser.convertStringToRecipe(title, author, description);
+                            r.setObjectId(recipe_id);
                             recipes.add(r);
                             recipe_cursor.close();
                         } while (recipe_bunch_cursor.moveToNext());
                         recipe_bunch_cursor.close();
                     }
                     Bunch b = new Bunch(name, recipes);
+                    b.setObjectId(bunch_id);
                     bunches.add(b);
                 } while (c.moveToNext());
                 c.close();
@@ -291,27 +308,29 @@ public class SQLiteAccessor implements SQLAccessor {
     }
     /**
      * Load a bunch off the database (and all its contained recipes)
-     * @param id
+     * @param name String name of Bunch to load
      * @return Bunch object
      */
-    public Bunch loadBunch(int id) throws SQLException {
+    @Override
+    public Bunch loadBunch(String name) throws SQLException {
         Bunch b = null;
         try {
             SQLiteDatabase db = helper.getReadableDatabase();
-            String[] whereArgs = {String.valueOf(id)};
-            Cursor c = db.query(BUNCH_TABLE_NAME, BUNCH_COLUMNS, "id = ?", whereArgs,
+            String[] whereArgs = {name};
+            Cursor c = db.query(BUNCH_TABLE_NAME, BUNCH_COLUMNS, "name = ?", whereArgs,
                     null, null, "name");
             List<Recipe> recipes = new ArrayList<Recipe>();
             if (c != null) {
                 c.moveToFirst();
-                String name = c.getString(1);
+                long bunch_id = c.getLong(0);
+                String[] bunchRecipesWhereArgs = {String.valueOf(bunch_id)};
                 Cursor recipe_bunch_cursor = db.query(BUNCH_RECIPES_TABLE_NAME, BUNCH_RECIPE_COLUMNS,
-                        "bunch id = ?", whereArgs,
+                        "bunch_id = ?", whereArgs,
                         null, null, null);
                 if (recipe_bunch_cursor != null) {
                     recipe_bunch_cursor.moveToFirst();
                     do {
-                        int recipe_id = recipe_bunch_cursor.getInt(1);
+                        long recipe_id = recipe_bunch_cursor.getLong(1);
                         String[] recipeWhereArgs = {String.valueOf(recipe_id)};
                         Cursor recipe_cursor = db.query(RECIPE_TABLE_NAME, RECIPE_COLUMNS, "id = ?", recipeWhereArgs,
                                 null, null, null);
@@ -320,11 +339,13 @@ public class SQLiteAccessor implements SQLAccessor {
                         String author = recipe_cursor.getString(2);
                         String description = recipe_cursor.getString(3);
                         r = parser.convertStringToRecipe(title, author, description);
+                        r.setObjectId(recipe_id);
                         recipes.add(r);
                         recipe_cursor.close();
                     } while (recipe_bunch_cursor.moveToNext());
                     recipe_bunch_cursor.close();
                     b = new Bunch(name, recipes);
+                    b.setObjectId(bunch_id);
                 }
                 c.close();
             }
@@ -337,12 +358,13 @@ public class SQLiteAccessor implements SQLAccessor {
 
     /**
      * Delete a recipe from the database
-     * @param id int id of recipe
+     * @param r Recipe to delete
      */
-    public void deleteRecipe(int id) throws SQLException {
+    @Override
+    public void deleteRecipe(Recipe r) throws SQLException {
         try {
             SQLiteDatabase db = helper.getWritableDatabase();
-            String[] whereArgs = {String.valueOf(id)};
+            String[] whereArgs = {String.valueOf(r.getObjectId())};
             db.delete(RECIPE_TABLE_NAME, "id = ?", whereArgs);
             db.close();
         } catch (Exception e) {
@@ -352,12 +374,13 @@ public class SQLiteAccessor implements SQLAccessor {
 
     /**
      * Delete a bunch from the database
-     * @param id int id of bunch
+     * @param b Bunch to delete
      */
-    public void deleteBunch(int id) throws SQLException {
+    @Override
+    public void deleteBunch(Bunch b) throws SQLException {
         try {
             SQLiteDatabase db = helper.getWritableDatabase();
-            String[] whereArgs = {String.valueOf(id)};
+            String[] whereArgs = {String.valueOf(b.getObjectId())};
             db.delete(BUNCH_TABLE_NAME, "id = ?", whereArgs);
             db.delete(BUNCH_RECIPES_TABLE_NAME, "bunch_id = ?", whereArgs);
             db.close();
@@ -369,12 +392,11 @@ public class SQLiteAccessor implements SQLAccessor {
     /**
      * Helper that creates a ContentValues object for the Recipes table
      * @param r Recipe object to take values from
-     * @param id int id of recipe
      * @return ContentValues containing the mapping from column name to value for Recipes Table
      */
-    private ContentValues createContentValues(Recipe r, int id) {
+    private ContentValues createContentValues(Recipe r) {
         ContentValues values = new ContentValues();
-        values.put(RECIPE_COLUMNS[0], id);
+        values.put(RECIPE_COLUMNS[0], r.getObjectId());
         values.put(RECIPE_COLUMNS[1], r.getTitle());
         values.put(RECIPE_COLUMNS[2], r.getAuthor());
         values.put(RECIPE_COLUMNS[3], parser.convertRecipeToString(r));
@@ -383,12 +405,11 @@ public class SQLiteAccessor implements SQLAccessor {
     /**
      * Helper that creates a ContentValues object for the Bunches table
      * @param b Bunch object to take values from
-     * @param id int id of bunch
      * @return ContentValues containing the mapping from column name to value for Bunches Table
      */
-    private ContentValues createContentValues(Bunch b, int id) {
+    private ContentValues createContentValues(Bunch b) {
         ContentValues values = new ContentValues();
-        values.put(RECIPE_COLUMNS[0], id);
+        values.put(RECIPE_COLUMNS[0], b.getObjectId());
         values.put(RECIPE_COLUMNS[1], b.getTitle());
         return values;
     }
@@ -396,14 +417,12 @@ public class SQLiteAccessor implements SQLAccessor {
     /**
      * Helper that creates a list of ContentValues for the Bunch Recipes table
      * @param b Bunch object
-     * @param bunch_id int id of bunch
-     * @param recipe_ids Map of (recipe name, recipe author) to recipe id
      * @return List of ContentValues containing the mapping from column name to value for the Bunch Recipes table
      */
-    private List<ContentValues> createContentValues(Bunch b, int bunch_id, Map<Pair<String, String>, Integer> recipe_ids) {
+    private List<ContentValues> createContentValuesList(Bunch b) {
         List<ContentValues> values_list = new ArrayList<>();
         for (Recipe r: b.getRecipes()) {
-            ContentValues values = createContentValues(bunch_id, recipe_ids.get(new Pair<String, String>(r.getTitle(), r.getAuthor())));
+            ContentValues values = createContentValues(b, r);
             values_list.add(values);
         }
         return values_list;
@@ -411,14 +430,14 @@ public class SQLiteAccessor implements SQLAccessor {
 
     /**
      * Helper that creates a ContentValues object for the Bunch Recipes table
-     * @param bunch_id int id of bunch
-     * @param recipe_id int id of recipe
+     * @param b Bunch object
+     * @param r Recipe object in the bunch
      * @return ContentValues object containing the mapping from column name to value for the Bunch Recipes Table
      */
-    private ContentValues createContentValues(int bunch_id, int recipe_id) {
+    private ContentValues createContentValues(Bunch b, Recipe r) {
         ContentValues values = new ContentValues();
-        values.put(BUNCH_RECIPE_COLUMNS[0], bunch_id);
-        values.put(BUNCH_RECIPE_COLUMNS[1], recipe_id);
+        values.put(BUNCH_RECIPE_COLUMNS[0], b.getObjectId());
+        values.put(BUNCH_RECIPE_COLUMNS[1], r.getObjectId());
         return values;
     }
 
@@ -442,6 +461,59 @@ public class SQLiteAccessor implements SQLAccessor {
         @Override
         public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
             //do nothing for now
+        }
+    }
+
+    /**
+     * Returns the row ID of the row inserted by the last INSERT statement
+     * @param db the database to access
+     * @return the row ID of the most recently inserted row
+     */
+    private static long lastInsertRowId(SQLiteDatabase db) {
+        final Cursor result = db.rawQuery("SELECT last_insert_rowid()", new String[0]);
+        try {
+            if (!result.moveToFirst()) {
+                throw new IllegalStateException("No last insert ID");
+            }
+            return result.getLong(0);
+        }
+        finally {
+            result.close();
+        }
+    }
+
+    /**
+     * Helper that initiates the counters used to assign ids
+     * This is necessary because when a user quits the app this class will be destroyed but the underlying database remains
+     * Therefore in order to make sure there are no id collisions we need to check if there are already records in the database
+     * and set the counter to the highest id in the database + 1
+     * If an error occurs trying to query the database the counters will be set to 0
+     */
+    private void setupCounters() {
+        try {
+            SQLiteDatabase db = helper.getReadableDatabase();
+            String[] column = {"id"};
+            Cursor recipes = db.query(RECIPE_TABLE_NAME, column, null, null, null, null, "id DESC",
+                    "1");
+            if (recipes != null) {
+                recipes.moveToFirst();
+                recipe_counter = recipes.getLong(0);
+                recipe_counter++;
+            } else {
+                recipe_counter = 0;
+            }
+            Cursor bunches = db.query(BUNCH_TABLE_NAME, column, null, null, null, null, "id DESC",
+                    "1");
+            if (bunches != null) {
+                bunches.moveToFirst();
+                bunch_counter = bunches.getLong(0);
+                bunch_counter++;
+            } else {
+                bunch_counter = 0;
+            }
+        } catch (Exception e) {
+            recipe_counter = 0;
+            bunch_counter = 0;
         }
     }
 }
