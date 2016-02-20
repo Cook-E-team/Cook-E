@@ -75,6 +75,8 @@ public class RecipeList extends Fragment {
         View view = inflater.inflate(R.layout.fragment_home_list, container, false);
         final ListView recipeList = (ListView) view.findViewById(R.id.list_view);
         recipeList.setAdapter(new RecipeListAdapter(getActivity(), mRecipes));
+        // Configure list for testing
+        recipeList.setTag(R.id.test_tag_recipe_list, "Recipe List");
 
         // Set up floating action button
         final FloatingActionButton floatingButton = (FloatingActionButton) view.findViewById(R.id.add_button);

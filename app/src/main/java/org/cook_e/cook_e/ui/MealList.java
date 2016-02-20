@@ -71,6 +71,8 @@ public class MealList extends Fragment {
 
         final ListView list = (ListView) view.findViewById(R.id.list_view);
         list.setAdapter(new MealListAdapter(getActivity(), mMeals));
+        // Configure list for testing
+        list.setTag(R.id.test_tag_meal_list, "Meal List");
 
         // Set up floating action button
         final FloatingActionButton floatingButton = (FloatingActionButton) view.findViewById(R.id.add_button);
