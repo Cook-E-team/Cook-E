@@ -1,4 +1,3 @@
-
 /* Copyright 2016 the Cook-E development team
  *
  * This file is part of Cook-E.
@@ -23,7 +22,6 @@ import android.content.Context;
 import android.support.test.InstrumentationRegistry;
 
 import org.cook_e.data.Bunch;
-import org.cook_e.data.Pair;
 import org.cook_e.data.Recipe;
 import org.cook_e.data.SQLiteAccessor;
 import org.cook_e.data.Step;
@@ -32,114 +30,102 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
+/**
+ * Tests the {@link SQLiteAccessor} class
+ */
 public class SqliteUnitTest {
-    private Context mContext;
     private SQLiteAccessor accessor;
+
     @Before
     public void setup() {
         StorageParser parser = new StorageParser();
-        mContext = InstrumentationRegistry.getTargetContext();
-        accessor = new SQLiteAccessor(mContext, parser);
+        final Context context = InstrumentationRegistry.getTargetContext();
+        accessor = new SQLiteAccessor(context, parser);
 
     }
+
     @After
-    public void teardown() {
+    public void teardown() throws SQLException {
         accessor.clearAllTables();
         accessor = null;
 
     }
+
     @Test
-    public void testTableInsert() {
+    public void testTableInsert() throws SQLException {
         Recipe r = RecipeUnitTest.createGenericRecipe("My Recipe", "Kyle Woo", 0, 0, 5, false);
-        try {
         accessor.storeRecipe(r);
         Recipe result = accessor.loadRecipe("My Recipe", "Kyle Woo");
-            assertEquals(r, result);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        assertEquals(r, result);
 
     }
+
     @Test
-    public void testTableDelete() {
+    public void testTableDelete() throws SQLException {
         Recipe r = RecipeUnitTest.createGenericRecipe("My Recipe", "Kyle Woo", 0, 0, 5, false);
-        try {
-            accessor.storeRecipe(r);
-            accessor.deleteRecipe(r);
-            Recipe result = accessor.loadRecipe("My Recipe", "Kyle Woo");
-            assertNull(result);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        accessor.storeRecipe(r);
+        accessor.deleteRecipe(r);
+        Recipe result = accessor.loadRecipe("My Recipe", "Kyle Woo");
+        assertNull(result);
     }
+
     @Test
-    public void testTableEdit() {
+    public void testTableEdit() throws SQLException {
         Recipe r = RecipeUnitTest.createGenericRecipe("My Recipe", "Kyle Woo", 0, 0, 5, false);
         Recipe edited_r = RecipeUnitTest.createGenericRecipe("My Recipe", "Kyle Woo", 1, 1, 5,
                 false);
         Step s = StepUnitTest.createGenericStep(0, 0, 5, false);
         Step edited_s = StepUnitTest.createGenericStep(1, 1, 5, false);
-        List<Step> steps = new ArrayList<Step>();
+        List<Step> steps = new ArrayList<>();
         steps.add(edited_s);
-        try {
         accessor.storeRecipe(r);
         Recipe result = accessor.loadRecipe("My Recipe", "Kyle Woo");
         assertEquals(r, result);
-            r.setSteps(steps);
+        r.setSteps(steps);
 
         accessor.editRecipe(r);
         result = accessor.loadRecipe("My Recipe", "Kyle Woo");
         assertEquals(edited_r, result);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
+
     @Test
-    public void testBunchInsert() {
+    public void testBunchInsert() throws SQLException {
         Recipe r = RecipeUnitTest.createGenericRecipe("My Recipe", "Kyle Woo", 0, 0, 5, false);
-        ArrayList<Recipe> recipes = new ArrayList<Recipe>();
+        ArrayList<Recipe> recipes = new ArrayList<>();
         recipes.add(r);
-        try {
         accessor.storeRecipe(r);
         Bunch b = new Bunch("My Bunch", recipes);
         accessor.storeBunch(b);
         Bunch result = accessor.loadBunch("My Bunch");
         assertEquals(b, result);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
+
     @Test
-    public void testBunchDelete() {
+    public void testBunchDelete() throws SQLException {
         Recipe r = RecipeUnitTest.createGenericRecipe("My Recipe", "Kyle Woo", 0, 0, 5, false);
-        ArrayList<Recipe> recipes = new ArrayList<Recipe>();
+        ArrayList<Recipe> recipes = new ArrayList<>();
         recipes.add(r);
-        try {
         accessor.storeRecipe(r);
         Bunch b = new Bunch("My Bunch", recipes);
         accessor.storeBunch(b);
         accessor.deleteBunch(b);
         Bunch result = accessor.loadBunch("My Bunch");
         assertNull(result);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
+
     @Test
-    public void testBunchEdit() {
+    public void testBunchEdit() throws SQLException {
         Recipe r = RecipeUnitTest.createGenericRecipe("My Recipe", "Kyle Woo", 0, 0, 5, false);
         Recipe r2 = RecipeUnitTest.createGenericRecipe("My Recipe 2", "Kyle Woo", 0, 0, 5, false);
-        ArrayList<Recipe> recipes = new ArrayList<Recipe>();
+        ArrayList<Recipe> recipes = new ArrayList<>();
         recipes.add(r);
-        try {
         accessor.storeRecipe(r);
         accessor.storeRecipe(r2);
         Bunch b = new Bunch("My Bunch", recipes);
@@ -152,9 +138,6 @@ public class SqliteUnitTest {
         accessor.editBunch(b);
         result = accessor.loadBunch("My Bunch");
         assertEquals(b, result);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
     /*
     @Test

@@ -23,50 +23,62 @@ import android.content.Context;
 
 
 import java.sql.SQLException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
- * Class that handles storing and retrieving recipes and bunches from the local database and external database
+ * Class that handles storing and retrieving recipes and bunches from the local database and
+ * external database
+ *
+ * Objects that may be stored in the database can have object IDs, as specified by the
+ * {@link DatabaseObject} class. Newly created objects have no ID. When an object is inserted,
+ * the insert method changes the ID of the inserted object to match the ID of the entry in
+ * the database.
  */
 public class StorageAccessor {
-    private SQLAccessor local;
-    private SQLAccessor external;
-    private StorageParser parser;
+
+    /**
+     * The local database accessor
+     */
+    private SQLAccessor mLocal;
+    /**
+     * The remote database accessor
+     */
+    private SQLAccessor mExternal;
+
     /**
      * Constructor
      * @param c Context of the activity that wants to store/retrieve data
      */
     public StorageAccessor(Context c) {
-        parser = new StorageParser();
-        local = new SQLiteAccessor(c, parser);
-        external = new SQLServerAccessor(parser);
+        final StorageParser parser = new StorageParser();
+        mLocal = new SQLiteAccessor(c, parser);
+        mExternal = new SQLServerAccessor(parser);
     }
 
     /**
      * Store a recipe onto the local database
+     *
      * @param r Recipe to store
+     * @throws IllegalArgumentException if the provided recipe already has an object ID
      */
     public void storeRecipe(Recipe r) throws SQLException {
-        try {
-            local.storeRecipe(r);
-        } catch (Exception e) {
-            throw new SQLException(e);
+        if (r.hasObjectId()) {
+            throw new IllegalArgumentException("Recipe has already been stored");
         }
+        mLocal.storeRecipe(r);
     }
 
     /**
      * Store a bunch onto the local database
      * Assumes that all recipes in the bunch are stored already
-     * @param b
+     * @param b the bunch to store
+     * @throws IllegalArgumentException if the provided bunch already has an object ID
      */
     public void storeBunch(Bunch b) throws SQLException {
-        try {
-            local.storeBunch(b);
-        } catch (Exception e) {
-            throw new SQLException(e);
+        if (b.hasObjectId()) {
+            throw new IllegalArgumentException("Bunch has already been stored");
         }
+        mLocal.storeBunch(b);
     }
 
     /**
@@ -76,11 +88,7 @@ public class StorageAccessor {
      * @return Recipe object or null if recipe could not be found
      */
     public Recipe loadRecipe(String title, String author) throws SQLException {
-        try {
-            return local.loadRecipe(title, author);
-        } catch (Exception e) {
-            throw new SQLException(e);
-        }
+        return mLocal.loadRecipe(title, author);
     }
 
     /**
@@ -89,11 +97,7 @@ public class StorageAccessor {
      * @return Bunch object or null if bunch could not be found
      */
     public Bunch loadBunch(String name) throws SQLException {
-        try {
-            return local.loadBunch(name);
-        } catch (Exception e) {
-            throw new SQLException(e);
-        }
+        return mLocal.loadBunch(name);
     }
 
     /**
@@ -101,13 +105,7 @@ public class StorageAccessor {
      * @return List of Recipe objects
      */
     public List<Recipe> loadAllRecipes() throws SQLException {
-        List<Recipe> recipes = null;
-        try {
-            recipes = local.loadAllRecipes();
-        } catch (Exception e) {
-            throw new SQLException(e);
-        }
-        return recipes;
+        return mLocal.loadAllRecipes();
     }
 
     /**
@@ -115,61 +113,54 @@ public class StorageAccessor {
      * @return List of Bunch objects
      */
     public List<Bunch> loadAllBunches() throws SQLException {
-        List<Bunch> bunches = null;
-        try {
-            bunches = local.loadAllBunches();
-        } catch (Exception e) {
-            throw new SQLException(e);
-        }
-        return bunches;
+        return mLocal.loadAllBunches();
     }
     /**
      * Update a recipe on the local database
      * @param r Recipe to update
+     * @throws IllegalArgumentException if the recipe has not been stored in this database
      */
     public void editRecipe(Recipe r) throws SQLException {
-        try {
-            local.editRecipe(r);
-        } catch (Exception e) {
-            throw new SQLException(e);
+        if (!r.hasObjectId()) {
+            throw new IllegalArgumentException("Recipe has not been stored");
         }
-
+        mLocal.editRecipe(r);
     }
 
     /**
      * update a bunch on the local database
      * @param b Bunch to update
+     * @throws IllegalArgumentException if the bunch has not been stored in this database
      */
     public void editBunch(Bunch b) throws SQLException {
-        try {
-            local.editBunch(b);
-        } catch (Exception e) {
-            throw new SQLException(e);
+        if (!b.hasObjectId()) {
+            throw new IllegalArgumentException("Bunch has not been stored");
         }
+        mLocal.editBunch(b);
     }
 
 
     /**
      * delete a recipe on the local database
      * @param r Recipe to delete
+     * @throws IllegalArgumentException if the recipe has not been stored in this database
      */
     public void deleteRecipe(Recipe r) throws SQLException {
-        try {
-            local.deleteRecipe(r);
-        } catch (Exception e) {
-            throw new SQLException(e);
+        if (!r.hasObjectId()) {
+            throw new IllegalArgumentException("Recipe has not been stored");
         }
+        mLocal.deleteRecipe(r);
     }
 
     /**
      * delete a bunch on the local database
      * @param b Bunch to delete
+     * @throws IllegalArgumentException if the bunch has not been stored in this database
      */
     public void deleteBunch(Bunch b) throws SQLException {
-        try {
-            local.deleteBunch(b);
-        } catch (Exception e) {
-            throw new SQLException(e);
+        if (!b.hasObjectId()) {
+            throw new IllegalArgumentException("Bunch has not been stored");
         }
+        mLocal.deleteBunch(b);
     }
 }
