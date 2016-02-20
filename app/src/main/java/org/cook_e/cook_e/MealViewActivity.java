@@ -155,7 +155,9 @@ public class MealViewActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.schedule:
                 // User chose the "schedule" item,
-                final Intent intent = new Intent(MealViewActivity.this, SchedulerActivity.class);
+                final Intent intent = new Intent(MealViewActivity.this, CookActivity.class);
+                // TODO: Provide correct extra key
+                intent.putExtra("change this", mMeal);
                 startActivity(intent);
                 return true;
 
