@@ -41,29 +41,26 @@ import static org.junit.Assert.assertNull;
 public class SqliteUnitTest {
     private Context mContext;
     private SQLiteAccessor accessor;
-    private Map<Pair<String, String>, Integer> recipe_ids;
     @Before
     public void setup() {
         StorageParser parser = new StorageParser();
         mContext = InstrumentationRegistry.getTargetContext();
         accessor = new SQLiteAccessor(mContext, parser);
-        recipe_ids = new HashMap<Pair<String, String>, Integer>();
 
     }
     @After
     public void teardown() {
+        accessor.clearAllTables();
         accessor = null;
-        recipe_ids = null;
+
     }
     @Test
     public void testTableInsert() {
         Recipe r = RecipeUnitTest.createGenericRecipe("My Recipe", "Kyle Woo", 0, 0, 5, false);
-        int id = 1;
         try {
-        accessor.storeRecipe(r, id);
-        Recipe result = accessor.loadRecipe(id);
+        accessor.storeRecipe(r);
+        Recipe result = accessor.loadRecipe("My Recipe", "Kyle Woo");
             assertEquals(r, result);
-
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -74,9 +71,9 @@ public class SqliteUnitTest {
         Recipe r = RecipeUnitTest.createGenericRecipe("My Recipe", "Kyle Woo", 0, 0, 5, false);
         int id = 1;
         try {
-            accessor.storeRecipe(r, id);
-            accessor.deleteRecipe(id);
-            Recipe result = accessor.loadRecipe(id);
+            accessor.storeRecipe(r);
+            accessor.deleteRecipe(r);
+            Recipe result = accessor.loadRecipe("My Recipe", "Kyle Woo");
             assertNull(result);
         } catch (Exception e) {
             e.printStackTrace();
@@ -86,13 +83,12 @@ public class SqliteUnitTest {
     public void testTableEdit() {
         Recipe r = RecipeUnitTest.createGenericRecipe("My Recipe", "Kyle Woo", 0, 0, 5, false);
         Recipe edited_r = RecipeUnitTest.createGenericRecipe("My Recipe", "Kyle Woo", 1, 1, 5, false);
-        int id = 1;
         try {
-        accessor.storeRecipe(r, id);
-        Recipe result = accessor.loadRecipe(id);
+        accessor.storeRecipe(r);
+        Recipe result = accessor.loadRecipe("My Recipe", "Kyle Woo");
         assertEquals(r, result);
-        accessor.editRecipe(edited_r, id);
-        result = accessor.loadRecipe(id);
+        accessor.editRecipe(edited_r);
+        result = accessor.loadRecipe("My Recipe", "Kyle Woo");
         assertEquals(edited_r, result);
         } catch (Exception e) {
             e.printStackTrace();
@@ -101,15 +97,13 @@ public class SqliteUnitTest {
     @Test
     public void testBunchInsert() {
         Recipe r = RecipeUnitTest.createGenericRecipe("My Recipe", "Kyle Woo", 0, 0, 5, false);
-        int recipe_id = 1;
-        int bunch_id = 1;
         ArrayList<Recipe> recipes = new ArrayList<Recipe>();
         recipes.add(r);
         try {
-        accessor.storeRecipe(r, 1);
+        accessor.storeRecipe(r);
         Bunch b = new Bunch("My Bunch", recipes);
-        accessor.storeBunch(b, bunch_id, recipe_ids);
-        Bunch result = accessor.loadBunch(bunch_id);
+        accessor.storeBunch(b);
+        Bunch result = accessor.loadBunch("My Bunch");
         assertEquals(b, result);
         } catch (Exception e) {
             e.printStackTrace();
@@ -118,16 +112,14 @@ public class SqliteUnitTest {
     @Test
     public void testBunchDelete() {
         Recipe r = RecipeUnitTest.createGenericRecipe("My Recipe", "Kyle Woo", 0, 0, 5, false);
-        int recipe_id = 1;
-        int bunch_id = 1;
         ArrayList<Recipe> recipes = new ArrayList<Recipe>();
         recipes.add(r);
         try {
-        accessor.storeRecipe(r, 1);
+        accessor.storeRecipe(r);
         Bunch b = new Bunch("My Bunch", recipes);
-        accessor.storeBunch(b, bunch_id, recipe_ids);
-        accessor.deleteBunch(bunch_id);
-        Bunch result = accessor.loadBunch(bunch_id);
+        accessor.storeBunch(b);
+        accessor.deleteBunch(b);
+        Bunch result = accessor.loadBunch("My Bunch");
         assertNull(result);
         } catch (Exception e) {
             e.printStackTrace();
@@ -136,24 +128,21 @@ public class SqliteUnitTest {
     @Test
     public void testBunchEdit() {
         Recipe r = RecipeUnitTest.createGenericRecipe("My Recipe", "Kyle Woo", 0, 0, 5, false);
-        int recipe_id = 1;
         Recipe r2 = RecipeUnitTest.createGenericRecipe("My Recipe 2", "Kyle Woo", 0, 0, 5, false);
-        int recipe2_id = 2;
-        int bunch_id = 1;
         ArrayList<Recipe> recipes = new ArrayList<Recipe>();
         recipes.add(r);
         try {
-        accessor.storeRecipe(r, recipe_id);
-        accessor.storeRecipe(r2, recipe2_id);
+        accessor.storeRecipe(r);
+        accessor.storeRecipe(r2);
         Bunch b = new Bunch("My Bunch", recipes);
-        accessor.storeBunch(b, bunch_id, recipe_ids);
-        Bunch result = accessor.loadBunch(bunch_id);
+        accessor.storeBunch(b);
+        Bunch result = accessor.loadBunch("My Bunch");
         assertEquals(b, result);
         recipes.clear();
         recipes.add(r2);
         b.setRecipes(recipes);
-        accessor.editBunch(b, bunch_id, recipe_ids);
-        result = accessor.loadBunch(bunch_id);
+        accessor.editBunch(b);
+        result = accessor.loadBunch("My Bunch");
         assertEquals(b, result);
         } catch (Exception e) {
             e.printStackTrace();

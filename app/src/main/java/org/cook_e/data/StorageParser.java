@@ -48,7 +48,7 @@ public class StorageParser {
             String mDescription = step.substring(trailIndex, forwardIndex);
             trailIndex = forwardIndex + "', mTime=".length();
             forwardIndex = step.indexOf(", mIngredients=");
-            Duration time = Duration.standardMinutes(Integer.valueOf(step.substring(trailIndex, forwardIndex)));
+            Duration time = Duration.millis(Long.valueOf(step.substring(trailIndex, forwardIndex)));
             trailIndex = forwardIndex + ", mIngredients=".length();
             forwardIndex = step.indexOf(", mSimultaneous=");
             List<String> ingredients = toArrayList(step.substring(trailIndex, forwardIndex));

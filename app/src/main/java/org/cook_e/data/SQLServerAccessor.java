@@ -19,6 +19,7 @@
 
 package org.cook_e.data;
 
+import android.content.Context;
 import android.provider.ContactsContract;
 
 import java.sql.SQLException;
@@ -46,7 +47,6 @@ public class SQLServerAccessor implements SQLAccessor {
      * Parser used for transforming strings to recipes and recipes to strings
      */
     private StorageParser parser;
-
     /**
      * Constructor
      * @param parser StorageParser that can transform strings to recipes and recipes to strings
@@ -55,21 +55,33 @@ public class SQLServerAccessor implements SQLAccessor {
         this.parser = parser;
     }
 
-    public Recipe loadRecipe(int id) throws SQLException {
+
+    @Override
+    public Recipe loadRecipe(String name, String author) throws SQLException {
         return null;
     }
+    @Override
     public List<Recipe> findRecipesLike(String description) throws SQLException {
         return null;
     }
-    public void storeRecipe(Recipe r, int id) throws SQLException {};
-    public void editRecipe(Recipe r, int id) throws SQLException {};
+    @Override
+    public void storeRecipe(Recipe r) throws SQLException {}
+    @Override
+    public void editRecipe(Recipe r) throws SQLException {}
+    @Override
     public List<Recipe> loadAllRecipes() throws SQLException { return null; }
-    public void deleteRecipe(int id ) throws SQLException {};
-    public Bunch loadBunch(int id) throws SQLException { return null; };
-    public void storeBunch(Bunch b, int bunch_id, Map<Pair<String, String>, Integer> recipe_ids) throws SQLException { };
-    public void editBunch(Bunch b, int bunch_id, Map<Pair<String, String>, Integer> recipe_ids) throws SQLException { };
+    @Override
+    public void deleteRecipe(Recipe r) throws SQLException {}
+    @Override
+    public Bunch loadBunch(String name) throws SQLException { return null; }
+    @Override
+    public void storeBunch(Bunch b) throws SQLException { }
+    @Override
+    public void editBunch(Bunch b) throws SQLException { }
+    @Override
     public List<Bunch> loadAllBunches() throws SQLException { return null; }
-    public void deleteBunch(int id) throws SQLException { };
+    @Override
+    public void deleteBunch(Bunch b) throws SQLException { }
 
-
+    public void clearAllTables() {}
 }

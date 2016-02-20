@@ -187,7 +187,7 @@ public final class Step implements Parcelable {
     public String toString() {
         return "Step{" +
                 "mDescription='" + mDescription + '\'' +
-                ", mTime=" + mTime +
+                ", mTime=" + mTime.getMillis() +
                 ", mIngredients=" + ListToString(mIngredients) +
                 ", mSimultaneous=" + mSimultaneous +
                 '}';

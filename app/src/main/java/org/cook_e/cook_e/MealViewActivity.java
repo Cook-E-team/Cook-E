@@ -155,9 +155,16 @@ public class MealViewActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.start:
                 // User chose the "schedule" item,
-                final Intent intent = new Intent(MealViewActivity.this, CookActivity.class);
-                intent.putExtra(CookActivity.Bunch, mMeal);
-                startActivity(intent);
+                int amount = mMeal.getNumOfRecipes();
+                if (amount > 0) {
+                    final Intent intent = new Intent(MealViewActivity.this, CookActivity.class);
+                    intent.putExtra(CookActivity.Bunch, mMeal);
+                    startActivity(intent);
+                } else {
+                    new AlertDialog.Builder(MealViewActivity.this)
+                            .setMessage("You should have at least one recipe to start cooking.")
+                            .show();
+                }
                 return true;
 
             default:
