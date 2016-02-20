@@ -45,11 +45,11 @@ public class SQLiteAccessor implements SQLAccessor {
     /**
      * constant used to set ids for recipes
      */
-    private int recipe_counter;
+    private long recipe_counter;
     /**
      * constant used to set ids for bunches
      */
-    private int bunch_counter;
+    private long bunch_counter;
     /**
      * Constants for use in creating and accessing columns for the tables
      */
@@ -272,7 +272,7 @@ public class SQLiteAccessor implements SQLAccessor {
                 c.moveToFirst();
                 do {
                     List<Recipe> recipes = new ArrayList<Recipe>();
-                    int bunch_id = c.getInt(0);
+                    long bunch_id = c.getLong(0);
                     String name = c.getString(1);
                     String[] whereArgs = {String.valueOf(bunch_id)};
                     Cursor recipe_bunch_cursor = db.query(BUNCH_RECIPES_TABLE_NAME, BUNCH_RECIPE_COLUMNS, "bunch_id = ?", whereArgs,
