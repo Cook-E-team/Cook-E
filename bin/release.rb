@@ -167,6 +167,11 @@ if !result
     cancel_release
 end
 # Push
+result = system "git push"
+if !result
+    print_conspicuously ['Failed to push - release cancelled']
+    cancel_release
+end
 result = system "git push --tags"
 if !result
     print_conspicuously ['Failed to push - release cancelled']
