@@ -159,8 +159,8 @@ public class SQLiteAccessor implements SQLAccessor {
         try {
             SQLiteDatabase db = helper.getWritableDatabase();
             ContentValues values = createContentValues(r);
-            String[] whereArgs = {r.getTitle(), r.getAuthor()};
-            db.update(RECIPE_TABLE_NAME, values, "name = ? AND author = ?", whereArgs);
+            String[] whereArgs = {String.valueOf(r.getObjectId())};
+            db.update(RECIPE_TABLE_NAME, values, "id = ?", whereArgs);
             db.close();
         } catch (Exception e) {
             throw new SQLException(e);
