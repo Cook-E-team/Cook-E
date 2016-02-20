@@ -44,11 +44,7 @@ public final class StepDescriptionParser {
 
         Set<String> simulAction = new HashSet<String>(Arrays.asList("bake", "boil"));
 
-        if (description.contains("boil") || description.contains("bake")) {
-            return true;
-        } else {
-            return false;
-        }
+        return description.contains("boil") || description.contains("bake");
     }
 
     /**

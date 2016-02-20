@@ -162,7 +162,7 @@ public final class Bunch extends DatabaseObject implements Parcelable {
      * Remove all recipes in this bunch
      */
     public void clearRecipes() {
-    	mRecipes.clear();;
+    	mRecipes.clear();
     }
 
     @Override

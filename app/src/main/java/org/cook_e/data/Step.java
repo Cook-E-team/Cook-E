@@ -159,7 +159,7 @@ public final class Step implements Parcelable {
      * Returns if this step can be done simultaneously
      * @return true if this step can be done simultaneously
      */
-    public boolean isSimultaneous() { return mSimultaneous; };
+    public boolean isSimultaneous() { return mSimultaneous; }
 
     @Override
     public boolean equals(Object o) {
