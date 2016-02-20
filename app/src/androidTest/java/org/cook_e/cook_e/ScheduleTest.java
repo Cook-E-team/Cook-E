@@ -1,113 +1,154 @@
+
+/* Copyright 2016 the Cook-E development team
+ *
+ * This file is part of Cook-E.
+ *
+ * Cook-E is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Cook-E is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Cook-E.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package org.cook_e.cook_e;
 
-/**
- * Created by Shan Yaang on 2/17/2016.
- */
-import android.os.Parcel;
-import android.util.Log;
+import android.content.Context;
+import android.support.test.InstrumentationRegistry;
 
 import org.cook_e.data.Bunch;
+import org.cook_e.data.Pair;
 import org.cook_e.data.Recipe;
+import org.cook_e.data.SQLiteAccessor;
 import org.cook_e.data.Schedule;
 import org.cook_e.data.Step;
+import org.cook_e.data.StorageParser;
 import org.joda.time.Duration;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 public class ScheduleTest {
-    final String scallops = "Scallops";
+    public List<String> ingre = new ArrayList<String>();
+    public final Step fiveNonSimul = new Step(ingre, "t1", Duration.standardMinutes(5), false);
+    public final Step tenNonSimul = new Step(ingre, "t1", Duration.standardMinutes(10), false);
+    public final Step sevenNonSimul = new Step(ingre, "t1", Duration.standardMinutes(7), false);
+
+    public final Step fiveSimul = new Step(ingre, "t1", Duration.standardMinutes(5), true);
+    public final Step tenSimul = new Step(ingre, "t1", Duration.standardMinutes(10), true);
+    public final Step sevenSimul = new Step(ingre, "t1", Duration.standardMinutes(7), true);
 
     @Test
-    public void testTwoNonSimulRecipeScheduler() {
-        //TODO
-        final Step step0 = new Step(Collections.singletonList(scallops), "Gently poach the scallops", Duration.standardMinutes(3), false);
-        final Step step1 = new Step(Collections.singletonList(scallops), "Aggresively poach the scallops", Duration.standardMinutes(3), false);
-        List<Step> testSteps = new ArrayList<>();
-        testSteps.add(step0);
-        testSteps.add(step1);
-        Recipe original = new Recipe("Recipe title", "Clamify Flumingaster", testSteps);
-        List<Recipe> testList = new ArrayList<>();
-        testList.add(original);
-        testList.add(original);
-        Bunch testBunch = new Bunch("test me", testList);
-        Schedule schedule = new Schedule(testBunch);
-        assertEquals(schedule.getStepCount(), 4);
-        for(int i = 0; i < 4; i++) {
-            assertEquals((i % 2 == 0) ? step0 : step1, schedule.getNextStep());
+    public void testSchedule1nonSimul() {
+        List<Step> steps = new ArrayList<Step>();
+        steps.add(fiveNonSimul);
+        steps.add(sevenNonSimul);
+        List<Recipe> recipies = new ArrayList<>();
+        Recipe recipeN5N5 = new Recipe("N5N7", "test", steps);
+        recipies.add(recipeN5N5);
+        Bunch bunch = new Bunch("test", recipies);
+        Schedule sched = new Schedule(bunch);
+        assertEquals(recipeN5N5.getSteps().size(), sched.getStepCount());
+        for(int i = 0; i < sched.getStepCount(); i++) {
+            assertEquals(recipeN5N5.getSteps().get(i), sched.getNextStep());
         }
     }
 
     @Test
-    public void test1NonSimul1SimulRecipeScheduler() {
-        //TODO
-        final Step step0 = new Step(Collections.singletonList(scallops), "Gently poach the scallops", Duration.standardMinutes(3), true);
-        final Step step1 = new Step(Collections.singletonList(scallops), "Aggresively poach the scallops", Duration.standardMinutes(3), false);
-        final Step step2 = new Step(Collections.singletonList(scallops), "Aggresively bake the scallops", Duration.standardMinutes(3), true);
-        List<Step> testSteps0 = new ArrayList<>();
-        testSteps0.add(step1);
-        testSteps0.add(step1);
-        List<Step> testSteps1 = new ArrayList<>();
-        testSteps1.add(step0);
-        testSteps1.add(step2);
-        Recipe original0 = new Recipe("r0", "Clamify Flumingaster", testSteps0);
-        Recipe original1 = new Recipe("r1", "Clamify Flumingaster", testSteps1);
-        List<Recipe> testList = new ArrayList<>();
-        testList.add(original0);
-        testList.add(original1);
-        Bunch testBunch = new Bunch("test me", testList);
-        Schedule schedule = new Schedule(testBunch);
-        assertEquals(schedule.getStepCount(), 4);
-        assertEquals(step0, schedule.getNextStep());
-        assertEquals(step2, schedule.getNextStep());
-        assertEquals(step1, schedule.getNextStep());
-        assertEquals(step1, schedule.getNextStep());
+    public void testSchedule2nonSimul() {
+        List<Step> steps = new ArrayList<Step>();
+        steps.add(fiveNonSimul);
+        steps.add(sevenNonSimul);
+        List<Recipe> recipies = new ArrayList<>();
+        Recipe recipeN5N7 = new Recipe("N5N5", "test", steps);
+        recipies.add(recipeN5N7);
+        steps.clear();
+        steps.add(tenNonSimul);
+        steps.add(tenNonSimul);
+        Recipe recipeN10N10 = new Recipe("N10N10", "test", steps);
+        recipies.add(recipeN10N10);
+        Bunch bunch = new Bunch("test", recipies);
+        Schedule sched = new Schedule(bunch);
+        assertEquals(4, sched.getStepCount());
+        for(int i = 0; i < sched.getStepCount(); i++) {
+            assertEquals((i < 2) ? recipeN5N7.getSteps().get(i) :
+                            recipeN10N10.getSteps().get(i - 2),
+                    sched.getNextStep());
+        }
     }
 
     @Test
-    public void test1NonSimul2SimulRecipeScheduler() {
-        //TODO
-        final Step step0 = new Step(Collections.singletonList(scallops), "Gently poach the scallops", Duration.standardMinutes(3), false);
-        final Step step1 = new Step(Collections.singletonList(scallops), "Aggresively poach the scallops", Duration.standardMinutes(3), true);
-        final Step step2 = new Step(Collections.singletonList(scallops), "Aggresively bake the scallops", Duration.standardMinutes(3), false);
-        final Step step3 = new Step(Collections.singletonList(scallops), "Aggresively smash the scallops", Duration.standardMinutes(3), true);
-        final Step step4 = new Step(Collections.singletonList(scallops), "Aggresively boil the scallops", Duration.standardMinutes(3), false);
-        List<Step> testSteps0 = new ArrayList<Step>();
-        testSteps0.add(step1);
-        testSteps0.add(step1);
-        List<Step> testSteps1 = new ArrayList<Step>();
-        testSteps1.add(step0);
-        testSteps1.add(step2);
-        List<Step> testSteps2 = new ArrayList<Step>();
-        testSteps2.add(step3);
-        testSteps2.add(step4);
-        testSteps2.add(step3);
-        Recipe original0 = new Recipe("r0", "Clamify Flumingaster", testSteps0);
-        Recipe original1 = new Recipe("r1", "Clamify Flumingaster", testSteps1);
-        Recipe original2 = new Recipe("r2", "dope", testSteps2);
-        List<Recipe> testList = new ArrayList<Recipe>();
-        testList.add(original0);
-        testList.add(original1);
-        testList.add(original2);
-        Bunch testBunch = new Bunch("test me", testList);
-        Schedule schedule = new Schedule(testBunch);
-        assertEquals(schedule.getStepCount(), 7);
+    public void testSchedule1nonSimul1Simul() {
         List<Step> steps = new ArrayList<Step>();
-        for (int i = 0; i < 7; i++) steps.add(schedule.getNextStep());
-        Log.v("Schedule Test", steps.toString());
-        List<Step> expected_steps = new ArrayList<Step>();
-        expected_steps.add(step3);
-        expected_steps.add(step4);
-        expected_steps.add(step0);
-        expected_steps.add(step2);
-        expected_steps.add(step3);
-        expected_steps.add(step1);
-        expected_steps.add(step1);
+        steps.add(fiveNonSimul);
+        steps.add(sevenNonSimul);
+        List<Recipe> recipies = new ArrayList<>();
+        Recipe recipeN5N7 = new Recipe("N5N5", "test", steps);
+        recipies.add(recipeN5N7);
+        steps.clear();
+        steps.add(tenSimul);
+        steps.add(tenNonSimul);
+        Recipe recipe10N10 = new Recipe("10N10", "test", steps);
+        recipies.add(recipe10N10);
+        Bunch bunch = new Bunch("test", recipies);
+        Schedule sched = new Schedule(bunch);
+        assertEquals(4, sched.getStepCount());
+        steps.clear();
+        steps.add(tenSimul);
+        steps.add(fiveNonSimul);
+        steps.add(sevenNonSimul);
+        steps.add(tenNonSimul);
+        for(int i = 0; i < sched.getStepCount(); i++) {
+            assertEquals(steps.get(i),
+                    sched.getNextStep());
+        }
+    }
 
-        assertEquals(expected_steps, steps);
+    @Test
+    public void testSchedule2Simul() {
+        List<Step> steps = new ArrayList<Step>();
+        steps.add(fiveNonSimul);
+        steps.add(sevenNonSimul);
+        List<Recipe> recipies = new ArrayList<>();
+        Recipe recipeN5N7 = new Recipe("N5N5", "test", steps);
+        recipies.add(recipeN5N7);
+        steps.clear();
+        steps.add(tenSimul);
+        steps.add(tenNonSimul);
+        Recipe recipe10N10 = new Recipe("10N10", "test", steps);
+        recipies.add(recipe10N10);
+        steps.clear();
+        steps.add(fiveNonSimul);
+        steps.add(tenSimul);
+        Recipe recipeN5Y10 = new Recipe("N5Y10", "test", steps);
+        recipies.add(recipeN5Y10);
+        Bunch bunch = new Bunch("test", recipies);
+        Schedule sched = new Schedule(bunch);
+        assertEquals(6, sched.getStepCount());
+        steps.clear();
+        steps.add(tenSimul);
+        steps.add(fiveNonSimul);
+        steps.add(tenSimul);
+        steps.add(fiveNonSimul);
+        steps.add(sevenNonSimul);
+        steps.add(tenNonSimul);
+        for(int i = 0; i < sched.getStepCount(); i++) {
+            assertEquals(steps.get(i),
+                    sched.getNextStep());
+        }
     }
 }

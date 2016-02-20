@@ -150,6 +150,12 @@ public final class Step implements Parcelable {
     }
 
     /**
+     * Returns the duration of this step in minutes
+     * @return the duration in minutes reprsented by an int
+     */
+    @NonNull
+    public int getIntTime() { return (int) mTime.getStandardMinutes(); }
+    /**
      * Returns if this step can be done simultaneously
      * @return true if this step can be done simultaneously
      */
