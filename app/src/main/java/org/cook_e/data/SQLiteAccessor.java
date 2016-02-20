@@ -103,8 +103,7 @@ public class SQLiteAccessor implements SQLAccessor {
     public SQLiteAccessor(Context c, StorageParser parser) {
         helper = new RecipeOpenHelper(c);
         this.parser = parser;
-        recipe_counter = 0;
-        bunch_counter = 0;
+        setupCounters();
     }
 
     /**
@@ -480,6 +479,41 @@ public class SQLiteAccessor implements SQLAccessor {
         }
         finally {
             result.close();
+        }
+    }
+
+    /**
+     * Helper that initiates the counters used to assign ids
+     * This is necessary because when a user quits the app this class will be destroyed but the underlying database remains
+     * Therefore in order to make sure there are no id collisions we need to check if there are already records in the database
+     * and set the counter to the highest id in the database + 1
+     * If an error occurs trying to query the database the counters will be set to 0
+     */
+    private void setupCounters() {
+        try {
+            SQLiteDatabase db = helper.getReadableDatabase();
+            String[] column = {"id"};
+            Cursor recipes = db.query(RECIPE_TABLE_NAME, column, null, null, null, null, "id DESC",
+                    "1");
+            if (recipes != null) {
+                recipes.moveToFirst();
+                recipe_counter = recipes.getLong(0);
+                recipe_counter++;
+            } else {
+                recipe_counter = 0;
+            }
+            Cursor bunches = db.query(BUNCH_TABLE_NAME, column, null, null, null, null, "id DESC",
+                    "1");
+            if (bunches != null) {
+                bunches.moveToFirst();
+                bunch_counter = bunches.getLong(0);
+                bunch_counter++;
+            } else {
+                bunch_counter = 0;
+            }
+        } catch (Exception e) {
+            recipe_counter = 0;
+            bunch_counter = 0;
         }
     }
 }
