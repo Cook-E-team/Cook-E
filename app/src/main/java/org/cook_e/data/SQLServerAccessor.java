@@ -20,12 +20,16 @@
 package org.cook_e.data;
 
 import android.provider.ContactsContract;
+
+import java.sql.SQLException;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Map;
+
 /**
  * This class implements methods for storing and accessing an external sqlserver database
  */
-public class SQLServerAccessor {
+public class SQLServerAccessor implements SQLAccessor {
     /**
      * Connection token that will be used to setup a connection with the sqlserver database
      */
@@ -51,16 +55,21 @@ public class SQLServerAccessor {
         this.parser = parser;
     }
 
-    /**
-     * Search for a recipe
-     * @param title
-     * @param author
-     * @return
-     */
-    public Recipe findRecipe(String title, String author) {
+    public Recipe loadRecipe(int id) throws SQLException {
         return null;
     }
-    public List<Recipe> findRecipeLike(String description) {
+    public List<Recipe> findRecipesLike(String description) throws SQLException {
         return null;
     }
+    public void storeRecipe(Recipe r, int id) throws SQLException {};
+    public void editRecipe(Recipe r, int id) throws SQLException {};
+    public List<Recipe> loadAllRecipes() throws SQLException { return null; }
+    public void deleteRecipe(int id ) throws SQLException {};
+    public Bunch loadBunch(int id) throws SQLException { return null; };
+    public void storeBunch(Bunch b, int bunch_id, Map<Pair<String, String>, Integer> recipe_ids) throws SQLException { };
+    public void editBunch(Bunch b, int bunch_id, Map<Pair<String, String>, Integer> recipe_ids) throws SQLException { };
+    public List<Bunch> loadAllBunches() throws SQLException { return null; }
+    public void deleteBunch(int id) throws SQLException { };
+
+
 }

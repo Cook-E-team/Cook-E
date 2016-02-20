@@ -19,68 +19,48 @@
 
 package org.cook_e.cook_e.ui;
 
-import android.content.Context;
-import android.content.Intent;
-import android.net.Uri;
-import android.os.Bundle;
+import android.app.AlertDialog;
 import android.app.Fragment;
+import android.databinding.ObservableArrayList;
+import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
 
+import org.cook_e.cook_e.App;
 import org.cook_e.cook_e.R;
+import org.cook_e.data.Bunch;
+
+import java.sql.SQLException;
 
 /**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link MealList.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link MealList#newInstance} factory method to
- * create an instance of this fragment.
+ * A fragment that displays a simple list of meals
  */
 public class MealList extends Fragment {
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-
-
-    public MealList() {
-        // Required empty public constructor
-    }
+    private static final String TAG = MealList.class.getSimpleName();
 
     /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment MealList.
+     * The meals to display
      */
-    // TODO: Rename and change types and number of parameters
-    public static MealList newInstance(String param1, String param2) {
-        MealList fragment = new MealList();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
+    private ObservableArrayList<Bunch> mMeals;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
 
+        mMeals = new ObservableArrayList<>();
+        try {
+            mMeals.addAll(App.getAccessor().loadAllBunches());
+        } catch (SQLException e) {
+            new AlertDialog.Builder(getActivity())
+                    .setTitle("Failed to load recipes")
+                    .setMessage(e.getLocalizedMessage())
+                    .show();
+            Log.e(TAG, "Failed to load recipes", e);
+        }
     }
 
     @Override
@@ -88,7 +68,9 @@ public class MealList extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_home_list, container, false);
-        view.findViewById(R.id.list_view);
+
+        final ListView list = (ListView) view.findViewById(R.id.list_view);
+        list.setAdapter(new MealListAdapter(getActivity(), mMeals));
 
         // Set up floating action button
         final FloatingActionButton floatingButton = (FloatingActionButton) view.findViewById(R.id.add_button);

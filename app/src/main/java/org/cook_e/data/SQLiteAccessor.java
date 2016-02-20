@@ -33,7 +33,7 @@ import java.util.Map;
 /**
  * This class implements methods allowing for storage and access to an android local sqlite database
  */
-public class SQLiteAccessor {
+public class SQLiteAccessor implements SQLAccessor {
     /**
      * Parser for transforming a string description into a Recipe and vice versa
      */
@@ -167,7 +167,7 @@ public class SQLiteAccessor {
             ContentValues bunch_values = createContentValues(b, bunch_id);
             String[] bunchArgs = {String.valueOf(bunch_id)};
             db.update(BUNCH_TABLE_NAME, bunch_values, "id = ?", bunchArgs);
-            db.delete(BUNCH_RECIPES_TABLE_NAME, "id = ?", bunchArgs);
+            db.delete(BUNCH_RECIPES_TABLE_NAME, "bunch_id = ?", bunchArgs);
             List<ContentValues> bunch_recipe_values = createContentValues(b, bunch_id, recipe_ids);
             for (ContentValues cv: bunch_recipe_values) {
                 db.insert(BUNCH_RECIPES_TABLE_NAME, null, cv);
@@ -237,6 +237,12 @@ public class SQLiteAccessor {
         return recipes;
     }
 
+    /**
+     * Not used for this sqlite accessor
+     * @param description
+     * @return
+     */
+    public List<Recipe> findRecipesLike(String description) { return null; }
     /**
      * Load all bunches off the database
      * @return List of bunches
