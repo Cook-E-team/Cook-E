@@ -83,4 +83,10 @@ public interface SQLAccessor {
 
     // TODO: Document this method
     List<Recipe> findRecipesLike(String description) throws SQLException;
+
+    /**
+     * Checks the representation invariants of the database schema
+     * @throws SQLException if an invariant is not met
+     */
+    void checkInvariants() throws SQLException;
 }

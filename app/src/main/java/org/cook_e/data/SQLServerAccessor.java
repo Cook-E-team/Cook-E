@@ -36,19 +36,21 @@ public class SQLServerAccessor implements SQLAccessor {
      */
     private static final String CONNECTION_TOKEN =
             "jdbc:sqlserver://cook-e.database.windows.net:1433" +
-            ";database=Cook-E;" +
-            "user=cook-e-admin@cook-e;" +
-            "password=Developer1;" +
-            "encrypt=true;" +
-            "trustServerCertificate=false;" +
-            "hostNameInCertificate=*.database.windows.net;" +
-            "loginTimeout=30;";
+                    ";database=Cook-E;" +
+                    "user=cook-e-admin@cook-e;" +
+                    "password=Developer1;" +
+                    "encrypt=true;" +
+                    "trustServerCertificate=false;" +
+                    "hostNameInCertificate=*.database.windows.net;" +
+                    "loginTimeout=30;";
     /**
      * Parser used for transforming strings to recipes and recipes to strings
      */
     private StorageParser parser;
+
     /**
      * Constructor
+     *
      * @param parser StorageParser that can transform strings to recipes and recipes to strings
      */
     public SQLServerAccessor(StorageParser parser) {
@@ -58,30 +60,65 @@ public class SQLServerAccessor implements SQLAccessor {
 
     @Override
     public Recipe loadRecipe(String name, String author) throws SQLException {
-        return null;
+        throw new UnsupportedOperationException("Not implemented");
     }
+
     @Override
     public List<Recipe> findRecipesLike(String description) throws SQLException {
-        return null;
+        throw new UnsupportedOperationException("Not implemented");
     }
-    @Override
-    public void storeRecipe(Recipe r) throws SQLException {}
-    @Override
-    public void editRecipe(Recipe r) throws SQLException {}
-    @Override
-    public List<Recipe> loadAllRecipes() throws SQLException { return null; }
-    @Override
-    public void deleteRecipe(Recipe r) throws SQLException {}
-    @Override
-    public Bunch loadBunch(String name) throws SQLException { return null; }
-    @Override
-    public void storeBunch(Bunch b) throws SQLException { }
-    @Override
-    public void editBunch(Bunch b) throws SQLException { }
-    @Override
-    public List<Bunch> loadAllBunches() throws SQLException { return null; }
-    @Override
-    public void deleteBunch(Bunch b) throws SQLException { }
 
-    public void clearAllTables() {}
+    @Override
+    public void checkInvariants() throws SQLException {
+        throw new UnsupportedOperationException("Not implemented");
+    }
+
+    @Override
+    public void storeRecipe(Recipe r) throws SQLException {
+        throw new UnsupportedOperationException("Not implemented");
+    }
+
+    @Override
+    public void editRecipe(Recipe r) throws SQLException {
+        throw new UnsupportedOperationException("Not implemented");
+    }
+
+    @Override
+    public List<Recipe> loadAllRecipes() throws SQLException {
+        throw new UnsupportedOperationException("Not implemented");
+    }
+
+    @Override
+    public void deleteRecipe(Recipe r) throws SQLException {
+        throw new UnsupportedOperationException("Not implemented");
+    }
+
+    @Override
+    public Bunch loadBunch(String name) throws SQLException {
+        throw new UnsupportedOperationException("Not implemented");
+    }
+
+    @Override
+    public void storeBunch(Bunch b) throws SQLException {
+        throw new UnsupportedOperationException("Not implemented");
+    }
+
+    @Override
+    public void editBunch(Bunch b) throws SQLException {
+        throw new UnsupportedOperationException("Not implemented");
+    }
+
+    @Override
+    public List<Bunch> loadAllBunches() throws SQLException {
+        throw new UnsupportedOperationException("Not implemented");
+    }
+
+    @Override
+    public void deleteBunch(Bunch b) throws SQLException {
+        throw new UnsupportedOperationException("Not implemented");
+    }
+
+    public void clearAllTables() {
+        throw new UnsupportedOperationException("Not implemented");
+    }
 }

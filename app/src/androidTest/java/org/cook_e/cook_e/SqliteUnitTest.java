@@ -62,18 +62,22 @@ public class SqliteUnitTest {
     public void testTableInsert() throws SQLException {
         Recipe r = RecipeUnitTest.createGenericRecipe("My Recipe", "Kyle Woo", 0, 0, 5, false);
         mAccessor.storeRecipe(r);
+        mAccessor.checkInvariants();
         Recipe result = mAccessor.loadRecipe("My Recipe", "Kyle Woo");
         assertEquals(r, result);
-
+        mAccessor.checkInvariants();
     }
 
     @Test
     public void testTableDelete() throws SQLException {
         Recipe r = RecipeUnitTest.createGenericRecipe("My Recipe", "Kyle Woo", 0, 0, 5, false);
         mAccessor.storeRecipe(r);
+        mAccessor.checkInvariants();
         mAccessor.deleteRecipe(r);
+        mAccessor.checkInvariants();
         Recipe result = mAccessor.loadRecipe("My Recipe", "Kyle Woo");
         assertNull(result);
+        mAccessor.checkInvariants();
     }
 
     @Test
@@ -85,12 +89,16 @@ public class SqliteUnitTest {
         List<Step> steps = new ArrayList<>();
         steps.add(edited_s);
         mAccessor.storeRecipe(r);
+        mAccessor.checkInvariants();
         Recipe result = mAccessor.loadRecipe("My Recipe", "Kyle Woo");
+        mAccessor.checkInvariants();
         assertEquals(r, result);
         r.setSteps(steps);
 
         mAccessor.editRecipe(r);
+        mAccessor.checkInvariants();
         result = mAccessor.loadRecipe("My Recipe", "Kyle Woo");
+        mAccessor.checkInvariants();
         assertEquals(edited_r, result);
     }
 
@@ -100,9 +108,12 @@ public class SqliteUnitTest {
         ArrayList<Recipe> recipes = new ArrayList<>();
         recipes.add(r);
         mAccessor.storeRecipe(r);
+        mAccessor.checkInvariants();
         Bunch b = new Bunch("My Bunch", recipes);
         mAccessor.storeBunch(b);
+        mAccessor.checkInvariants();
         Bunch result = mAccessor.loadBunch("My Bunch");
+        mAccessor.checkInvariants();
         assertEquals(b, result);
     }
 
@@ -112,10 +123,14 @@ public class SqliteUnitTest {
         ArrayList<Recipe> recipes = new ArrayList<>();
         recipes.add(r);
         mAccessor.storeRecipe(r);
+        mAccessor.checkInvariants();
         Bunch b = new Bunch("My Bunch", recipes);
         mAccessor.storeBunch(b);
+        mAccessor.checkInvariants();
         mAccessor.deleteBunch(b);
+        mAccessor.checkInvariants();
         Bunch result = mAccessor.loadBunch("My Bunch");
+        mAccessor.checkInvariants();
         assertNull(result);
     }
 
@@ -126,16 +141,22 @@ public class SqliteUnitTest {
         ArrayList<Recipe> recipes = new ArrayList<>();
         recipes.add(r);
         mAccessor.storeRecipe(r);
+        mAccessor.checkInvariants();
         mAccessor.storeRecipe(r2);
+        mAccessor.checkInvariants();
         Bunch b = new Bunch("My Bunch", recipes);
         mAccessor.storeBunch(b);
+        mAccessor.checkInvariants();
         Bunch result = mAccessor.loadBunch("My Bunch");
+        mAccessor.checkInvariants();
         assertEquals(b, result);
         recipes.clear();
         recipes.add(r2);
         b.setRecipes(recipes);
         mAccessor.editBunch(b);
+        mAccessor.checkInvariants();
         result = mAccessor.loadBunch("My Bunch");
+        mAccessor.checkInvariants();
         assertEquals(b, result);
     }
 
@@ -147,8 +168,11 @@ public class SqliteUnitTest {
         expected.add(r);
         expected.add(r2);
         mAccessor.storeRecipe(r);
+        mAccessor.checkInvariants();
         mAccessor.storeRecipe(r2);
+        mAccessor.checkInvariants();
         List<Recipe> result = mAccessor.loadAllRecipes();
+        mAccessor.checkInvariants();
         assertEquals(expected, result);
     }
 
@@ -169,11 +193,17 @@ public class SqliteUnitTest {
         expected.add(b1);
         expected.add(b2);
         mAccessor.storeRecipe(r);
+        mAccessor.checkInvariants();
         mAccessor.storeRecipe(r2);
+        mAccessor.checkInvariants();
         mAccessor.storeRecipe(r3);
+        mAccessor.checkInvariants();
         mAccessor.storeBunch(b1);
+        mAccessor.checkInvariants();
         mAccessor.storeBunch(b2);
+        mAccessor.checkInvariants();
         List<Bunch> result = mAccessor.loadAllBunches();
+        mAccessor.checkInvariants();
         assertEquals(expected, result);
     }
 }
