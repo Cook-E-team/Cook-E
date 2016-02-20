@@ -33,13 +33,15 @@
         <activity
             android:name=".HomeActivity"
             android:windowSoftInputMode="stateHidden">
+
+        </activity>
+        <activity android:name=".MealViewActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".MealViewActivity" />
         <activity
             android:name=".MealRecipeAddActivity"
             android:parentActivityName=".MealViewActivity"
@@ -56,9 +58,6 @@
             android:parentActivityName=".HomeActivity"
             android:windowSoftInputMode="adjustPan" />
         <activity android:name=".AboutActivity" />
-        <activity android:name=".SchedulerActivity">
-
-        </activity>
     </application>
 
 </manifest>

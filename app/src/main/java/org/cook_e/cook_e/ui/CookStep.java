@@ -22,12 +22,14 @@ package org.cook_e.cook_e.ui;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
+import android.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import org.cook_e.cook_e.R;
+import org.cook_e.data.Step;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -60,7 +62,7 @@ public class CookStep extends Fragment {
      * @return A new instance of fragment CookStep.
      */
     // TODO: Rename and change types and number of parameters
-    public static CookStep newInstance(String param1, String param2) {
+    public static CookStep newInstance(String param1, String param2, Step step, String name) {
         CookStep fragment = new CookStep();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, param1);
@@ -83,8 +85,13 @@ public class CookStep extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_cook_step, container, false);
-        
         return view;
+    }
+
+    public void setStep(Step step, String name) {
+        View view = getView();
+        ((TextView) view.findViewById(R.id.textView2)).setText(name);
+        ((TextView) view.findViewById(R.id.textView4)).setText(step.getDescription());
     }
 
 }

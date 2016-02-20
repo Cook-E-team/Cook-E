@@ -145,9 +145,9 @@ public class MealViewActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.schedule:
+            case R.id.start:
                 // User chose the "schedule" item,
-                final Intent intent = new Intent(MealViewActivity.this, SchedulerActivity.class);
+                final Intent intent = new Intent(MealViewActivity.this, CookActivity.class);
                 startActivity(intent);
                 return true;
 
