@@ -19,27 +19,44 @@
 
 package org.cook_e.cook_e.ui;
 
+import android.content.Intent;
 import android.os.SystemClock;
+import android.support.test.espresso.DataInteraction;
+import android.support.test.rule.ActivityTestRule;
+import android.support.v4.view.ViewPager;
 import android.test.ActivityInstrumentationTestCase2;
 import android.view.View;
-import android.widget.ListView;
 
-import static android.support.test.espresso.Espresso.*;
-import static android.support.test.espresso.action.ViewActions.*;
-import static android.support.test.espresso.matcher.ViewMatchers.*;
-import static android.support.test.espresso.assertion.ViewAssertions.*;
-
+import org.cook_e.cook_e.HomeActivity;
+import org.cook_e.cook_e.MealViewActivity;
+import org.cook_e.cook_e.R;
+import org.hamcrest.Matcher;
 import org.hamcrest.core.Is;
 import org.hamcrest.core.IsEqual;
 
-import org.cook_e.cook_e.HomeActivity;
-import org.cook_e.cook_e.R;
-import org.hamcrest.Matcher;
+import static android.support.test.espresso.Espresso.onData;
+import static android.support.test.espresso.Espresso.onView;
+import static android.support.test.espresso.action.ViewActions.click;
+import static android.support.test.espresso.action.ViewActions.swipeLeft;
+import static android.support.test.espresso.action.ViewActions.swipeRight;
+import static android.support.test.espresso.assertion.ViewAssertions.matches;
+import static android.support.test.espresso.matcher.ViewMatchers.isCompletelyDisplayed;
+import static android.support.test.espresso.matcher.ViewMatchers.isSelected;
+import static android.support.test.espresso.matcher.ViewMatchers.withClassName;
+import static android.support.test.espresso.matcher.ViewMatchers.withTagKey;
+import static android.support.test.espresso.matcher.ViewMatchers.withText;
+import static org.hamcrest.core.IsAnything.anything;
 
 /**
  * Tests basic functionality of {@link org.cook_e.cook_e.HomeActivity}
  */
 public class HomeActivityTest extends ActivityInstrumentationTestCase2<HomeActivity> {
+
+    /**
+     * Number of milliseconds to wait for the ViewPager to completely switch to the selected tab
+     */
+    private static final int SWITCH_DELAY_MS = 1000;
+
     public HomeActivityTest() {
         super(HomeActivity.class);
     }
@@ -60,12 +77,49 @@ public class HomeActivityTest extends ActivityInstrumentationTestCase2<HomeActiv
         final Matcher<View> recipeList = withTagKey(R.id.test_tag_recipe_list, Is.<Object>is("Recipe List"));
 
         onView(recipesTab).perform(click());
-        SystemClock.sleep(500);
+        SystemClock.sleep(SWITCH_DELAY_MS);
         onView(recipesTab).check(matches(isSelected()));
         onView(recipeList).check(matches(isCompletelyDisplayed()));
         onView(mealsTab).perform(click());
-        SystemClock.sleep(500);
+        SystemClock.sleep(SWITCH_DELAY_MS);
         onView(mealsTab).check(matches(isSelected()));
         onView(mealList).check(matches(isCompletelyDisplayed()));
+    }
+
+    /**
+     * Tests swiping to change tabs
+     */
+    public void testTabSwiping() {
+        final Matcher<View> mealsTab = withText(R.string.meals);
+        final Matcher<View> recipesTab = withText(R.string.recipes);
+        final Matcher<View> mealList = withTagKey(R.id.test_tag_meal_list,
+                Is.<Object>is("Meal List"));
+        final Matcher<View> recipeList = withTagKey(R.id.test_tag_recipe_list,
+                Is.<Object>is("Recipe List"));
+        final Matcher<View> pager = withClassName(IsEqual.equalTo(ViewPager.class.getName()));
+
+        onView(pager).perform(swipeLeft());
+        SystemClock.sleep(SWITCH_DELAY_MS);
+        onView(recipesTab).check(matches(isSelected()));
+        onView(recipeList).check(matches(isCompletelyDisplayed()));
+        onView(pager).perform(swipeRight());
+        SystemClock.sleep(SWITCH_DELAY_MS);
+        onView(mealsTab).check(matches(isSelected()));
+        onView(mealList).check(matches(isCompletelyDisplayed()));
+    }
+
+    /**
+     * Tests clicking on a meal in the meal list to open it
+     */
+    public void testOpenMeal() {
+        final Matcher<View> mealList = withTagKey(R.id.test_tag_meal_list,
+                Is.<Object>is("Meal List"));
+        final DataInteraction mealItem = onData(anything()).inAdapterView(mealList);
+        mealItem.perform(click());
+        // Check that the MealViewActivity activity has started
+        // The below statement produces an error in the instrumentation code.
+        // TODO: Fix
+//        intended(hasComponent(new ComponentName(getInstrumentation().getTargetContext(),
+//                MealViewActivity.class)));
     }
 }
