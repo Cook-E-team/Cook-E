@@ -85,20 +85,22 @@ public class App extends Application {
     private static void setUpTestData() throws SQLException {
         if (mAccessor != null) {
             final List<Bunch> meals = mAccessor.loadAllBunches();
-            if (meals.isEmpty()) {
-                final Bunch testMeal = new Bunch();
-                testMeal.setTitle("Test meal 1");
-                mAccessor.storeBunch(testMeal);
-            }
-
             final List<Recipe> recipes = mAccessor.loadAllRecipes();
-            if (recipes.isEmpty()) {
-                final Recipe testRecipe = new Recipe("Recipe title", "Author", Collections.<Step>emptyList());
+
+            if (recipes.isEmpty() && meals.isEmpty()) {
+                final Recipe testRecipe = new Recipe("Recipe 1", "Clamify Flumingaster", Collections.<Step>emptyList());
+                final Recipe testRecipe2 = new Recipe("Recipe 2", "Oysterify Flumingaster", Collections.<Step>emptyList());
                 mAccessor.storeRecipe(testRecipe);
-                Log.d(TAG, "Stored recipe " + testRecipe);
+                mAccessor.storeRecipe(testRecipe2);
 
                 final List<Recipe> retrieved = mAccessor.loadAllRecipes();
                 Log.d(TAG, "After storing, retrieved recipes: " + retrieved);
+
+                final Bunch testMeal = new Bunch();
+                testMeal.setTitle("Test meal 1");
+                testMeal.addRecipe(testRecipe);
+                testMeal.addRecipe(testRecipe2);
+                mAccessor.storeBunch(testMeal);
             }
         }
     }

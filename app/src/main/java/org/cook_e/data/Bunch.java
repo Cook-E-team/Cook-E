@@ -52,7 +52,7 @@ public final class Bunch implements Parcelable {
      */
     public Bunch() {
         mTitle = "";
-        mRecipes = Collections.emptyList();
+        mRecipes = new ArrayList<>();
     }
 
     /**
