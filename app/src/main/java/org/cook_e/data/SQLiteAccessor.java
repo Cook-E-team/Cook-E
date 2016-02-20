@@ -33,7 +33,7 @@ import java.util.Map;
 /**
  * This class implements methods allowing for storage and access to an android local sqlite database
  */
-public class SQLiteAccessor {
+public class SQLiteAccessor implements SQLAccessor {
     /**
      * Parser for transforming a string description into a Recipe and vice versa
      */
@@ -237,6 +237,12 @@ public class SQLiteAccessor {
         return recipes;
     }
 
+    /**
+     * Not used for this sqlite accessor
+     * @param description
+     * @return
+     */
+    public List<Recipe> findRecipesLike(String description) { return null; }
     /**
      * Load all bunches off the database
      * @return List of bunches
