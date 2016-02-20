@@ -28,8 +28,10 @@ import org.cook_e.data.Bunch;
 import org.cook_e.data.Recipe;
 import org.cook_e.data.Step;
 import org.cook_e.data.StorageAccessor;
+import org.joda.time.Duration;
 
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -88,18 +90,31 @@ public class App extends Application {
             final List<Recipe> recipes = mAccessor.loadAllRecipes();
 
             if (recipes.isEmpty() && meals.isEmpty()) {
-                final Recipe testRecipe = new Recipe("Recipe 1", "Clamify Flumingaster", Collections.<Step>emptyList());
-                final Recipe testRecipe2 = new Recipe("Recipe 2", "Oysterify Flumingaster", Collections.<Step>emptyList());
-                mAccessor.storeRecipe(testRecipe);
-                mAccessor.storeRecipe(testRecipe2);
+
+                final Step step1_1 = new Step(Collections.<String>emptyList(), "Recipe 1 step 1",
+                        Duration.standardMinutes(1), false);
+                final Step step1_2 = new Step(Collections.<String>emptyList(), "Recipe 1 step 2",
+                        Duration.standardMinutes(1), false);
+                final Step step2_1 = new Step(Collections.<String>emptyList(), "Recipe 2 step 1",
+                        Duration.standardMinutes(1), false);
+                final Step step2_2 = new Step(Collections.<String>emptyList(), "Recipe 2 step 2",
+                        Duration.standardMinutes(1), false);
+
+
+                final Recipe recipe1 = new Recipe("Recipe 1", "Clamify Flumingaster",
+                        Arrays.asList(step1_1, step1_2));
+                final Recipe recipe2 = new Recipe("Recipe 2", "Oysterify Flumingaster",
+                        Arrays.asList(step2_1, step2_2));
+                mAccessor.storeRecipe(recipe1);
+                mAccessor.storeRecipe(recipe2);
 
                 final List<Recipe> retrieved = mAccessor.loadAllRecipes();
                 Log.d(TAG, "After storing, retrieved recipes: " + retrieved);
 
                 final Bunch testMeal = new Bunch();
                 testMeal.setTitle("Test meal 1");
-                testMeal.addRecipe(testRecipe);
-                testMeal.addRecipe(testRecipe2);
+                testMeal.addRecipe(recipe1);
+                testMeal.addRecipe(recipe2);
                 mAccessor.storeBunch(testMeal);
 
                 final List<Bunch> retrievedMeals = mAccessor.loadAllBunches();

@@ -88,6 +88,7 @@ public final class Recipe extends DatabaseObject implements Parcelable {
         // The delegated constructor copies the list of steps.
         this(other.getTitle(), other.getAuthor(), other.getSteps());
         setImage(other.getImage());
+        setObjectId(other.getObjectId());
     }
 
 

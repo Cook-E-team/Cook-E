@@ -280,7 +280,7 @@ public class SQLiteAccessor implements SQLAccessor {
                     if (recipe_bunch_cursor.getCount() > 0) {
                         recipe_bunch_cursor.moveToFirst();
                         do {
-                            long recipe_id = recipe_bunch_cursor.getLong(1);
+                            long recipe_id = recipe_bunch_cursor.getLong(recipe_bunch_cursor.getColumnIndexOrThrow(BUNCH_RECIPE_COLUMNS[1]));
                             String[] recipeWhereArgs = {String.valueOf(recipe_id)};
                             Cursor recipe_cursor = db.query(RECIPE_TABLE_NAME, RECIPE_COLUMNS, "id = ?", recipeWhereArgs,
                                     null, null, null);
@@ -293,6 +293,9 @@ public class SQLiteAccessor implements SQLAccessor {
                                 r = parser.convertStringToRecipe(title, author, description);
                                 r.setObjectId(recipe_id);
                                 recipes.add(r);
+                            }
+                            else {
+                                throw new SQLException("No recipe with ID " + recipe_id + " in recipes table");
                             }
                             recipe_cursor.close();
                         } while (recipe_bunch_cursor.moveToNext());
