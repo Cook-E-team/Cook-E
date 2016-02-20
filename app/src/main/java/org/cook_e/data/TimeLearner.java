@@ -1,6 +1,5 @@
 package org.cook_e.data;
 
-import org.joda.time.Duration;
 import org.joda.time.ReadableDuration;
 
 /**

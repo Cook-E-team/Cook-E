@@ -27,7 +27,6 @@ import android.graphics.drawable.BitmapDrawable;
 import android.support.annotation.NonNull;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import org.cook_e.cook_e.ui.ListListAdapter;
 import org.cook_e.cook_e.ui.RecipeListItemView;

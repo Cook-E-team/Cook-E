@@ -35,7 +35,6 @@ import org.cook_e.cook_e.App;
 import org.cook_e.cook_e.CreateRecipe;
 import org.cook_e.cook_e.R;
 import org.cook_e.data.Recipe;
-import org.cook_e.data.StorageAccessor;
 
 import java.sql.SQLException;
 

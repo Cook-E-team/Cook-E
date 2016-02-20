@@ -19,12 +19,10 @@
 
 package org.cook_e.cook_e;
 
-import org.atteo.evo.inflector.English;
 import org.cook_e.data.Recipe;
 import org.cook_e.data.Step;
 import org.junit.Test;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.lang.NullPointerException;
 
@@ -35,7 +33,7 @@ import static org.junit.Assert.*;
 public class RecipeUnitTest {
     @Test
     public void testCreation() {
-        List<Step> steps = new ArrayList<Step>();
+        List<Step> steps = new ArrayList<>();
         Step s = StepUnitTest.createGenericStep(0, 0, 1, false);
         steps.add(s);
         String author = "Kyle";
@@ -49,9 +47,9 @@ public class RecipeUnitTest {
     }
     @Test
     public void testEquals() {
-        List<Step> steps1 = new ArrayList<Step>();
+        List<Step> steps1 = new ArrayList<>();
         steps1.add(StepUnitTest.createGenericStep(0, 0, 1, false));
-        List<Step> steps2 = new ArrayList<Step>();
+        List<Step> steps2 = new ArrayList<>();
         steps2.add(StepUnitTest.createGenericStep(2, 0, 1, false));
 
         Recipe r1 = new Recipe("My Recipe 1", "Kyle", steps1);
@@ -68,10 +66,10 @@ public class RecipeUnitTest {
     }
     @Test
     public void testAddStep() {
-        List<Step> steps = new ArrayList<Step>();
+        List<Step> steps = new ArrayList<>();
         steps.add(StepUnitTest.createGenericStep(0, 0, 1, false));
 
-        Recipe r = new Recipe("My Recipe", "Kyle", new ArrayList<Step>(steps));
+        Recipe r = new Recipe("My Recipe", "Kyle", new ArrayList<>(steps));
         Step s = StepUnitTest.createGenericStep(1, 1, 1, false);
         steps.add(s);
         r.addStep(s);
@@ -81,13 +79,13 @@ public class RecipeUnitTest {
 
     @Test(expected = NullPointerException.class)
     public void testNonNullExceptionNoAuthor() {
-        List<Step> steps = new ArrayList<Step>();
+        List<Step> steps = new ArrayList<>();
         steps.add(StepUnitTest.createGenericStep(0, 0, 1, false));
         final Recipe recipe = new Recipe("test recipe", null, steps);
     }
     @Test(expected = NullPointerException.class)
     public void testNonNullExceptionNoTitle() {
-        List<Step> steps = new ArrayList<Step>();
+        List<Step> steps = new ArrayList<>();
         steps.add(StepUnitTest.createGenericStep(0, 0, 1, false));
         final Recipe recipe = new Recipe(null, "kyle", steps);
     }
@@ -102,7 +100,7 @@ public class RecipeUnitTest {
      */
     public static Recipe createGenericRecipe(String name, String author, int action_index, int ing_index, int duration_min, boolean isSimultaneous) {
         Step s = StepUnitTest.createGenericStep(action_index, ing_index, duration_min, isSimultaneous);
-        List<Step> steps = new ArrayList<Step>();
+        List<Step> steps = new ArrayList<>();
         steps.add(s);
         return new Recipe(name, author, steps);
     }

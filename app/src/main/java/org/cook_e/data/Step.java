@@ -62,7 +62,6 @@ public final class Step implements Parcelable {
     /**
      * Whether this step can be done simultaneously
      */
-    @NonNull
     private final boolean mSimultaneous;
 
     /**
@@ -153,7 +152,6 @@ public final class Step implements Parcelable {
      * Returns the duration of this step in minutes
      * @return the duration in minutes reprsented by an int
      */
-    @NonNull
     public int getIntTime() { return (int) mTime.getStandardMinutes(); }
     /**
      * Returns if this step can be done simultaneously
@@ -211,7 +209,7 @@ public final class Step implements Parcelable {
             final String description = source.readString();
             final Duration duration = (Duration) source.readSerializable();
             final Boolean simultaneous = (Boolean) source.readSerializable();
-            final List<String> ingredients = new ArrayList<String>();
+            final List<String> ingredients = new ArrayList<>();
             source.readStringList(ingredients);
             return new Step(ingredients, description, duration, simultaneous);
         }

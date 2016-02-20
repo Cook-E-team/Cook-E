@@ -42,7 +42,7 @@ public final class StepDescriptionParser {
         ////////// TEMPORARY simple solution //////////
         description = description.toLowerCase();
 
-        Set<String> simulAction = new HashSet<String>(Arrays.asList("bake", "boil"));
+        Set<String> simulAction = new HashSet<>(Arrays.asList("bake", "boil"));
 
         return description.contains("boil") || description.contains("bake");
     }

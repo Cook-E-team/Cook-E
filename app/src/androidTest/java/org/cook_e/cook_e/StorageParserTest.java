@@ -29,7 +29,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 
 /*
  * Unit Tests for the Step class
@@ -37,7 +36,7 @@ import static org.junit.Assert.assertFalse;
 public class StorageParserTest {
     @Test
     public void testStringToList() {
-        List<String> lst = new ArrayList<String>();
+        List<String> lst = new ArrayList<>();
         lst.add("hello");
         lst.add("goodbye");
         lst.add("test");

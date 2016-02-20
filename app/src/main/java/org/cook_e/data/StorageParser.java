@@ -20,6 +20,7 @@
 package org.cook_e.data;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import org.joda.time.Duration;
 
@@ -40,7 +41,7 @@ public class StorageParser {
      * @return Recipe object containing the fields above
      */
     public Recipe convertStringToRecipe(String title, String author, String description) {
-        List<Step> newSteps = new ArrayList<Step>();
+        List<Step> newSteps = new ArrayList<>();
         String[] strArray = description.isEmpty() ? new String[0] : description.split("\n");
         for (String step: strArray) {
             int trailIndex = step.indexOf("mDescription='") + "mDescription='".length();
@@ -62,10 +63,8 @@ public class StorageParser {
 
     public static List<String> toArrayList(String str) {
         String[] arr = str.split(",");
-        List<String> lst = new ArrayList<String>();
-        for (String curr: arr) {
-            lst.add(curr);
-        }
+        List<String> lst = new ArrayList<>();
+        Collections.addAll(lst, arr);
         return lst;
     }
     /**

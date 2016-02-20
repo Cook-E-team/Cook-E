@@ -8,10 +8,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import org.cook_e.cook_e.EditRecipeActivity;
 import org.cook_e.cook_e.MealViewActivity;
 import org.cook_e.data.Bunch;
-import org.cook_e.data.Recipe;
 
 /**
  * A list adapter that displays meal titles

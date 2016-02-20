@@ -21,12 +21,9 @@ package org.cook_e.data;
 
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.joda.time.Duration;
-import java.util.TreeMap;
 
 /**
  * A class that produces and manages a schedule for a Bunch.
@@ -42,8 +39,8 @@ public class Schedule {
      * @param b the Bunch to schedule finalSteps from
      */
     public Schedule(Bunch b) {
-        this.finalSteps = new ArrayList<Step>();
-        this.stepToRecipeMap = new HashMap<Step, Recipe>();
+        this.finalSteps = new ArrayList<>();
+        this.stepToRecipeMap = new HashMap<>();
 
         // populate stepToRecipeMap.
         // TODO: does not work if two steps are the same but from different recipes
@@ -55,14 +52,14 @@ public class Schedule {
         }
 
         // populate UnscheduledRecipeStepsList
-        List<UnscheduledRecipeSteps> unscheduledRecipeStepsList = new ArrayList<UnscheduledRecipeSteps>();
+        List<UnscheduledRecipeSteps> unscheduledRecipeStepsList = new ArrayList<>();
         for (Recipe r: recipes) {
             if(r.getSteps().isEmpty()) continue;
             unscheduledRecipeStepsList.add(new UnscheduledRecipeSteps(r));
         }
 
         // Schedules the finalSteps.
-        while (unscheduledRecipeStepsList.size() > 0) {
+        while (!unscheduledRecipeStepsList.isEmpty()) {
             Step nextStep = getNextScheduledStep(unscheduledRecipeStepsList);
             this.finalSteps.add(nextStep);
         }
@@ -248,7 +245,7 @@ public class Schedule {
          * @return
          */
         public boolean isEmpty() {
-            return this.steps.size() == 0;
+            return this.steps.isEmpty();
         }
     }
 

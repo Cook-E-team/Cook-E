@@ -19,31 +19,20 @@
 
 package org.cook_e.cook_e;
 
-import android.content.Context;
-import android.support.test.InstrumentationRegistry;
-
 import org.cook_e.data.Bunch;
-import org.cook_e.data.Pair;
 import org.cook_e.data.Recipe;
-import org.cook_e.data.SQLiteAccessor;
 import org.cook_e.data.Schedule;
 import org.cook_e.data.Step;
-import org.cook_e.data.StorageParser;
 import org.joda.time.Duration;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 
 public class ScheduleTest {
-    public List<String> ingre = new ArrayList<String>();
+    public List<String> ingre = new ArrayList<>();
     public final Step fiveNonSimul = new Step(ingre, "t1", Duration.standardMinutes(5), false);
     public final Step tenNonSimul = new Step(ingre, "t1", Duration.standardMinutes(10), false);
     public final Step sevenNonSimul = new Step(ingre, "t1", Duration.standardMinutes(7), false);
@@ -54,7 +43,7 @@ public class ScheduleTest {
 
     @Test
     public void testSchedule1nonSimul() {
-        List<Step> steps = new ArrayList<Step>();
+        List<Step> steps = new ArrayList<>();
         steps.add(fiveNonSimul);
         steps.add(sevenNonSimul);
         List<Recipe> recipies = new ArrayList<>();
@@ -70,7 +59,7 @@ public class ScheduleTest {
 
     @Test
     public void testSchedule2nonSimul() {
-        List<Step> steps = new ArrayList<Step>();
+        List<Step> steps = new ArrayList<>();
         steps.add(fiveNonSimul);
         steps.add(sevenNonSimul);
         List<Recipe> recipies = new ArrayList<>();
@@ -93,7 +82,7 @@ public class ScheduleTest {
 
     @Test
     public void testSchedule1nonSimul1Simul() {
-        List<Step> steps = new ArrayList<Step>();
+        List<Step> steps = new ArrayList<>();
         steps.add(fiveNonSimul);
         steps.add(sevenNonSimul);
         List<Recipe> recipies = new ArrayList<>();
@@ -120,7 +109,7 @@ public class ScheduleTest {
 
     @Test
     public void testSchedule2Simul() {
-        List<Step> steps = new ArrayList<Step>();
+        List<Step> steps = new ArrayList<>();
         steps.add(fiveNonSimul);
         steps.add(sevenNonSimul);
         List<Recipe> recipies = new ArrayList<>();

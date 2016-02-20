@@ -18,11 +18,6 @@
 
 package org.cook_e.cook_e;
 
-import android.content.Context;
-import android.support.test.InstrumentationRegistry;
-
-import org.cook_e.data.Bunch;
-import org.cook_e.data.Pair;
 import org.cook_e.data.Recipe;
 import org.cook_e.data.SQLServerAccessor;
 import org.cook_e.data.StorageParser;
@@ -30,12 +25,12 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 
 
 public class SQLServerAccessorTest {
@@ -54,23 +49,18 @@ public class SQLServerAccessorTest {
 
     }
     @Test
-    public void testTableLoad() {
+    public void testTableLoad() throws SQLException {
         Recipe r = RecipeUnitTest.createGenericRecipe("My Recipe", "Kyle Woo", 0, 0, 5, false);
-        try {
             accessor.storeRecipe(r);
             Recipe result = accessor.loadRecipe("My Recipe", "Kyle Woo");
             assertEquals(r, result);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
 
     }
     @Test
-    public void testTableLoadLike() {
+    public void testTableLoadLike() throws SQLException {
         Recipe r1 = RecipeUnitTest.createGenericRecipe("My Recipe 1" , "Kyle Woo", 0, 0, 5, false);
         Recipe r2 = RecipeUnitTest.createGenericRecipe("My Recipe 2", "Kyle Woo", 0, 0, 5, false);
         Recipe r3 = RecipeUnitTest.createGenericRecipe("My Recipe 3", "Kyle Woo", 0, 0, 5, false);
-        try {
             accessor.storeRecipe(r1);
             accessor.storeRecipe(r2);
             accessor.storeRecipe(r3);
@@ -80,9 +70,6 @@ public class SQLServerAccessorTest {
             expected.add(r3);
             List<Recipe> result = accessor.findRecipesLike("My Recipe");
             assertEquals(expected, result);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
 }

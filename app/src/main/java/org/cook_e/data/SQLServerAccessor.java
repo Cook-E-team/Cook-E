@@ -19,13 +19,8 @@
 
 package org.cook_e.data;
 
-import android.content.Context;
-import android.provider.ContactsContract;
-
 import java.sql.SQLException;
 import java.util.List;
-import java.util.ArrayList;
-import java.util.Map;
 
 /**
  * This class implements methods for storing and accessing an external sqlserver database

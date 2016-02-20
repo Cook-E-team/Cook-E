@@ -19,13 +19,11 @@
 
 package org.cook_e.cook_e;
 
-import org.atteo.evo.inflector.English;
 import org.cook_e.data.Step;
 import org.junit.Test;
 import org.cook_e.data.Bunch;
 import org.cook_e.data.Recipe;
 
-import java.lang.NullPointerException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,8 +34,8 @@ import static org.junit.Assert.*;
 public class BunchUnitTest {
     @Test
     public void testCreation() {
-        List<Recipe> recipes = new ArrayList<Recipe>();
-	List<Step> steps = new ArrayList<Step>();
+        List<Recipe> recipes = new ArrayList<>();
+	List<Step> steps = new ArrayList<>();
 	steps.add(StepUnitTest.createGenericStep(0, 0, 1, false));
         Recipe r = new Recipe("My Recipe", "Kyle", steps);
         recipes.add(r);
@@ -47,8 +45,8 @@ public class BunchUnitTest {
     }
     @Test
     public void testEquals() {
-        List<Recipe> recipes = new ArrayList<Recipe>();
-	List<Step> steps = new ArrayList<Step>();
+        List<Recipe> recipes = new ArrayList<>();
+	List<Step> steps = new ArrayList<>();
 	steps.add(StepUnitTest.createGenericStep(0, 0, 1, false));
         Recipe r = new Recipe("My Recipe", "Kyle", steps);
         recipes.add(r);

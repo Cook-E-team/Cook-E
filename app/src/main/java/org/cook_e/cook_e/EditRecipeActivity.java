@@ -134,7 +134,7 @@ public class EditRecipeActivity extends AppCompatActivity {
 
     /**
      * Accesses the recipe to be edited
-     * @return
+     * @return a recipe from the intent that started this activity
      */
     private Recipe unpackRecipe() {
         final Intent intent = getIntent();

@@ -50,6 +50,7 @@ public class App extends Application {
      */
     private static StorageAccessor mAccessor;
 
+    @Override
     public void onCreate() {
         super.onCreate();
         context = getApplicationContext();

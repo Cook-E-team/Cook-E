@@ -21,8 +21,6 @@ package org.cook_e.cook_e;
 
 import android.content.Context;
 import android.databinding.ObservableArrayList;
-import android.databinding.ObservableList;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -147,12 +145,12 @@ public class StepListAdapter extends BaseAdapter {
     }
 
 
-    /********** Additional Functions **********/
+    /* ********* Additional Functions **********/
 
 
-    /********** Private Helper Classes **********/
+    /* ********* Private Helper Classes **********/
 
-    /*
+    /**
      * A custom OnClickListener that switches the selected step in
      * the given adapter to the given position when clicked.
      */
