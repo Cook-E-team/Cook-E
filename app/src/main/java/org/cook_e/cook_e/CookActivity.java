@@ -97,13 +97,17 @@ public class CookActivity extends AppCompatActivity {
             case R.id.previous:
                 // User chose the "previous" item,
                 step = mSchedule.getPrevStep();
-                mCookStep.setStep(step, mSchedule.getRecipeFromStep(step).getTitle());
+                if (step != null) {
+                    mCookStep.setStep(step, mSchedule.getRecipeFromStep(step).getTitle());
+                }
                 return true;
 
             case R.id.next:
                 // User chose the "next" item,
                 step = mSchedule.getNextStep();
-                mCookStep.setStep(step, mSchedule.getRecipeFromStep(step).getTitle());
+                if (step != null) {
+                    mCookStep.setStep(step, mSchedule.getRecipeFromStep(step).getTitle());
+                }
                 return true;
 
             default:
