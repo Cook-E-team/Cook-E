@@ -1,24 +1,37 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="utf-8" />
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <title>Cook-E: Scheduling for Multiple Recipes</title>
+    <title>Cook-E: Scheduling for Multiple Recipes</title>
 
-        <link rel="stylesheet" href="css/bootstrap.min.css" />
-        <!--[if lt IE 9]>
-        <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
-        <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-        <![endif]-->
-    </head>
-    <body>
-        <div class="jumbotron">
-            <div class="container">
+    <link rel="stylesheet" href="css/bootstrap.min.css" />
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+</head>
+<body>
+    <div class="jumbotron">
+        <div class="container">
+            <div class="col-md-6">
                 <h1>Cook-E</h1>
                 <p>A mobile application that helps schedule cooking with multiple recipes</p>
             </div>
+        </div>
+    </div>
+    <div class="container">
+        <p>Cook-E is a free android application that helps people cook meals easier and faster. It is a perfect choice for people who like cooking and want to cook delicious meal in a shorter time.</p>
+
+        <p>Cook-E has many different functionalities that help you save time while enjoying cooking. The
+            most important feature of Cook-E is scheduling, which is the ability to find a step-by-step
+            instruction to cook multiple dishes at the same time. When you select the recipes you want to
+            cook and press the start button, Cook-E will find the best schedule for you to cook those dishes.
+            This helps you combine all steps that use same tools and ingredients, do multiple steps at the
+            same time, and so on. More importantly, Cook-E generate a step-by-step instruction so you
+            only need to follow the steps without worrying about anything.</p>
         </div>
         <div class="container">
             <div class="row">
@@ -41,53 +54,52 @@
                     <ol>
                         <li>Download the source code of the <a href="https://github.com/Cook-E-team/Cook-E/releases/latest">latest release</a></li>
                         <li>Follow the <a href="https://github.com/Cook-E-team/Cook-E/wiki/Compiling">Compile and run instructions</a>
-                    </ol>
+                        </ol>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <h2>Use</h2>
+                        <p><a href="https://drive.google.com/file/d/0B16ElknrryP_UVVPWDh3eG1ZOGM/view?usp=sharing">User Manual (PDF)</a></p>
+                    </div>
+                    <div class="col-md-6">
+                        <h2>Develop</h2>
+                        <p><a href="https://cook-e-team.github.io/Cook-E/">Developer page</a></p>
+                        <p><a href="https://github.com/Cook-E-team/Cook-E/wiki">Development documentation (wiki)</a></p>
+                        <p><a href="https://drive.google.com/file/d/0B16ElknrryP_bURtS0RIM05tQlU/view?usp=sharing">Development documentation (PDF)</a></p>
+                    </div>
                 </div>
             </div>
-            <div class="row">
-                <div class="col-md-6">
-                    <h2>Use</h2>
-                    <p><a href="https://drive.google.com/file/d/0B16ElknrryP_UVVPWDh3eG1ZOGM/view?usp=sharing">User Manual (PDF)</a></p>
-                </div>
-                <div class="col-md-6">
-                    <h2>Develop</h2>
-                    <p><a href="https://cook-e-team.github.io/Cook-E/">Developer page</a></p>
-                    <p><a href="https://github.com/Cook-E-team/Cook-E/wiki">Development documentation (wiki)</a></p>
-                    <p><a href="https://drive.google.com/file/d/0B16ElknrryP_bURtS0RIM05tQlU/view?usp=sharing">Development documentation (PDF)</a></p>
-                </div>
-            </div>
-        </div>
+            <script type="text/javascript">
+            var updateRelease = function(releases) {
+                var downloadLink = document.getElementById('download-link');
+                if (!downloadLink) { return; }
 
-    <script type="text/javascript">
-    var updateRelease = function(releases) {
-        var downloadLink = document.getElementById('download-link');
-        if (!downloadLink) { return; }
+                var latest = releases[0];
+                if (latest) {
+                    // Set version text and link to release
+                    downloadLink.textContent = 'Download ' + latest.name;
+                    downloadLink.href = latest.html_url;
 
-        var latest = releases[0];
-        if (latest) {
-            // Set version text and link to release
-            downloadLink.textContent = 'Download ' + latest.name;
-            downloadLink.href = latest.html_url;
-
-            var asset = latest.assets[0];
-            if (asset && asset.content_type == 'application/vnd.android.package-archive') {
-                // Change link to download the APK directly
-                downloadLink.href = asset.browser_download_url;
+                    var asset = latest.assets[0];
+                    if (asset && asset.content_type == 'application/vnd.android.package-archive') {
+                        // Change link to download the APK directly
+                        downloadLink.href = asset.browser_download_url;
+                    }
+                }
             }
-        }
-    }
 
-    var releaseInfoUrl = 'https://api.github.com/repos/Cook-E-team/Cook-E/releases';
-    var request = new XMLHttpRequest();
+            var releaseInfoUrl = 'https://api.github.com/repos/Cook-E-team/Cook-E/releases';
+            var request = new XMLHttpRequest();
 
-    request.onreadystatechange = function() {
-        if (request.readyState == XMLHttpRequest.DONE && (request.status == 200 || request.status == 304)) {
-            updateRelease(JSON.parse(request.response));
-        }
-    };
-    request.open('GET', releaseInfoUrl);
-    request.send();
+            request.onreadystatechange = function() {
+                if (request.readyState == XMLHttpRequest.DONE && (request.status == 200 || request.status == 304)) {
+                    updateRelease(JSON.parse(request.response));
+                }
+            };
+            request.open('GET', releaseInfoUrl);
+            request.send();
 
-    </script>
-    </body>
-</html>
+            </script>
+        </body>
+        </html>
