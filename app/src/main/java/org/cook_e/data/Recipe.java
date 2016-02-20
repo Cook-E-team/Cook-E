@@ -68,10 +68,10 @@ public final class Recipe extends DatabaseObject implements Parcelable {
      *@throws NullPointerException if any of the parameters passed to it are null
      */
     public Recipe(@NonNull String title, @NonNull String author, @NonNull List<Step> steps) {
+        super();
         Objects.requireNonNull(title, "title must not be null");
         Objects.requireNonNull(author, "author must not be null");
         Objects.requireNonNull(steps, "steps must not be null");
-
         mSteps = new ArrayList<>(steps);
         mTitle = title;
         mAuthor = author;

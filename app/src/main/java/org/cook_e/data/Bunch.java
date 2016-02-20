@@ -51,6 +51,7 @@ public final class Bunch extends DatabaseObject implements Parcelable {
      * Creates a new bunch with an empty title and no recipes
      */
     public Bunch() {
+        super();
         mTitle = "";
         mRecipes = Collections.emptyList();
     }
@@ -63,6 +64,7 @@ public final class Bunch extends DatabaseObject implements Parcelable {
      * @throws NullPointerException if title or recipes is null
      */
     public Bunch(@NonNull String title, @NonNull List<Recipe> recipes) {
+        super();
         Objects.requireNonNull(title, "title must not be null");
         Objects.requireNonNull(recipes, "recipes must not be null");
         if (title.isEmpty()) throw new IllegalArgumentException("title must not be empty");

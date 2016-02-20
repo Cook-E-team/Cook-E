@@ -34,7 +34,6 @@ public class StorageAccessor {
     private SQLAccessor local;
     private SQLAccessor external;
     private StorageParser parser;
-
     /**
      * Constructor
      * @param c Context of the activity that wants to store/retrieve data
