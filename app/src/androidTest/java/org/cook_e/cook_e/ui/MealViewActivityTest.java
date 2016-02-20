@@ -3,7 +3,6 @@ package org.cook_e.cook_e.ui;
 import android.content.Intent;
 import android.support.test.rule.ActivityTestRule;
 import android.test.ActivityInstrumentationTestCase2;
-import android.util.Log;
 
 import org.cook_e.cook_e.MealViewActivity;
 import org.cook_e.data.Bunch;
@@ -13,7 +12,6 @@ import org.joda.time.Duration;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 
 /**
  * Tests the {@link org.cook_e.cook_e.MealViewActivity} activity
