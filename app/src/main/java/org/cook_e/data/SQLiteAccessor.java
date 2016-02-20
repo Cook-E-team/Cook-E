@@ -404,13 +404,20 @@ public class SQLiteAccessor implements SQLAccessor {
                                             "id = ?",
                                             recipeWhereArgs,
                                             null, null, null);
-                                    String title = recipe_cursor.getString(1);
-                                    String author = recipe_cursor.getString(2);
-                                    String description = recipe_cursor.getString(3);
-                                    Recipe r = parser.convertStringToRecipe(title, author, description);
-                                    r.setObjectId(recipe_id);
-                                    recipes.add(r);
-                                    recipe_cursor.close();
+                                    try {
+                                        if (recipe_cursor.getCount() > 0) {
+                                            recipe_cursor.moveToFirst();
+                                            String title = recipe_cursor.getString(1);
+                                            String author = recipe_cursor.getString(2);
+                                            String description = recipe_cursor.getString(3);
+                                            Recipe r = parser.convertStringToRecipe(title, author,
+                                                    description);
+                                            r.setObjectId(recipe_id);
+                                            recipes.add(r);
+                                        }
+                                    } finally {
+                                        recipe_cursor.close();
+                                    }
                                 } while (recipe_bunch_cursor.moveToNext());
                                 b = new Bunch(name, recipes);
                                 b.setObjectId(bunch_id);
