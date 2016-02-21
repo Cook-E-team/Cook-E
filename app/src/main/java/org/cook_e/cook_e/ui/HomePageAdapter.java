@@ -71,7 +71,7 @@ public class HomePageAdapter extends FragmentPagerAdapter {
      * @return mRecipeList
      */
     @NonNull
-    private Fragment getRecipeList() {
+    public RecipeList getRecipeList() {
         if (mRecipeList == null) {
             mRecipeList = new RecipeList();
         }
@@ -82,7 +82,7 @@ public class HomePageAdapter extends FragmentPagerAdapter {
      * @return mMealList
      */
     @NonNull
-    private Fragment getMealList() {
+    public MealList getMealList() {
         if (mMealList == null) {
             mMealList = new MealList();
         }

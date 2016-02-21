@@ -89,4 +89,24 @@ public class MealList extends Fragment {
     }
 
 
+
+    /**
+     * Updates the meals in this list from the database
+     *
+     * Has no effect if this fragment has not yet been created.
+     */
+    public void reloadMeals() {
+        if (mMeals != null) {
+            mMeals.clear();
+            try {
+                mMeals.addAll(App.getAccessor().loadAllBunches());
+            } catch (SQLException e) {
+                new AlertDialog.Builder(getActivity())
+                        .setTitle("Failed to load meals")
+                        .setMessage(e.getLocalizedMessage())
+                        .show();
+                Log.e(TAG, "Failed to load meals", e);
+            }
+        }
+    }
 }

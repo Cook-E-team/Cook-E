@@ -91,4 +91,23 @@ public class RecipeList extends Fragment {
         return view;
     }
 
+    /**
+     * Updates the recipes in this list from the database
+     *
+     * Has no effect if this fragment has not yet been created.
+     */
+    public void reloadRecipes() {
+        if (mRecipes != null) {
+            mRecipes.clear();
+            try {
+                mRecipes.addAll(App.getAccessor().loadAllRecipes());
+            } catch (SQLException e) {
+                new AlertDialog.Builder(getActivity())
+                        .setTitle("Failed to load recipes")
+                        .setMessage(e.getLocalizedMessage())
+                        .show();
+                Log.e(TAG, "Failed to load recipes", e);
+            }
+        }
+    }
 }

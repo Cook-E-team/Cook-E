@@ -37,6 +37,7 @@ import org.cook_e.cook_e.ui.HomePageAdapter;
 public class HomeActivity extends AppCompatActivity {
 
     private ViewPager mViewPager;
+    private HomePageAdapter mPageAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,7 +94,16 @@ public class HomeActivity extends AppCompatActivity {
         });
 
         // Set up HomePageAdapter
-        mViewPager.setAdapter(new HomePageAdapter(getFragmentManager()));
+        mPageAdapter = new HomePageAdapter(getFragmentManager());
+        mViewPager.setAdapter(mPageAdapter);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // May be returning from another activity that modified data, so reload everything
+        mPageAdapter.getRecipeList().reloadRecipes();
+        mPageAdapter.getMealList().reloadMeals();
     }
 
     private void setUpActionBar() {
