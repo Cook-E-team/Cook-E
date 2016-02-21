@@ -120,7 +120,7 @@ public class EditRecipeActivity extends AppCompatActivity implements StepDialogF
         ListView stepsList = (ListView) findViewById(R.id.recipeSteps);
         stepsList.setAdapter(stepsAdapter);
 
-        (findViewById(R.id.stepAdd)).setOnClickListener(
+        (findViewById(R.id.step_add_button)).setOnClickListener(
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
