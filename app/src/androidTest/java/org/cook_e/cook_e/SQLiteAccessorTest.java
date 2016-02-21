@@ -32,6 +32,7 @@ import org.junit.Test;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -59,7 +60,7 @@ public class SQLiteAccessorTest {
     }
 
     @Test
-    public void testTableInsert() throws SQLException {
+    public void testRecipeInsert() throws SQLException {
         Recipe r = RecipeUnitTest.createGenericRecipe("My Recipe", "Kyle Woo", 0, 0, 5, false);
         mAccessor.storeRecipe(r);
         mAccessor.checkInvariants();
@@ -69,7 +70,7 @@ public class SQLiteAccessorTest {
     }
 
     @Test
-    public void testTableDelete() throws SQLException {
+    public void testRecipeDelete() throws SQLException {
         Recipe r = RecipeUnitTest.createGenericRecipe("My Recipe", "Kyle Woo", 0, 0, 5, false);
         mAccessor.storeRecipe(r);
         mAccessor.checkInvariants();
@@ -81,7 +82,7 @@ public class SQLiteAccessorTest {
     }
 
     @Test
-    public void testTableEdit() throws SQLException {
+    public void testRecipeEdit() throws SQLException {
         Recipe r = RecipeUnitTest.createGenericRecipe("My Recipe", "Kyle Woo", 0, 0, 5, false);
         Recipe edited_r = RecipeUnitTest.createGenericRecipe("My Recipe", "Kyle Woo", 1, 1, 5,
                 false);
@@ -158,6 +159,30 @@ public class SQLiteAccessorTest {
         result = mAccessor.loadBunch("My Bunch");
         mAccessor.checkInvariants();
         assertEquals(b, result);
+    }
+
+    /**
+     * Tests creating a bunch containing a recipe, deleting the recipe, and querying for the bunch
+     * again
+     * @throws SQLException
+     */
+    @Test
+    public void testDeleteRecipeInBunch() throws SQLException {
+        final Recipe recipe = new Recipe("A Recipe", "Alan Smithee", Collections.<Step>emptyList());
+        final Bunch meal = new Bunch("A meal", Collections.singletonList(recipe));
+
+        mAccessor.storeRecipe(recipe);
+        mAccessor.storeBunch(meal);
+        mAccessor.checkInvariants();
+
+        mAccessor.deleteRecipe(recipe);
+        mAccessor.checkInvariants();
+
+        // Remove recipe from bunch, retrieve and check equality
+        meal.setRecipes(Collections.<Recipe>emptyList());
+
+        final Bunch retrievedMeal = mAccessor.loadBunch("A meal");
+        assertEquals(retrievedMeal, meal);
     }
 
     @Test
