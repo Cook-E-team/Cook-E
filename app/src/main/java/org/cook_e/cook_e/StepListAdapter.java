@@ -24,170 +24,94 @@ import android.databinding.ObservableArrayList;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
+import org.cook_e.cook_e.ui.ListListAdapter;
 import org.cook_e.data.Step;
+
+import java.util.List;
 
 /**
  * Created by Tyler on 2/6/2016.
  *
  * This class is an adapter for viewing and editing a recipes steps.
  */
-public class StepListAdapter extends BaseAdapter {
-    private static final String TAG = StepListAdapter.class.getSimpleName();
-
-    private final Context mContext;
-    private final ObservableArrayList<? extends Step> testSteps;
-    private int selectedStepIndex;
-
-
-    public StepListAdapter(Context mContext, ObservableArrayList<? extends Step> steps) {
-        this.mContext = mContext;
-        testSteps = steps;
-        selectedStepIndex = -1;
-    }
-
-    /*
-     * Returns the object associated with the given position in
-     * the data set. Returns null if there isn't one.
-     */
-    @Override
-    public Object getItem(int position) {
-        if (position >= 0 && position < getCount()) {
-            return testSteps.get(position);
-        } else {
-            return null;
-        }
-    }
-
-    /*
-     * Returns the row id of the item at the given position.
-     */
-    @Override
-    public long getItemId(int position) {
-        return position;
-    }
-
-    /*
-     * Returns true if the items id's won't change and false
-     * if the items may change.
-     */
-    @Override
-    public boolean hasStableIds() {
-        return false;
-    }
-
-    @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-        Step step = (Step) getItem(position);
-        LayoutInflater layoutInflater = LayoutInflater.from(mContext);
-
-        if (getItemViewType(position) == 0) {
-            View editRecipeView = layoutInflater.inflate(R.layout.edit_recipe_step, parent, false);
-
-            ((TextView) editRecipeView.findViewById(R.id.stepTitle)).setText(
-                    String.format(mContext.getString(R.string.step_list_title), position + 1));
-            ((TextView) editRecipeView.findViewById(R.id.stepDescription)).setText(step.getDescription());
-            ((TextView) editRecipeView.findViewById(R.id.stepIngredient)).setText(step.getIngredients().toString());
-            editRecipeView.findViewById(R.id.stepDelete).setOnClickListener(
-                    new DeleteStepOnClickListener(this, position));
-
-            return editRecipeView;
-        } else {
-            View viewRecipeView = layoutInflater.inflate(R.layout.view_recipe_step, parent, false);
-
-            ((TextView) viewRecipeView.findViewById(R.id.stepTitle)).setText(
-                    String.format(mContext.getString(R.string.step_list_title), position + 1));
-            ((TextView) viewRecipeView.findViewById(R.id.stepDescription)).setText(step.getDescription());
-
-            viewRecipeView.setOnClickListener(new EditStepOnClickListener(this, position));
-            return viewRecipeView;
-        }
-    }
-
-    /*
-     * Returns a particular number for each type of view created
-     * by getView.
-     */
-    @Override
-    public int getItemViewType(int position) {
-        if (position == selectedStepIndex) {
-            return 0;
-        } else {
-            return 1;
-        }
-    }
-
-    /*
-     * Returns the number of types of views created by getView.
-     */
-    @Override
-    public int getViewTypeCount() {
-        return 2;
-    }
-
-    /*
-     * Returns the number of items in the data set represented
-     * by this adapter.
-     */
-    @Override
-    public int getCount() {
-        return testSteps.size();
-    }
-
-    /*
-     * Returns true if the data backing the adapter is empty.
-     */
-    @Override
-    public boolean isEmpty() {
-        return getCount() == 0;
-    }
-
-
-    /* ********* Additional Functions **********/
-
-
-    /* ********* Private Helper Classes **********/
+public class StepListAdapter extends ListListAdapter<Step> {
 
     /**
-     * A custom OnClickListener that switches the selected step in
-     * the given adapter to the given position when clicked.
+     * An interface for objects that can handle clicks on steps
      */
-    private class EditStepOnClickListener implements View.OnClickListener {
-        private StepListAdapter adapter;
-        private int position;
-
-        public EditStepOnClickListener(StepListAdapter adapter, int position) {
-            this.adapter = adapter;
-            this.position = position;
-        }
-
-        @Override
-        public void onClick(View v) {
-            selectedStepIndex = position;
-            adapter.notifyDataSetChanged();
-        }
+    public interface StepClickListener {
+        /**
+         * Called when the user clicks on a step
+         * @param step the step the user clicked on
+         * @param index the index in the list of the step
+         */
+        void onStepClicked(Step step, int index);
     }
 
-    /*
-     * A custom OnClickListener that deletes the step in the
-     * given adapter at the given position when clicked.
+    /**
+     * The steps displayed in this list
      */
-    private class DeleteStepOnClickListener implements View.OnClickListener {
-        private StepListAdapter adapter;
-        private int position;
+    private final List<? extends Step> mSteps;
 
-        public DeleteStepOnClickListener(StepListAdapter adapter, int position) {
-            this.adapter = adapter;
-            this.position = position;
+    /**
+     * The listener to notify when a step is clicked on
+     */
+    private StepClickListener mStepClickListener;
+
+    /**
+     * Creates a new adapter
+     * @param context the context to use
+     * @param steps the steps to display
+     */
+    public StepListAdapter(Context context, ObservableArrayList<? extends Step> steps) {
+        super(context, steps);
+        mSteps = steps;
+    }
+
+    @Override
+    public View getViewForItem(final Step item, final int index, View convertView, ViewGroup parent, Context context) {
+
+        View view;
+        if (convertView != null) {
+            view = convertView;
+        }
+        else {
+            final LayoutInflater inflater = LayoutInflater.from(context);
+            view = inflater.inflate(R.layout.view_recipe_step_item, parent, false);
         }
 
-        @Override
-        public void onClick(View v) {
-            selectedStepIndex = -1;
-            testSteps.remove(position);
-            adapter.notifyDataSetChanged();
-        }
+        final TextView titleField = (TextView) view.findViewById(R.id.description_view);
+        final ImageButton deleteButton = (ImageButton) view.findViewById(R.id.delete_button);
+
+        titleField.setText(item.getDescription());
+        deleteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mSteps.remove(item);
+            }
+        });
+
+        view.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mStepClickListener != null) {
+                    mStepClickListener.onStepClicked(item, index);
+                }
+            }
+        });
+
+        return view;
+    }
+
+    /**
+     * Sets the step click listener
+     * @param stepClickListener the listener to notify when the user clicks on a step,
+     *                          or null to remove an existing listener
+     */
+    public void setStepClickListener(StepClickListener stepClickListener) {
+        mStepClickListener = stepClickListener;
     }
 }

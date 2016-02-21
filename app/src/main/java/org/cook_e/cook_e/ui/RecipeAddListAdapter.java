@@ -69,7 +69,7 @@ public class RecipeAddListAdapter extends ListListAdapter<Recipe> {
     }
 
     @Override
-    public View getViewForItem(final Recipe item, Context context, View convertView, ViewGroup parent) {
+    public View getViewForItem(final Recipe item, int index, View convertView, ViewGroup parent, Context context) {
         RecipeAddItemView view;
         if (convertView instanceof RecipeAddItemView) {
             view = (RecipeAddItemView) convertView;

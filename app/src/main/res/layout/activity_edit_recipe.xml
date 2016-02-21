@@ -25,10 +25,10 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <RelativeLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:focusableInTouchMode="true">
+        android:orientation="vertical">
 
         <android.support.v7.widget.Toolbar
             android:id="@+id/toolbar"
@@ -40,28 +40,15 @@
             app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
             tools:ignore="UnusedAttribute"/>
 
-        <ListView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/recipeSteps"
-            android:layout_below="@+id/recipeImage"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentEnd="true" />
-
         <LinearLayout
             android:orientation="horizontal"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_below="@+id/toolbar"
-            android:layout_centerHorizontal="true">
+            android:layout_height="wrap_content">
 
             <ImageButton
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/recipeImage"
+                android:id="@+id/recipe_image_button"
                 android:contentDescription="@string/recipe_image"
                 android:scaleType="fitCenter"
                 android:maxHeight="150dp"
@@ -80,7 +67,13 @@
                 style="@android:style/TextAppearance.DeviceDefault.Medium"
                 android:padding="10dp"/>
         </LinearLayout>
-    </RelativeLayout>
+
+        <ListView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/recipeSteps" />
+
+    </LinearLayout>
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/stepAdd"

@@ -19,9 +19,13 @@
 
 package org.cook_e.cook_e;
 
+import android.app.Fragment;
+import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.databinding.ObservableArrayList;
+import android.databinding.ObservableList;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -29,13 +33,18 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import org.cook_e.cook_e.ui.StepDialogFragment;
 import org.cook_e.data.Recipe;
 import org.cook_e.data.Step;
 import org.joda.time.Duration;
 
+import java.util.Arrays;
 import java.util.Collections;
 
 /**
@@ -43,12 +52,23 @@ import java.util.Collections;
  *
  * This is the activity for editing a particular recipe.
  */
-public class EditRecipeActivity extends AppCompatActivity {
+public class EditRecipeActivity extends AppCompatActivity implements StepDialogFragment.StepEditListener {
 
     /**
      * Intent extra that provides the activity to edit
      */
     public static final String EXTRA_RECIPE = EditRecipeActivity.class.getName() + ".RECIPE";
+
+    /**
+     * Key used in bundles when saving and restoring the state of {@link #mRecipe}
+     */
+    private static final String KEY_RECIPE = EditRecipeActivity.class.getName() + ".RECIPE";
+    /**
+     * Key used in bundles when saving and restoring the state of {@link #mStepEditIndex}
+     */
+    private static final String KEY_STEP_EDIT_INDEX = EditRecipeActivity.class.getName() + ".STEP_EDIT_INDEX";
+
+
 
     /**
      * The recipe being edited
@@ -60,6 +80,12 @@ public class EditRecipeActivity extends AppCompatActivity {
      */
     private ObservableArrayList<Step> mSteps;
 
+    /**
+     * The index in {@link #mSteps} of the step currently being edited, or -1 if no step is being
+     * edited
+     */
+    private int mStepEditIndex;
+
     /*
      * Sets up the main view to edit recipes.
      */
@@ -68,7 +94,19 @@ public class EditRecipeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_recipe);
 
-        mRecipe = unpackRecipe();
+        if (savedInstanceState == null) {
+            // Get recipe from intent
+            mRecipe = unpackRecipe();
+            mStepEditIndex = -1;
+        }
+        else {
+            // Get recipe from saved state
+            mRecipe = savedInstanceState.getParcelable(KEY_RECIPE);
+            if (mRecipe == null) {
+                throw new IllegalStateException("No saved recipe in savedInstanceState");
+            }
+            mStepEditIndex = savedInstanceState.getInt(KEY_STEP_EDIT_INDEX);
+        }
         mSteps = new ObservableArrayList<>();
         mSteps.addAll(mRecipe.getSteps());
 
@@ -80,10 +118,11 @@ public class EditRecipeActivity extends AppCompatActivity {
         }
 
         // Set up recipe description
-        final TextView descriptionView = (TextView) findViewById(R.id.recipeDescription);
-        // TODO: Make clear that this text field contains the author
-        descriptionView.setText(mRecipe.getAuthor());
-        // TODO: Set recipe image
+        final TextView authorView = (TextView) findViewById(R.id.recipe_author);
+        authorView.setText(mRecipe.getAuthor());
+        // Recipe image
+        final ImageButton imageView = (ImageButton) findViewById(R.id.recipe_image_button);
+        imageView.setImageBitmap(mRecipe.getImage());
 
         final StepListAdapter stepsAdapter = new StepListAdapter(this, mSteps);
         ListView stepsList = (ListView) findViewById(R.id.recipeSteps);
@@ -93,20 +132,98 @@ public class EditRecipeActivity extends AppCompatActivity {
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        // Add a step
-                        final Step newStep = new Step(Collections.<String>emptyList(), "",
-                                Duration.ZERO, false);
-                        mSteps.add(newStep);
-                        mRecipe.setSteps(mSteps);
-                        stepsAdapter.notifyDataSetChanged();
+                        // Set the index at which to insert the step
+                        mStepEditIndex = mSteps.size();
+                        // Show a dialog to create a step
+                        final FragmentTransaction transaction = getFragmentManager().beginTransaction();
+                        final Fragment previous = getFragmentManager().findFragmentByTag("dialog");
+                        if (previous != null) {
+                            transaction.remove(previous);
+                        }
+                        transaction.addToBackStack(null);
+                        final StepDialogFragment dialog = StepDialogFragment.newInstance(null);
+                        dialog.show(transaction, "dialog");
                     }
                 }
         );
+
+        // Begin editing a step when the user clicks on it
+        stepsAdapter.setStepClickListener(new StepListAdapter.StepClickListener() {
+            @Override
+            public void onStepClicked(Step step, int index) {
+                mStepEditIndex = index;
+                // Show a dialog to edit the step
+                final FragmentTransaction transaction = getFragmentManager().beginTransaction();
+                final Fragment previous = getFragmentManager().findFragmentByTag("dialog");
+                if (previous != null) {
+                    transaction.remove(previous);
+                }
+                transaction.addToBackStack(null);
+                final StepDialogFragment dialog = StepDialogFragment.newInstance(step);
+                dialog.show(transaction, "dialog");
+            }
+        });
+
+        // Update recipe when step list changes
+        mSteps.addOnListChangedCallback(new ObservableList.OnListChangedCallback() {
+            @Override
+            public void onChanged(ObservableList sender) {
+                mRecipe.setSteps(mSteps);
+            }
+
+            @Override
+            public void onItemRangeChanged(ObservableList sender, int positionStart, int itemCount) {
+                mRecipe.setSteps(mSteps);
+            }
+
+            @Override
+            public void onItemRangeInserted(ObservableList sender, int positionStart, int itemCount) {
+                mRecipe.setSteps(mSteps);
+            }
+
+            @Override
+            public void onItemRangeMoved(ObservableList sender, int fromPosition, int toPosition, int itemCount) {
+                mRecipe.setSteps(mSteps);
+            }
+
+            @Override
+            public void onItemRangeRemoved(ObservableList sender, int positionStart, int itemCount) {
+                mRecipe.setSteps(mSteps);
+            }
+        });
+    }
+
+    @Override
+    public void stepEditingFinished(@NonNull Step step) {
+        // User finished editing a step
+        // Put it in the list
+        if (mStepEditIndex == -1) {
+            throw new IllegalStateException("mStepEditIndex is -1");
+        }
+        if (mStepEditIndex > mSteps.size()) {
+            throw new IllegalStateException("mStepEditIndex is too large");
+        }
+
+        if (mStepEditIndex == mSteps.size()) {
+            mSteps.add(step);
+        }
+        else {
+            mSteps.set(mStepEditIndex, step);
+        }
+        mStepEditIndex = -1;
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        // Save the current recipe and edit state
+        outState.putParcelable(KEY_RECIPE, mRecipe);
+        outState.putInt(KEY_STEP_EDIT_INDEX, mStepEditIndex);
     }
 
     /*
-     * Sets up the action bar.
-     */
+         * Sets up the action bar.
+         */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
@@ -159,5 +276,4 @@ public class EditRecipeActivity extends AppCompatActivity {
         finish();
         return true;
     }
-
 }

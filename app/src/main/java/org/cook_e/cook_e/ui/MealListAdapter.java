@@ -27,7 +27,7 @@ public class MealListAdapter extends ListListAdapter<Bunch> {
     }
 
     @Override
-    public View getViewForItem(final Bunch item, final Context context, View convertView, ViewGroup parent) {
+    public View getViewForItem(final Bunch item, int index, View convertView, ViewGroup parent, final Context context) {
 
         TextView textView;
         if (convertView instanceof TextView) {

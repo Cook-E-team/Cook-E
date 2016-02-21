@@ -115,11 +115,11 @@ public abstract class ListListAdapter<T> implements ListAdapter {
     /**
      * Returns a view to represent an item from the list
      * @param item the item to display
+     * @param index the index of the item to display in the list
      * @param convertView an existing view to reuse, or null if none is available
-     * @param parent the parent that this view will eventually be attached to
-     * @return a view to represent the item
+     * @param parent the parent that this view will eventually be attached to   @return a view to represent the item
      */
-    public abstract View getViewForItem(T item, Context context, View convertView, ViewGroup parent);
+    public abstract View getViewForItem(T item, int index, View convertView, ViewGroup parent, Context context);
 
     /**
      * Returns true to indicate that all items are enabled
@@ -172,7 +172,7 @@ public abstract class ListListAdapter<T> implements ListAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        return getViewForItem(mItems.get(position), mContext, convertView, parent);
+        return getViewForItem(mItems.get(position), position, convertView, parent, mContext);
     }
 
     @Override
