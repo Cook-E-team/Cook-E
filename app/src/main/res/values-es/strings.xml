@@ -41,8 +41,8 @@
     <string name="step">Paso</string>
     <string name="step_list_title">Paso %d</string>
     <string name="step_title">Título del paso</string>
-    <string name="time">Título</string>
-    <string name="title">Duración</string>
     <string name="tutorial">Tutorial</string>
     <string name="website">Sitio web</string>
+    <string name="time">Duración</string>
+    <string name="title">Título</string>
 </resources>
