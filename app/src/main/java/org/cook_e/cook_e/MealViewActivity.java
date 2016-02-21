@@ -22,6 +22,7 @@ package org.cook_e.cook_e;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.databinding.ObservableArrayList;
+import android.databinding.ObservableList;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.design.widget.FloatingActionButton;
@@ -40,6 +41,7 @@ import org.cook_e.data.Recipe;
 import org.cook_e.data.Step;
 import org.cook_e.data.StorageAccessor;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -111,6 +113,57 @@ public class MealViewActivity extends AppCompatActivity {
 
         // Set up accessor
         mAccessor = App.getAccessor();
+
+        // Save meal when recipe list changes
+        mRecipes.addOnListChangedCallback(new ObservableList.OnListChangedCallback() {
+            @Override
+            public void onChanged(ObservableList sender) {
+                updateRecipes();
+            }
+
+            @Override
+            public void onItemRangeChanged(ObservableList sender, int positionStart, int itemCount) {
+                updateRecipes();
+            }
+
+            @Override
+            public void onItemRangeInserted(ObservableList sender, int positionStart, int itemCount) {
+                updateRecipes();
+            }
+
+            @Override
+            public void onItemRangeMoved(ObservableList sender, int fromPosition, int toPosition, int itemCount) {
+                updateRecipes();
+            }
+
+            @Override
+            public void onItemRangeRemoved(ObservableList sender, int positionStart, int itemCount) {
+                updateRecipes();
+            }
+        });
+    }
+
+    /**
+     * Sets the recipes in {@link #mMeal} to {@link #mRecipes}, then saves the meal
+     */
+    private void updateRecipes() {
+        mMeal.setRecipes(mRecipes);
+        saveMeal();
+    }
+
+    /**
+     * Tries to save the meal
+     */
+    private void saveMeal() {
+        try {
+            mAccessor.persistBunch(mMeal);
+        }
+        catch (Exception e) {
+            new AlertDialog.Builder(MealViewActivity.this)
+                    .setTitle("Failed to save meal")
+                    .setMessage(e.getLocalizedMessage())
+                    .show();
+        }
     }
 
     @Override
@@ -119,22 +172,13 @@ public class MealViewActivity extends AppCompatActivity {
             final Parcelable[] parcelables = data.getParcelableArrayExtra(MealRecipeAddActivity.EXTRA_RECIPES);
             final Recipe[] recipesToAdd = Objects.castArray(parcelables, Recipe[].class);
             // Add recipes
+            final List<Recipe> addedRecipes = new ArrayList<>();
             for (Recipe newRecipe : recipesToAdd) {
                 if (!mRecipes.contains(newRecipe)) {
-                    mRecipes.add(newRecipe);
+                    addedRecipes.add(newRecipe);
                 }
             }
-            // Save meal to storage
-            mMeal.setRecipes(mRecipes);
-            try {
-                mAccessor.editBunch(mMeal);
-            }
-            catch (Exception e) {
-                new AlertDialog.Builder(MealViewActivity.this)
-                        .setTitle("Failed to load recipes")
-                        .setMessage(e.getLocalizedMessage())
-                        .show();
-            }
+            mRecipes.addAll(addedRecipes);
         }
     }
 
