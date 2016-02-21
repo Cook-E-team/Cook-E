@@ -27,6 +27,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -511,6 +512,10 @@ public class SQLiteAccessor implements SQLAccessor {
                     if (c.getCount() > 0) {
                         c.moveToFirst();
                         long bunch_id = c.getLong(0);
+                        final String bunchName = c.getString(1);
+                        // Create the bunch
+                        b = new Bunch(bunchName, Collections.<Recipe>emptyList());
+
                         String[] bunchRecipesWhereArgs = {String.valueOf(bunch_id)};
                         Cursor recipe_bunch_cursor = db.query(BUNCH_RECIPES_TABLE_NAME,
                                 BUNCH_RECIPE_COLUMNS,
@@ -549,6 +554,7 @@ public class SQLiteAccessor implements SQLAccessor {
                         } finally {
                             recipe_bunch_cursor.close();
                         }
+                        b.setRecipes(recipes);
                     }
                 } finally {
                     c.close();
@@ -571,10 +577,17 @@ public class SQLiteAccessor implements SQLAccessor {
     public void deleteRecipe(Recipe r) throws SQLException {
         try {
             SQLiteDatabase db = mHelper.getWritableDatabase();
+            db.beginTransaction();
             try {
                 String[] whereArgs = {String.valueOf(r.getObjectId())};
+                // Remove any bunch associations that involve this recipe
+                db.delete(BUNCH_RECIPES_TABLE_NAME, "recipe_id = ?", whereArgs);
+
+                // Delete the recipe entry
                 db.delete(RECIPE_TABLE_NAME, "id = ?", whereArgs);
+                db.setTransactionSuccessful();
             } finally {
+                db.endTransaction();
                 db.close();
             }
         } catch (Exception e) {

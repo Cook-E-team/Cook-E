@@ -168,8 +168,9 @@ public class SQLiteAccessorTest {
      */
     @Test
     public void testDeleteRecipeInBunch() throws SQLException {
+        final String mealName = "The 42905204th meal";
         final Recipe recipe = new Recipe("A Recipe", "Alan Smithee", Collections.<Step>emptyList());
-        final Bunch meal = new Bunch("A meal", Collections.singletonList(recipe));
+        final Bunch meal = new Bunch(mealName, Collections.singletonList(recipe));
 
         mAccessor.storeRecipe(recipe);
         mAccessor.storeBunch(meal);
@@ -181,8 +182,19 @@ public class SQLiteAccessorTest {
         // Remove recipe from bunch, retrieve and check equality
         meal.setRecipes(Collections.<Recipe>emptyList());
 
-        final Bunch retrievedMeal = mAccessor.loadBunch("A meal");
-        assertEquals(retrievedMeal, meal);
+        final Bunch retrievedMeal = mAccessor.loadBunch(mealName);
+        assertEquals(meal, retrievedMeal);
+    }
+
+    @Test
+    public void testLoadBunchByName() throws SQLException {
+        final String mealName = "A feast fit for a slithy tove";
+        final Bunch meal = new Bunch(mealName, Collections.<Recipe>emptyList());
+        mAccessor.storeBunch(meal);
+        mAccessor.checkInvariants();
+
+        final Bunch retrieved = mAccessor.loadBunch(mealName);
+        assertEquals(meal, retrieved);
     }
 
     @Test
