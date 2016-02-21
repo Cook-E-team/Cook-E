@@ -28,7 +28,7 @@
     <string name="ok">OK</string>
     <string name="recipe">Recipe</string>
     <string name="recipe_image">Recipe image</string>
-    <string name="recipe_description">Recipe Description</string>
+    <string name="recipe_description">Recipe description</string>
     <string name="step_title">Step title</string>
     <string name="delete">Delete</string>
     <string name="ingredient">Ingredient</string>
@@ -36,8 +36,8 @@
     <string name="amount">Amount</string>
     <string name="meals">Meals</string>
     <string name="recipes">Recipes</string>
-    <string name="create_recipe">Create Recipe</string>
-    <string name="select_image">Select Image</string>
+    <string name="create_recipe">Create recipe</string>
+    <string name="select_image">Select image</string>
     <string name="label_continue">Continue</string>
     <string name="website">Website</string>
     <string name="about">About</string>
@@ -76,15 +76,15 @@ Evo Inflector (https://github.com/atteo/evo-inflector/) is distributed in accord
     <string name="start">Start</string>
     <string name="search">Search</string>
     <string name="add_image">Add image</string>
-    <string name="remove_image">Remove Image</string>
+    <string name="remove_image">Remove image</string>
     <string name="author">Author</string>
     <string name="time">Time</string>
     <string name="ingredients">Ingredients</string>
-    <string name="edit_step">Edit Step</string>
-    <string name="delete_step">Delete Step</string>
+    <string name="edit_step">Edit step</string>
+    <string name="delete_step">Delete step</string>
     <string name="step">Step</string>
-    <string name="add_step">Add Step</string>
+    <string name="add_step">Add step</string>
     <string name="edit_title_or_author">Edit title or author</string>
-    <string name="edit_recipe">Edit Recipe</string>
+    <string name="edit_recipe">Edit recipe</string>
     <string name="question_delete_recipe">Delete recipe?</string>
 </resources>
