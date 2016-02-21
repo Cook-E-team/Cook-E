@@ -48,7 +48,7 @@ public class RecipeListAdapter extends ListListAdapter<Recipe> {
             @Override
             public void onClick(View v) {
                 final Intent intent = new Intent(context, EditRecipeActivity.class);
-                intent.putExtra(EditRecipeActivity.EXTRA_ACTIVITY, item);
+                intent.putExtra(EditRecipeActivity.EXTRA_RECIPE, item);
                 context.startActivity(intent);
             }
         });

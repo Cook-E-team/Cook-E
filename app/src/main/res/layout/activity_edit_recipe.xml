@@ -40,31 +40,6 @@
             app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
             tools:ignore="UnusedAttribute"/>
 
-        <ImageButton
-            android:layout_width="150sp"
-            android:layout_height="150sp"
-            android:id="@+id/recipeImage"
-            android:layout_below="@+id/toolbar"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
-            android:contentDescription="@string/recipe_image"
-            android:scaleType="fitXY" />
-
-        <EditText
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:inputType="textMultiLine"
-            android:ems="10"
-            android:id="@+id/recipeDescription"
-            android:hint="@string/recipe_description"
-            android:gravity="start|top"
-            android:layout_below="@+id/toolbar"
-            android:layout_toRightOf="@+id/recipeImage"
-            android:layout_toEndOf="@+id/recipeImage"
-            android:layout_above="@+id/recipeSteps"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentEnd="true" />
-
         <ListView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -75,6 +50,36 @@
             android:layout_alignParentBottom="true"
             android:layout_alignParentRight="true"
             android:layout_alignParentEnd="true" />
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@+id/toolbar"
+            android:layout_centerHorizontal="true">
+
+            <ImageButton
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/recipeImage"
+                android:contentDescription="@string/recipe_image"
+                android:scaleType="fitCenter"
+                android:maxHeight="150dp"
+                android:maxWidth="150dp"
+                android:layout_weight="0.5"
+                android:src="@drawable/test_image_1"
+                android:adjustViewBounds="true"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/recipe_author"
+                android:text="@string/author"
+                android:gravity="start|top"
+                android:layout_weight="0.5"
+                style="@android:style/TextAppearance.DeviceDefault.Medium"
+                android:padding="10dp"/>
+        </LinearLayout>
     </RelativeLayout>
 
     <android.support.design.widget.FloatingActionButton

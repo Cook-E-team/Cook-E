@@ -48,15 +48,15 @@ public class EditRecipeActivity extends AppCompatActivity {
     /**
      * Intent extra that provides the activity to edit
      */
-    public static final String EXTRA_ACTIVITY = EditRecipeActivity.class.getName() + ".ACTIVITY";
+    public static final String EXTRA_RECIPE = EditRecipeActivity.class.getName() + ".RECIPE";
 
     /**
-     * The recipe being added
+     * The recipe being edited
      */
     private Recipe mRecipe;
 
     /**
-     * The steps being edited
+     * The steps of the recipe being edited
      */
     private ObservableArrayList<Step> mSteps;
 
@@ -138,7 +138,7 @@ public class EditRecipeActivity extends AppCompatActivity {
      */
     private Recipe unpackRecipe() {
         final Intent intent = getIntent();
-        final Recipe recipe = intent.getParcelableExtra(EXTRA_ACTIVITY);
+        final Recipe recipe = intent.getParcelableExtra(EXTRA_RECIPE);
         if (recipe == null) {
             throw new IllegalStateException("No activity extra provided in intent");
         }

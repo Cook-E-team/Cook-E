@@ -36,7 +36,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 
 import org.cook_e.data.Recipe;
@@ -74,7 +73,7 @@ public class CreateRecipe extends AppCompatActivity {
     /**
      * Text field for description
      */
-    private EditText mDescriptionField;
+    private EditText mAuthorField;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,7 +91,7 @@ public class CreateRecipe extends AppCompatActivity {
         mImageView.setVisibility(View.GONE);
 
         mTitleField = (EditText) findViewById(R.id.title_field);
-        mDescriptionField = (EditText) findViewById(R.id.description_field);
+        mAuthorField = (EditText) findViewById(R.id.author_field);
 
         // Continue button
         final Button continueButton = (Button) findViewById(R.id.continue_button);
@@ -123,7 +122,7 @@ public class CreateRecipe extends AppCompatActivity {
 
     private void continueCreatingRecipe() {
         final String title = mTitleField.getText().toString();
-        final String description = mDescriptionField.getText().toString();
+        final String author = mAuthorField.getText().toString();
         if (title.isEmpty()) {
             new AlertDialog.Builder(this)
                     .setTitle("Empty title")
@@ -133,10 +132,11 @@ public class CreateRecipe extends AppCompatActivity {
             return;
         }
         // Create a recipe
-        final Recipe recipe = new Recipe(title, description, Collections.<Step>emptyList());
+        final Recipe recipe = new Recipe(title, author, Collections.<Step>emptyList());
+        recipe.setImage(mRecipeImage);
 
         final Intent intent = new Intent(this, EditRecipeActivity.class);
-        intent.putExtra(EditRecipeActivity.EXTRA_ACTIVITY, recipe);
+        intent.putExtra(EditRecipeActivity.EXTRA_RECIPE, recipe);
         startActivity(intent);
     }
 

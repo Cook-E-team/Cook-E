@@ -27,6 +27,7 @@ import org.joda.time.Duration;
 import org.joda.time.ReadableDuration;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -68,11 +69,11 @@ public final class Step implements Parcelable {
      * The set of all string patterns in the description
      * that indicates this step can be done simultaneously
      */
-    private static final Set<String> simultaneousPatterns = new HashSet<String>() {{
+    private static final Set<String> SIMULTANEOUS_PATTERNS = Collections.unmodifiableSet(new HashSet<String>() {{
         add("boil");
         add("bake");
         add("microwave");
-    }};
+    }});
     /**
      * Creates a Step
      * @param ingredients the ingredients required for this step
@@ -111,10 +112,10 @@ public final class Step implements Parcelable {
      */
     private static boolean isSimultaneousParser(@NonNull String description) {
         Objects.requireNonNull(description, "description must not be null");
-        String[] words = description.split(" ");
+        String[] words = description.split("\\s+");
         for (String word : words) {
             String lowerCaseWord = word.toLowerCase();
-            for (String pattern : simultaneousPatterns) {
+            for (String pattern : SIMULTANEOUS_PATTERNS) {
                 if (lowerCaseWord.contains(pattern)) return true;
             }
         }
