@@ -23,6 +23,7 @@ import android.app.AlertDialog;
 import android.app.DialogFragment;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.databinding.ObservableArrayList;
 import android.databinding.ObservableList;
@@ -246,6 +247,21 @@ public class EditRecipeActivity extends AppCompatActivity
         }
     }
 
+    /**
+     * Tries to delete the recipe, then exits
+     */
+    private void deleteRecipe() {
+        try {
+            App.getAccessor().deleteRecipe(mRecipe);
+            finish();
+        } catch (SQLException e) {
+            new AlertDialog.Builder(this)
+                    .setTitle("Failed to delete recipe")
+                    .setMessage(e.getLocalizedMessage())
+                    .show();
+        }
+    }
+
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -301,6 +317,27 @@ public class EditRecipeActivity extends AppCompatActivity
                 transaction.addToBackStack(null);
                 final DialogFragment dialog = RecipeEditDialogFragment.newInstance(mRecipe);
                 dialog.show(transaction, "dialog");
+
+                return true;
+            }
+        });
+
+        final MenuItem deleteItem = menu.findItem(R.id.item_delete_recipe);
+        deleteItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                // Show a confirmation dialog
+                new AlertDialog.Builder(EditRecipeActivity.this)
+                        .setTitle(R.string.question_delete_recipe)
+                        .setPositiveButton(android.R.string.ok,
+                                new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        deleteRecipe();
+                                    }
+                                })
+                        .setNegativeButton(android.R.string.cancel, null)
+                        .show();
 
                 return true;
             }
