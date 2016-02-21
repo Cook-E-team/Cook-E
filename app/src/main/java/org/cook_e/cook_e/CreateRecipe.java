@@ -41,8 +41,13 @@ import android.widget.ImageView;
 import org.cook_e.data.Recipe;
 import org.cook_e.data.Step;
 
+import java.sql.SQLException;
 import java.util.Collections;
 
+
+/**
+ * An activity that lets the user create a recipe
+ */
 public class CreateRecipe extends AppCompatActivity {
 
     /**
@@ -136,9 +141,22 @@ public class CreateRecipe extends AppCompatActivity {
         // TODO: If the recipe image is set, starting the next activity will fail because of
         // the large image (see issue #7). Once a solution is found, set the image.
 
+        // Store the recipe
+        try {
+            App.getAccessor().persistRecipe(recipe);
+        } catch (SQLException e) {
+            new AlertDialog.Builder(this)
+                    .setTitle("Failed to save recipe")
+                    .setMessage(e.getLocalizedMessage())
+                    .show();
+            return;
+        }
+
+        // Start editor activity
         final Intent intent = new Intent(this, EditRecipeActivity.class);
         intent.putExtra(EditRecipeActivity.EXTRA_RECIPE, recipe);
         startActivity(intent);
+        // Close this activity, so that when the user goes back it will not appear again
         finish();
     }
 
