@@ -75,4 +75,6 @@ Evo Inflector (https://github.com/atteo/evo-inflector/) is distributed in accord
     <string name="finish">Finish</string>
     <string name="start">Start</string>
     <string name="search">Search</string>
+    <string name="add_image">Add image</string>
+    <string name="remove_image">Remove Image</string>
 </resources>

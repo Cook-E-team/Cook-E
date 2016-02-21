@@ -51,21 +51,34 @@
         android:layout_marginTop="@dimen/activity_vertical_margin"
         android:layout_marginBottom="@dimen/activity_vertical_margin">
 
-        <ImageView
+        <LinearLayout
+            android:orientation="horizontal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/recipe_image_view"
-            android:src="@drawable/test_image_1"
-            android:adjustViewBounds="true"
-            android:contentDescription="@string/recipe_image"
-            android:maxHeight="200dp" />
+            android:layout_gravity="center_horizontal"
+            >
 
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/select_image"
-            android:id="@+id/image_choose_button"
-            android:layout_gravity="center_horizontal" />
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/recipe_image_view"
+                android:layout_gravity="center"
+                android:adjustViewBounds="true"
+                android:maxWidth="150dp"
+                android:maxHeight="150dp"
+                android:contentDescription="@string/recipe_image_description"
+                android:layout_weight="0.5"
+                android:paddingEnd="@dimen/activity_horizontal_margin"
+                android:paddingStart="@dimen/activity_horizontal_margin"/>
+
+            <Button
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/label_continue"
+                android:id="@+id/continue_button"
+                android:layout_weight="0.5"
+                android:layout_gravity="center_horizontal|top"/>
+        </LinearLayout>
 
         <EditText
             android:layout_width="match_parent"
@@ -83,13 +96,6 @@
             android:id="@+id/description_field"
             android:layout_gravity="center_horizontal"
             android:hint="@string/description" />
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/label_continue"
-            android:id="@+id/continue_button"
-            android:layout_gravity="center_horizontal" />
 
     </LinearLayout>
 
