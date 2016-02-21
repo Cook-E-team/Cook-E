@@ -19,6 +19,7 @@
 
 package org.cook_e.cook_e;
 
+import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.content.Intent;
@@ -34,18 +35,14 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import org.cook_e.cook_e.ui.StepDialogFragment;
 import org.cook_e.data.Recipe;
 import org.cook_e.data.Step;
-import org.joda.time.Duration;
 
-import java.util.Arrays;
-import java.util.Collections;
+import java.sql.SQLException;
 
 /**
  * Created by Tyler on 2/4/2016.
@@ -67,7 +64,6 @@ public class EditRecipeActivity extends AppCompatActivity implements StepDialogF
      * Key used in bundles when saving and restoring the state of {@link #mStepEditIndex}
      */
     private static final String KEY_STEP_EDIT_INDEX = EditRecipeActivity.class.getName() + ".STEP_EDIT_INDEX";
-
 
 
     /**
@@ -98,8 +94,7 @@ public class EditRecipeActivity extends AppCompatActivity implements StepDialogF
             // Get recipe from intent
             mRecipe = unpackRecipe();
             mStepEditIndex = -1;
-        }
-        else {
+        } else {
             // Get recipe from saved state
             mRecipe = savedInstanceState.getParcelable(KEY_RECIPE);
             if (mRecipe == null) {
@@ -168,27 +163,27 @@ public class EditRecipeActivity extends AppCompatActivity implements StepDialogF
         mSteps.addOnListChangedCallback(new ObservableList.OnListChangedCallback() {
             @Override
             public void onChanged(ObservableList sender) {
-                mRecipe.setSteps(mSteps);
+                updateRecipeSteps();
             }
 
             @Override
             public void onItemRangeChanged(ObservableList sender, int positionStart, int itemCount) {
-                mRecipe.setSteps(mSteps);
+                updateRecipeSteps();
             }
 
             @Override
             public void onItemRangeInserted(ObservableList sender, int positionStart, int itemCount) {
-                mRecipe.setSteps(mSteps);
+                updateRecipeSteps();
             }
 
             @Override
             public void onItemRangeMoved(ObservableList sender, int fromPosition, int toPosition, int itemCount) {
-                mRecipe.setSteps(mSteps);
+                updateRecipeSteps();
             }
 
             @Override
             public void onItemRangeRemoved(ObservableList sender, int positionStart, int itemCount) {
-                mRecipe.setSteps(mSteps);
+                updateRecipeSteps();
             }
         });
     }
@@ -206,11 +201,25 @@ public class EditRecipeActivity extends AppCompatActivity implements StepDialogF
 
         if (mStepEditIndex == mSteps.size()) {
             mSteps.add(step);
-        }
-        else {
+        } else {
             mSteps.set(mStepEditIndex, step);
         }
         mStepEditIndex = -1;
+    }
+
+    /**
+     * Updates the steps in {@link #mRecipe} to equal {@link #mSteps}, and saves mRecipe
+     */
+    private void updateRecipeSteps() {
+        mRecipe.setSteps(mSteps);
+        try {
+            App.getAccessor().editRecipe(mRecipe);
+        } catch (SQLException e) {
+            new AlertDialog.Builder(this)
+                    .setTitle("Failed to save")
+                    .setMessage(e.getLocalizedMessage())
+                    .show();
+        }
     }
 
     @Override
@@ -222,8 +231,8 @@ public class EditRecipeActivity extends AppCompatActivity implements StepDialogF
     }
 
     /*
-         * Sets up the action bar.
-         */
+     * Sets up the action bar.
+     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
@@ -251,6 +260,7 @@ public class EditRecipeActivity extends AppCompatActivity implements StepDialogF
 
     /**
      * Accesses the recipe to be edited
+     *
      * @return a recipe from the intent that started this activity
      */
     private Recipe unpackRecipe() {
