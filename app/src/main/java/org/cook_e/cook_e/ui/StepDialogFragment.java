@@ -24,6 +24,9 @@ import java.util.List;
 
 /**
  * A dialog fragment that allows the user to edit a {@link org.cook_e.data.Step}
+ *
+ * The Activity that uses this dialog must implement the
+ * {@link org.cook_e.cook_e.ui.StepDialogFragment.StepEditListener} interface.
  */
 public class StepDialogFragment extends DialogFragment {
 
