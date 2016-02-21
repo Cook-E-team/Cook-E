@@ -29,8 +29,6 @@
     <string name="title">Title</string>
     <string name="description">Description</string>
     <string name="add_recipes">Add recipes</string>
-    <string name="cancel">Cancel</string>
-    <string name="ok">OK</string>
     <string name="recipe">Recipe</string>
     <string name="recipe_image">Recipe image</string>
     <string name="recipe_description">Recipe description</string>
