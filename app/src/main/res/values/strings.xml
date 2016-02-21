@@ -67,7 +67,11 @@ Joda-Time is distributed in accordance with the Apache license, version 2.0.\n\n
 
 Evo Inflector:\n\n
 
-Evo Inflector (https://github.com/atteo/evo-inflector/) is distributed in accordance with the Apache license, version 2.0.
+Evo Inflector (https://github.com/atteo/evo-inflector/) is distributed in accordance with the Apache license, version 2.0.\n\n
+
+Material icons:\n\n
+
+This application uses the material icons developed by Google (https://design.google.com/icons/). The icons are distributed in accordance with the Creative Commons Attribution 4.0 International license (https://creativecommons.org/licenses/by/4.0/).
 ]]></string>
     <string name="settings">Settings</string>
     <string name="tutorial">Tutorial</string>
