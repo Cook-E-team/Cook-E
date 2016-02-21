@@ -20,6 +20,7 @@
 package org.cook_e.cook_e;
 
 import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.databinding.ObservableArrayList;
 import android.databinding.ObservableList;
@@ -41,6 +42,7 @@ import org.cook_e.data.Recipe;
 import org.cook_e.data.Step;
 import org.cook_e.data.StorageAccessor;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -211,10 +213,39 @@ public class MealViewActivity extends AppCompatActivity {
                 }
                 return true;
 
+            case R.id.meal_delete_item:
+                // Show a confirmation dialog
+                new AlertDialog.Builder(MealViewActivity.this)
+                        .setTitle(R.string.question_delete_meal)
+                        .setPositiveButton(android.R.string.ok,
+                                new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        deleteMeal();
+                                    }
+                                })
+                        .setNegativeButton(android.R.string.cancel, null)
+                        .show();
+
             default:
                 // If we got here, the user's action was not recognized.
                 // Invoke the superclass to handle it.
                 return super.onOptionsItemSelected(item);
+        }
+    }
+
+    /**
+     * Deletes the meal, then exits
+     */
+    private void deleteMeal() {
+        try {
+            App.getAccessor().deleteBunch(mMeal);
+            finish();
+        } catch (SQLException e) {
+            new AlertDialog.Builder(this)
+                    .setTitle("Failed to delete meal")
+                    .setMessage(e.getLocalizedMessage())
+                    .show();
         }
     }
 

@@ -94,4 +94,6 @@ This application uses the material icons developed by Google (https://design.goo
     <string name="previous">Previous</string>
     <string name="next">Next</string>
     <string name="create_meal">Create meal</string>
+    <string name="delete_meal">Delete meal</string>
+    <string name="question_delete_meal">Delete meal?</string>
 </resources>
