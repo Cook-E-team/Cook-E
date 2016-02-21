@@ -186,15 +186,40 @@ public class SQLiteAccessorTest {
         assertEquals(meal, retrievedMeal);
     }
 
-    @Test
-    public void testLoadBunchByName() throws SQLException {
-        final String mealName = "A feast fit for a slithy tove";
-        final Bunch meal = new Bunch(mealName, Collections.<Recipe>emptyList());
+    public void testLoadBunchByName(String name) throws SQLException {
+        final Bunch meal = new Bunch(name, Collections.<Recipe>emptyList());
         mAccessor.storeBunch(meal);
         mAccessor.checkInvariants();
 
-        final Bunch retrieved = mAccessor.loadBunch(mealName);
+        final Bunch retrieved = mAccessor.loadBunch(name);
         assertEquals(meal, retrieved);
+    }
+
+    @Test
+    public void testLoadBunchByNameBasic() throws SQLException {
+        testLoadBunchByName("Feast 32");
+    }
+
+    @Test
+    public void testLoadBunchByNameUnicode() throws SQLException {
+        testLoadBunchByName("شد. او در کودکی به دیدن فیلم\u200Cهای ترسناک و علمی–تخیلی علاقه داشت و ");
+    }
+
+    public void testLoadRecipeByName(String title, String author) throws SQLException {
+        final Recipe recipe = new Recipe(title, author, Collections.<Step>emptyList());
+        mAccessor.storeRecipe(recipe);
+        mAccessor.checkInvariants();
+        final Recipe retrieved = mAccessor.loadRecipe(title, author);
+        assertEquals(recipe, retrieved);
+    }
+
+    @Test
+    public void testLoadRecipeByNameBasic() throws SQLException {
+        testLoadRecipeByName("Cheese Souffle", "Alan Smithee");
+    }
+    @Test
+    public void testLoadRecipeByNameUnicode() throws SQLException {
+        testLoadRecipeByName("Bánh chuối", "Bánh chuối là một loại bánh phổ biến tại Việt Nam");
     }
 
     @Test
