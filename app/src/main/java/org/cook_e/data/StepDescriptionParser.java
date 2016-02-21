@@ -21,6 +21,7 @@ package org.cook_e.data;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Set;
 
 /**
@@ -40,7 +41,7 @@ public final class StepDescriptionParser {
     public static boolean isSimultaneous(String description) {
 
         ////////// TEMPORARY simple solution //////////
-        description = description.toLowerCase();
+        description = description.toLowerCase(Locale.getDefault());
 
         Set<String> simulAction = new HashSet<>(Arrays.asList("bake", "boil"));
 

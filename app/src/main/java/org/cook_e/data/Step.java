@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 /*
@@ -114,7 +115,7 @@ public final class Step implements Parcelable {
         Objects.requireNonNull(description, "description must not be null");
         String[] words = description.split("\\s+");
         for (String word : words) {
-            String lowerCaseWord = word.toLowerCase();
+            String lowerCaseWord = word.toLowerCase(Locale.US);
             for (String pattern : SIMULTANEOUS_PATTERNS) {
                 if (lowerCaseWord.contains(pattern)) return true;
             }
