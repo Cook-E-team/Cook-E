@@ -30,9 +30,6 @@ import android.support.annotation.NonNull;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ListView;
@@ -228,34 +225,6 @@ public class EditRecipeActivity extends AppCompatActivity implements StepDialogF
         // Save the current recipe and edit state
         outState.putParcelable(KEY_RECIPE, mRecipe);
         outState.putInt(KEY_STEP_EDIT_INDEX, mStepEditIndex);
-    }
-
-    /*
-     * Sets up the action bar.
-     */
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.edit_recipe_menu, menu);
-        MenuItem finishItem = menu.findItem(R.id.finish);
-        finishItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-        return true;
-    }
-
-    /*
-     * Handles action bar items "onClick" events.
-     */
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle app bar item clicks here. The app bar
-        // automatically handles clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-        if (id == R.id.finish) {
-            // do stuff...
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
     }
 
     /**
