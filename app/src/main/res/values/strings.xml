@@ -44,8 +44,8 @@
     <string name="label_continue">Continue</string>
     <string name="website">Website</string>
     <string name="about">About</string>
-    <string name="about_heading">Cook-E %1$s (%2$d)</string>
-    <string name="about_details"><![CDATA[
+    <string name="about_heading" translatable="false">Cook-E %1$s (%2$d)</string>
+    <string name="about_details" translatable="false"><![CDATA[
 Cook-E is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
@@ -79,7 +79,6 @@ This application uses the material icons developed by Google (https://design.goo
     <string name="settings">Settings</string>
     <string name="tutorial">Tutorial</string>
     <string name="step_list_title">Step %d</string>
-    <string name="finish">Finish</string>
     <string name="start">Start</string>
     <string name="search">Search</string>
     <string name="add_image">Add image</string>

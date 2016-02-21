@@ -47,42 +47,9 @@
     <string name="label_continue">استمر</string>
     <string name="website">موقع الكتروني</string>
     <string name="about">حول</string>
-    <string name="about_heading">Cook-E %1$s (%2$d)</string>
-    <string name="about_details"><![CDATA[
-Cook-E is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.\n\n
-
-Cook-E is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.\n\n
-
-You should have received a copy of the GNU General Public License
-along with Cook-E.  If not, see <http://www.gnu.org/licenses/>.\n\n
-
-Cook-E uses the following Free Software libraries:\n\n
-
-Joda-Time:\n\n
-
-This product includes software developed by
-Joda.org (http://www.joda.org/).\n\n
-
-Joda-Time is distributed in accordance with the Apache license, version 2.0.\n\n
-
-Evo Inflector:\n\n
-
-Evo Inflector (https://github.com/atteo/evo-inflector/) is distributed in accordance with the Apache license, version 2.0.\n\n
-
-Material icons:\n\n
-
-This application uses the material icons developed by Google (https://design.google.com/icons/ ). The icons are distributed in accordance with the Creative Commons Attribution 4.0 International license (https://creativecommons.org/licenses/by/4.0/ ).
-]]></string>
     <string name="settings">التفضيلات</string>
     <string name="tutorial">البرنامج التعليمي</string>
     <string name="step_list_title">مرحلة %d</string>
-    <string name="finish">نهاية</string>
     <string name="start">بداية</string>
     <string name="search">بحث</string>
     <string name="add_image">إضافة صورة</string>
