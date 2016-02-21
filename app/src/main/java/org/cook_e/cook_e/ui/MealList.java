@@ -23,6 +23,7 @@ import android.app.AlertDialog;
 import android.app.Fragment;
 import android.content.Intent;
 import android.databinding.ObservableArrayList;
+import android.databinding.ObservableList;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.util.Log;
@@ -40,7 +41,6 @@ import org.cook_e.data.Bunch;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 
@@ -119,10 +119,34 @@ public class MealList extends Fragment {
         }
         mVisibleMeals.addOnListChangedCallback(new ListEmptyViewManager(emptyView));
 
+        // Update visible meals when meals changes
+        mMeals.addOnListChangedCallback(new VisibleMealUpdater<Bunch>());
+
         return view;
     }
 
+    private void updateVisibleMeals() {
+        final String query = mSearchView.getQuery().toString();
+        // Make all meals visible
+        mVisibleMeals.clear();
+        if (!query.isEmpty()) {
+            final List<Bunch> filteredMeals = new ArrayList<>();
+            // Limit mVisibleMeals to the meals whose titles contain the query
+            // Case insensitive
+            final String lowerQuery = query.toLowerCase(Locale.getDefault());
 
+            for (Bunch meal : mMeals) {
+                final String lowerTitle = meal.getTitle().toLowerCase(Locale.getDefault());
+                if (lowerTitle.contains(lowerQuery)) {
+                    filteredMeals.add(meal);
+                }
+            }
+            mVisibleMeals.addAll(filteredMeals);
+        } else {
+            // Empty query
+            mVisibleMeals.addAll(mMeals);
+        }
+    }
 
     /**
      * Updates the meals in this list from the database
@@ -134,6 +158,7 @@ public class MealList extends Fragment {
             mMeals.clear();
             try {
                 mMeals.addAll(App.getAccessor().loadAllBunches());
+                updateVisibleMeals();
             } catch (SQLException e) {
                 new AlertDialog.Builder(getActivity())
                         .setTitle("Failed to load meals")
@@ -154,27 +179,40 @@ public class MealList extends Fragment {
 
         @Override
         public boolean onQueryTextChange(String newText) {
-            // Make all meals visible
-            mVisibleMeals.clear();
-            if (!newText.isEmpty()) {
-                final List<Bunch> filteredMeals = new ArrayList<>();
-                // Limit mVisibleMeals to the meals whose titles contain the query
-                // Case insensitive
-                final String lowerQuery = newText.toLowerCase(Locale.getDefault());
-
-                for (Bunch meal : mMeals) {
-                    final String lowerTitle = meal.getTitle().toLowerCase(Locale.getDefault());
-                    if (lowerTitle.contains(lowerQuery)) {
-                        filteredMeals.add(meal);
-                    }
-                }
-                mVisibleMeals.addAll(filteredMeals);
-            } else {
-                // Empty query
-                mVisibleMeals.addAll(mMeals);
-            }
-
+            updateVisibleMeals();
             return true;
+        }
+    }
+
+    /**
+     * Calls {@link #updateVisibleMeals()} when the associated list changes
+     * @param <T> the value type
+     */
+    private class VisibleMealUpdater<T> extends ObservableList.OnListChangedCallback<ObservableList<T>> {
+
+        @Override
+        public void onChanged(ObservableList<T> sender) {
+            updateVisibleMeals();
+        }
+
+        @Override
+        public void onItemRangeChanged(ObservableList<T> sender, int positionStart, int itemCount) {
+            updateVisibleMeals();
+        }
+
+        @Override
+        public void onItemRangeInserted(ObservableList<T> sender, int positionStart, int itemCount) {
+            updateVisibleMeals();
+        }
+
+        @Override
+        public void onItemRangeMoved(ObservableList<T> sender, int fromPosition, int toPosition, int itemCount) {
+            updateVisibleMeals();
+        }
+
+        @Override
+        public void onItemRangeRemoved(ObservableList<T> sender, int positionStart, int itemCount) {
+            updateVisibleMeals();
         }
     }
 }

@@ -23,6 +23,7 @@ import android.app.AlertDialog;
 import android.app.Fragment;
 import android.content.Intent;
 import android.databinding.ObservableArrayList;
+import android.databinding.ObservableList;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.util.Log;
@@ -59,6 +60,7 @@ public class RecipeList extends Fragment {
      * (may be a subset of {@link #mRecipes} if the user has entered a search query
      */
     private ObservableArrayList<Recipe> mVisibleRecipes;
+    private SearchView mSearchView;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -90,8 +92,8 @@ public class RecipeList extends Fragment {
         recipeList.setTag(R.id.test_tag_recipe_list, "Recipe List");
         
         // Search
-        final SearchView searchView = (SearchView) view.findViewById(R.id.search);
-        searchView.setOnQueryTextListener(new SearchHandler());
+        mSearchView = (SearchView) view.findViewById(R.id.search);
+        mSearchView.setOnQueryTextListener(new SearchHandler());
 
         // Set up floating action button
         final FloatingActionButton floatingButton = (FloatingActionButton) view.findViewById(R.id.add_button);
@@ -114,7 +116,36 @@ public class RecipeList extends Fragment {
         }
         mVisibleRecipes.addOnListChangedCallback(new ListEmptyViewManager(emptyView));
 
+        // Update mVisibleRecipes when mRecipes changes
+        mRecipes.addOnListChangedCallback(new VisibleRecipeUpdater<Recipe>());
+
         return view;
+    }
+
+    /**
+     * Updates mVisibleRecipes with recipes from mRecipes based on the current search query
+     */
+    private void updateVisibleRecipes() {
+        final String query = mSearchView.getQuery().toString();
+        // Make all recipes visible
+        mVisibleRecipes.clear();
+        if (!query.isEmpty()) {
+            final List<Recipe> filteredRecipes = new ArrayList<>();
+            // Limit mVisibleRecipes to the meals whose titles contain the query
+            // Case insensitive
+            final String lowerQuery = query.toLowerCase(Locale.getDefault());
+
+            for (Recipe recipe : mRecipes) {
+                final String lowerTitle = recipe.getTitle().toLowerCase(Locale.getDefault());
+                if (lowerTitle.contains(lowerQuery)) {
+                    filteredRecipes.add(recipe);
+                }
+            }
+            mVisibleRecipes.addAll(filteredRecipes);
+        } else {
+            // Empty query
+            mVisibleRecipes.addAll(mRecipes);
+        }
     }
 
     /**
@@ -148,27 +179,40 @@ public class RecipeList extends Fragment {
 
         @Override
         public boolean onQueryTextChange(String newText) {
-            // Make all recipes visible
-            mVisibleRecipes.clear();
-            if (!newText.isEmpty()) {
-                final List<Recipe> filteredRecipes = new ArrayList<>();
-                // Limit mVisibleRecipes to the meals whose titles contain the query
-                // Case insensitive
-                final String lowerQuery = newText.toLowerCase(Locale.getDefault());
-
-                for (Recipe recipe : mRecipes) {
-                    final String lowerTitle = recipe.getTitle().toLowerCase(Locale.getDefault());
-                    if (lowerTitle.contains(lowerQuery)) {
-                        filteredRecipes.add(recipe);
-                    }
-                }
-                mVisibleRecipes.addAll(filteredRecipes);
-            } else {
-                // Empty query
-                mVisibleRecipes.addAll(mRecipes);
-            }
-
+            updateVisibleRecipes();
             return true;
+        }
+    }
+
+    /**
+     * Calls {@link #updateVisibleRecipes()} when the associated list changes
+     * @param <T> the value type
+     */
+    private class VisibleRecipeUpdater<T> extends ObservableList.OnListChangedCallback<ObservableList<T>> {
+
+        @Override
+        public void onChanged(ObservableList<T> sender) {
+            updateVisibleRecipes();
+        }
+
+        @Override
+        public void onItemRangeChanged(ObservableList<T> sender, int positionStart, int itemCount) {
+            updateVisibleRecipes();
+        }
+
+        @Override
+        public void onItemRangeInserted(ObservableList<T> sender, int positionStart, int itemCount) {
+            updateVisibleRecipes();
+        }
+
+        @Override
+        public void onItemRangeMoved(ObservableList<T> sender, int fromPosition, int toPosition, int itemCount) {
+            updateVisibleRecipes();
+        }
+
+        @Override
+        public void onItemRangeRemoved(ObservableList<T> sender, int positionStart, int itemCount) {
+            updateVisibleRecipes();
         }
     }
 }
