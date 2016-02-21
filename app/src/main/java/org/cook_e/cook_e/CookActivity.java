@@ -55,10 +55,11 @@ public class CookActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_cook);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
         mBunch = getBunch();
         mSchedule = new Schedule(mBunch);
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
 
         mCookStep = (CookStep) getFragmentManager().findFragmentById(R.id.fragment);
         Step firstStep = mSchedule.getNextStep();
@@ -70,7 +71,7 @@ public class CookActivity extends AppCompatActivity {
     private void setUpActionBar() {
         final ActionBar bar = getSupportActionBar();
         assert bar != null;
-        bar.setTitle("Exit");
+        bar.setTitle(mBunch.getTitle());
         bar.setDisplayHomeAsUpEnabled(true);
     }
 

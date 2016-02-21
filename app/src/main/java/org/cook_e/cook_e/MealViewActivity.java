@@ -184,30 +184,6 @@ public class MealViewActivity extends AppCompatActivity {
         // TODO
     }
 
-    /**
-     * Creates a list of recipes for testing
-     * @return a list of recipes
-     */
-    private ObservableArrayList<Recipe> createTestRecipes() {
-        final ObservableArrayList<Recipe> recipes = new ObservableArrayList<>();
-
-        final Recipe lasagna = new Recipe("Lasagna", "Clamify Flumingaster", Collections.<Step>emptyList());
-        recipes.add(lasagna);
-        final Recipe pie = new Recipe("Pie", "Clamify Flumingaster", Collections.<Step>emptyList());
-        recipes.add(pie);
-        final Recipe operaCake = new Recipe("Opera Cake", "Clamify Flumingaster", Collections.<Step>emptyList());
-        recipes.add(operaCake);
-        final Recipe bananaBread = new Recipe("Banana Bread", "Clamify Flumingaster", Collections.<Step>emptyList());
-        recipes.add(bananaBread);
-        final Recipe lemonCake = new Recipe("Lemon Cake", "Clamify Flumingaster", Collections.<Step>emptyList());
-        recipes.add(lemonCake);
-        final Recipe pesto = new Recipe("Pesto", "Clamify Flumingaster", Collections.<Step>emptyList());
-        recipes.add(pesto);
-
-
-        return recipes;
-    }
-
     private Bunch unpackMeal() {
         final Intent intent = getIntent();
         final Bunch meal = intent.getParcelableExtra(EXTRA_MEAL);

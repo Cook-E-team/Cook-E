@@ -21,12 +21,14 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
       xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        app:showAsAction="always"
+        app:showAsAction="ifRoom"
         android:id="@+id/previous"
-        android:title="Previous" />
+        android:icon="@drawable/ic_chevron_left_black_36dp"
+        android:title="@string/previous" />
 
     <item
-        app:showAsAction="always"
+        app:showAsAction="ifRoom"
         android:id="@+id/next"
-        android:title="Next" />
+        android:icon="@drawable/ic_chevron_right_black_36dp"
+        android:title="@string/next" />
 </menu>

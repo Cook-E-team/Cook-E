@@ -93,7 +93,7 @@ public class MealRecipeListAdapter extends ListListAdapter<Recipe> {
             public void onClick(View v) {
                 // Start an activity to view the recipe
                 final Intent intent = new Intent(context, EditRecipeActivity.class);
-                // TODO: Provide recipe to the activity
+                intent.putExtra(EditRecipeActivity.EXTRA_RECIPE, item);
                 context.startActivity(intent);
             }
         });

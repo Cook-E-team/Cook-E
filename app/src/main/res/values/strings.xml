@@ -87,4 +87,6 @@ Evo Inflector (https://github.com/atteo/evo-inflector/) is distributed in accord
     <string name="edit_title_or_author">Edit title or author</string>
     <string name="edit_recipe">Edit recipe</string>
     <string name="question_delete_recipe">Delete recipe?</string>
+    <string name="previous">Previous</string>
+    <string name="next">Next</string>
 </resources>
