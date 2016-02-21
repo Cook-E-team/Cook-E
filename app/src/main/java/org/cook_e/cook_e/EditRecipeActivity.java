@@ -20,6 +20,7 @@
 package org.cook_e.cook_e;
 
 import android.app.AlertDialog;
+import android.app.DialogFragment;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.content.Intent;
@@ -30,11 +31,14 @@ import android.support.annotation.NonNull;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import org.cook_e.cook_e.ui.RecipeEditDialogFragment;
 import org.cook_e.cook_e.ui.StepDialogFragment;
 import org.cook_e.data.Recipe;
 import org.cook_e.data.Step;
@@ -46,7 +50,8 @@ import java.sql.SQLException;
  *
  * This is the activity for editing a particular recipe.
  */
-public class EditRecipeActivity extends AppCompatActivity implements StepDialogFragment.StepEditListener {
+public class EditRecipeActivity extends AppCompatActivity
+        implements StepDialogFragment.StepEditListener, RecipeEditDialogFragment.RecipeEditListener {
 
     /**
      * Intent extra that provides the activity to edit
@@ -78,6 +83,7 @@ public class EditRecipeActivity extends AppCompatActivity implements StepDialogF
      * edited
      */
     private int mStepEditIndex;
+    private TextView mAuthorView;
 
     /*
      * Sets up the main view to edit recipes.
@@ -110,8 +116,8 @@ public class EditRecipeActivity extends AppCompatActivity implements StepDialogF
         }
 
         // Set up recipe description
-        final TextView authorView = (TextView) findViewById(R.id.recipe_author);
-        authorView.setText(mRecipe.getAuthor());
+        mAuthorView = (TextView) findViewById(R.id.recipe_author);
+        mAuthorView.setText(mRecipe.getAuthor());
         // Recipe image
         final ImageButton imageView = (ImageButton) findViewById(R.id.recipe_image_button);
         imageView.setImageBitmap(mRecipe.getImage());
@@ -204,11 +210,32 @@ public class EditRecipeActivity extends AppCompatActivity implements StepDialogF
         mStepEditIndex = -1;
     }
 
+
+    @Override
+    public void recipeEditingFinished(@NonNull String newTitle, @NonNull String newAuthor) {
+        mRecipe.setTitle(newTitle);
+        mRecipe.setAuthor(newAuthor);
+        // Update UI
+        final ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setTitle(newTitle);
+        }
+        mAuthorView.setText(newAuthor);
+        saveRecipe();
+    }
+
     /**
      * Updates the steps in {@link #mRecipe} to equal {@link #mSteps}, and saves mRecipe
      */
     private void updateRecipeSteps() {
         mRecipe.setSteps(mSteps);
+        saveRecipe();
+    }
+
+    /**
+     * Tries to save the recipe
+     */
+    private void saveRecipe() {
         try {
             App.getAccessor().persistRecipe(mRecipe);
         } catch (SQLException e) {
@@ -253,6 +280,32 @@ public class EditRecipeActivity extends AppCompatActivity implements StepDialogF
     @Override
     public boolean onSupportNavigateUp() {
         finish();
+        return true;
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.edit_recipe, menu);
+
+        final MenuItem editItem = menu.findItem(R.id.item_edit_recipe);
+        editItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                // Open the RecipeEditDialogFragment
+                // Show a dialog to create a step
+                final FragmentTransaction transaction = getFragmentManager().beginTransaction();
+                final Fragment previous = getFragmentManager().findFragmentByTag("dialog");
+                if (previous != null) {
+                    transaction.remove(previous);
+                }
+                transaction.addToBackStack(null);
+                final DialogFragment dialog = RecipeEditDialogFragment.newInstance(mRecipe);
+                dialog.show(transaction, "dialog");
+
+                return true;
+            }
+        });
+
         return true;
     }
 }
