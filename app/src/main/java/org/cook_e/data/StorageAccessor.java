@@ -128,6 +128,22 @@ public class StorageAccessor {
     }
 
     /**
+     * Updates or inserts a recipe, depending on whether the recipe has an object ID set
+     *
+     * If the recipe has no object ID, it will be assigned one.
+     *
+     * @param r the recipe to persist
+     * @throws SQLException if an error occurs
+     */
+    public void persistRecipe(Recipe r) throws SQLException {
+        if (r.hasObjectId()) {
+            editRecipe(r);
+        } else {
+            storeRecipe(r);
+        }
+    }
+
+    /**
      * update a bunch on the local database
      * @param b Bunch to update
      * @throws IllegalArgumentException if the bunch has not been stored in this database
@@ -137,6 +153,22 @@ public class StorageAccessor {
             throw new IllegalArgumentException("Bunch has not been stored");
         }
         mLocal.editBunch(b);
+    }
+
+    /**
+     * Updates or inserts a bunch, depending on whether the bunch has an object ID set
+     *
+     * If the bunch has no object ID, it will be assigned one.
+     *
+     * @param b the bunch to persist
+     * @throws SQLException if an error occurs
+     */
+    public void persistBunch(Bunch b) throws SQLException {
+        if (b.hasObjectId()) {
+            editBunch(b);
+        } else {
+            storeBunch(b);
+        }
     }
 
 

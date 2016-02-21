@@ -213,7 +213,7 @@ public class EditRecipeActivity extends AppCompatActivity implements StepDialogF
     private void updateRecipeSteps() {
         mRecipe.setSteps(mSteps);
         try {
-            App.getAccessor().editRecipe(mRecipe);
+            App.getAccessor().persistRecipe(mRecipe);
         } catch (SQLException e) {
             new AlertDialog.Builder(this)
                     .setTitle("Failed to save")
