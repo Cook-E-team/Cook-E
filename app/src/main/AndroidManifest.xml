@@ -42,21 +42,16 @@
         <activity android:name=".MealViewActivity">
         </activity>
         <activity
-            android:name=".MealRecipeAddActivity"
-            android:parentActivityName=".MealViewActivity"
-            tools:ignore="UnusedAttribute">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MealViewActivity" />
+            android:name=".MealRecipeAddActivity">
         </activity>
         <activity android:name=".CookActivity" />
         <activity android:name=".CreateRecipe" />
         <activity
             android:name=".EditRecipeActivity"
             android:label="recipe_name"
-            android:parentActivityName=".HomeActivity"
             android:windowSoftInputMode="adjustPan" />
         <activity android:name=".AboutActivity" />
+        <activity android:name=".CreateMealActivity" />
     </application>
 
 </manifest>

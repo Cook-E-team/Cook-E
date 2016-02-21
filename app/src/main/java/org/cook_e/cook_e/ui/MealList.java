@@ -21,6 +21,7 @@ package org.cook_e.cook_e.ui;
 
 import android.app.AlertDialog;
 import android.app.Fragment;
+import android.content.Intent;
 import android.databinding.ObservableArrayList;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -31,6 +32,7 @@ import android.view.ViewGroup;
 import android.widget.ListView;
 
 import org.cook_e.cook_e.App;
+import org.cook_e.cook_e.CreateMealActivity;
 import org.cook_e.cook_e.R;
 import org.cook_e.data.Bunch;
 
@@ -80,8 +82,8 @@ public class MealList extends Fragment {
             @Override
             public void onClick(View v) {
                 // Open item add view
-                //final Intent intent = new Intent(getContext(), );
-                //startActivity(intent);
+                final Intent intent = new Intent(getActivity(), CreateMealActivity.class);
+                startActivity(intent);
             }
         });
 
