@@ -47,6 +47,13 @@ android {
     dataBinding {
         enabled = true
     }
+    lintOptions {
+        // The Microsoft SQL driver references classes in the javax.naming and
+        // javax.transaction.xa packages. The basic use of the driver in this
+        // application does not appear to actually use those classes, so the
+        // error is suppressed here.
+        disable 'InvalidPackage'
+    }
 }
 
 dependencies {
@@ -81,4 +88,3 @@ task javadoc(type: Javadoc) {
 
 // Coverage
 apply from: '../jacoco.gradle'
-

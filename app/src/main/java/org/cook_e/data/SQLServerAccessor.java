@@ -336,7 +336,7 @@ public class SQLServerAccessor implements SQLAccessor {
      * Initializes {@link #mRecipeCounter} and {@link #mBunchCounter} to one greater than the
      * greatest ID of any recipe/bunch in the database
      *
-     * If an error occurs, sets both counters to 1.
+     * If an error occurs or no items exist, sets the corresponding counter to 1.
      */
     private void setUpCounters() {
         final Statement statement;
@@ -345,14 +345,20 @@ public class SQLServerAccessor implements SQLAccessor {
             try {
                 statement.execute("SELECT TOP (1) id FROM " + RECIPE_TABLE_NAME + " ORDER BY id DESC");
                 ResultSet results = statement.getResultSet();
-                results.next();
-                mRecipeCounter = 1 + results.getLong("id");
+                if (results.next()) {
+                    mRecipeCounter = 1 + results.getLong("id");
+                } else {
+                    mRecipeCounter = 1;
+                }
                 results.close();
                 statement.execute(
                         "SELECT TOP (1) id FROM " + BUNCH_TABLE_NAME + " ORDER BY id DESC");
                 results = statement.getResultSet();
-                results.next();
-                mBunchCounter = 1 + results.getLong("id");
+                if (results.next()) {
+                    mBunchCounter = 1 + results.getLong("id");
+                } else {
+                    mRecipeCounter = 1;
+                }
                 results.close();
             } finally {
                 statement.close();
