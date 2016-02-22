@@ -70,16 +70,8 @@ public class StepUnitTest {
         Step s3 = createGenericStep(0, 1, 5, false);
         Step s4 = createGenericStep(0, 0, 5, true);
         assertEquals(s1, s1_match);
-        /*assertFalse(s1.equals(s2));
+        assertFalse(s1.equals(s2));
         assertFalse(s1.equals(s3));
-        assertFalse(s1.equals(s4));*/
-    }
-    @Test
-    public void testListToString() {
-        List<String> lst = new ArrayList<>();
-        lst.add("hello");
-        lst.add("goodbye");
-        lst.add("test");
-        assertEquals("hello,goodbye,test", Step.ListToString(lst));
+        assertFalse(s1.equals(s4));
     }
 }

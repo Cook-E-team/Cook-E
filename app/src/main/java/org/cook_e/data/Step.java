@@ -200,15 +200,6 @@ public final class Step implements Parcelable {
                 '}';
     }
 
-    public static String ListToString(List<String> lst) {
-        String ans = "";
-        int i = 0;
-        for (String curr: lst) {
-            i++;
-            ans += curr + ((i != lst.size()) ? "," : "");
-        }
-        return ans;
-    }
     // Parceling section
 
     public static final Parcelable.Creator<Step> CREATOR = new Parcelable.Creator<Step>() {
