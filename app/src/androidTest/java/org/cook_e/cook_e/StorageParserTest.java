@@ -28,6 +28,7 @@ import org.junit.Test;
 
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -57,24 +58,6 @@ public class StorageParserTest {
     }
 
     @Test
-    public void testConvertStepToString() throws JSONException {
-        StorageParser parser = new StorageParser();
-        final String stepDesc = "[{\"description\":\"lalalal\",\"duration_ms\":600000," +
-                "\"ingredients\":[\"ingredients\"],\"simultaneous\":true},{\"description\":" +
-                "\"lalalal\",\"duration_ms\":600000,\"ingredients\":[\"ingredients\"]," +
-                "\"simultaneous\":false}]";
-
-        List<Step> steps = new ArrayList<>();
-        List<String> ing = new ArrayList<>();
-        ing.add("ingredients");
-        steps.add(new Step(ing, "lalalal", Duration.millis(600000), true));
-        steps.add(new Step(ing, "lalalal", Duration.millis(600000), false));
-        String ans = parser.serializeRecipeSteps(steps);
-
-        assertEquals(stepDesc, ans);
-    }
-
-    @Test
     public void testNoSteps() throws ParseException {
         checkRoundTrip(Collections.<Step>emptyList());
     }
@@ -84,6 +67,19 @@ public class StorageParserTest {
         checkRoundTrip(Collections.singletonList(
                 new Step(Collections.<String>emptyList(), "Description of a step",
                         Duration.standardMinutes(32), true)));
+    }
+
+    @Test
+    public void testThreeStepsSeveralIngredients() throws ParseException {
+        final Step stepA1 = new Step(Arrays.asList("250 mL white truffle oil",
+                "100 mL anchovy licorice sauce"), "Step A 1", Duration.standardSeconds(93));
+        final Step stepA2 = new Step(Arrays.asList("1 anchovy fillet", "50 mL fish sauce"),
+                "Step A 2", Duration.standardMinutes(9));
+        final Step stepA3 = new Step(Collections.singletonList("40 cloves of garlic"),
+                "Step A 3", Duration.standardMinutes(21));
+
+        final List<Step> steps = Arrays.asList(stepA1, stepA2, stepA3);
+        checkRoundTrip(steps);
     }
 
     /**
