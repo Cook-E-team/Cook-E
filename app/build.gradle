@@ -77,10 +77,3 @@ task javadoc(type: Javadoc) {
     destinationDir = file("../app/build/javadoc/")
     failOnError false
 }
-<<<<<<< HEAD
-
-// Coverage
-apply from: '../jacoco.gradle'
-
-=======
->>>>>>> dcd57dc... Disabled converage testing, a change that might make the continuous integration builds work
