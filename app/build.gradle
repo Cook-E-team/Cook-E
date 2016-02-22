@@ -37,7 +37,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
         debug {
-            testCoverageEnabled true
+            testCoverageEnabled = true
         }
     }
     compileOptions {
@@ -77,3 +77,7 @@ task javadoc(type: Javadoc) {
     destinationDir = file("../app/build/javadoc/")
     failOnError false
 }
+
+// Coverage
+apply from: '../jacoco.gradle' 
+
