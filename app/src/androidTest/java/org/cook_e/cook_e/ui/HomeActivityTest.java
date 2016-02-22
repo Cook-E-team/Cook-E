@@ -25,11 +25,18 @@ import android.support.v4.view.ViewPager;
 import android.test.ActivityInstrumentationTestCase2;
 import android.view.View;
 
+import org.cook_e.cook_e.App;
 import org.cook_e.cook_e.HomeActivity;
 import org.cook_e.cook_e.R;
+import org.cook_e.data.Bunch;
+import org.cook_e.data.Recipe;
+import org.cook_e.data.Step;
 import org.hamcrest.Matcher;
 import org.hamcrest.core.Is;
 import org.hamcrest.core.IsEqual;
+
+import java.sql.SQLException;
+import java.util.Collections;
 
 import static android.support.test.espresso.Espresso.onData;
 import static android.support.test.espresso.Espresso.onView;
@@ -38,6 +45,7 @@ import static android.support.test.espresso.action.ViewActions.swipeLeft;
 import static android.support.test.espresso.action.ViewActions.swipeRight;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.matcher.ViewMatchers.isCompletelyDisplayed;
+import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.isSelected;
 import static android.support.test.espresso.matcher.ViewMatchers.withClassName;
 import static android.support.test.espresso.matcher.ViewMatchers.withTagKey;
@@ -61,6 +69,13 @@ public class HomeActivityTest extends ActivityInstrumentationTestCase2<HomeActiv
     @Override
     protected void setUp() throws Exception {
         super.setUp();
+
+        // Ensure a meal is in the database
+        if (App.getAccessor().loadAllBunches().isEmpty()) {
+            App.getAccessor().storeBunch(
+                    new Bunch("Meal name", Collections.<Recipe>emptyList()));
+        }
+
         getActivity();
     }
 
@@ -76,11 +91,9 @@ public class HomeActivityTest extends ActivityInstrumentationTestCase2<HomeActiv
         onView(recipesTab).perform(click());
         SystemClock.sleep(SWITCH_DELAY_MS);
         onView(recipesTab).check(matches(isSelected()));
-        onView(recipeList).check(matches(isCompletelyDisplayed()));
         onView(mealsTab).perform(click());
         SystemClock.sleep(SWITCH_DELAY_MS);
         onView(mealsTab).check(matches(isSelected()));
-        onView(mealList).check(matches(isCompletelyDisplayed()));
     }
 
     /**
@@ -98,17 +111,15 @@ public class HomeActivityTest extends ActivityInstrumentationTestCase2<HomeActiv
         onView(pager).perform(swipeLeft());
         SystemClock.sleep(SWITCH_DELAY_MS);
         onView(recipesTab).check(matches(isSelected()));
-        onView(recipeList).check(matches(isCompletelyDisplayed()));
         onView(pager).perform(swipeRight());
         SystemClock.sleep(SWITCH_DELAY_MS);
         onView(mealsTab).check(matches(isSelected()));
-        onView(mealList).check(matches(isCompletelyDisplayed()));
     }
 
     /**
      * Tests clicking on a meal in the meal list to open it
      */
-    public void testOpenMeal() {
+    public void testOpenMeal() throws SQLException {
         final Matcher<View> mealList = withTagKey(R.id.test_tag_meal_list,
                 Is.<Object>is("Meal List"));
         final DataInteraction mealItem = onData(anything()).inAdapterView(mealList);
