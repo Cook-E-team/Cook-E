@@ -79,5 +79,5 @@ task javadoc(type: Javadoc) {
 }
 
 // Coverage
-apply from: '../jacoco.gradle' 
+apply from: '../jacoco.gradle'
 
