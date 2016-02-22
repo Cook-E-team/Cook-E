@@ -294,12 +294,12 @@ public class SQLiteAccessor implements SQLAccessor {
 
     /**
      * Throws an exception. This method is not implemented in this class
-     * @param description a recipe description
+     * @param title a recipe description
      * @return does not return
      * @throws SQLException
      */
     @Override
-    public List<Recipe> findRecipesLike(String description) throws SQLException {
+    public List<Recipe> findRecipesLike(String title) throws SQLException {
         throw new SQLException("Not implemented");
     }
 

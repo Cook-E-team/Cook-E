@@ -49,7 +49,7 @@ public class StorageAccessor {
      * Constructor
      * @param c Context of the activity that wants to store/retrieve data
      */
-    public StorageAccessor(Context c) {
+    public StorageAccessor(Context c) throws SQLException {
         final StorageParser parser = new StorageParser();
         mLocal = new SQLiteAccessor(c, parser);
         mExternal = new SQLServerAccessor(parser);

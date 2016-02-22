@@ -80,8 +80,13 @@ public interface SQLAccessor {
      */
     List<Bunch> loadAllBunches() throws SQLException;
 
-    // TODO: Document this method
-    List<Recipe> findRecipesLike(String description) throws SQLException;
+    /**
+     * Searches for and returns recipes that contain the provides string in their titles
+     * @param title the title to search for
+     * @return a list of matching recipes
+     * @throws SQLException if an error occurrs
+     */
+    List<Recipe> findRecipesLike(String title) throws SQLException;
 
     /**
      * Checks the representation invariants of the database schema
