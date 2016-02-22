@@ -93,4 +93,6 @@ public interface SQLAccessor {
      * @throws SQLException if an invariant is not met
      */
     void checkInvariants() throws SQLException;
+
+    void clearAllTables() throws SQLException;
 }

@@ -747,6 +747,7 @@ public class SQLiteAccessor implements SQLAccessor {
      * Warning, this clears all the tables in the database
      * Should only call for testing purposes
      */
+    @Override
     public void clearAllTables() throws SQLException {
         try {
             SQLiteDatabase db = mHelper.getWritableDatabase();

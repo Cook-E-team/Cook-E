@@ -305,6 +305,7 @@ public class SQLServerAccessor implements SQLAccessor {
         throw new UnsupportedOperationException("Not implemented");
     }
 
+    @Override
     public void clearAllTables() throws SQLException {
         final Statement statement = mConnection.createStatement();
         try {
