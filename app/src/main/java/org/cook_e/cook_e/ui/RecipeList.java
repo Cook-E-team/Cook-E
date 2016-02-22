@@ -68,8 +68,8 @@ public class RecipeList extends Fragment {
 
         try {
             mRecipes = new ObservableArrayList<>();
-            mRecipes.addAll(App.getAccessor().loadAllRecipes());
             mVisibleRecipes = new ObservableArrayList<>();
+            mRecipes.addAll(App.getAccessor().loadAllRecipes());
             mVisibleRecipes.addAll(mRecipes);
 
         } catch (SQLException e) {
