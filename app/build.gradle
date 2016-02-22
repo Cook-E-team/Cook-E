@@ -85,6 +85,3 @@ task javadoc(type: Javadoc) {
     destinationDir = file("../app/build/javadoc/")
     failOnError false
 }
-
-// Coverage
-apply from: '../jacoco.gradle'
