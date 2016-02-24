@@ -29,11 +29,12 @@ import java.util.Map;
  * A class that produces and manages a schedule for a Bunch.
  */
 public class Schedule {
-    private final Map<Step, Recipe> stepToRecipeMap;
+   // private final Map<Step, Recipe> stepToRecipeMap;
     private final List<Step> finalSteps;
     private int currSelectedFinalStep = -1;
     private final List<UnscheduledRecipeSteps> unscheduledRecipeStepsList;
     private final int totalStepCount;
+    private List<Recipe> finalStepMapToRecipe;
 
     /**
      * Creates a schedule based on the given Bunch.
@@ -42,7 +43,8 @@ public class Schedule {
      */
     public Schedule(Bunch b) {
         this.finalSteps = new ArrayList<>();
-        this.stepToRecipeMap = new HashMap<>();
+        // this.stepToRecipeMap = new HashMap<>();
+        this.finalStepMapToRecipe = new ArrayList<>();
 
         // populate stepToRecipeMap.
         // TODO: does not work if two steps are the same but from different recipes
@@ -50,7 +52,7 @@ public class Schedule {
         List<Recipe> recipes = b.getRecipes();
         for(Recipe recipe : recipes) {
             for(Step step : recipe.getSteps()) {
-                stepToRecipeMap.put(step, recipe);
+                // stepToRecipeMap.put(step, recipe);
                 totalStepCount++;
             }
         }
@@ -70,9 +72,22 @@ public class Schedule {
      * @param s Step to find it's recipe it belongs to
      * @return the Recipe if there is a Receipt associated with such step. Return null otherwise
      */
-    public Recipe getRecipeFromStep(Step s) {
-        return stepToRecipeMap.get(s);
+    // public Recipe getRecipeFromStep(Step s) {
+    //    return stepToRecipeMap.get(s);
+    // }
+
+    // Change the top method to be get receipe from Current index
+    // Call to get the mother recipe for the current Step display on the scereen.
+
+    /**
+     *
+     *
+     * @return the receipt current step belongs to
+     */
+    public Recipe getRecipeFromCurrentIndex() {
+        return finalStepMapToRecipe.get(currSelectedFinalStep);
     }
+
 
     /**
      * This function returns the next step. Calling this function implies that
@@ -95,7 +110,10 @@ public class Schedule {
             // handles the case where the next step hasn't been
             // scheduled yet
             currSelectedFinalStep++;
-            nextStep = getNextScheduledStep(unscheduledRecipeStepsList);
+            ScheduledStep ss = getNextScheduledStep(unscheduledRecipeStepsList);
+            nextStep = ss.getStep();
+
+            // nextStep = getNextScheduledStep(unscheduledRecipeStepsList);
             this.finalSteps.add(nextStep);
         }
         return nextStep;
@@ -144,7 +162,7 @@ public class Schedule {
      * @param finalSteps the unscheduled finalSteps to pick a next step from
      * @return the next step to schedule for shortest cooking time
      */
-    private Step getNextScheduledStep(List<UnscheduledRecipeSteps> unscheduledRecipeStepsList) {
+    private ScheduledStep getNextScheduledStep(List<UnscheduledRecipeSteps> unscheduledRecipeStepsList) {
 
         // Finds the recipe with the longest time from the first simultaneous step
         // to the last step that is ready.
@@ -172,7 +190,7 @@ public class Schedule {
                 unscheduledRecipeStepsList.remove(chosenIndex);
             }
         }
-        return nextScheduledStep;
+        return new ScheduledStep(nextScheduledStep, unscheduledRecipeStepsList.get(chosenIndex).motherReceipe);
     }
 
     /**
@@ -188,6 +206,8 @@ public class Schedule {
         // ready if a simultaneous step is in progress.
         private boolean isReady;
 
+        public Recipe motherReceipe;
+
 
         /**
          * Creates an UnscheduledRecipeSteps object based on the given Recipe.
@@ -197,6 +217,7 @@ public class Schedule {
         public UnscheduledRecipeSteps(Recipe r) {
             this.steps = r.getSteps();
             this.isReady = true;
+            this.motherReceipe = r;
 
             // initializes simultaneousToEndTime
             this.simultaneousToEndTime = 0;
@@ -269,6 +290,24 @@ public class Schedule {
          */
         public boolean isEmpty() {
             return this.steps.isEmpty();
+        }
+    }
+
+    private class ScheduledStep {
+        private Step step;
+        private Recipe motherRecipe;
+
+        public ScheduledStep(Step s, Recipe r) {
+            this.step = s;
+            this.motherRecipe = r;
+        }
+
+        public Step getStep() {
+            return step;
+        }
+
+        public Recipe getRecipe() {
+            return motherRecipe;
         }
     }
 }
