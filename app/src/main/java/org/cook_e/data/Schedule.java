@@ -32,6 +32,8 @@ public class Schedule {
     private final Map<Step, Recipe> stepToRecipeMap;
     private final List<Step> finalSteps;
     private int currSelectedFinalStep = -1;
+    private final List<UnscheduledRecipeSteps> unscheduledRecipeStepsList;
+    private final int totalStepCount;
 
     /**
      * Creates a schedule based on the given Bunch.
@@ -44,76 +46,82 @@ public class Schedule {
 
         // populate stepToRecipeMap.
         // TODO: does not work if two steps are the same but from different recipes
+        int totalStepCount = 0;
         List<Recipe> recipes = b.getRecipes();
         for(Recipe recipe : recipes) {
             for(Step step : recipe.getSteps()) {
                 stepToRecipeMap.put(step, recipe);
+                totalStepCount++;
             }
         }
+        this.totalStepCount = totalStepCount;
 
         // populate UnscheduledRecipeStepsList
-        List<UnscheduledRecipeSteps> unscheduledRecipeStepsList = new ArrayList<>();
+        unscheduledRecipeStepsList = new ArrayList<>();
         for (Recipe r: recipes) {
             if(r.getSteps().isEmpty()) continue;
             unscheduledRecipeStepsList.add(new UnscheduledRecipeSteps(r));
         }
-
-        // Schedules the finalSteps.
-        while (!unscheduledRecipeStepsList.isEmpty()) {
-            Step nextStep = getNextScheduledStep(unscheduledRecipeStepsList);
-            this.finalSteps.add(nextStep);
-        }
     }
 
     /**
      *
-     * @param s Step to find it's reciept it belongs to
+     * @param s Step to find it's recipe it belongs to
      *
-     * @return the Recipe if there is a Receipt asssociated with such step. Return null otherwise
+     * @return the Recipe if there is a Receipt associated with such step. Return null otherwise
      */
     public Recipe getRecipeFromStep(Step s) {
-        if (stepToRecipeMap.containsKey(s)) {
-            return stepToRecipeMap.get(s);
-
-        }
-        return null;
+        return stepToRecipeMap.get(s);
     }
 
     /**
-     * After done populating the final scheduled step list. This function will return the nextStep
+     * This function returns the next step. Calling this function implies that
+     * the current step has been completed if it is a non-simultaneous task.
      *
-     * @return The NextStep after the current Step. If already last step, return null
+     * @return The next step after the current step. If it's already at the final step
+     * and no other steps can be scheduled, then null is returned.
      */
     public Step getNextStep() {
-        if (currSelectedFinalStep < getStepCount() - 1) {
+        Step nextStep = null;
+        if (currSelectedFinalStep < finalSteps.size() - 1) {
+            // handles the case where the next step has already
+            // been scheduled
             currSelectedFinalStep++;
-            return finalSteps.get(currSelectedFinalStep);
+            nextStep = finalSteps.get(currSelectedFinalStep);
+        } else if (currSelectedFinalStep == finalSteps.size() -1 &&
+                unscheduledRecipeStepsList.size() > 0) {
+            // handles the case where the next step hasn't been
+            // scheduled yet
+            currSelectedFinalStep++;
+            nextStep = getNextScheduledStep(unscheduledRecipeStepsList);
+            this.finalSteps.add(nextStep);
         }
-        return null;
+        return nextStep;
     }
 
     /**
      * After done populating the final scheduled step list. This function will return the previous step
      * of the current Step
      *
-     * @return The PrevStep before the current Step
+     * @return The previous step before the current Step
      */
     public Step getPrevStep() {
+        Step prevStep = null;
         if (currSelectedFinalStep > 0) {
             currSelectedFinalStep--;
-            return finalSteps.get(currSelectedFinalStep);
+            prevStep = finalSteps.get(currSelectedFinalStep);
         }
-        return null;
+        return prevStep;
     }
 
     /**
-     * Returns the total number of finalSteps scheduled. This value
-     * will not change over the lifetime of the Schedule.
+     * Returns the total number of steps. This value includes both
+     * scheduled and unscheduled steps.
      *
-     * @return the total number of finalSteps scheduled
+     * @return the total number of steps
      */
     public int getStepCount() {
-        return finalSteps.size();
+        return totalStepCount;
     }
 
     /*
