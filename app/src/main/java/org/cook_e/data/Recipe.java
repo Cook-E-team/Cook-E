@@ -15,7 +15,9 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with Cook-E.  If not, see <http://www.gnu.org/licenses/>.
- */e org.cook_e.data;
+ */
+
+package org.cook_e.data;
 
 import android.graphics.Bitmap;
 import android.os.Parcel;

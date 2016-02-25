@@ -15,7 +15,9 @@
   ~
   ~ You should have received a copy of the GNU General Public License
   ~ along with Cook-E.  If not, see <http://www.gnu.org/licenses/>.
-  --> User interface strings should be in sentence case, not tile case
+  -->
+
+<!-- User interface strings should be in sentence case, not tile case
   https://www.google.com/design/spec/style/writing.html#writing-capitalization-punctuation
   -->
 

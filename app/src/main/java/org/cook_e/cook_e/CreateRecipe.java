@@ -15,7 +15,9 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with Cook-E.  If not, see <http://www.gnu.org/licenses/>.
- */e org.cook_e.cook_e;
+ */
+
+package org.cook_e.cook_e;
 
 import android.app.AlertDialog;
 import android.content.Intent;

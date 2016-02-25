@@ -16,8 +16,10 @@
   ~
   ~ You should have received a copy of the GNU General Public License
   ~ along with Cook-E.  If not, see <http://www.gnu.org/licenses/>.
-  -->xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+  -->
+
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto">
     <item android:id="@+id/item_edit_recipe"
           android:title="@string/edit_title_or_author"
           android:icon="@drawable/ic_edit_black_24dp"
