@@ -20,16 +20,14 @@
 package org.cook_e.cook_e;
 
 import android.content.Intent;
+import android.os.Bundle;
+import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-
-import android.support.v4.app.FragmentPagerAdapter;
-import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import org.cook_e.cook_e.R;
 import org.cook_e.cook_e.ui.CookStep;
 import org.cook_e.data.Bunch;
 import org.cook_e.data.Schedule;
@@ -63,7 +61,10 @@ public class CookActivity extends AppCompatActivity {
 
         mCookStep = (CookStep) getFragmentManager().findFragmentById(R.id.fragment);
         Step firstStep = mSchedule.getNextStep();
-        mCookStep.setStep(firstStep, mSchedule.getRecipeFromStep(firstStep).getTitle());
+        if (firstStep == null) {
+            throw new IllegalStateException("No steps");
+        }
+        mCookStep.setStep(firstStep, mSchedule.getCurrentStepRecipe().getTitle());
 
         setUpActionBar();
     }
@@ -89,7 +90,7 @@ public class CookActivity extends AppCompatActivity {
                 // User chose the "previous" item,
                 step = mSchedule.getPrevStep();
                 if (step != null) {
-                    mCookStep.setStep(step, mSchedule.getRecipeFromStep(step).getTitle());
+                    mCookStep.setStep(step, mSchedule.getCurrentStepRecipe().getTitle());
                 }
                 return true;
 
@@ -97,7 +98,7 @@ public class CookActivity extends AppCompatActivity {
                 // User chose the "next" item,
                 step = mSchedule.getNextStep();
                 if (step != null) {
-                    mCookStep.setStep(step, mSchedule.getRecipeFromStep(step).getTitle());
+                    mCookStep.setStep(step, mSchedule.getCurrentStepRecipe().getTitle());
                 }
                 return true;
 

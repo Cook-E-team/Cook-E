@@ -19,20 +19,131 @@
 
 package org.cook_e.data;
 
-import org.joda.time.ReadableDuration;
+import android.support.annotation.NonNull;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * Created by Shan Yaang on 2/18/2016.
- * This according to the Step Given, this class will perform varies operations to give estimates
+ * According to the step and actual time given
+ * this class will perform operations to give more accurate estimate time for one user
  */
 public class TimeLearner {
+    // Maximum multiple of estimated time learner can change each time
+    private static final double LEARNING_LIMIT = 2.0;
+
+    // The rate that learn rate decays for each learn
+    private static final double LEARN_RATE_DECAY_RATE = 0.75;
+
+    // Sorted list of learning weights. List is sorted by hash code
+    private static List<LearningWeight> weightList;
+
+    public TimeLearner() {
+        // TODO: read actual list from storage
+        weightList = new ArrayList<LearningWeight>();
+    }
+
     /**
-     *
-     * @param s The step we need to estimate the time for
-     * @return the leanrned time for that specific Step
+     * Learns the actual time of a step.
+     * @param s the step you want to learn
+     * @param actualTime the actual time user took to finish this step (in milliseconds)
      */
-    public static ReadableDuration learnTimeForStep(Step s) {
-        // ToDo: Perform some machine learning algorithm to make return a better time estimate for that person.
-        return s.getTime();
+    public void learnStep(@NonNull Step s, long actualTime) throws IllegalArgumentException{
+        Objects.requireNonNull(s, "step must not be null");
+        if (actualTime < 0) throw new IllegalArgumentException("time must not be negative");
+
+        // find old weight, create one if not exist
+        int hash = s.hashCode();
+        int index = searchStep(hash);
+        if (index == -1) {
+            index = addStep(hash);
+        }
+        LearningWeight lw = weightList.get(index);
+
+        // calculate new weight
+        long oldEstimatedTime = (long) (s.getTime().getMillis() * lw.timeWeight);
+        double weight;
+        if (actualTime >= oldEstimatedTime * LEARNING_LIMIT)
+            weight = LEARNING_LIMIT - 1;
+        else if (actualTime * LEARNING_LIMIT <= oldEstimatedTime)
+            weight = (1 / LEARNING_LIMIT) - 1;
+        else {
+            weight = (actualTime / oldEstimatedTime) - 1;
+        }
+        lw.timeWeight = lw.timeWeight + lw.timeWeight * weight * lw.learnRate;
+        lw.learnRate = lw.learnRate * LEARN_RATE_DECAY_RATE;
+
+        // TODO: write new list to storage
+    }
+
+    /**
+     * Returns the estimated time for a step based on learning result.
+     * If step is not learned before, returns the estimate time of that step.
+     * @param s the step you need to estimate the time for
+     * @return the estimated time (in milliseconds) for that specific step
+     */
+    public long getEstimatedTime(@NonNull Step s) {
+        Objects.requireNonNull(s, "step must not be null");
+        int index = searchStep(s.hashCode());
+        if (index != -1)
+            return (long) (s.getTime().getMillis() * weightList.get(index).timeWeight);
+        return s.getTime().getMillis();
+    }
+
+    /**
+     * Searches for the index of the given step in sorted weight list
+     * @param hash hash code of the step you want to search for
+     * @return index of that step in weight list, or -1 if it is not in the list
+     */
+    private int searchStep(int hash) {
+        int start = 0;
+        int end = weightList.size() - 1;
+        while (start <= end) {
+            int cur = (start + end) / 2;
+            int curHash = weightList.get(cur).hash;
+            if (hash == curHash) return cur;
+            else if (hash < curHash) end = cur - 1;
+            else start = cur + 1;
+        }
+        return -1;
+    }
+
+    /**
+     * Adds the given step to sorted weight list
+     * @param hash hash code of the step you want to search.
+     *             This step must not be already in the list
+     * @return index of the place that step is added
+     */
+    private int addStep(int hash) {
+        LearningWeight lw = new LearningWeight(hash);
+        for (int i = 0; i < weightList.size(); i++) {
+            if (hash < weightList.get(i).hash) {
+                weightList.add(i, lw);
+                return i;
+            }
+        }
+        weightList.add(lw);
+        return weightList.size() - 1;
+    }
+
+    private class LearningWeight implements Comparable<LearningWeight> {
+        public int hash; // the hash code of the step
+        public double timeWeight; // learned weight for estimated time of this step
+        public double learnRate; // learning rate of this step
+
+        /**
+         * Construct a new object for step with hash code hash
+         * @param hash hash code of that step
+         */
+        public LearningWeight(int hash) {
+            this.hash = hash;
+            this.timeWeight = 1;
+            this.learnRate = 1;
+        }
+
+        @Override
+        public int compareTo(LearningWeight lw) {
+            return this.hash - lw.hash;
+        }
     }
 }

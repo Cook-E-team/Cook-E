@@ -3,12 +3,9 @@
   <component name="ProjectCodeStyleSettingsManager">
     <option name="PER_PROJECT_SETTINGS">
       <value>
-        <option name="AUTODETECT_INDENTS" value="false" />
-        <option name="LINE_SEPARATOR" value="&#10;" />
         <option name="FIELD_NAME_PREFIX" value="m" />
-        <option name="GENERATE_FINAL_LOCALS" value="true" />
-        <option name="CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND" value="10" />
-        <option name="NAMES_COUNT_TO_USE_IMPORT_ON_DEMAND" value="10" />
+        <option name="CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND" value="99" />
+        <option name="NAMES_COUNT_TO_USE_IMPORT_ON_DEMAND" value="99" />
         <option name="PACKAGES_TO_USE_IMPORT_ON_DEMAND">
           <value />
         </option>
@@ -35,7 +32,6 @@
           </value>
         </option>
         <option name="RIGHT_MARGIN" value="100" />
-        <option name="JD_P_AT_EMPTY_LINES" value="false" />
         <AndroidXmlCodeStyleSettings>
           <option name="USE_CUSTOM_SETTINGS" value="true" />
         </AndroidXmlCodeStyleSettings>
@@ -70,9 +66,6 @@
         <XML>
           <option name="XML_LEGACY_SETTINGS_IMPORTED" value="true" />
         </XML>
-        <codeStyleSettings language="JAVA">
-          <option name="CALL_PARAMETERS_WRAP" value="1" />
-        </codeStyleSettings>
         <codeStyleSettings language="XML">
           <option name="FORCE_REARRANGE_MODE" value="1" />
           <indentOptions>
