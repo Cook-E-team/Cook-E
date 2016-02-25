@@ -1,20 +1,20 @@
 /*
  * Copyright 2016 the Cook-E development team
  *
- *  This file is part of Cook-E.
+ * This file is part of Cook-E.
  *
- *  Cook-E is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
+ * Cook-E is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- *  Cook-E is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ * Cook-E is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- *  You should have received a copy of the GNU General Public License
- *  along with Cook-E.  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU General Public License
+ * along with Cook-E.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 package org.cook_e.data;
@@ -294,12 +294,12 @@ public class SQLiteAccessor implements SQLAccessor {
 
     /**
      * Throws an exception. This method is not implemented in this class
-     * @param description a recipe description
+     * @param title a recipe description
      * @return does not return
      * @throws SQLException
      */
     @Override
-    public List<Recipe> findRecipesLike(String description) throws SQLException {
+    public List<Recipe> findRecipesLike(String title) throws SQLException {
         throw new SQLException("Not implemented");
     }
 
@@ -747,6 +747,7 @@ public class SQLiteAccessor implements SQLAccessor {
      * Warning, this clears all the tables in the database
      * Should only call for testing purposes
      */
+    @Override
     public void clearAllTables() throws SQLException {
         try {
             SQLiteDatabase db = mHelper.getWritableDatabase();
