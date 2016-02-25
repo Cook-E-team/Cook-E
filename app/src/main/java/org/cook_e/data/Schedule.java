@@ -27,13 +27,11 @@ import java.util.List;
  * A class that produces and manages a schedule for a Bunch.
  */
 public class Schedule {
-
-
-    private final List<Step> mFinalSteps;
-    private int mCurrSelectedFinalStep = -1;
+    private final List<Step> mScheduledStepList;
+    private int mCurrScheduledStepIndex = -1;
     private final List<UnscheduledRecipeSteps> mUnscheduledRecipeStepsList;
     private final int mTotalStepCount;
-    private List<Recipe> mFinalStepMapToRecipe;
+    private final List<Recipe> mFinalStepMapToRecipe;
 
     /**
      * Creates a schedule based on the given Bunch.
@@ -41,8 +39,7 @@ public class Schedule {
      * @param b the Bunch to schedule finalSteps from
      */
     public Schedule(Bunch b) {
-        this.mFinalSteps = new ArrayList<>();
-        // this.stepToRecipeMap = new HashMap<>();
+        this.mScheduledStepList = new ArrayList<>();
         this.mFinalStepMapToRecipe = new ArrayList<>();
 
         int totalStepCount = 0;
@@ -53,10 +50,10 @@ public class Schedule {
         this.mTotalStepCount = totalStepCount;
 
         // populate UnscheduledRecipeStepsList
-        mUnscheduledRecipeStepsList = new ArrayList<>();
+        this.mUnscheduledRecipeStepsList = new ArrayList<>();
         for (Recipe r: recipes) {
             if(r.getSteps().isEmpty()) continue;
-            mUnscheduledRecipeStepsList.add(new UnscheduledRecipeSteps(r));
+            this.mUnscheduledRecipeStepsList.add(new UnscheduledRecipeSteps(r));
         }
     }
 
@@ -65,7 +62,7 @@ public class Schedule {
      * @return the recipe current step belongs to
      */
     public Recipe getCurrentStepRecipe() {
-        return mFinalStepMapToRecipe.get(mCurrSelectedFinalStep);
+        return this.mFinalStepMapToRecipe.get(this.mCurrScheduledStepIndex);
     }
 
 
@@ -80,21 +77,19 @@ public class Schedule {
      */
     public Step getNextStep() {
         Step nextStep = null;
-        if (mCurrSelectedFinalStep < mFinalSteps.size() - 1) {
+        if (this.mCurrScheduledStepIndex < this.mScheduledStepList.size() - 1) {
             // handles the case where the next step has already
             // been scheduled
-            mCurrSelectedFinalStep++;
-            nextStep = mFinalSteps.get(mCurrSelectedFinalStep);
-        } else if (mCurrSelectedFinalStep == mFinalSteps.size() -1 &&
-                mUnscheduledRecipeStepsList.size() > 0) {
+            this.mCurrScheduledStepIndex++;
+            nextStep = this.mScheduledStepList.get(this.mCurrScheduledStepIndex);
+        } else if (this.mCurrScheduledStepIndex == this.mScheduledStepList.size() -1 &&
+                this.mUnscheduledRecipeStepsList.size() > 0) {
             // handles the case where the next step hasn't been
             // scheduled yet
-            mCurrSelectedFinalStep++;
-            ScheduledStep ss = getNextScheduledStep(mUnscheduledRecipeStepsList);
+            this.mCurrScheduledStepIndex++;
+            ScheduledStep ss = getNextScheduledStep(this.mUnscheduledRecipeStepsList);
             nextStep = ss.getStep();
-
-            // nextStep = getNextScheduledStep(mUnscheduledRecipeStepsList);
-            this.mFinalSteps.add(nextStep);
+            this.mScheduledStepList.add(nextStep);
         }
         return nextStep;
     }
@@ -107,9 +102,9 @@ public class Schedule {
      */
     public Step getPrevStep() {
         Step prevStep = null;
-        if (mCurrSelectedFinalStep > 0) {
-            mCurrSelectedFinalStep--;
-            prevStep = mFinalSteps.get(mCurrSelectedFinalStep);
+        if (this.mCurrScheduledStepIndex > 0) {
+            this.mCurrScheduledStepIndex--;
+            prevStep = this.mScheduledStepList.get(this.mCurrScheduledStepIndex);
         }
         return prevStep;
     }
@@ -131,7 +126,7 @@ public class Schedule {
      * @return the total number of steps
      */
     public int getStepCount() {
-        return mTotalStepCount;
+        return this.mTotalStepCount;
     }
 
     /*
@@ -186,7 +181,7 @@ public class Schedule {
         // ready if a simultaneous step is in progress.
         private boolean isReady;
 
-        public Recipe motherReceipe;
+        public final Recipe motherReceipe;
 
 
         /**
