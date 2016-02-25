@@ -27,11 +27,11 @@ import java.util.List;
  * A class that produces and manages a schedule for a Bunch.
  */
 public class Schedule {
-    private final List<Step> mScheduledStepList;
-    private int mCurrScheduledStepIndex = -1;
+    private final List<ScheduledStep> mScheduledStepList;
     private final List<UnscheduledRecipeSteps> mUnscheduledRecipeStepsList;
     private final int mTotalStepCount;
-    private final List<Recipe> mFinalStepMapToRecipe;
+    private int mCurrScheduledStepIndex = -1;
+
 
     /**
      * Creates a schedule based on the given Bunch.
@@ -40,7 +40,6 @@ public class Schedule {
      */
     public Schedule(Bunch b) {
         this.mScheduledStepList = new ArrayList<>();
-        this.mFinalStepMapToRecipe = new ArrayList<>();
 
         int totalStepCount = 0;
         List<Recipe> recipes = b.getRecipes();
@@ -62,7 +61,7 @@ public class Schedule {
      * @return the recipe current step belongs to
      */
     public Recipe getCurrentStepRecipe() {
-        return this.mFinalStepMapToRecipe.get(this.mCurrScheduledStepIndex);
+        return this.mScheduledStepList.get(this.mCurrScheduledStepIndex).motherRecipe;
     }
 
 
@@ -81,15 +80,14 @@ public class Schedule {
             // handles the case where the next step has already
             // been scheduled
             this.mCurrScheduledStepIndex++;
-            nextStep = this.mScheduledStepList.get(this.mCurrScheduledStepIndex);
+            nextStep = this.mScheduledStepList.get(this.mCurrScheduledStepIndex).step;
         } else if (this.mCurrScheduledStepIndex == this.mScheduledStepList.size() -1 &&
                 this.mUnscheduledRecipeStepsList.size() > 0) {
             // handles the case where the next step hasn't been
             // scheduled yet
             this.mCurrScheduledStepIndex++;
-            ScheduledStep ss = getNextScheduledStep(this.mUnscheduledRecipeStepsList);
-            nextStep = ss.getStep();
-            this.mScheduledStepList.add(nextStep);
+            ScheduledStep nextScheduledStep = getNextScheduledStep(this.mUnscheduledRecipeStepsList);
+            this.mScheduledStepList.add(nextScheduledStep);
         }
         return nextStep;
     }
@@ -104,7 +102,7 @@ public class Schedule {
         Step prevStep = null;
         if (this.mCurrScheduledStepIndex > 0) {
             this.mCurrScheduledStepIndex--;
-            prevStep = this.mScheduledStepList.get(this.mCurrScheduledStepIndex);
+            prevStep = this.mScheduledStepList.get(this.mCurrScheduledStepIndex).step;
         }
         return prevStep;
     }
@@ -268,21 +266,17 @@ public class Schedule {
         }
     }
 
+    /**
+     * A private helper class used to keep steps associated with
+     * their recipes.
+     */
     private class ScheduledStep {
-        private Step step;
-        private Recipe motherRecipe;
+        public final Step step;
+        public final Recipe motherRecipe;
 
         public ScheduledStep(Step s, Recipe r) {
             this.step = s;
             this.motherRecipe = r;
-        }
-
-        public Step getStep() {
-            return step;
-        }
-
-        public Recipe getRecipe() {
-            return motherRecipe;
         }
     }
 }
