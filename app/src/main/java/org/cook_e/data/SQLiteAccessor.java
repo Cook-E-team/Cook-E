@@ -629,7 +629,7 @@ public class SQLiteAccessor implements SQLAccessor {
         }
     }
     @Override
-    public void storeLearnerData(Recipe r, Collection<TimeLearner.LearningWeight> weights) throws SQLException{
+    public void storeLearnerData(Recipe r, Collection<LearningWeight> weights) throws SQLException{
         try {
             SQLiteDatabase db = mHelper.getWritableDatabase();
             db.beginTransaction();
@@ -647,8 +647,35 @@ public class SQLiteAccessor implements SQLAccessor {
         }
     }
     @Override
-    public Collection<TimeLearner.LearningWeight> loadLearnerData(Recipe r) throws SQLException {
-        return null;
+    public Collection<LearningWeight> loadLearnerData(Recipe r) throws SQLException {
+        Collection<LearningWeight> results = new ArrayList<>();
+        try {
+            SQLiteDatabase db = mHelper.getWritableDatabase();
+            db.beginTransaction();
+            try {
+                String[] whereArgs = {String.valueOf(r.getObjectId())};
+                Cursor c = db.query(LEARNER_TABLE_NAME, LEARNER_COLUMNS, "recipe_id = ?", whereArgs, null, null, null, "hash");
+                if (c != null) {
+                    c.moveToFirst();
+                    do {
+                        int hash = c.getInt(1);
+                        double weighted_time = c.getDouble(2);
+                        double learn_rate = c.getDouble(3);
+
+                        LearningWeight weight = new LearningWeight(hash, weighted_time, learn_rate);
+                        results.add(weight);
+                    } while (c.moveToNext());
+                    c.close();
+                }
+            } finally {
+                db.endTransaction();
+                db.close();
+            }
+        } catch (Exception e) {
+            throw new SQLException(e);
+        }
+
+        return results;
     }
     /**
      * Helper that creates a ContentValues object for the Recipes table
@@ -706,14 +733,14 @@ public class SQLiteAccessor implements SQLAccessor {
         values.put(BUNCH_RECIPE_COLUMNS[1], r.getObjectId());
         return values;
     }
-    private List<ContentValues> createContentValues(Recipe r, Collection<TimeLearner.LearningWeight> weights) {
+    private List<ContentValues> createContentValues(Recipe r, Collection<LearningWeight> weights) {
         List<ContentValues> values = new ArrayList<ContentValues>();
-        for (TimeLearner.LearningWeight weight: weights) {
+        for (LearningWeight weight: weights) {
             values.add(createContentValues(r, weight));
         }
         return values;
     }
-    private ContentValues createContentValues(Recipe r, TimeLearner.LearningWeight weight) {
+    private ContentValues createContentValues(Recipe r, LearningWeight weight) {
         ContentValues values = new ContentValues();
         values.put(LEARNER_COLUMNS[0], r.getObjectId());
         values.put(LEARNER_COLUMNS[1], weight.hash);

@@ -117,7 +117,7 @@ public interface SQLAccessor {
 
     void clearAllTables() throws SQLException;
 
-    void storeLearnerData(Recipe r, Collection<TimeLearner.LearningWeight> weights) throws SQLException;
+    void storeLearnerData(Recipe r, Collection<LearningWeight> weights) throws SQLException;
 
-    Collection<TimeLearner.LearningWeight> loadLearnerData(Recipe r) throws SQLException;
+    Collection<LearningWeight> loadLearnerData(Recipe r) throws SQLException;
 }

@@ -306,11 +306,11 @@ public class SQLServerAccessor implements SQLAccessor {
         throw new UnsupportedOperationException("Not implemented");
     }
     @Override
-    public void storeLearnerData(Recipe r, Collection<TimeLearner.LearningWeight> weights) throws SQLException {
+    public void storeLearnerData(Recipe r, Collection<LearningWeight> weights) throws SQLException {
         throw new UnsupportedOperationException("Not implemented");
     }
     @Override
-    public Collection<TimeLearner.LearningWeight> loadLearnerData(Recipe r) throws SQLException {
+    public Collection<LearningWeight> loadLearnerData(Recipe r) throws SQLException {
         throw new UnsupportedOperationException("Not implemented");
     }
     @Override
