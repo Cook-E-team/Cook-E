@@ -115,7 +115,7 @@ public class Schedule {
      *
      * @param recipe the recipe the finished simultaneous step is associated with
      */
-    public void finishStepFromRecipe(Recipe recipe) {
+    public void finishSimultaneousStepFromRecipe(Recipe recipe) {
         UnscheduledRecipeSteps matchingRecipeSteps = null;
         for (UnscheduledRecipeSteps currUnscheduledRecipeSteps : mUnscheduledRecipeStepsList) {
             if (currUnscheduledRecipeSteps.motherReceipe.equals(recipe)) {
