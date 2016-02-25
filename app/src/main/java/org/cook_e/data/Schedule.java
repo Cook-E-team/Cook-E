@@ -19,7 +19,6 @@
 
 package org.cook_e.data;
 
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -108,13 +107,22 @@ public class Schedule {
     }
 
     /**
+     * Calling this function indicates that the blocking simultaneous step
+     * associated with the given recipe has been completed. If no matching recipe
+     * is found, then the function silently does nothing. This is largely due to
+     * how hard it would be for the caller to know if the particular recipe has
+     * has any unscheduled steps left.
      *
-     *
-     * @param step
+     * @param recipe the recipe the finished simultaneous step is associated with
      */
-    public void finishStep(Step step) {
-        // TODO: Implement this function once we can get the UnscheduledRecipeStep associated
-        // with the given Step.
+    public void finishStepFromRecipe(Recipe recipe) {
+        UnscheduledRecipeSteps matchingRecipeSteps = null;
+        for (UnscheduledRecipeSteps currUnscheduledRecipeSteps : mUnscheduledRecipeStepsList) {
+            if (currUnscheduledRecipeSteps.motherReceipe.equals(recipe)) {
+                currUnscheduledRecipeSteps.setReady();
+                return;
+            }
+        }
     }
 
     /**
