@@ -19,6 +19,8 @@
 
 package org.cook_e.data;
 
+import android.util.Log;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -110,6 +112,7 @@ public class Schedule {
             this.mCurrScheduledStepIndex++;
             ScheduledStep nextScheduledStep = getNextScheduledStep(this.mUnscheduledRecipeStepsList);
             this.mScheduledStepList.add(nextScheduledStep);
+            nextStep = nextScheduledStep.step;
         }
         return nextStep;
     }
@@ -186,15 +189,20 @@ public class Schedule {
         }
 
         Step nextScheduledStep = null;
+        Recipe motherRecipe = null;
         if (chosenIndex != -1) {
             // Handles case where one or more recipes were ready by removing and
             // returning the chosen step.
+            motherRecipe = unscheduledRecipeStepsList.get(chosenIndex).motherReceipe;
             nextScheduledStep = unscheduledRecipeStepsList.get(chosenIndex).removeNextStep();
+
+            Log.d("Schedule", "chosenIndex = " + chosenIndex + ", unscheduled steps = " + unscheduledRecipeStepsList);
             if (unscheduledRecipeStepsList.get(chosenIndex).isEmpty()) {
+                Log.d("Schedule", "chosenIndex = " + chosenIndex + ", unscheduled steps = " + unscheduledRecipeStepsList);
                 unscheduledRecipeStepsList.remove(chosenIndex);
             }
         }
-        return new ScheduledStep(nextScheduledStep, unscheduledRecipeStepsList.get(chosenIndex).motherReceipe);
+        return new ScheduledStep(nextScheduledStep, motherRecipe);
     }
 
     /**
