@@ -54,7 +54,7 @@ public class SQLServerAccessorTest {
     @Test
     public void testRecipeLoad() throws SQLException {
         Recipe r = RecipeUnitTest.createGenericRecipe("My Recipe", "Kyle Woo", 0, 0, 5, false);
-        accessor.storeRecipe(r);
+        //accessor.storeRecipe(r);
         Recipe result = accessor.loadRecipe("My Recipe", "Kyle Woo");
         assertEquals(r, result);
     }
@@ -64,9 +64,9 @@ public class SQLServerAccessorTest {
         Recipe r1 = RecipeUnitTest.createGenericRecipe("My Recipe 1", "Kyle Woo", 0, 0, 5, false);
         Recipe r2 = RecipeUnitTest.createGenericRecipe("My Recipe 2", "Kyle Woo", 0, 0, 5, false);
         Recipe r3 = RecipeUnitTest.createGenericRecipe("My Recipe 3", "Kyle Woo", 0, 0, 5, false);
-        accessor.storeRecipe(r1);
-        accessor.storeRecipe(r2);
-        accessor.storeRecipe(r3);
+        //accessor.storeRecipe(r1);
+        //accessor.storeRecipe(r2);
+        //accessor.storeRecipe(r3);
         List<Recipe> expected = new ArrayList<>();
         expected.add(r1);
         expected.add(r2);
