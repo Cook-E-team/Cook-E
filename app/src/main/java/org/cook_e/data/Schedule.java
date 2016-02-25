@@ -29,15 +29,38 @@ public class Schedule {
     private final List<ScheduledStep> mScheduledStepList;
     private final List<UnscheduledRecipeSteps> mUnscheduledRecipeStepsList;
     private final int mTotalStepCount;
+    private final int mOriginalEstimatedTime;
+    private final int mOptimizedEstimatedTime;
     private int mCurrScheduledStepIndex = -1;
 
 
     /**
      * Creates a schedule based on the given Bunch.
      *
-     * @param b the Bunch to schedule finalSteps from
+     * @param b the Bunch to schedule steps from
      */
     public Schedule(Bunch b) {
+        this(b, true);
+    }
+
+    /**
+     * Creates a schedule based on the given Bunch. If the given boolean is true,
+     * then estimated times are calculated, otherwise they aren't. This private
+     * constructor with the additional boolean is necessary to avoid infinite
+     * recursive calls due to calculating estimed times.
+     *
+     * @param b the Bunch to schedule steps from
+     * @param calculateEstimatedTimes whether or not estimated times should be calculated
+     */
+    private Schedule(Bunch b, boolean calculateEstimatedTimes) {
+        if (calculateEstimatedTimes) {
+            this.mOriginalEstimatedTime = CookingTimeEstimator.getOriginalTime(b);
+            this.mOptimizedEstimatedTime = CookingTimeEstimator.getOptimizedTime(new Schedule(b, false));
+        } else {
+            this.mOriginalEstimatedTime = -1;
+            this.mOptimizedEstimatedTime = -1;
+        }
+
         this.mScheduledStepList = new ArrayList<>();
 
         int totalStepCount = 0;
