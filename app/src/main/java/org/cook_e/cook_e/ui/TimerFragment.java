@@ -23,10 +23,13 @@ package org.cook_e.cook_e.ui;
 import android.app.Fragment;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import com.google.repacked.apache.commons.lang3.StringUtils;
 
 import org.cook_e.cook_e.R;
 import org.cook_e.data.Objects;
@@ -76,9 +79,10 @@ public class TimerFragment extends Fragment {
 
     /**
      * Creates a fragment to act as a timer for a step
+     *
      * @param step the step to time
      * @return a TimerFragment for the provided step
-     * @throws NullPointerException if the step is null
+     * @throws NullPointerException     if the step is null
      * @throws IllegalArgumentException if the step is not simultaneous
      */
     public static TimerFragment newInstance(Step step) {
@@ -98,8 +102,7 @@ public class TimerFragment extends Fragment {
         if (savedInstanceState != null) {
             // Restore remaining time
             mRemainingTime = (ReadableDuration) savedInstanceState.getSerializable(KEY_TIME_REMAINING);
-        }
-        else {
+        } else {
             // Get duration from step
             mRemainingTime = mStep.getTime();
         }
@@ -119,10 +122,19 @@ public class TimerFragment extends Fragment {
 
         mTimerView = (TextView) view.findViewById(R.id.timer_view);
 
+        // Set up description text
+        final TextView descriptionView = (TextView) view.findViewById(R.id.description_view);
+        descriptionView.setText(mStep.getDescription());
+
         // Start timer
         new StepTimer(mRemainingTime).start();
 
         return view;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
     }
 
     private void updateTimer(Duration remainingTime) {
@@ -134,6 +146,7 @@ public class TimerFragment extends Fragment {
 
         /**
          * Creates a new StepTimer
+         *
          * @param duration the duration to count for
          */
         public StepTimer(ReadableDuration duration) {
