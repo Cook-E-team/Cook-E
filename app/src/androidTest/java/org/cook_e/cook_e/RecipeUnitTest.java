@@ -15,9 +15,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with Cook-E.  If not, see <http://www.gnu.org/licenses/>.
- */
-
-package org.cook_e.cook_e;
+ */e org.cook_e.cook_e;
 
 import org.cook_e.data.Recipe;
 import org.cook_e.data.Step;

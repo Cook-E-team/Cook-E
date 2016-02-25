@@ -1,4 +1,5 @@
-/* Copyright 2016 the Cook-E development team
+/*
+ * Copyright 2016 the Cook-E development team
  *
  * This file is part of Cook-E.
  *
@@ -14,9 +15,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with Cook-E.  If not, see <http://www.gnu.org/licenses/>.
- */
-
-package org.cook_e.cook_e;
+ */e org.cook_e.cook_e;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
