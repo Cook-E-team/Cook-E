@@ -30,10 +30,10 @@ public class CookingTimeEstimator {
 
     /**
      * Calculates and returns the estimated amount of time it would take to cook
-     * the given bunch if the given schedule is used.
+     * the given schedule.
      *
-     * @param schedule the
-     * @return
+     * @param schedule the schedule to measure the estimated time of
+     * @return the estimated amount of time it would take to cook the given schedule
      */
     public static int getOptimizedTime(Schedule schedule) {
         // TODO: Complete the implementation of this function when Schedule is
