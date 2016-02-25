@@ -19,8 +19,10 @@
 
 package org.cook_e.cook_e;
 
+import android.app.Fragment;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
 import android.support.design.widget.TabLayout.Tab;
 import android.support.v4.view.ViewPager;
@@ -30,6 +32,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 
 import org.cook_e.cook_e.ui.HomePageAdapter;
 
@@ -96,6 +99,20 @@ public class HomeActivity extends AppCompatActivity {
         // Set up HomePageAdapter
         mPageAdapter = new HomePageAdapter(getFragmentManager());
         mViewPager.setAdapter(mPageAdapter);
+
+        // Set up add button for recipes/meals
+        final FloatingActionButton addButton = (FloatingActionButton) findViewById(R.id.add_button);
+        addButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final Fragment visibleFragment = mPageAdapter.getItem(mViewPager.getCurrentItem());
+                if (visibleFragment == mPageAdapter.getMealList()) {
+                    mPageAdapter.getMealList().onAddButtonPressed();
+                } else {
+                    mPageAdapter.getRecipeList().onAddButtonPressed();
+                }
+            }
+        });
     }
 
     @Override

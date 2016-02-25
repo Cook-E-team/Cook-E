@@ -98,17 +98,6 @@ public class MealList extends Fragment {
         // Configure list for testing
         list.setTag(R.id.test_tag_meal_list, "Meal List");
 
-        // Set up floating action button
-        final FloatingActionButton floatingButton = (FloatingActionButton) view.findViewById(R.id.add_button);
-        floatingButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Open item add view
-                final Intent intent = new Intent(getActivity(), CreateMealActivity.class);
-                startActivity(intent);
-            }
-        });
-
         // Empty view, shown when list is empty
         final TextView emptyView = (TextView) view.findViewById(R.id.empty_list_view);
         emptyView.setText(R.string.no_meals);
@@ -146,6 +135,16 @@ public class MealList extends Fragment {
             // Empty query
             mVisibleMeals.addAll(mMeals);
         }
+    }
+
+    /**
+     * Called from the parent activity when an add button is pressed. Starts the process of creating
+     * a new meal.
+     */
+    public void onAddButtonPressed() {
+        // Open item add view
+        final Intent intent = new Intent(getActivity(), CreateMealActivity.class);
+        startActivity(intent);
     }
 
     /**
