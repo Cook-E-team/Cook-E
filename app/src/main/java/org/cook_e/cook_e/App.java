@@ -56,9 +56,8 @@ public class App extends Application {
         context = getApplicationContext();
         try {
             mAccessor = new StorageAccessor(context);
-            setUpTestData();
         } catch (SQLException e) {
-            Log.e(TAG, "Failed to connect to database or set up test data", e);
+            Log.e(TAG, "Failed to connect to database", e);
         }
     }
 
@@ -83,44 +82,5 @@ public class App extends Application {
             throw new IllegalStateException("Application not yet created");
         }
         return mAccessor;
-    }
-
-    private static void setUpTestData() throws SQLException {
-        if (mAccessor != null) {
-            final List<Bunch> meals = mAccessor.loadAllBunches();
-            final List<Recipe> recipes = mAccessor.loadAllRecipes();
-
-            if (recipes.isEmpty() && meals.isEmpty()) {
-
-                final Step step1_1 = new Step(Collections.<String>emptyList(), "Recipe 1 step 1",
-                        Duration.standardMinutes(1), false);
-                final Step step1_2 = new Step(Collections.<String>emptyList(), "Recipe 1 step 2",
-                        Duration.standardMinutes(1), false);
-                final Step step2_1 = new Step(Collections.<String>emptyList(), "Recipe 2 step 1",
-                        Duration.standardMinutes(1), false);
-                final Step step2_2 = new Step(Collections.<String>emptyList(), "Recipe 2 step 2",
-                        Duration.standardMinutes(1), false);
-
-
-                final Recipe recipe1 = new Recipe("Recipe 1", "Clamify Flumingaster",
-                        Arrays.asList(step1_1, step1_2));
-                final Recipe recipe2 = new Recipe("Recipe 2", "Oysterify Flumingaster",
-                        Arrays.asList(step2_1, step2_2));
-                mAccessor.storeRecipe(recipe1);
-                mAccessor.storeRecipe(recipe2);
-
-                final List<Recipe> retrieved = mAccessor.loadAllRecipes();
-                Log.d(TAG, "After storing, retrieved recipes: " + retrieved);
-
-                final Bunch testMeal = new Bunch();
-                testMeal.setTitle("Test meal 1");
-                testMeal.addRecipe(recipe1);
-                testMeal.addRecipe(recipe2);
-                mAccessor.storeBunch(testMeal);
-
-                final List<Bunch> retrievedMeals = mAccessor.loadAllBunches();
-                Log.d(TAG, "After storing, retrieved meals: " + retrievedMeals);
-            }
-        }
     }
 }
