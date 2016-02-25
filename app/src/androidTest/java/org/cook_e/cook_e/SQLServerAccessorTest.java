@@ -37,40 +37,42 @@ import static org.junit.Assert.assertEquals;
 public class SQLServerAccessorTest {
 
     private SQLServerAccessor accessor;
+
     @Before
-    public void setup() {
+    public void setup() throws SQLException {
         StorageParser parser = new StorageParser();
         accessor = new SQLServerAccessor(parser);
-
     }
+
     @After
-    public void teardown() {
+    public void teardown() throws SQLException {
         accessor.clearAllTables();
         accessor = null;
 
     }
-    @Test
-    public void testTableLoad() throws SQLException {
-        Recipe r = RecipeUnitTest.createGenericRecipe("My Recipe", "Kyle Woo", 0, 0, 5, false);
-            accessor.storeRecipe(r);
-            Recipe result = accessor.loadRecipe("My Recipe", "Kyle Woo");
-            assertEquals(r, result);
 
-    }
     @Test
-    public void testTableLoadLike() throws SQLException {
-        Recipe r1 = RecipeUnitTest.createGenericRecipe("My Recipe 1" , "Kyle Woo", 0, 0, 5, false);
+    public void testRecipeLoad() throws SQLException {
+        Recipe r = RecipeUnitTest.createGenericRecipe("My Recipe", "Kyle Woo", 0, 0, 5, false);
+        accessor.storeRecipe(r);
+        Recipe result = accessor.loadRecipe("My Recipe", "Kyle Woo");
+        assertEquals(r, result);
+    }
+
+    @Test
+    public void testRecipeLoadLike() throws SQLException {
+        Recipe r1 = RecipeUnitTest.createGenericRecipe("My Recipe 1", "Kyle Woo", 0, 0, 5, false);
         Recipe r2 = RecipeUnitTest.createGenericRecipe("My Recipe 2", "Kyle Woo", 0, 0, 5, false);
         Recipe r3 = RecipeUnitTest.createGenericRecipe("My Recipe 3", "Kyle Woo", 0, 0, 5, false);
-            accessor.storeRecipe(r1);
-            accessor.storeRecipe(r2);
-            accessor.storeRecipe(r3);
-            List<Recipe> expected = new ArrayList<>();
-            expected.add(r1);
-            expected.add(r2);
-            expected.add(r3);
-            List<Recipe> result = accessor.findRecipesLike("My Recipe");
-            assertEquals(expected, result);
+        accessor.storeRecipe(r1);
+        accessor.storeRecipe(r2);
+        accessor.storeRecipe(r3);
+        List<Recipe> expected = new ArrayList<>();
+        expected.add(r1);
+        expected.add(r2);
+        expected.add(r3);
+        List<Recipe> result = accessor.findRecipesLike("My Recipe");
+        assertEquals(expected, result);
     }
 
 }

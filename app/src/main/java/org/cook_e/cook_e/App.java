@@ -54,11 +54,11 @@ public class App extends Application {
     public void onCreate() {
         super.onCreate();
         context = getApplicationContext();
-        mAccessor = new StorageAccessor(context);
         try {
+            mAccessor = new StorageAccessor(context);
             setUpTestData();
         } catch (SQLException e) {
-            Log.e(TAG, "Failed to set up test data", e);
+            Log.e(TAG, "Failed to connect to database or set up test data", e);
         }
     }
 
