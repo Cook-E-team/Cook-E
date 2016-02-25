@@ -60,11 +60,11 @@ public class SQLServerAccessor implements SQLAccessor {
     /**
      * The database username
      */
-    private static final String USERNAME = "cook-e-admin@cook-e";
+    private static final String USERNAME = "ReadOnlyLogin";
     /**
      * The password
      */
-    private static final String PASSWORD = "Developer1";
+    private static final String PASSWORD = "A2305Bmcnsdf";
 
     private static final String RECIPE_TABLE_NAME = "Recipes";
     private static final String BUNCH_TABLE_NAME = "Bunches";
@@ -347,18 +347,18 @@ public class SQLServerAccessor implements SQLAccessor {
                 statement.execute("SELECT TOP (1) id FROM " + RECIPE_TABLE_NAME + " ORDER BY id DESC");
                 ResultSet results = statement.getResultSet();
                 if (results.next()) {
-                    mRecipeCounter = 1 + results.getLong("id");
+                    mRecipeCounter = results.getLong("id") - 1;
                 } else {
-                    mRecipeCounter = 1;
+                    mRecipeCounter = -1;
                 }
                 results.close();
                 statement.execute(
                         "SELECT TOP (1) id FROM " + BUNCH_TABLE_NAME + " ORDER BY id DESC");
                 results = statement.getResultSet();
                 if (results.next()) {
-                    mBunchCounter = 1 + results.getLong("id");
+                    mBunchCounter = results.getLong("id") - 1;
                 } else {
-                    mRecipeCounter = 1;
+                    mRecipeCounter = -1;
                 }
                 results.close();
             } finally {
@@ -366,8 +366,8 @@ public class SQLServerAccessor implements SQLAccessor {
             }
         } catch (SQLException e) {
             Log.w(TAG, "Failed to get counter values, setting counters to 1");
-            mBunchCounter = 1;
-            mRecipeCounter = 1;
+            mBunchCounter = -1;
+            mRecipeCounter = -1;
         }
     }
 }
