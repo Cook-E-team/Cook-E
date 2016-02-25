@@ -126,7 +126,7 @@ public class TimeLearner {
         return weightList.size() - 1;
     }
 
-    private class LearningWeight implements Comparable<LearningWeight> {
+    public class LearningWeight implements Comparable<LearningWeight> {
         public int hash; // the hash code of the step
         public double timeWeight; // learned weight for estimated time of this step
         public double learnRate; // learning rate of this step

@@ -20,6 +20,8 @@
 package org.cook_e.data;
 
 import java.sql.SQLException;
+import java.sql.Time;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -114,4 +116,8 @@ public interface SQLAccessor {
     void checkInvariants() throws SQLException;
 
     void clearAllTables() throws SQLException;
+
+    void storeLearnerData(Recipe r, Collection<TimeLearner.LearningWeight> weights) throws SQLException;
+
+    Collection<TimeLearner.LearningWeight> loadLearnerData(Recipe r) throws SQLException;
 }

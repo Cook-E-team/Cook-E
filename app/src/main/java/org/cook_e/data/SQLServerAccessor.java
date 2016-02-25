@@ -30,6 +30,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
@@ -304,7 +305,14 @@ public class SQLServerAccessor implements SQLAccessor {
     public void deleteBunch(Bunch b) throws SQLException {
         throw new UnsupportedOperationException("Not implemented");
     }
-
+    @Override
+    public void storeLearnerData(Recipe r, Collection<TimeLearner.LearningWeight> weights) throws SQLException {
+        throw new UnsupportedOperationException("Not implemented");
+    }
+    @Override
+    public Collection<TimeLearner.LearningWeight> loadLearnerData(Recipe r) throws SQLException {
+        throw new UnsupportedOperationException("Not implemented");
+    }
     @Override
     public void clearAllTables() throws SQLException {
         final Statement statement = mConnection.createStatement();

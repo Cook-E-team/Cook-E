@@ -27,6 +27,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -62,6 +63,8 @@ public class SQLiteAccessor implements SQLAccessor {
     private static final String[] BUNCH_COLUMNS = {"id", "name"};
     private static final String BUNCH_RECIPES_TABLE_NAME = "BunchRecipes";
     private static final String[] BUNCH_RECIPE_COLUMNS = {"bunch_id", "recipe_id"};
+    private static final String LEARNER_TABLE_NAME = "LearnerData";
+    private static final String[] LEARNER_COLUMNS = {"recipe_id, hash, weighted_time, learn_rate"};
     /**
      * Schema of the Recipes table: (id, name, author, description)
      */
@@ -94,7 +97,14 @@ public class SQLiteAccessor implements SQLAccessor {
                     BUNCH_RECIPE_COLUMNS[0] + " INT NOT NULL DEFAULT 0," +
                     BUNCH_RECIPE_COLUMNS[1] + " INT NOT NULL DEFAULT 0," +
                     " PRIMARY KEY (" + BUNCH_RECIPE_COLUMNS[0] + ", " + BUNCH_RECIPE_COLUMNS[1] + "));";
-
+    private static final String LEARNER_TABLE_CREATE =
+            "CREATE TABLE " + LEARNER_TABLE_NAME + " (" +
+                    LEARNER_COLUMNS[0] + " INT NOT NULL DEFAULT 0, " +
+                    LEARNER_COLUMNS[1] + " INT NOT NULL DEFAULT 0, " +
+                    LEARNER_COLUMNS[2] + " REAL NOT NULL DEFAULT 0.0, " +
+                    LEARNER_COLUMNS[3] + " REAL NOT NULL DEFAULT 0.0," +
+                    " PRIMARY KEY (" + LEARNER_COLUMNS[0] + ", " + LEARNER_COLUMNS[1] +
+                    ", " + LEARNER_COLUMNS[2] + ", " + LEARNER_COLUMNS[3] + "));";
     /**
      * Constructor
      *
@@ -618,7 +628,28 @@ public class SQLiteAccessor implements SQLAccessor {
             throw new SQLException(e);
         }
     }
-
+    @Override
+    public void storeLearnerData(Recipe r, Collection<TimeLearner.LearningWeight> weights) throws SQLException{
+        try {
+            SQLiteDatabase db = mHelper.getWritableDatabase();
+            db.beginTransaction();
+            try {
+                List<ContentValues> learner_cvs = createContentValues(r, weights);
+                for (ContentValues cv : learner_cvs) {
+                    db.insert(LEARNER_TABLE_NAME, null, cv);
+                }
+            } finally {
+                db.endTransaction();
+                db.close();
+            }
+        } catch (Exception e) {
+            throw new SQLException(e);
+        }
+    }
+    @Override
+    public Collection<TimeLearner.LearningWeight> loadLearnerData(Recipe r) throws SQLException {
+        return null;
+    }
     /**
      * Helper that creates a ContentValues object for the Recipes table
      *
@@ -675,7 +706,21 @@ public class SQLiteAccessor implements SQLAccessor {
         values.put(BUNCH_RECIPE_COLUMNS[1], r.getObjectId());
         return values;
     }
-
+    private List<ContentValues> createContentValues(Recipe r, Collection<TimeLearner.LearningWeight> weights) {
+        List<ContentValues> values = new ArrayList<ContentValues>();
+        for (TimeLearner.LearningWeight weight: weights) {
+            values.add(createContentValues(r, weight));
+        }
+        return values;
+    }
+    private ContentValues createContentValues(Recipe r, TimeLearner.LearningWeight weight) {
+        ContentValues values = new ContentValues();
+        values.put(LEARNER_COLUMNS[0], r.getObjectId());
+        values.put(LEARNER_COLUMNS[1], weight.hash);
+        values.put(LEARNER_COLUMNS[2], weight.timeWeight);
+        values.put(LEARNER_COLUMNS[3], weight.learnRate);
+        return values;
+    }
     /**
      * Private helper class that has methods that allows for access to the underlying android sqlite database
      */
@@ -692,6 +737,7 @@ public class SQLiteAccessor implements SQLAccessor {
             db.execSQL(RECIPE_IMAGE_TABLE_CREATE);
             db.execSQL(BUNCH_TABLE_CREATE);
             db.execSQL(BUNCH_RECIPE_TABLE_CREATE);
+            db.execSQL(LEARNER_TABLE_CREATE);
         }
 
         @Override
