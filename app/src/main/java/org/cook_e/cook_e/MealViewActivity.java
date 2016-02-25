@@ -100,6 +100,8 @@ public class MealViewActivity extends AppCompatActivity {
 
                 try {
                     final List<Recipe> availableRecipes = mAccessor.loadAllRecipes();
+                    intent.putExtra(MealRecipeAddActivity.EXIST_RECIPES,
+                            mRecipes.toArray(new Recipe[mRecipes.size()]));
                     intent.putExtra(MealRecipeAddActivity.EXTRA_RECIPES,
                             availableRecipes.toArray(new Recipe[availableRecipes.size()]));
                     startActivityForResult(intent, MealRecipeAddActivity.REQUEST_ADD_RECIPES);

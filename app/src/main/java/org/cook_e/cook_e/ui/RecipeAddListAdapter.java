@@ -28,6 +28,8 @@ import android.view.ViewGroup;
 
 import org.cook_e.data.Recipe;
 
+import java.util.List;
+
 /**
  * A list adapter that displays recipes in {@link RecipeListItemView} views
  */
@@ -50,14 +52,18 @@ public class RecipeAddListAdapter extends ListListAdapter<Recipe> {
     @Nullable
     private RecipeAddListener mAddListener;
 
+    private List<Recipe> mSelectedRecipes;
+
     /**
      * Creates a new adapter
      *
      * @param items the items to display
+     * @param selectedRecipes
      * @throws NullPointerException if items is null
      */
-    public RecipeAddListAdapter(@NonNull Context context, @NonNull ObservableArrayList<? extends Recipe> items) {
+    public RecipeAddListAdapter(@NonNull Context context, @NonNull ObservableArrayList<? extends Recipe> items, List<Recipe> selectedRecipes) {
         super(context, items);
+        mSelectedRecipes = selectedRecipes;
     }
 
     /**
@@ -79,7 +85,7 @@ public class RecipeAddListAdapter extends ListListAdapter<Recipe> {
         }
 
         view.setTitle(item.getTitle());
-
+        if (mSelectedRecipes.contains(item)) view.disableAddButton();
         view.setAddListener(new RecipeAddItemView.RecipeAddListener() {
             @Override
             public void recipeAddRequested() {

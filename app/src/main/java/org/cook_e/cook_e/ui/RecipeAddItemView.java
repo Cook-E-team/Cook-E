@@ -158,7 +158,7 @@ public class RecipeAddItemView extends LinearLayout {
     /**
      * Disables the add button and sets it to display a check mark icon
      */
-    private void disableAddButton() {
+    public void disableAddButton() {
         mAddButton.setImageDrawable(
                 mContext.getResources().getDrawable(R.drawable.ic_check_box_black_24dp));
         mAddButton.setEnabled(false);

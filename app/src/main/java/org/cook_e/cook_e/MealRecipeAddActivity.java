@@ -29,13 +29,16 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.widget.ListView;
+import android.widget.SearchView;
 
 import org.cook_e.cook_e.ui.RecipeAddListAdapter;
+import org.cook_e.data.Bunch;
 import org.cook_e.data.Objects;
 import org.cook_e.data.Recipe;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * An activity that displays a list of recipes and allows the user to add one or more of them
@@ -72,9 +75,30 @@ public class MealRecipeAddActivity extends AppCompatActivity {
     public static String EXTRA_RECIPES = MealRecipeAddActivity.class.getName() + ".RECIPES";
 
     /**
+     * A key used to identify an intent extra that contains an array of Recipes that are already
+     * in the meal
+     */
+    public static String EXIST_RECIPES = MealRecipeAddActivity.class.getName() + ".EXIST";
+
+    /**
      * The recipes the user has selected to add
      */
     private List<Recipe> mSelectedRecipes;
+
+    /**
+     * The view used for searching
+     */
+    private SearchView mSearchView;
+
+    /**
+     * Total unpackedRecipes
+     */
+    private ObservableArrayList<Recipe> mRecipes;
+
+    /**
+     * Total recipes that should be shown in the list
+     */
+    private ObservableArrayList<Recipe> mVisibleRecipes;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,18 +113,21 @@ public class MealRecipeAddActivity extends AppCompatActivity {
         setUpActionBar();
 
         // Unpack recipes
-        final ObservableArrayList<Recipe> recipes = unpackRecipes();
+        mVisibleRecipes = new ObservableArrayList<>();
+        mRecipes = unpackRecipes();
+        mVisibleRecipes.addAll(mRecipes);
+        mSelectedRecipes.addAll(existRecipes());
 
         // Initialize view
         final ListView list = (ListView) findViewById(R.id.recipe_list);
-        final RecipeAddListAdapter adapter = new RecipeAddListAdapter(this, recipes);
+        final RecipeAddListAdapter adapter = new RecipeAddListAdapter(this, mVisibleRecipes, mSelectedRecipes);
         adapter.setAddListener(new RecipeAddListAdapter.RecipeAddListener() {
             @Override
             public void recipeAddRequested(Recipe recipe) {
                 // Verify that the added recipe is actually in the recipe list
                 if (BuildConfig.DEBUG) {
                     boolean found = false;
-                    for (Recipe existingRecipe : recipes) {
+                    for (Recipe existingRecipe : mRecipes) {
                         if (existingRecipe.equals(recipe)) {
                             found = true;
                         }
@@ -117,6 +144,9 @@ public class MealRecipeAddActivity extends AppCompatActivity {
             }
         });
         list.setAdapter(adapter);
+
+        mSearchView = (SearchView) findViewById(R.id.search);
+        mSearchView.setOnQueryTextListener(new SearchHandler());
 
         // Set initial result
         updateResult();
@@ -179,6 +209,56 @@ public class MealRecipeAddActivity extends AppCompatActivity {
             recipes.add((Recipe) parcelable);
         }
         return recipes;
+    }
+
+    private List<Recipe> existRecipes() {
+        final Parcelable[] parcelables = getIntent().getParcelableArrayExtra(MealRecipeAddActivity.EXIST_RECIPES);
+        Objects.requireNonNull(parcelables,
+                "MealRecipeAddActivity must be started with a exist recipe list");
+        final ObservableArrayList<Recipe> exist = new ObservableArrayList<>();
+        exist.ensureCapacity(parcelables.length);
+        for (Parcelable parcelable : parcelables) {
+            exist.add((Recipe) parcelable);
+        }
+        return exist;
+    }
+
+    private class SearchHandler implements SearchView.OnQueryTextListener {
+
+        @Override
+        public boolean onQueryTextSubmit(String query) {
+            // Do nothing more
+            return true;
+        }
+
+        @Override
+        public boolean onQueryTextChange(String newText) {
+            updateVisibleMeals();
+            return true;
+        }
+    }
+
+    private void updateVisibleMeals() {
+        final String query = mSearchView.getQuery().toString();
+        // Make all meals visible
+        mVisibleRecipes.clear();
+        if (!query.isEmpty()) {
+            final List<Recipe> filteredRecipes = new ArrayList<>();
+            // Limit mVisibleMeals to the meals whose titles contain the query
+            // Case insensitive
+            final String lowerQuery = query.toLowerCase(Locale.getDefault());
+
+            for (Recipe recipe : mRecipes) {
+                final String lowerTitle = recipe.getTitle().toLowerCase(Locale.getDefault());
+                if (lowerTitle.contains(lowerQuery)) {
+                    filteredRecipes.add(recipe);
+                }
+            }
+            mVisibleRecipes.addAll(filteredRecipes);
+        } else {
+            // Empty query
+            mVisibleRecipes.addAll(mRecipes);
+        }
     }
 
 }
