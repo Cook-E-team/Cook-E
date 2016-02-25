@@ -19,21 +19,26 @@
 
 package org.cook_e.cook_e;
 
+import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
 import org.cook_e.cook_e.ui.CookStep;
+import org.cook_e.cook_e.ui.TimerFragment;
 import org.cook_e.data.Bunch;
+import org.cook_e.data.Recipe;
 import org.cook_e.data.Schedule;
 import org.cook_e.data.Step;
 
 public class CookActivity extends AppCompatActivity {
+    private static final String TAG = CookActivity.class.getSimpleName();
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -64,7 +69,7 @@ public class CookActivity extends AppCompatActivity {
         if (firstStep == null) {
             throw new IllegalStateException("No steps");
         }
-        mCookStep.setStep(firstStep, mSchedule.getCurrentStepRecipe().getTitle());
+        setCurrentStep(firstStep, mSchedule.getCurrentStepRecipe());
 
         setUpActionBar();
     }
@@ -90,7 +95,7 @@ public class CookActivity extends AppCompatActivity {
                 // User chose the "previous" item,
                 step = mSchedule.getPrevStep();
                 if (step != null) {
-                    mCookStep.setStep(step, mSchedule.getCurrentStepRecipe().getTitle());
+                    setCurrentStep(step, mSchedule.getCurrentStepRecipe());
                 }
                 return true;
 
@@ -98,7 +103,7 @@ public class CookActivity extends AppCompatActivity {
                 // User chose the "next" item,
                 step = mSchedule.getNextStep();
                 if (step != null) {
-                    mCookStep.setStep(step, mSchedule.getCurrentStepRecipe().getTitle());
+                    setCurrentStep(step, mSchedule.getCurrentStepRecipe());
                 }
                 return true;
 
@@ -106,6 +111,23 @@ public class CookActivity extends AppCompatActivity {
                 // If we got here, the user's action was not recognized.
                 // Invoke the superclass to handle it.
                 return super.onOptionsItemSelected(item);
+        }
+    }
+
+    /**
+     * Updates the activity to display a step from a recipe
+     * @param step the step to display
+     * @param recipe the recipe that contains the step
+     */
+    private void setCurrentStep(Step step, Recipe recipe) {
+        mCookStep.setStep(step, recipe.getTitle());
+        Log.d(TAG, "Step: " + step);
+        if (step.isSimultaneous()) {
+            // Add a timer fragment for the step
+            final TimerFragment timerFragment = TimerFragment.newInstance(step);
+            final FragmentTransaction transaction = getFragmentManager().beginTransaction();
+            transaction.add(R.id.timer_container, timerFragment);
+            transaction.commit();
         }
     }
 

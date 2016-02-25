@@ -37,12 +37,44 @@
         app:layout_scrollFlags="scroll|enterAlways"
         app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
 
-    <fragment
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:name="org.cook_e.cook_e.ui.CookStep"
-        android:id="@+id/fragment"
-        android:layout_gravity="center_horizontal"
-        tools:layout="@layout/fragment_cook_step"/>
+        android:layout_height="match_parent">
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/scrollView2"
+            android:layout_alignParentRight="false"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentLeft="false"
+            android:layout_alignParentStart="true">
+
+            <fragment
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:name="org.cook_e.cook_e.ui.CookStep"
+                android:id="@+id/fragment"
+                android:layout_gravity="center_horizontal"
+                tools:layout="@layout/fragment_cook_step"/>
+        </ScrollView>
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/scrollView2"
+            android:layout_alignParentBottom="true"
+            android:id="@+id/scrollView3">
+
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="bottom"
+                android:id="@+id/timer_container">
+            </LinearLayout>
+        </ScrollView>
+
+    </RelativeLayout>
 
 </LinearLayout>

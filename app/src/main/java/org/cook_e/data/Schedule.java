@@ -69,7 +69,6 @@ public class Schedule {
      * @return the recipe current step belongs to
      */
     public Recipe getCurrentStepRecipe() {
-        Log.d(TAG, "mCurrSelectedFinalStep = " + mCurrSelectedFinalStep + ", mFinalStepMapToRecipe = " + mFinalStepMapToRecipe);
         return mFinalStepMapToRecipe.get(mCurrSelectedFinalStep);
     }
 
