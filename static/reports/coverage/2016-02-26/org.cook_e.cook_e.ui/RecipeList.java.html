@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>RecipeList.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">debug</a> &gt; <a href="index.source.html" class="el_package">org.cook_e.cook_e.ui</a> &gt; <span class="el_source">RecipeList.java</span></div><h1>RecipeList.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2016 the Cook-E development team
+ *
+ * This file is part of Cook-E.
+ *
+ * Cook-E is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Cook-E is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Cook-E.  If not, see &lt;http://www.gnu.org/licenses/&gt;.
+ */
+
+package org.cook_e.cook_e.ui;
+
+import android.app.AlertDialog;
+import android.app.Fragment;
+import android.content.Intent;
+import android.databinding.ObservableArrayList;
+import android.databinding.ObservableList;
+import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ListView;
+import android.widget.SearchView;
+import android.widget.TextView;
+
+import org.cook_e.cook_e.App;
+import org.cook_e.cook_e.CreateRecipe;
+import org.cook_e.cook_e.R;
+import org.cook_e.data.Recipe;
+
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+
+/**
+ * A fragment that displays a list of recipes
+ */
+<span class="fc" id="L50">public class RecipeList extends Fragment {</span>
+<span class="fc" id="L51">    private static final String TAG = RecipeList.class.getSimpleName();</span>
+
+    /**
+     * The recipes to display
+     */
+    private ObservableArrayList&lt;Recipe&gt; mRecipes;
+
+    /**
+     * The recipes visible in the list
+     * (may be a subset of {@link #mRecipes} if the user has entered a search query
+     */
+    private ObservableArrayList&lt;Recipe&gt; mVisibleRecipes;
+    private SearchView mSearchView;
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+<span class="fc" id="L67">        super.onCreate(savedInstanceState);</span>
+
+        try {
+<span class="fc" id="L70">            mRecipes = new ObservableArrayList&lt;&gt;();</span>
+<span class="fc" id="L71">            mVisibleRecipes = new ObservableArrayList&lt;&gt;();</span>
+<span class="fc" id="L72">            mRecipes.addAll(App.getAccessor().loadAllRecipes());</span>
+<span class="fc" id="L73">            mVisibleRecipes.addAll(mRecipes);</span>
+
+<span class="nc" id="L75">        } catch (SQLException e) {</span>
+<span class="nc" id="L76">            new AlertDialog.Builder(getActivity())</span>
+<span class="nc" id="L77">                    .setTitle(&quot;Failed to load recipes&quot;)</span>
+<span class="nc" id="L78">                    .setMessage(e.getLocalizedMessage())</span>
+<span class="nc" id="L79">                    .show();</span>
+<span class="nc" id="L80">            Log.e(TAG, &quot;Failed to load recipes&quot;, e);</span>
+<span class="fc" id="L81">        }</span>
+<span class="fc" id="L82">    }</span>
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+<span class="fc" id="L88">        View view = inflater.inflate(R.layout.fragment_home_list, container, false);</span>
+<span class="fc" id="L89">        final ListView recipeList = (ListView) view.findViewById(R.id.list_view);</span>
+<span class="fc" id="L90">        recipeList.setAdapter(new RecipeListAdapter(getActivity(), mVisibleRecipes));</span>
+        // Configure list for testing
+<span class="fc" id="L92">        recipeList.setTag(R.id.test_tag_recipe_list, &quot;Recipe List&quot;);</span>
+        
+        // Search
+<span class="fc" id="L95">        mSearchView = (SearchView) view.findViewById(R.id.search);</span>
+<span class="fc" id="L96">        mSearchView.setOnQueryTextListener(new SearchHandler());</span>
+
+        // Empty view, shown when list is empty
+<span class="fc" id="L99">        final TextView emptyView = (TextView) view.findViewById(R.id.empty_list_view);</span>
+<span class="fc" id="L100">        emptyView.setText(R.string.no_recipes);</span>
+<span class="pc bpc" id="L101" title="1 of 2 branches missed.">        if (mVisibleRecipes.isEmpty()) {</span>
+<span class="nc" id="L102">            emptyView.setVisibility(View.VISIBLE);</span>
+        } else {
+<span class="fc" id="L104">            emptyView.setVisibility(View.INVISIBLE);</span>
+        }
+<span class="fc" id="L106">        mVisibleRecipes.addOnListChangedCallback(new ListEmptyViewManager(emptyView));</span>
+
+        // Update mVisibleRecipes when mRecipes changes
+<span class="fc" id="L109">        mRecipes.addOnListChangedCallback(new VisibleRecipeUpdater&lt;Recipe&gt;());</span>
+
+<span class="fc" id="L111">        return view;</span>
+    }
+
+
+    /**
+     * Called from the parent activity when an add button is pressed. Starts the process of creating
+     * a new recipe.
+     */
+    public void onAddButtonPressed() {
+        // Open recipe creation view
+<span class="nc" id="L121">        final Intent intent = new Intent(getActivity(), CreateRecipe.class);</span>
+<span class="nc" id="L122">        startActivity(intent);</span>
+<span class="nc" id="L123">    }</span>
+
+    /**
+     * Updates mVisibleRecipes with recipes from mRecipes based on the current search query
+     */
+    private void updateVisibleRecipes() {
+<span class="nc" id="L129">        final String query = mSearchView.getQuery().toString();</span>
+        // Make all recipes visible
+<span class="nc" id="L131">        mVisibleRecipes.clear();</span>
+<span class="nc bnc" id="L132" title="All 2 branches missed.">        if (!query.isEmpty()) {</span>
+<span class="nc" id="L133">            final List&lt;Recipe&gt; filteredRecipes = new ArrayList&lt;&gt;();</span>
+            // Limit mVisibleRecipes to the meals whose titles contain the query
+            // Case insensitive
+<span class="nc" id="L136">            final String lowerQuery = query.toLowerCase(Locale.getDefault());</span>
+
+<span class="nc bnc" id="L138" title="All 2 branches missed.">            for (Recipe recipe : mRecipes) {</span>
+<span class="nc" id="L139">                final String lowerTitle = recipe.getTitle().toLowerCase(Locale.getDefault());</span>
+<span class="nc bnc" id="L140" title="All 2 branches missed.">                if (lowerTitle.contains(lowerQuery)) {</span>
+<span class="nc" id="L141">                    filteredRecipes.add(recipe);</span>
+                }
+<span class="nc" id="L143">            }</span>
+<span class="nc" id="L144">            mVisibleRecipes.addAll(filteredRecipes);</span>
+<span class="nc" id="L145">        } else {</span>
+            // Empty query
+<span class="nc" id="L147">            mVisibleRecipes.addAll(mRecipes);</span>
+        }
+<span class="nc" id="L149">    }</span>
+
+    /**
+     * Updates the recipes in this list from the database
+     *
+     * Has no effect if this fragment has not yet been created.
+     */
+    public void reloadRecipes() {
+<span class="pc bpc" id="L157" title="1 of 2 branches missed.">        if (mRecipes != null) {</span>
+<span class="nc" id="L158">            mRecipes.clear();</span>
+            try {
+<span class="nc" id="L160">                mRecipes.addAll(App.getAccessor().loadAllRecipes());</span>
+<span class="nc" id="L161">            } catch (SQLException e) {</span>
+<span class="nc" id="L162">                new AlertDialog.Builder(getActivity())</span>
+<span class="nc" id="L163">                        .setTitle(&quot;Failed to load recipes&quot;)</span>
+<span class="nc" id="L164">                        .setMessage(e.getLocalizedMessage())</span>
+<span class="nc" id="L165">                        .show();</span>
+<span class="nc" id="L166">                Log.e(TAG, &quot;Failed to load recipes&quot;, e);</span>
+<span class="nc" id="L167">            }</span>
+        }
+<span class="fc" id="L169">    }</span>
+
+
+<span class="fc" id="L172">    private class SearchHandler implements SearchView.OnQueryTextListener {</span>
+
+        @Override
+        public boolean onQueryTextSubmit(String query) {
+            // Do nothing more
+<span class="nc" id="L177">            return true;</span>
+        }
+
+        @Override
+        public boolean onQueryTextChange(String newText) {
+<span class="nc" id="L182">            updateVisibleRecipes();</span>
+<span class="nc" id="L183">            return true;</span>
+        }
+    }
+
+    /**
+     * Calls {@link #updateVisibleRecipes()} when the associated list changes
+     * @param &lt;T&gt; the value type
+     */
+<span class="fc" id="L191">    private class VisibleRecipeUpdater&lt;T&gt; extends ObservableList.OnListChangedCallback&lt;ObservableList&lt;T&gt;&gt; {</span>
+
+        @Override
+        public void onChanged(ObservableList&lt;T&gt; sender) {
+<span class="nc" id="L195">            updateVisibleRecipes();</span>
+<span class="nc" id="L196">        }</span>
+
+        @Override
+        public void onItemRangeChanged(ObservableList&lt;T&gt; sender, int positionStart, int itemCount) {
+<span class="nc" id="L200">            updateVisibleRecipes();</span>
+<span class="nc" id="L201">        }</span>
+
+        @Override
+        public void onItemRangeInserted(ObservableList&lt;T&gt; sender, int positionStart, int itemCount) {
+<span class="nc" id="L205">            updateVisibleRecipes();</span>
+<span class="nc" id="L206">        }</span>
+
+        @Override
+        public void onItemRangeMoved(ObservableList&lt;T&gt; sender, int fromPosition, int toPosition, int itemCount) {
+<span class="nc" id="L210">            updateVisibleRecipes();</span>
+<span class="nc" id="L211">        }</span>
+
+        @Override
+        public void onItemRangeRemoved(ObservableList&lt;T&gt; sender, int positionStart, int itemCount) {
+<span class="nc" id="L215">            updateVisibleRecipes();</span>
+<span class="nc" id="L216">        }</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.4.201502262128</span></div></body></html>

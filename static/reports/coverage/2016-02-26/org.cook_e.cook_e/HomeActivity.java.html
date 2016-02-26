@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>HomeActivity.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">debug</a> &gt; <a href="index.source.html" class="el_package">org.cook_e.cook_e</a> &gt; <span class="el_source">HomeActivity.java</span></div><h1>HomeActivity.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2016 the Cook-E development team
+ *
+ * This file is part of Cook-E.
+ *
+ * Cook-E is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Cook-E is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Cook-E.  If not, see &lt;http://www.gnu.org/licenses/&gt;.
+ */
+
+package org.cook_e.cook_e;
+
+import android.app.Fragment;
+import android.content.Intent;
+import android.os.Bundle;
+import android.os.StrictMode;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.TabLayout;
+import android.support.design.widget.TabLayout.Tab;
+import android.support.v4.view.ViewPager;
+import android.support.v4.view.ViewPager.OnPageChangeListener;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+
+import org.cook_e.cook_e.ui.HomePageAdapter;
+
+
+<span class="pc bpc" id="L41" title="1 of 2 branches missed.">public class HomeActivity extends AppCompatActivity {</span>
+
+    private ViewPager mViewPager;
+    private HomePageAdapter mPageAdapter;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+<span class="fc" id="L48">        super.onCreate(savedInstanceState);</span>
+<span class="fc" id="L49">        setContentView(R.layout.activity_home);</span>
+
+<span class="fc" id="L51">        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);</span>
+<span class="fc" id="L52">        setSupportActionBar(toolbar);</span>
+<span class="fc" id="L53">        setUpActionBar();</span>
+
+<span class="fc" id="L55">        mViewPager = (ViewPager) findViewById(R.id.pager);</span>
+
+<span class="fc" id="L57">        final TabLayout tabLayout = (TabLayout) findViewById(R.id.tab_layout);</span>
+        // Tags identify the tabs for testing.
+<span class="fc" id="L59">        tabLayout.addTab(tabLayout.newTab().setText(R.string.meals));</span>
+<span class="fc" id="L60">        tabLayout.addTab(tabLayout.newTab().setText(R.string.recipes).setTag(1));</span>
+
+        // Set the page when a tab is selected
+<span class="fc" id="L63">        tabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {</span>
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+<span class="fc" id="L66">                mViewPager.setCurrentItem(tab.getPosition());</span>
+<span class="fc" id="L67">            }</span>
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+
+<span class="fc" id="L72">            }</span>
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+
+<span class="fc" id="L77">            }</span>
+        });
+        // Set the selected tab when a page is selected
+<span class="fc" id="L80">        mViewPager.addOnPageChangeListener(new OnPageChangeListener() {</span>
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+<span class="fc" id="L84">            }</span>
+
+            @Override
+            public void onPageSelected(int position) {
+<span class="fc" id="L88">                final Tab tab = tabLayout.getTabAt(position);</span>
+<span class="pc bpc" id="L89" title="1 of 2 branches missed.">                if (tab != null) {</span>
+<span class="fc" id="L90">                    tab.select();</span>
+                }
+<span class="fc" id="L92">            }</span>
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+<span class="fc" id="L97">            }</span>
+        });
+
+        // Set up HomePageAdapter
+<span class="fc" id="L101">        mPageAdapter = new HomePageAdapter(getFragmentManager());</span>
+<span class="fc" id="L102">        mViewPager.setAdapter(mPageAdapter);</span>
+
+        // Set up add button for recipes/meals
+<span class="fc" id="L105">        final FloatingActionButton addButton = (FloatingActionButton) findViewById(R.id.add_button);</span>
+<span class="fc" id="L106">        addButton.setOnClickListener(new View.OnClickListener() {</span>
+            @Override
+            public void onClick(View v) {
+<span class="nc" id="L109">                final Fragment visibleFragment = mPageAdapter.getItem(mViewPager.getCurrentItem());</span>
+<span class="nc bnc" id="L110" title="All 2 branches missed.">                if (visibleFragment == mPageAdapter.getMealList()) {</span>
+<span class="nc" id="L111">                    mPageAdapter.getMealList().onAddButtonPressed();</span>
+                } else {
+<span class="nc" id="L113">                    mPageAdapter.getRecipeList().onAddButtonPressed();</span>
+                }
+<span class="nc" id="L115">            }</span>
+        });
+<span class="fc" id="L117">    }</span>
+
+    @Override
+    protected void onResume() {
+<span class="fc" id="L121">        super.onResume();</span>
+        // May be returning from another activity that modified data, so reload everything
+<span class="fc" id="L123">        mPageAdapter.getRecipeList().reloadRecipes();</span>
+<span class="fc" id="L124">        mPageAdapter.getMealList().reloadMeals();</span>
+<span class="fc" id="L125">    }</span>
+
+    private void setUpActionBar() {
+<span class="fc" id="L128">        final ActionBar bar = getSupportActionBar();</span>
+<span class="pc bpc" id="L129" title="3 of 4 branches missed.">        assert bar != null;</span>
+<span class="fc" id="L130">        bar.setTitle(R.string.app_name);</span>
+<span class="fc" id="L131">    }</span>
+
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+<span class="fc" id="L136">        super.onCreateOptionsMenu(menu);</span>
+
+<span class="fc" id="L138">        getMenuInflater().inflate(R.menu.topright_menu, menu);</span>
+
+<span class="fc" id="L140">        final MenuItem aboutItem = menu.findItem(R.id.menu_about);</span>
+<span class="fc" id="L141">        aboutItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {</span>
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                // Open the about activity
+<span class="nc" id="L145">                final Intent intent = new Intent(HomeActivity.this, AboutActivity.class);</span>
+<span class="nc" id="L146">                startActivity(intent);</span>
+<span class="nc" id="L147">                return true;</span>
+            }
+        });
+
+<span class="fc" id="L151">        return true;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.4.201502262128</span></div></body></html>

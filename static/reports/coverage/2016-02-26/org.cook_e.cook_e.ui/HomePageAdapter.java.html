@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>HomePageAdapter.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">debug</a> &gt; <a href="index.source.html" class="el_package">org.cook_e.cook_e.ui</a> &gt; <span class="el_source">HomePageAdapter.java</span></div><h1>HomePageAdapter.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2016 the Cook-E development team
+ *
+ * This file is part of Cook-E.
+ *
+ * Cook-E is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Cook-E is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Cook-E.  If not, see &lt;http://www.gnu.org/licenses/&gt;.
+ */
+
+package org.cook_e.cook_e.ui;
+
+
+import android.app.Fragment;
+import android.app.FragmentManager;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.v13.app.FragmentPagerAdapter;
+
+/**
+ * A pager adapter that provides a meal list fragment in position 0 and a recipe list fragment
+ * in position 1
+ */
+public class HomePageAdapter extends FragmentPagerAdapter {
+
+    /**
+     * The recipe list fragment
+     */
+    @Nullable
+    private RecipeList mRecipeList;
+
+    /**
+     * The meal list fragment
+     */
+    @Nullable
+    private MealList mMealList;
+
+    /**
+     * Creates a new adapter
+     * @param fm the fragment manager to use
+     */
+    public HomePageAdapter(FragmentManager fm) {
+<span class="fc" id="L52">        super(fm);</span>
+<span class="fc" id="L53">    }</span>
+
+    @Override
+    public Fragment getItem(int position) {
+<span class="fc bfc" id="L57" title="All 2 branches covered.">        if(position == 0) {</span>
+<span class="fc" id="L58">            return getMealList();</span>
+        } else {
+<span class="fc" id="L60">            return getRecipeList();</span>
+        }
+    }
+
+    @Override
+    public int getCount() {
+<span class="fc" id="L66">        return 2;</span>
+    }
+
+    /**
+     * Ensures that mRecipeList is not null, then returns it
+     * @return mRecipeList
+     */
+    @NonNull
+    public RecipeList getRecipeList() {
+<span class="fc bfc" id="L75" title="All 2 branches covered.">        if (mRecipeList == null) {</span>
+<span class="fc" id="L76">            mRecipeList = new RecipeList();</span>
+        }
+<span class="fc" id="L78">        return mRecipeList;</span>
+    }
+    /**
+     * Ensures that mMealList is not null, then returns it
+     * @return mMealList
+     */
+    @NonNull
+    public MealList getMealList() {
+<span class="fc bfc" id="L86" title="All 2 branches covered.">        if (mMealList == null) {</span>
+<span class="fc" id="L87">            mMealList = new MealList();</span>
+        }
+<span class="fc" id="L89">        return mMealList;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.4.201502262128</span></div></body></html>

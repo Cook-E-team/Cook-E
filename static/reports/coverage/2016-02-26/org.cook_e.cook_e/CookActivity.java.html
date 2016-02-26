@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>CookActivity.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">debug</a> &gt; <a href="index.source.html" class="el_package">org.cook_e.cook_e</a> &gt; <span class="el_source">CookActivity.java</span></div><h1>CookActivity.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2016 the Cook-E development team
+ *
+ * This file is part of Cook-E.
+ *
+ * Cook-E is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Cook-E is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Cook-E.  If not, see &lt;http://www.gnu.org/licenses/&gt;.
+ */
+
+package org.cook_e.cook_e;
+
+import android.app.AlertDialog;
+import android.app.FragmentTransaction;
+import android.content.Intent;
+import android.os.Bundle;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.widget.Toast;
+
+import org.cook_e.cook_e.ui.CookStep;
+import org.cook_e.cook_e.ui.TimerFragment;
+import org.cook_e.data.Bunch;
+import org.cook_e.data.Recipe;
+import org.cook_e.data.Schedule;
+import org.cook_e.data.Step;
+
+/**
+ * An activity that shows the steps involved in cooking a {@link Bunch}
+ *
+ * When this activity is started, its intent must include an extra with the key {@link #EXTRA_BUNCH}
+ * containing the bunch to be cooked.
+ */
+<span class="nc bnc" id="L46" title="All 2 branches missed.">public class CookActivity extends AppCompatActivity implements TimerFragment.StepFinishListener {</span>
+    /**
+     * The tag used for logging
+     */
+    @SuppressWarnings(&quot;unused&quot;)
+<span class="nc" id="L51">    private static final String TAG = CookActivity.class.getSimpleName();</span>
+    /**
+     * The extra key used to provide a bunch/meal to cook
+     */
+<span class="nc" id="L55">    public static final String EXTRA_BUNCH = CookActivity.class.getName() + &quot;.EXTRA_BUNCH&quot;;</span>
+
+    /**
+     * The bunch/meal being prepared
+     */
+    private Bunch mBunch;
+    /**
+     * The schedule
+     */
+    private Schedule mSchedule;
+    /**
+     * The cook step fragment, that displays each step
+     */
+    private CookStep mCookStep;
+
+    /**
+     * The number of simultaneous steps with active timers
+     */
+<span class="nc" id="L73">    private int mActiveSimultaneousSteps = 0;</span>
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+<span class="nc" id="L77">        super.onCreate(savedInstanceState);</span>
+<span class="nc" id="L78">        setContentView(R.layout.activity_cook);</span>
+
+<span class="nc" id="L80">        mBunch = getBunch();</span>
+<span class="nc" id="L81">        mSchedule = new Schedule(mBunch);</span>
+
+<span class="nc" id="L83">        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);</span>
+<span class="nc" id="L84">        setSupportActionBar(toolbar);</span>
+
+<span class="nc" id="L86">        mCookStep = (CookStep) getFragmentManager().findFragmentById(R.id.fragment);</span>
+<span class="nc" id="L87">        Step firstStep = mSchedule.getNextStep();</span>
+<span class="nc bnc" id="L88" title="All 2 branches missed.">        if (firstStep == null) {</span>
+<span class="nc" id="L89">            throw new IllegalStateException(&quot;No steps&quot;);</span>
+        }
+<span class="nc" id="L91">        setCurrentStep(firstStep, mSchedule.getCurrentStepRecipe());</span>
+
+<span class="nc" id="L93">        setUpActionBar();</span>
+<span class="nc" id="L94">    }</span>
+
+    private void setUpActionBar() {
+<span class="nc" id="L97">        final ActionBar bar = getSupportActionBar();</span>
+<span class="nc bnc" id="L98" title="All 4 branches missed.">        assert bar != null;</span>
+<span class="nc" id="L99">        bar.setTitle(mBunch.getTitle());</span>
+<span class="nc" id="L100">        bar.setDisplayHomeAsUpEnabled(true);</span>
+<span class="nc" id="L101">    }</span>
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+<span class="nc" id="L105">        getMenuInflater().inflate(R.menu.menu_cook, menu);</span>
+<span class="nc" id="L106">        return true;</span>
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        Step step;
+<span class="nc bnc" id="L112" title="All 3 branches missed.">        switch (item.getItemId()) {</span>
+            case R.id.previous:
+                // User chose the &quot;previous&quot; item,
+<span class="nc" id="L115">                step = mSchedule.getPrevStep();</span>
+<span class="nc bnc" id="L116" title="All 2 branches missed.">                if (step != null) {</span>
+<span class="nc" id="L117">                    setCurrentStep(step, mSchedule.getCurrentStepRecipe());</span>
+                }
+<span class="nc" id="L119">                return true;</span>
+
+            case R.id.next:
+                // User chose the &quot;next&quot; item,
+<span class="nc" id="L123">                step = mSchedule.getNextStep();</span>
+<span class="nc bnc" id="L124" title="All 2 branches missed.">                if (step != null) {</span>
+<span class="nc" id="L125">                    setCurrentStep(step, mSchedule.getCurrentStepRecipe());</span>
+<span class="nc bnc" id="L126" title="All 2 branches missed.">                } else  if (mActiveSimultaneousSteps != 0) {</span>
+                    // Explain to the user why they cannot advance
+<span class="nc" id="L128">                    new AlertDialog.Builder(this)</span>
+<span class="nc" id="L129">                            .setTitle(R.string.dialog_title_waiting_for_step)</span>
+<span class="nc" id="L130">                            .setMessage(R.string.dialog_waiting_for_step)</span>
+<span class="nc" id="L131">                            .show();</span>
+                }
+<span class="nc" id="L133">                return true;</span>
+
+            default:
+                // If we got here, the user's action was not recognized.
+                // Invoke the superclass to handle it.
+<span class="nc" id="L138">                return super.onOptionsItemSelected(item);</span>
+        }
+    }
+
+    /**
+     * Updates the activity to display a step from a recipe
+     * @param step the step to display
+     * @param recipe the recipe that contains the step
+     */
+    private void setCurrentStep(Step step, Recipe recipe) {
+<span class="nc" id="L148">        mCookStep.setStep(step, recipe.getTitle());</span>
+<span class="nc bnc" id="L149" title="All 2 branches missed.">        if (step.isSimultaneous()) {</span>
+            // Add a timer fragment for the step
+<span class="nc" id="L151">            final TimerFragment timerFragment = TimerFragment.newInstance(recipe, step);</span>
+<span class="nc" id="L152">            final FragmentTransaction transaction = getFragmentManager().beginTransaction();</span>
+<span class="nc" id="L153">            transaction.add(R.id.timer_container, timerFragment);</span>
+<span class="nc" id="L154">            transaction.commit();</span>
+
+<span class="nc" id="L156">            mActiveSimultaneousSteps++;</span>
+        }
+<span class="nc" id="L158">    }</span>
+
+    @Override
+    public boolean onSupportNavigateUp() {
+<span class="nc" id="L162">        finish();</span>
+<span class="nc" id="L163">        return true;</span>
+    }
+
+    private Bunch getBunch() {
+<span class="nc" id="L167">        final Intent intent = getIntent();</span>
+<span class="nc" id="L168">        final Bunch meal = intent.getParcelableExtra(EXTRA_BUNCH);</span>
+<span class="nc bnc" id="L169" title="All 2 branches missed.">        if (meal == null) {</span>
+<span class="nc" id="L170">            throw new IllegalStateException(&quot;No bunch in intent&quot;);</span>
+        }
+<span class="nc" id="L172">        return meal;</span>
+    }
+
+    @Override
+    public void onStepFinished(TimerFragment timerFragment, Recipe recipe, Step step) {
+        // Remove the fragment
+<span class="nc" id="L178">        final FragmentTransaction transaction = getFragmentManager().beginTransaction();</span>
+<span class="nc" id="L179">        transaction.remove(timerFragment);</span>
+<span class="nc" id="L180">        transaction.commit();</span>
+        // Notify the scheduler that the step is done
+<span class="nc" id="L182">        mSchedule.finishSimultaneousStepFromRecipe(recipe);</span>
+<span class="nc" id="L183">        Toast.makeText(this, &quot;Step \&quot;&quot; + step.getDescription() + &quot;\&quot; finished&quot;, Toast.LENGTH_LONG).show();</span>
+
+<span class="nc" id="L185">        mActiveSimultaneousSteps--;</span>
+<span class="nc" id="L186">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.4.201502262128</span></div></body></html>

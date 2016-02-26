@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>CreateRecipe.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">debug</a> &gt; <a href="index.source.html" class="el_package">org.cook_e.cook_e</a> &gt; <span class="el_source">CreateRecipe.java</span></div><h1>CreateRecipe.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2016 the Cook-E development team
+ *
+ * This file is part of Cook-E.
+ *
+ * Cook-E is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Cook-E is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Cook-E.  If not, see &lt;http://www.gnu.org/licenses/&gt;.
+ */
+
+package org.cook_e.cook_e;
+
+import android.app.AlertDialog;
+import android.content.Intent;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
+import android.os.Bundle;
+import android.provider.MediaStore;
+import android.support.annotation.Nullable;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
+
+import org.cook_e.data.Recipe;
+import org.cook_e.data.Step;
+
+import java.sql.SQLException;
+import java.util.Collections;
+
+
+/**
+ * An activity that lets the user create a recipe
+ */
+<span class="nc bnc" id="L51" title="All 2 branches missed.">public class CreateRecipe extends AppCompatActivity {</span>
+
+    /**
+     * The key used when saving and restoring the recipe image
+     */
+<span class="nc" id="L56">    private static final String KEY_RECIPE_IMAGE = CreateRecipe.class.getName() + &quot;.RECIPE_IMAGE&quot;;</span>
+
+    /**
+     * Result code used when requesting images
+     */
+<span class="nc" id="L61">    private static int RESULT_LOAD_IMAGE = 42;</span>
+
+    /**
+     * The image view that displays the recipe image
+     */
+    private ImageView mImageView;
+
+    /**
+     * The user-selected image for the new recipe, or null if none has been selected
+     */
+<span class="nc" id="L71">    @Nullable</span>
+    private Bitmap mRecipeImage = null;
+
+    /**
+     * Text field for title
+     */
+    private EditText mTitleField;
+    /**
+     * Text field for description
+     */
+    private EditText mAuthorField;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+<span class="nc" id="L85">        super.onCreate(savedInstanceState);</span>
+        // must be call beforehand
+<span class="nc" id="L87">        setContentView(R.layout.activity_create_recipe);</span>
+<span class="nc" id="L88">        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);</span>
+<span class="nc" id="L89">        setSupportActionBar(toolbar);</span>
+
+<span class="nc" id="L91">        setUpActionBar();</span>
+
+        // Image view
+<span class="nc" id="L94">        mImageView = (ImageView) findViewById(R.id.recipe_image_view);</span>
+        // Hide by default, until an image is selected
+<span class="nc" id="L96">        mImageView.setVisibility(View.GONE);</span>
+
+<span class="nc" id="L98">        mTitleField = (EditText) findViewById(R.id.title_field);</span>
+<span class="nc" id="L99">        mAuthorField = (EditText) findViewById(R.id.author_field);</span>
+
+        // Continue button
+<span class="nc" id="L102">        final Button continueButton = (Button) findViewById(R.id.continue_button);</span>
+<span class="nc" id="L103">        continueButton.setOnClickListener(new View.OnClickListener() {</span>
+            @Override
+            public void onClick(View v) {
+<span class="nc" id="L106">                continueCreatingRecipe();</span>
+<span class="nc" id="L107">            }</span>
+        });
+
+        // Check for restored state
+<span class="nc bnc" id="L111" title="All 4 branches missed.">        if (savedInstanceState != null &amp;&amp; savedInstanceState.containsKey(KEY_RECIPE_IMAGE)) {</span>
+<span class="nc" id="L112">            final Bitmap restoredImage = savedInstanceState.getParcelable(KEY_RECIPE_IMAGE);</span>
+<span class="nc bnc" id="L113" title="All 2 branches missed.">            if (restoredImage != null) {</span>
+<span class="nc" id="L114">                mImageView.setImageBitmap(restoredImage);</span>
+<span class="nc" id="L115">                mImageView.setVisibility(View.VISIBLE);</span>
+<span class="nc" id="L116">                mRecipeImage = restoredImage;</span>
+            }
+        }
+<span class="nc" id="L119">    }</span>
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+<span class="nc" id="L123">        super.onSaveInstanceState(outState);</span>
+        // Write the selected image
+<span class="nc" id="L125">        outState.putParcelable(KEY_RECIPE_IMAGE, mRecipeImage);</span>
+<span class="nc" id="L126">    }</span>
+
+    private void continueCreatingRecipe() {
+<span class="nc" id="L129">        final String title = mTitleField.getText().toString();</span>
+<span class="nc" id="L130">        final String author = mAuthorField.getText().toString();</span>
+<span class="nc bnc" id="L131" title="All 2 branches missed.">        if (title.isEmpty()) {</span>
+<span class="nc" id="L132">            new AlertDialog.Builder(this)</span>
+<span class="nc" id="L133">                    .setTitle(&quot;Empty title&quot;)</span>
+<span class="nc" id="L134">                    .setMessage(&quot;Please enter a recipe title&quot;)</span>
+<span class="nc" id="L135">                    .setPositiveButton(android.R.string.ok, null)</span>
+<span class="nc" id="L136">                    .show();</span>
+<span class="nc" id="L137">            return;</span>
+        }
+        // Create a recipe
+<span class="nc" id="L140">        final Recipe recipe = new Recipe(title, author, Collections.&lt;Step&gt;emptyList());</span>
+        // TODO: If the recipe image is set, starting the next activity will fail because of
+        // the large image (see issue #7). Once a solution is found, set the image.
+
+        // Store the recipe
+        try {
+<span class="nc" id="L146">            App.getAccessor().persistRecipe(recipe);</span>
+<span class="nc" id="L147">        } catch (SQLException e) {</span>
+<span class="nc" id="L148">            new AlertDialog.Builder(this)</span>
+<span class="nc" id="L149">                    .setTitle(&quot;Failed to save recipe&quot;)</span>
+<span class="nc" id="L150">                    .setMessage(e.getLocalizedMessage())</span>
+<span class="nc" id="L151">                    .show();</span>
+<span class="nc" id="L152">            return;</span>
+<span class="nc" id="L153">        }</span>
+
+        // Start editor activity
+<span class="nc" id="L156">        final Intent intent = new Intent(this, EditRecipeActivity.class);</span>
+<span class="nc" id="L157">        intent.putExtra(EditRecipeActivity.EXTRA_RECIPE, recipe);</span>
+<span class="nc" id="L158">        startActivity(intent);</span>
+        // Close this activity, so that when the user goes back it will not appear again
+<span class="nc" id="L160">        finish();</span>
+<span class="nc" id="L161">    }</span>
+
+
+    private void setUpActionBar() {
+<span class="nc" id="L165">        final ActionBar bar = getSupportActionBar();</span>
+<span class="nc bnc" id="L166" title="All 4 branches missed.">        assert bar != null;</span>
+<span class="nc" id="L167">        bar.setTitle(R.string.create_recipe);</span>
+<span class="nc" id="L168">    }</span>
+
+    /*
+     * This is a workaround for inconsistent behavior.
+     *
+     * Pressing the system back button or calling finish() returns a result to the parent activity,
+     * as expected. However, the default action when the up button is pressed does not send a result
+     * to the parent. This override ensures that a result is sent when the action bar up button is
+     * pressed.
+     */
+    @Override
+    public boolean onSupportNavigateUp() {
+<span class="nc" id="L180">        finish();</span>
+<span class="nc" id="L181">        return true;</span>
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+<span class="nc" id="L186">        super.onCreateOptionsMenu(menu);</span>
+<span class="nc" id="L187">        getMenuInflater().inflate(R.menu.create_recipe, menu);</span>
+
+<span class="nc" id="L189">        final MenuItem addImageItem = menu.findItem(R.id.item_add_image);</span>
+<span class="nc" id="L190">        addImageItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {</span>
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+<span class="nc" id="L193">                requestImageSelect();</span>
+<span class="nc" id="L194">                return true;</span>
+            }
+        });
+
+<span class="nc" id="L198">        final MenuItem removeImageItem = menu.findItem(R.id.item_remove_image);</span>
+<span class="nc" id="L199">        removeImageItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {</span>
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+<span class="nc" id="L202">                mRecipeImage = null;</span>
+<span class="nc" id="L203">                mImageView.setImageDrawable(null);</span>
+<span class="nc" id="L204">                mImageView.setVisibility(View.GONE);</span>
+<span class="nc" id="L205">                return true;</span>
+            }
+        });
+
+<span class="nc" id="L209">        return true;</span>
+    }
+
+    /**
+     * Starts an activity to ask the user to select an image
+     */
+    private void requestImageSelect() {
+<span class="nc" id="L216">        Intent intent = new Intent(</span>
+                Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+<span class="nc" id="L218">        startActivityForResult(intent, RESULT_LOAD_IMAGE);</span>
+<span class="nc" id="L219">    }</span>
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+<span class="nc" id="L223">        super.onActivityResult(requestCode, resultCode, data);</span>
+        // Check for a received image
+<span class="nc bnc" id="L225" title="All 6 branches missed.">        if (requestCode == RESULT_LOAD_IMAGE &amp;&amp; resultCode == RESULT_OK &amp;&amp; data != null) {</span>
+<span class="nc" id="L226">            Uri selectedImage = data.getData();</span>
+<span class="nc" id="L227">            String[] filePathColumn = { MediaStore.Images.Media.DATA };</span>
+
+<span class="nc" id="L229">            Cursor cursor = getContentResolver().query(selectedImage,</span>
+                    filePathColumn, null, null, null);
+<span class="nc bnc" id="L231" title="All 2 branches missed.">            if (cursor != null) {</span>
+<span class="nc" id="L232">                cursor.moveToFirst();</span>
+
+<span class="nc" id="L234">                final int columnIndex = cursor.getColumnIndex(filePathColumn[0]);</span>
+<span class="nc" id="L235">                String picturePath = cursor.getString(columnIndex);</span>
+<span class="nc" id="L236">                cursor.close();</span>
+
+<span class="nc" id="L238">                final Bitmap loadedImage = BitmapFactory.decodeFile(picturePath);</span>
+
+<span class="nc bnc" id="L240" title="All 2 branches missed.">                if (loadedImage != null) {</span>
+<span class="nc" id="L241">                    mImageView.setImageBitmap(loadedImage);</span>
+<span class="nc" id="L242">                    mImageView.setVisibility(View.VISIBLE);</span>
+<span class="nc" id="L243">                    mRecipeImage = loadedImage;</span>
+                }
+                else {
+<span class="nc" id="L246">                    new AlertDialog.Builder(this)</span>
+<span class="nc" id="L247">                            .setTitle(&quot;Could not access image&quot;)</span>
+<span class="nc" id="L248">                            .setMessage(&quot;Please ensure that the selected image is valid and accessible.&quot;)</span>
+<span class="nc" id="L249">                            .setPositiveButton(android.R.string.ok, null)</span>
+<span class="nc" id="L250">                            .show();</span>
+                }
+            }
+        }
+<span class="nc" id="L254">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.4.201502262128</span></div></body></html>

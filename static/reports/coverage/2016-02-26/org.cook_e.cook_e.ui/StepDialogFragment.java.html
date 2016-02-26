@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>StepDialogFragment.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">debug</a> &gt; <a href="index.source.html" class="el_package">org.cook_e.cook_e.ui</a> &gt; <span class="el_source">StepDialogFragment.java</span></div><h1>StepDialogFragment.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2016 the Cook-E development team
+ *
+ * This file is part of Cook-E.
+ *
+ * Cook-E is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Cook-E is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Cook-E.  If not, see &lt;http://www.gnu.org/licenses/&gt;.
+ */
+
+package org.cook_e.cook_e.ui;
+
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.DialogFragment;
+import android.content.DialogInterface;
+import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.view.View;
+import android.widget.EditText;
+
+import org.cook_e.cook_e.R;
+import org.cook_e.data.Step;
+import org.joda.time.Duration;
+import org.joda.time.Period;
+import org.joda.time.format.PeriodFormat;
+import org.joda.time.format.PeriodFormatter;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
+/**
+ * A dialog fragment that allows the user to edit a {@link org.cook_e.data.Step}
+ *
+ * The Activity that uses this dialog must implement the
+ * {@link org.cook_e.cook_e.ui.StepDialogFragment.StepEditListener} interface.
+ */
+public class StepDialogFragment extends DialogFragment {
+
+    /**
+     * Argument key for description (String)
+     */
+<span class="nc" id="L55">    private static final String ARG_DESCRIPTION = StepDialogFragment.class.getName() + &quot;.ARG_DESCRIPTION&quot;;</span>
+    /**
+     * Argument key for ingredients (List&amp;lt;String&amp;gt;)
+     */
+<span class="nc" id="L59">    private static final String ARG_INGREDIENTS = StepDialogFragment.class.getName() + &quot;.ARG_INGREDIENTS&quot;;</span>
+    /**
+     * Argument key for duration ({@link org.joda.time.Duration})
+     */
+<span class="nc" id="L63">    private static final String ARG_DURATION = StepDialogFragment.class.getName() + &quot;.ARG_DURATION&quot;;</span>
+    /**
+     * Argument key for simultaneous (boolean)
+     */
+<span class="nc" id="L67">    private static final String ARG_SIMULTANEOUS = StepDialogFragment.class.getName() + &quot;.ARG_SIMULTANEOUS&quot;;</span>
+
+    /**
+     * An interface for objects that can accept notifications of when the user finishes editing
+     * a step
+     */
+    public interface StepEditListener {
+        /**
+         * Called when the user finishes editing a step
+         *
+         * @param step the step the user has edited
+         */
+        void stepEditingFinished(@NonNull Step step);
+    }
+
+    /**
+     * Description text field
+     */
+    private EditText mDescriptionField;
+    /**
+     * Duration text field
+     */
+    private EditText mDurationField;
+    /**
+     * Ingredients text field
+     */
+    private EditText mIngredientsField;
+
+    /**
+     * The formatter used to parse and format durations (periods)
+     */
+    private final PeriodFormatter mFormatter;
+
+    /**
+     * Creates a fragment
+     *
+     * Client code should normally use {@link #newInstance(Step)} instead.
+     */
+<span class="nc" id="L105">    public StepDialogFragment() {</span>
+        // Create formatter
+<span class="nc" id="L107">        mFormatter = PeriodFormat.wordBased();</span>
+<span class="nc" id="L108">    }</span>
+
+    /**
+     * Creates a new StepDialogFragment to edit a step
+     *
+     * @param step the step to edit, or null to create a new step
+     * @return a dialog fragment
+     */
+    public static StepDialogFragment newInstance(@Nullable Step step) {
+<span class="nc" id="L117">        final StepDialogFragment fragment = new StepDialogFragment();</span>
+<span class="nc bnc" id="L118" title="All 2 branches missed.">        if (step != null) {</span>
+<span class="nc" id="L119">            final Bundle args = new Bundle();</span>
+<span class="nc" id="L120">            args.putString(ARG_DESCRIPTION, step.getDescription());</span>
+<span class="nc" id="L121">            args.putStringArrayList(ARG_INGREDIENTS, new ArrayList&lt;&gt;(step.getIngredients()));</span>
+<span class="nc" id="L122">            args.putSerializable(ARG_DURATION, step.getTime().toDuration());</span>
+<span class="nc" id="L123">            args.putBoolean(ARG_SIMULTANEOUS, step.isSimultaneous());</span>
+<span class="nc" id="L124">            fragment.setArguments(args);</span>
+        }
+<span class="nc" id="L126">        return fragment;</span>
+    }
+
+
+    /**
+     * Called when the user presses the positive (OK) button
+     *
+     * @return true to dismiss the dialog, false to continue displaying it
+     */
+    private boolean onOkPressed() {
+<span class="nc" id="L136">        final String description = mDescriptionField.getText().toString();</span>
+<span class="nc" id="L137">        final String durationString = mDurationField.getText().toString();</span>
+<span class="nc" id="L138">        final String ingredientsString = mIngredientsField.getText().toString();</span>
+
+        // Check required fields
+<span class="nc bnc" id="L141" title="All 2 branches missed.">        if (description.isEmpty()) {</span>
+<span class="nc" id="L142">            mDescriptionField.setError(&quot;Please enter a description&quot;);</span>
+<span class="nc" id="L143">            return false;</span>
+        }
+<span class="nc bnc" id="L145" title="All 2 branches missed.">        if (durationString.isEmpty()) {</span>
+<span class="nc" id="L146">            mDurationField.setError(&quot;Please enter a time&quot;);</span>
+<span class="nc" id="L147">            return false;</span>
+        }
+
+        try {
+            // Try to parse duration
+<span class="nc" id="L152">            final Period period = mFormatter.parsePeriod(durationString);</span>
+<span class="nc" id="L153">            final Duration duration = period.toStandardDuration();</span>
+
+            // Parse ingredients
+<span class="nc bnc" id="L156" title="All 2 branches missed.">            final List&lt;String&gt; ingredients = ingredientsString.isEmpty() ? Collections.&lt;String&gt;emptyList()</span>
+<span class="nc" id="L157">                    : Arrays.asList(ingredientsString.split(&quot;\n&quot;));</span>
+
+<span class="nc" id="L159">            final Step step = new Step(ingredients, description, duration);</span>
+
+            // Pass the step to the parent
+<span class="nc" id="L162">            ((StepEditListener) getActivity()).stepEditingFinished(step);</span>
+<span class="nc" id="L163">            return true;</span>
+<span class="nc" id="L164">        } catch (IllegalArgumentException e) {</span>
+<span class="nc" id="L165">            mDurationField.setError(&quot;Invalid time format&quot;);</span>
+<span class="nc" id="L166">            return false;</span>
+<span class="nc" id="L167">        } catch (UnsupportedOperationException e) {</span>
+<span class="nc" id="L168">            mDurationField.setError(&quot;Enter a time less than 1 month&quot;);</span>
+<span class="nc" id="L169">            return false;</span>
+        }
+    }
+
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+<span class="nc" id="L176">        super.onCreate(savedInstanceState);</span>
+        // Check parent
+<span class="nc bnc" id="L178" title="All 2 branches missed.">        if (!(getActivity() instanceof StepEditListener)) {</span>
+<span class="nc" id="L179">            throw new IllegalStateException(&quot;A StepDialogFragment may only be started from an &quot; +</span>
+                    &quot;activity that implements the StepDialogFragment.StepEditListener interface&quot;);
+        }
+<span class="nc" id="L182">    }</span>
+
+    @Override
+    public Dialog onCreateDialog(Bundle savedInstanceState) {
+<span class="nc" id="L186">        return new AlertDialog.Builder(getActivity())</span>
+<span class="nc" id="L187">                .setTitle(R.string.edit_step)</span>
+<span class="nc" id="L188">                .setPositiveButton(android.R.string.ok, null)</span>
+<span class="nc" id="L189">                .setNegativeButton(android.R.string.cancel, null)</span>
+<span class="nc" id="L190">                .setView(createView())</span>
+<span class="nc" id="L191">                .create();</span>
+    }
+
+    @Override
+    public void onStart() {
+<span class="nc" id="L196">        super.onStart();</span>
+        // Override OK button behavior
+        // Do not always dismiss dialog
+<span class="nc" id="L199">        final AlertDialog dialog = (AlertDialog) getDialog();</span>
+<span class="nc" id="L200">        dialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(</span>
+<span class="nc" id="L201">                new View.OnClickListener() {</span>
+                    @Override
+                    public void onClick(View v) {
+<span class="nc" id="L204">                        final boolean close = onOkPressed();</span>
+<span class="nc bnc" id="L205" title="All 2 branches missed.">                        if (close) {</span>
+                            // Close this DialogFragment
+<span class="nc" id="L207">                            dismiss();</span>
+                        }
+<span class="nc" id="L209">                    }</span>
+                });
+<span class="nc" id="L211">    }</span>
+
+    /**
+     * Sets up and returns a View to be displayed in the dialog
+     *
+     * @return the view to display
+     */
+    private View createView() {
+<span class="nc" id="L219">        final View view = getActivity().getLayoutInflater().inflate(R.layout.dialog_step, null);</span>
+
+<span class="nc" id="L221">        mDescriptionField = (EditText) view.findViewById(R.id.description_field);</span>
+<span class="nc" id="L222">        mDurationField = (EditText) view.findViewById(R.id.duration_field);</span>
+<span class="nc" id="L223">        mIngredientsField = (EditText) view.findViewById(R.id.ingredients_field);</span>
+
+        // Extract data from arguments
+<span class="nc" id="L226">        final Bundle args = getArguments();</span>
+<span class="nc bnc" id="L227" title="All 2 branches missed.">        if (args != null) {</span>
+            // Description
+<span class="nc" id="L229">            final String description = args.getString(ARG_DESCRIPTION);</span>
+<span class="nc" id="L230">            mDescriptionField.setText(description);</span>
+
+            // Duration
+<span class="nc" id="L233">            final Duration duration = (Duration) args.getSerializable(ARG_DURATION);</span>
+<span class="nc bnc" id="L234" title="All 2 branches missed.">            if (duration == null) {</span>
+<span class="nc" id="L235">                throw new IllegalStateException(&quot;No duration argument&quot;);</span>
+            }
+<span class="nc" id="L237">            final Period period = duration.toPeriod();</span>
+<span class="nc" id="L238">            final String durationString = mFormatter.print(period);</span>
+<span class="nc" id="L239">            mDurationField.setText(durationString);</span>
+
+            // Ingredients
+<span class="nc" id="L242">            final List&lt;String&gt; ingredients = args.getStringArrayList(ARG_INGREDIENTS);</span>
+<span class="nc bnc" id="L243" title="All 2 branches missed.">            if (ingredients == null) {</span>
+<span class="nc" id="L244">                throw new IllegalStateException(&quot;No ingredients argument&quot;);</span>
+            }
+<span class="nc" id="L246">            final StringBuilder ingredientsString = new StringBuilder();</span>
+<span class="nc bnc" id="L247" title="All 2 branches missed.">            for (String ingredient : ingredients) {</span>
+<span class="nc" id="L248">                ingredientsString.append(ingredient);</span>
+<span class="nc" id="L249">                ingredientsString.append('\n');</span>
+<span class="nc" id="L250">            }</span>
+<span class="nc" id="L251">            mIngredientsField.setText(ingredientsString);</span>
+        }
+
+<span class="nc" id="L254">        return view;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.4.201502262128</span></div></body></html>

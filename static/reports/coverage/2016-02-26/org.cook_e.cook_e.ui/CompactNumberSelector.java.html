@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>CompactNumberSelector.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">debug</a> &gt; <a href="index.source.html" class="el_package">org.cook_e.cook_e.ui</a> &gt; <span class="el_source">CompactNumberSelector.java</span></div><h1>CompactNumberSelector.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2016 the Cook-E development team
+ *
+ * This file is part of Cook-E.
+ *
+ * Cook-E is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Cook-E is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Cook-E.  If not, see &lt;http://www.gnu.org/licenses/&gt;.
+ */
+
+package org.cook_e.cook_e.ui;
+
+import android.content.Context;
+import android.util.AttributeSet;
+import android.view.Gravity;
+import android.view.View;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+
+import org.cook_e.cook_e.R;
+
+/**
+ * A view that displays a small number and allows the user to increment or decrement it.
+ *
+ * The number displayed is always greater than or equal to 0 and less than or equal to
+ * Integer.MAX_VALUE.
+ */
+public class CompactNumberSelector extends LinearLayout {
+
+    /**
+     * The value currently selected
+     */
+    int mValue;
+
+    /**
+     * The text view that displays the selected number
+     */
+    TextView mNumberView;
+    private ImageButton mUpButton;
+    private ImageButton mDownButton;
+
+    public CompactNumberSelector(Context context) {
+<span class="nc" id="L53">        super(context);</span>
+<span class="nc" id="L54">        initCompactNumberSelector(context);</span>
+<span class="nc" id="L55">    }</span>
+
+    public CompactNumberSelector(Context context, AttributeSet attrs) {
+<span class="nc" id="L58">        super(context, attrs);</span>
+<span class="nc" id="L59">        initCompactNumberSelector(context);</span>
+<span class="nc" id="L60">    }</span>
+
+    public CompactNumberSelector(Context context, AttributeSet attrs, int defStyleAttr) {
+<span class="nc" id="L63">        super(context, attrs, defStyleAttr);</span>
+<span class="nc" id="L64">        initCompactNumberSelector(context);</span>
+<span class="nc" id="L65">    }</span>
+
+    private void initCompactNumberSelector(Context context) {
+<span class="nc" id="L68">        mValue = 0;</span>
+
+<span class="nc" id="L70">        setOrientation(VERTICAL);</span>
+
+        // Create up button
+<span class="nc" id="L73">        mUpButton = new ImageButton(context, null, android.R.attr.borderlessButtonStyle);</span>
+<span class="nc" id="L74">        mUpButton.setImageResource(R.drawable.ic_arrow_drop_up_black_18dp);</span>
+<span class="nc" id="L75">        mUpButton.setMinimumWidth(1);</span>
+<span class="nc" id="L76">        mUpButton.setMaxWidth(10);</span>
+
+<span class="nc" id="L78">        mUpButton.setOnClickListener(new OnClickListener() {</span>
+            @Override
+            public void onClick(View v) {
+<span class="nc" id="L81">                mValue++;</span>
+<span class="nc" id="L82">                updateTextView();</span>
+<span class="nc" id="L83">            }</span>
+        });
+
+
+        // Create down button
+<span class="nc" id="L88">        mDownButton = new ImageButton(context, null, android.R.attr.borderlessButtonStyle);</span>
+<span class="nc" id="L89">        mDownButton.setImageResource(R.drawable.ic_arrow_drop_down_black_18dp);</span>
+<span class="nc" id="L90">        mDownButton.setMinimumWidth(1);</span>
+<span class="nc" id="L91">        mDownButton.setMaxWidth(10);</span>
+
+<span class="nc" id="L93">        mDownButton.setOnClickListener(new OnClickListener() {</span>
+            @Override
+            public void onClick(View v) {
+<span class="nc" id="L96">                mValue--;</span>
+<span class="nc" id="L97">                updateTextView();</span>
+<span class="nc" id="L98">            }</span>
+        });
+
+        // Create text view to display number
+<span class="nc" id="L102">        mNumberView = new TextView(context);</span>
+<span class="nc" id="L103">        mNumberView.setGravity(Gravity.CENTER);</span>
+<span class="nc" id="L104">        updateTextView();</span>
+
+
+<span class="nc" id="L107">        addView(mUpButton);</span>
+<span class="nc" id="L108">        addView(mNumberView);</span>
+<span class="nc" id="L109">        addView(mDownButton);</span>
+<span class="nc" id="L110">    }</span>
+
+    /**
+     * Returns the current value
+     * @return the value
+     */
+    public int getValue() {
+<span class="nc" id="L117">        return mValue;</span>
+    }
+
+    /**
+     * Sets the value to display
+     * @param newValue the value
+     * @throws IllegalArgumentException if value &lt; 0
+     */
+    public void setValue(int newValue) {
+<span class="nc bnc" id="L126" title="All 2 branches missed.">        if (newValue &lt; 0) {</span>
+<span class="nc" id="L127">            throw new IllegalArgumentException(&quot;The value of a CompactNumberSelector must not be negative&quot;);</span>
+        }
+<span class="nc" id="L129">        mValue = newValue;</span>
+<span class="nc" id="L130">        updateTextView();</span>
+<span class="nc" id="L131">    }</span>
+
+    public void updateTextView() {
+<span class="nc" id="L134">        mNumberView.setText(String.format(&quot;%d&quot;, mValue));</span>
+<span class="nc bnc" id="L135" title="All 2 branches missed.">        if (mValue == 0) {</span>
+<span class="nc" id="L136">            mDownButton.setEnabled(false);</span>
+        }
+        else {
+<span class="nc" id="L139">            mDownButton.setEnabled(true);</span>
+        }
+<span class="nc bnc" id="L141" title="All 2 branches missed.">        if (mValue == Integer.MAX_VALUE) {</span>
+<span class="nc" id="L142">            mUpButton.setEnabled(false);</span>
+        }
+        else {
+<span class="nc" id="L145">            mUpButton.setEnabled(true);</span>
+        }
+<span class="nc" id="L147">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.4.201502262128</span></div></body></html>

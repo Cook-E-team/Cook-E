@@ -1,0 +1,273 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>TimerFragment.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">debug</a> &gt; <a href="index.source.html" class="el_package">org.cook_e.cook_e.ui</a> &gt; <span class="el_source">TimerFragment.java</span></div><h1>TimerFragment.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2016 the Cook-E development team
+ *
+ * This file is part of Cook-E.
+ *
+ * Cook-E is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Cook-E is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Cook-E.  If not, see &lt;http://www.gnu.org/licenses/&gt;.
+ */
+
+package org.cook_e.cook_e.ui;
+
+
+import android.app.Activity;
+import android.app.Fragment;
+import android.os.Bundle;
+import android.os.CountDownTimer;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageButton;
+import android.widget.TextView;
+
+import org.cook_e.cook_e.R;
+import org.cook_e.data.Objects;
+import org.cook_e.data.Recipe;
+import org.cook_e.data.Step;
+import org.joda.time.Duration;
+import org.joda.time.Period;
+import org.joda.time.ReadableDuration;
+import org.joda.time.format.PeriodFormat;
+import org.joda.time.format.PeriodFormatter;
+import org.joda.time.format.PeriodFormatterBuilder;
+
+/**
+ * A fragment used in {@link org.cook_e.cook_e.CookActivity} that displays a timer for a
+ * simultaneous {@link org.cook_e.data.Step}
+ *
+ * Activities that use this fragment must implement the
+ * {@link org.cook_e.cook_e.ui.TimerFragment.StepFinishListener} interface.
+ */
+public class TimerFragment extends Fragment {
+
+    /**
+     * An interface for things that can be notified when a simultaneous step is finished
+     */
+    public interface StepFinishListener {
+        /**
+         * Called when a step is finished.
+         *
+         * The current implementation calls this method when the timer runs out or when the user
+         * presses the done button.
+         *
+         * @param timerFragment the fragment associated with the completed step
+         * @param recipe the recipe that contains the step
+         * @param step the step that was completed
+         */
+        void onStepFinished(TimerFragment timerFragment, Recipe recipe, Step step);
+    }
+
+    /**
+     * The interval between updates
+     */
+<span class="nc" id="L73">    private static final Duration INTERVAL = Duration.millis(500);</span>
+
+    /**
+     * Key for the step argument
+     */
+<span class="nc" id="L78">    private static final String ARG_STEP = TimerFragment.class.getName() + &quot;.ARG_STEP&quot;;</span>
+
+    /**
+     * Key for the recipe argument
+     */
+<span class="nc" id="L83">    private static final String ARG_RECIPE = TimerFragment.class.getName() + &quot;.ARG_RECIPE&quot;;</span>
+
+    /**
+     * Key used when saving state to store the remaining time
+     */
+<span class="nc" id="L88">    private static final String KEY_TIME_REMAINING = TimerFragment.class.getName() + &quot;.KEY_TIME_REMAINING&quot;;</span>
+
+    /**
+     * The recipe that contains the step being timed
+     */
+    private Recipe mRecipe;
+
+    /**
+     * The step being timed
+     */
+    private Step mStep;
+
+    /**
+     * The remaining countdown time
+     */
+    private ReadableDuration mRemainingTime;
+
+    /**
+     * The text view that displays the remaining time
+     */
+    private TextView mTimerView;
+
+    /**
+     * The formatter used to format remaining time periods
+     */
+    private final PeriodFormatter mFormatter;
+
+<span class="nc" id="L115">    public TimerFragment() {</span>
+        // Required empty public constructor
+
+<span class="nc" id="L118">        mFormatter = new PeriodFormatterBuilder()</span>
+<span class="nc" id="L119">                .printZeroAlways()</span>
+<span class="nc" id="L120">                .minimumPrintedDigits(1)</span>
+<span class="nc" id="L121">                .appendHours()</span>
+<span class="nc" id="L122">                .appendLiteral(&quot;:&quot;)</span>
+<span class="nc" id="L123">                .minimumPrintedDigits(2)</span>
+<span class="nc" id="L124">                .appendMinutes()</span>
+<span class="nc" id="L125">                .appendLiteral(&quot;:&quot;)</span>
+<span class="nc" id="L126">                .appendSeconds()</span>
+<span class="nc" id="L127">                .toFormatter();</span>
+<span class="nc" id="L128">    }</span>
+
+    /**
+     * Creates a fragment to act as a timer for a step
+     *
+     * @param recipe the recipe that contains the step
+     * @param step the step to time
+     * @return a TimerFragment for the provided step
+     * @throws NullPointerException     if any argument is null
+     * @throws IllegalArgumentException if the step is not simultaneous or if the recipe does not
+     * contain the step
+     */
+    public static TimerFragment newInstance(Recipe recipe, Step step) {
+<span class="nc" id="L141">        Objects.requireNonNull(recipe, &quot;recipe must not be null&quot;);</span>
+<span class="nc" id="L142">        Objects.requireNonNull(step, &quot;step must not be null&quot;);</span>
+<span class="nc bnc" id="L143" title="All 2 branches missed.">        if (!recipe.getSteps().contains(step)) {</span>
+<span class="nc" id="L144">            throw new IllegalArgumentException(&quot;Recipe does not contain step&quot;);</span>
+        }
+<span class="nc" id="L146">        final Bundle args = new Bundle();</span>
+<span class="nc" id="L147">        args.putParcelable(ARG_RECIPE, recipe);</span>
+<span class="nc" id="L148">        args.putParcelable(ARG_STEP, step);</span>
+<span class="nc" id="L149">        final TimerFragment fragment = new TimerFragment();</span>
+<span class="nc" id="L150">        fragment.setArguments(args);</span>
+<span class="nc" id="L151">        return fragment;</span>
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+<span class="nc" id="L156">        super.onCreate(savedInstanceState);</span>
+
+<span class="nc" id="L158">        mRecipe = getArguments().getParcelable(ARG_RECIPE);</span>
+<span class="nc" id="L159">        mStep = getArguments().getParcelable(ARG_STEP);</span>
+<span class="nc bnc" id="L160" title="All 2 branches missed.">        if (mRecipe == null) {</span>
+<span class="nc" id="L161">            throw new IllegalStateException(&quot;No recipe argument&quot;);</span>
+        }
+<span class="nc bnc" id="L163" title="All 2 branches missed.">        if (mStep == null) {</span>
+<span class="nc" id="L164">            throw new IllegalStateException(&quot;No step argument&quot;);</span>
+        }
+<span class="nc bnc" id="L166" title="All 2 branches missed.">        if (savedInstanceState != null) {</span>
+            // Restore remaining time
+<span class="nc" id="L168">            mRemainingTime = (ReadableDuration) savedInstanceState.getSerializable(KEY_TIME_REMAINING);</span>
+        } else {
+            // Get duration from step
+<span class="nc" id="L171">            mRemainingTime = mStep.getTime();</span>
+        }
+
+        // Check parent
+<span class="nc bnc" id="L175" title="All 2 branches missed.">        if (!(getActivity() instanceof StepFinishListener)) {</span>
+<span class="nc" id="L176">            throw new IllegalStateException(&quot;The parent of this fragment must implement StepFinishListener&quot;);</span>
+        }
+<span class="nc" id="L178">    }</span>
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+<span class="nc" id="L182">        super.onSaveInstanceState(outState);</span>
+<span class="nc" id="L183">        outState.putSerializable(KEY_TIME_REMAINING, mRemainingTime.toDuration());</span>
+<span class="nc" id="L184">    }</span>
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+<span class="nc" id="L190">        final View view = inflater.inflate(R.layout.fragment_timer, container, false);</span>
+
+<span class="nc" id="L192">        mTimerView = (TextView) view.findViewById(R.id.timer_view);</span>
+
+        // Set up description text
+<span class="nc" id="L195">        final TextView descriptionView = (TextView) view.findViewById(R.id.description_view);</span>
+<span class="nc" id="L196">        descriptionView.setText(mStep.getDescription());</span>
+
+        // Set up done button
+<span class="nc" id="L199">        final ImageButton doneButton = (ImageButton) view.findViewById(R.id.done_button);</span>
+<span class="nc" id="L200">        doneButton.setOnClickListener(new View.OnClickListener() {</span>
+            @Override
+            public void onClick(View v) {
+                // Notify
+<span class="nc" id="L204">                notifyStepCompleted();</span>
+<span class="nc" id="L205">            }</span>
+        });
+
+        // Start timer
+<span class="nc" id="L209">        new StepTimer(mRemainingTime).start();</span>
+
+<span class="nc" id="L211">        return view;</span>
+    }
+
+    /**
+     * Notifies the containing activity that the step has been completed
+     */
+    private void notifyStepCompleted() {
+        // Activity may be null if the fragment was removed early
+        // (the timer cannot be canceled)
+<span class="nc" id="L220">        final Activity parent = getActivity();</span>
+<span class="nc bnc" id="L221" title="All 2 branches missed.">        if (parent != null) {</span>
+<span class="nc" id="L222">            ((StepFinishListener) parent).onStepFinished(this, mRecipe, mStep);</span>
+        }
+<span class="nc" id="L224">    }</span>
+
+    @Override
+    public void onStart() {
+<span class="nc" id="L228">        super.onStart();</span>
+<span class="nc" id="L229">    }</span>
+
+    private void updateTimer(ReadableDuration remainingTime) {
+        // Round the duration down to remove milliseconds
+<span class="nc" id="L233">        final Duration roundedTime = roundDownToSecond(remainingTime);</span>
+<span class="nc" id="L234">        final Period remainingPeriod = roundedTime.toPeriod();</span>
+<span class="nc" id="L235">        mTimerView.setText(mFormatter.print(remainingPeriod));</span>
+<span class="nc" id="L236">        mRemainingTime = remainingTime;</span>
+<span class="nc" id="L237">    }</span>
+
+    /**
+     * Rounds a duration down to the nearest second
+     * @param duration the duration to round. Must not be null.
+     * @return a duration up to 1 second less than the provided duration, representing an
+     * integer number of seconds
+     */
+    private static Duration roundDownToSecond(ReadableDuration duration) {
+<span class="nc" id="L246">        final long millis = duration.getMillis();</span>
+<span class="nc" id="L247">        return Duration.millis(millis - (millis % 1000));</span>
+    }
+
+    private class StepTimer extends CountDownTimer {
+
+        /**
+         * Creates a new StepTimer
+         *
+         * @param duration the duration to count for
+         */
+<span class="nc" id="L257">        public StepTimer(ReadableDuration duration) {</span>
+<span class="nc" id="L258">            super(duration.getMillis(), INTERVAL.getMillis());</span>
+<span class="nc" id="L259">        }</span>
+
+        @Override
+        public void onTick(long millisUntilFinished) {
+<span class="nc" id="L263">            updateTimer(Duration.millis(millisUntilFinished));</span>
+<span class="nc" id="L264">        }</span>
+
+        @Override
+        public void onFinish() {
+<span class="nc" id="L268">            updateTimer(Duration.ZERO);</span>
+<span class="nc" id="L269">            notifyStepCompleted();</span>
+<span class="nc" id="L270">        }</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.4.201502262128</span></div></body></html>

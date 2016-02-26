@@ -1,0 +1,265 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>MealRecipeAddActivity.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">debug</a> &gt; <a href="index.source.html" class="el_package">org.cook_e.cook_e</a> &gt; <span class="el_source">MealRecipeAddActivity.java</span></div><h1>MealRecipeAddActivity.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2016 the Cook-E development team
+ *
+ * This file is part of Cook-E.
+ *
+ * Cook-E is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Cook-E is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Cook-E.  If not, see &lt;http://www.gnu.org/licenses/&gt;.
+ */
+
+package org.cook_e.cook_e;
+
+
+import android.content.Intent;
+import android.databinding.ObservableArrayList;
+import android.os.Bundle;
+import android.os.Parcelable;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+import android.util.Log;
+import android.widget.ListView;
+import android.widget.SearchView;
+
+import org.cook_e.cook_e.ui.RecipeAddListAdapter;
+import org.cook_e.data.Bunch;
+import org.cook_e.data.Objects;
+import org.cook_e.data.Recipe;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+
+/**
+ * An activity that displays a list of recipes and allows the user to add one or more of them
+ * to a meal
+ *
+ * When starting this activity, the parent must provide an extra with a key of {@link #EXTRA_RECIPES}
+ * that contains an array of Recipe objects. The user will be able to select zero or more of
+ * the provided recipes.
+ *
+ * The parent should request a result with the request code {@link #REQUEST_ADD_RECIPES} to get a
+ * result.
+ *
+ * This activity will return a result with code {@link #REQUEST_ADD_RECIPES}. The result will contain
+ * an extra with the key {@link #EXTRA_RECIPES} containing an array
+ * of Recipe objects. The array will contain the recipes that the user selected to add.
+ */
+<span class="nc bnc" id="L58" title="All 2 branches missed.">public class MealRecipeAddActivity extends AppCompatActivity {</span>
+
+    /**
+     * The class tag, used for logging
+     */
+<span class="nc" id="L63">    private static final String TAG = MealRecipeAddActivity.class.getSimpleName();</span>
+
+    /**
+     * A request code used with {@link android.app.Activity#startActivityForResult(Intent, int)} to
+     * request that this activity return the recipes to be added
+     */
+<span class="nc" id="L69">    public static int REQUEST_ADD_RECIPES = 84;</span>
+
+    /**
+     * A key used to identify an intent extra that contains an array of Recipes that should be
+     * displayed
+     */
+<span class="nc" id="L75">    public static String EXTRA_RECIPES = MealRecipeAddActivity.class.getName() + &quot;.RECIPES&quot;;</span>
+
+    /**
+     * A key used to identify an intent extra that contains an array of Recipes that are already
+     * in the meal
+     */
+<span class="nc" id="L81">    public static String EXIST_RECIPES = MealRecipeAddActivity.class.getName() + &quot;.EXIST&quot;;</span>
+
+    /**
+     * The recipes the user has selected to add
+     */
+    private List&lt;Recipe&gt; mSelectedRecipes;
+
+    /**
+     * The view used for searching
+     */
+    private SearchView mSearchView;
+
+    /**
+     * Total unpackedRecipes
+     */
+    private ObservableArrayList&lt;Recipe&gt; mRecipes;
+
+    /**
+     * Total recipes that should be shown in the list
+     */
+    private ObservableArrayList&lt;Recipe&gt; mVisibleRecipes;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+<span class="nc" id="L105">        super.onCreate(savedInstanceState);</span>
+
+<span class="nc" id="L107">        mSelectedRecipes = new ArrayList&lt;&gt;();</span>
+
+<span class="nc" id="L109">        setContentView(R.layout.activity_meal_recipe_add);</span>
+<span class="nc" id="L110">        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);</span>
+<span class="nc" id="L111">        setSupportActionBar(toolbar);</span>
+
+<span class="nc" id="L113">        setUpActionBar();</span>
+
+        // Unpack recipes
+<span class="nc" id="L116">        mVisibleRecipes = new ObservableArrayList&lt;&gt;();</span>
+<span class="nc" id="L117">        mRecipes = unpackRecipes();</span>
+<span class="nc" id="L118">        mVisibleRecipes.addAll(mRecipes);</span>
+<span class="nc" id="L119">        mSelectedRecipes.addAll(existRecipes());</span>
+
+        // Initialize view
+<span class="nc" id="L122">        final ListView list = (ListView) findViewById(R.id.recipe_list);</span>
+<span class="nc" id="L123">        final RecipeAddListAdapter adapter = new RecipeAddListAdapter(this, mVisibleRecipes, mSelectedRecipes);</span>
+<span class="nc" id="L124">        adapter.setAddListener(new RecipeAddListAdapter.RecipeAddListener() {</span>
+            @Override
+            public void recipeAddRequested(Recipe recipe) {
+                // Verify that the added recipe is actually in the recipe list
+<span class="nc bnc" id="L128" title="All 2 branches missed.">                if (BuildConfig.DEBUG) {</span>
+<span class="nc" id="L129">                    boolean found = false;</span>
+<span class="nc bnc" id="L130" title="All 2 branches missed.">                    for (Recipe existingRecipe : mRecipes) {</span>
+<span class="nc bnc" id="L131" title="All 2 branches missed.">                        if (existingRecipe.equals(recipe)) {</span>
+<span class="nc" id="L132">                            found = true;</span>
+                        }
+<span class="nc" id="L134">                    }</span>
+<span class="nc bnc" id="L135" title="All 2 branches missed.">                    if (!found) {</span>
+<span class="nc" id="L136">                        throw new IllegalArgumentException(</span>
+                                &quot;The recipe added by the user is not in the recipe list&quot;);
+                    }
+                }
+<span class="nc" id="L140">                Log.d(TAG, &quot;Added recipe &quot; + recipe);</span>
+                // Add to list of recipes to add
+<span class="nc" id="L142">                mSelectedRecipes.add(recipe);</span>
+<span class="nc" id="L143">                updateResult();</span>
+<span class="nc" id="L144">            }</span>
+        });
+<span class="nc" id="L146">        list.setAdapter(adapter);</span>
+
+<span class="nc" id="L148">        mSearchView = (SearchView) findViewById(R.id.search);</span>
+<span class="nc" id="L149">        mSearchView.setOnQueryTextListener(new SearchHandler());</span>
+
+        // Set initial result
+<span class="nc" id="L152">        updateResult();</span>
+<span class="nc" id="L153">    }</span>
+
+    /**
+     * Sets up the action bar for this activity
+     */
+    private void setUpActionBar() {
+<span class="nc" id="L159">        final ActionBar bar = getSupportActionBar();</span>
+<span class="nc bnc" id="L160" title="All 4 branches missed.">        assert bar != null;</span>
+<span class="nc" id="L161">        bar.setTitle(R.string.add_recipes);</span>
+<span class="nc" id="L162">        bar.setDisplayHomeAsUpEnabled(true);</span>
+<span class="nc" id="L163">    }</span>
+
+    /**
+     * Updates the result of this activity to contain the contents of {@link #mSelectedRecipes}
+     */
+    private void updateResult() {
+<span class="nc" id="L169">        final Intent resultIntent = new Intent();</span>
+<span class="nc" id="L170">        resultIntent.putExtra(EXTRA_RECIPES,</span>
+<span class="nc" id="L171">                mSelectedRecipes.toArray(new Recipe[mSelectedRecipes.size()]));</span>
+<span class="nc" id="L172">        setResult(RESULT_OK, resultIntent);</span>
+<span class="nc" id="L173">    }</span>
+
+    @Override
+    protected void onPause() {
+<span class="nc" id="L177">        super.onPause();</span>
+        // Save the recipes that have been added
+        // TODO
+<span class="nc" id="L180">    }</span>
+
+    /*
+     * This is a workaround for inconsistent behavior.
+     *
+     * Pressing the system back button or calling finish() returns a result to the parent activity,
+     * as expected. However, the default action when the up button is pressed does not send a result
+     * to the parent. This override ensures that a result is sent when the action bar up button is
+     * pressed.
+     */
+    @Override
+    public boolean onSupportNavigateUp() {
+<span class="nc" id="L192">        finish();</span>
+<span class="nc" id="L193">        return true;</span>
+    }
+
+    /**
+     * Unpacks the recipes extra from the intent that started this activity and returns an
+     * ObservableArrayList containing the same recipes.
+     *
+     * @return a list of recipes
+     */
+    private ObservableArrayList&lt;Recipe&gt; unpackRecipes() {
+<span class="nc" id="L203">        final Parcelable[] parcelables = getIntent().getParcelableArrayExtra(EXTRA_RECIPES);</span>
+<span class="nc" id="L204">        Objects.requireNonNull(parcelables,</span>
+                &quot;MealRecipeAddActivity must be started with a recipes extra&quot;);
+<span class="nc" id="L206">        final ObservableArrayList&lt;Recipe&gt; recipes = new ObservableArrayList&lt;&gt;();</span>
+<span class="nc" id="L207">        recipes.ensureCapacity(parcelables.length);</span>
+<span class="nc bnc" id="L208" title="All 2 branches missed.">        for (Parcelable parcelable : parcelables) {</span>
+<span class="nc" id="L209">            recipes.add((Recipe) parcelable);</span>
+        }
+<span class="nc" id="L211">        return recipes;</span>
+    }
+
+    private List&lt;Recipe&gt; existRecipes() {
+<span class="nc" id="L215">        final Parcelable[] parcelables = getIntent().getParcelableArrayExtra(MealRecipeAddActivity.EXIST_RECIPES);</span>
+<span class="nc" id="L216">        Objects.requireNonNull(parcelables,</span>
+                &quot;MealRecipeAddActivity must be started with a exist recipe list&quot;);
+<span class="nc" id="L218">        final ObservableArrayList&lt;Recipe&gt; exist = new ObservableArrayList&lt;&gt;();</span>
+<span class="nc" id="L219">        exist.ensureCapacity(parcelables.length);</span>
+<span class="nc bnc" id="L220" title="All 2 branches missed.">        for (Parcelable parcelable : parcelables) {</span>
+<span class="nc" id="L221">            exist.add((Recipe) parcelable);</span>
+        }
+<span class="nc" id="L223">        return exist;</span>
+    }
+
+<span class="nc" id="L226">    private class SearchHandler implements SearchView.OnQueryTextListener {</span>
+
+        @Override
+        public boolean onQueryTextSubmit(String query) {
+            // Do nothing more
+<span class="nc" id="L231">            return true;</span>
+        }
+
+        @Override
+        public boolean onQueryTextChange(String newText) {
+<span class="nc" id="L236">            updateVisibleMeals();</span>
+<span class="nc" id="L237">            return true;</span>
+        }
+    }
+
+    private void updateVisibleMeals() {
+<span class="nc" id="L242">        final String query = mSearchView.getQuery().toString();</span>
+        // Make all meals visible
+<span class="nc" id="L244">        mVisibleRecipes.clear();</span>
+<span class="nc bnc" id="L245" title="All 2 branches missed.">        if (!query.isEmpty()) {</span>
+<span class="nc" id="L246">            final List&lt;Recipe&gt; filteredRecipes = new ArrayList&lt;&gt;();</span>
+            // Limit mVisibleMeals to the meals whose titles contain the query
+            // Case insensitive
+<span class="nc" id="L249">            final String lowerQuery = query.toLowerCase(Locale.getDefault());</span>
+
+<span class="nc bnc" id="L251" title="All 2 branches missed.">            for (Recipe recipe : mRecipes) {</span>
+<span class="nc" id="L252">                final String lowerTitle = recipe.getTitle().toLowerCase(Locale.getDefault());</span>
+<span class="nc bnc" id="L253" title="All 2 branches missed.">                if (lowerTitle.contains(lowerQuery)) {</span>
+<span class="nc" id="L254">                    filteredRecipes.add(recipe);</span>
+                }
+<span class="nc" id="L256">            }</span>
+<span class="nc" id="L257">            mVisibleRecipes.addAll(filteredRecipes);</span>
+<span class="nc" id="L258">        } else {</span>
+            // Empty query
+<span class="nc" id="L260">            mVisibleRecipes.addAll(mRecipes);</span>
+        }
+<span class="nc" id="L262">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.4.201502262128</span></div></body></html>

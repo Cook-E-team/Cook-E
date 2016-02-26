@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>StorageAccessor.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">debug</a> &gt; <a href="index.source.html" class="el_package">org.cook_e.data</a> &gt; <span class="el_source">StorageAccessor.java</span></div><h1>StorageAccessor.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2016 the Cook-E development team
+ *
+ * This file is part of Cook-E.
+ *
+ * Cook-E is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Cook-E is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Cook-E.  If not, see &lt;http://www.gnu.org/licenses/&gt;.
+ */
+
+package org.cook_e.data;
+
+import android.content.Context;
+
+
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+/**
+ * Class that handles storing and retrieving recipes and bunches from the local database and
+ * external database
+ *
+ * Objects that may be stored in the database can have object IDs, as specified by the
+ * {@link DatabaseObject} class. Newly created objects have no ID. When an object is inserted,
+ * the insert method changes the ID of the inserted object to match the ID of the entry in
+ * the database.
+ */
+public class StorageAccessor {
+
+    /**
+     * The local database accessor
+     */
+    private SQLAccessor mLocal;
+    /**
+     * The remote database accessor
+     */
+    private SQLAccessor mExternal;
+
+    /**
+     * Constructor
+     * @param c Context of the activity that wants to store/retrieve data
+     */
+<span class="fc" id="L55">    public StorageAccessor(Context c) throws SQLException {</span>
+<span class="fc" id="L56">        final StorageParser parser = new StorageParser();</span>
+<span class="fc" id="L57">        mLocal = new SQLiteAccessor(c, parser);</span>
+<span class="fc" id="L58">        mExternal = new SQLServerAccessor(parser);</span>
+<span class="fc" id="L59">    }</span>
+
+    /**
+     * Store a recipe onto the local database
+     *
+     * @param r Recipe to store
+     * @throws IllegalArgumentException if the provided recipe already has an object ID
+     */
+    public void storeRecipe(Recipe r) throws SQLException {
+<span class="nc bnc" id="L68" title="All 4 branches missed.">        if (r.getObjectId() != DatabaseObject.NO_ID &amp;&amp; mLocal.containsRecipe(r.getObjectId())) {</span>
+<span class="nc" id="L69">            throw new IllegalArgumentException(&quot;Recipe has already been stored&quot;);</span>
+        }
+<span class="nc" id="L71">        mLocal.storeRecipe(r);</span>
+<span class="nc" id="L72">    }</span>
+
+    /**
+     * Store a bunch onto the local database
+     * Assumes that all recipes in the bunch are stored already
+     * @param b the bunch to store
+     * @throws IllegalArgumentException if the provided bunch already has an object ID
+     */
+    public void storeBunch(Bunch b) throws SQLException {
+<span class="pc bpc" id="L81" title="1 of 2 branches missed.">        if (b.hasObjectId()) {</span>
+<span class="nc" id="L82">            throw new IllegalArgumentException(&quot;Bunch has already been stored&quot;);</span>
+        }
+<span class="fc" id="L84">        mLocal.storeBunch(b);</span>
+<span class="fc" id="L85">    }</span>
+
+    /**
+     * Find recipes from external storage based on keyword
+     * @param keyword String to search on
+     * @return List of Recipes containing keyword in their title
+     * @throws SQLException
+     */
+    public List&lt;Recipe&gt; loadRecipes(String keyword) throws SQLException {
+<span class="nc" id="L94">       return mExternal.findRecipesLike(keyword);</span>
+    }
+    /**
+     * Retrieve a recipe from storage
+     *
+     * If recipes are found in both the local and remote databases, the recipe from the local
+     * database will be returned.
+     *
+     * @param title String title of the recipe
+     * @param author String author of the recipe
+     * @return Recipe object or null if recipe could not be found
+     */
+    public Recipe loadRecipe(String title, String author) throws SQLException {
+<span class="nc" id="L107">        final Recipe local = mLocal.loadRecipe(title, author);</span>
+<span class="nc bnc" id="L108" title="All 2 branches missed.">        if (local == null) {</span>
+<span class="nc" id="L109">            return mExternal.loadRecipe(title, author);</span>
+        } else {
+<span class="nc" id="L111">            return local;</span>
+        }
+    }
+
+    /**
+     * Retrieve a bunch from storage
+     *
+     * @param name String name of the Bunch
+     * @return Bunch object or null if bunch could not be found
+     */
+    public Bunch loadBunch(String name) throws SQLException {
+<span class="nc" id="L122">        return mLocal.loadBunch(name);</span>
+    }
+
+    /**
+     * Retrieve all recipes from storage
+     *
+     * If a recipe appears in both the local database and remote database, only one of the two
+     * recipes will be returned.
+     *
+     * @return List of Recipe objects
+     */
+    public List&lt;Recipe&gt; loadAllRecipes() throws SQLException {
+<span class="fc" id="L134">        final Set&lt;Recipe&gt; recipeSet = new HashSet&lt;&gt;();</span>
+<span class="fc" id="L135">        recipeSet.addAll(mLocal.loadAllRecipes());</span>
+<span class="fc" id="L136">        recipeSet.addAll(mExternal.loadAllRecipes());</span>
+<span class="fc" id="L137">        return new ArrayList&lt;&gt;(recipeSet);</span>
+    }
+
+    /**
+     * Retrieve all bunches from storage
+     * @return List of Bunch objects
+     */
+    public List&lt;Bunch&gt; loadAllBunches() throws SQLException {
+<span class="fc" id="L145">        return mLocal.loadAllBunches();</span>
+    }
+    /**
+     * Update a recipe on the local database
+     * @param r Recipe to update
+     * @throws IllegalArgumentException if the recipe has not been stored in this database
+     */
+    public void editRecipe(Recipe r) throws SQLException {
+<span class="nc bnc" id="L153" title="All 2 branches missed.">        if (!r.hasObjectId()) {</span>
+<span class="nc" id="L154">            throw new IllegalArgumentException(&quot;Recipe has not been stored&quot;);</span>
+        }
+<span class="nc" id="L156">        mLocal.editRecipe(r);</span>
+<span class="nc" id="L157">    }</span>
+
+    /**
+     * Updates or inserts a recipe, depending on whether the recipe has an object ID set
+     *
+     * If the recipe has no object ID, it will be assigned one.
+     *
+     * @param r the recipe to persist
+     * @throws SQLException if an error occurs
+     */
+    public void persistRecipe(Recipe r) throws SQLException {
+<span class="nc bnc" id="L168" title="All 2 branches missed.">        if (r.hasObjectId()) {</span>
+<span class="nc" id="L169">            editRecipe(r);</span>
+        } else {
+<span class="nc" id="L171">            storeRecipe(r);</span>
+        }
+<span class="nc" id="L173">    }</span>
+
+    /**
+     * update a bunch on the local database
+     * @param b Bunch to update
+     * @throws IllegalArgumentException if the bunch has not been stored in this database
+     */
+    public void editBunch(Bunch b) throws SQLException {
+<span class="nc bnc" id="L181" title="All 2 branches missed.">        if (!b.hasObjectId()) {</span>
+<span class="nc" id="L182">            throw new IllegalArgumentException(&quot;Bunch has not been stored&quot;);</span>
+        }
+<span class="nc" id="L184">        mLocal.editBunch(b);</span>
+<span class="nc" id="L185">    }</span>
+
+    /**
+     * Updates or inserts a bunch, depending on whether the bunch has an object ID set
+     *
+     * If the bunch has no object ID, it will be assigned one.
+     *
+     * @param b the bunch to persist
+     * @throws SQLException if an error occurs
+     */
+    public void persistBunch(Bunch b) throws SQLException {
+<span class="nc bnc" id="L196" title="All 2 branches missed.">        if (b.hasObjectId()) {</span>
+<span class="nc" id="L197">            editBunch(b);</span>
+        } else {
+<span class="nc" id="L199">            storeBunch(b);</span>
+        }
+<span class="nc" id="L201">    }</span>
+
+
+    /**
+     * delete a recipe on the local database
+     * @param r Recipe to delete
+     * @throws IllegalArgumentException if the recipe has not been stored in this database
+     */
+    public void deleteRecipe(Recipe r) throws SQLException {
+<span class="nc bnc" id="L210" title="All 2 branches missed.">        if (!r.hasObjectId()) {</span>
+<span class="nc" id="L211">            throw new IllegalArgumentException(&quot;Recipe has not been stored&quot;);</span>
+        }
+<span class="nc" id="L213">        mLocal.deleteRecipe(r);</span>
+<span class="nc" id="L214">    }</span>
+
+    /**
+     * delete a bunch on the local database
+     * @param b Bunch to delete
+     * @throws IllegalArgumentException if the bunch has not been stored in this database
+     */
+    public void deleteBunch(Bunch b) throws SQLException {
+<span class="nc bnc" id="L222" title="All 2 branches missed.">        if (!b.hasObjectId()) {</span>
+<span class="nc" id="L223">            throw new IllegalArgumentException(&quot;Bunch has not been stored&quot;);</span>
+        }
+<span class="nc" id="L225">        mLocal.deleteBunch(b);</span>
+<span class="nc" id="L226">    }</span>
+
+    /**
+     * Determines if the local database has a recipe with the provided ID
+     * @param id the ID to check
+     * @return true if the local database has a recipe with the provided ID, otherwise false
+     * @throws SQLException if an error occurs
+     */
+    public boolean containsLocalRecipe(long id) throws SQLException {
+<span class="nc" id="L235">        return mLocal.containsRecipe(id);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.4.201502262128</span></div></body></html>

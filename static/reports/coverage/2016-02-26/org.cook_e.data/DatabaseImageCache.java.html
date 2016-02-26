@@ -1,0 +1,372 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>DatabaseImageCache.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">debug</a> &gt; <a href="index.source.html" class="el_package">org.cook_e.data</a> &gt; <span class="el_source">DatabaseImageCache.java</span></div><h1>DatabaseImageCache.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2016 the Cook-E development team
+ *
+ * This file is part of Cook-E.
+ *
+ * Cook-E is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Cook-E is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Cook-E.  If not, see &lt;http://www.gnu.org/licenses/&gt;.
+ */
+
+package org.cook_e.data;
+
+import android.content.ContentValues;
+import android.content.Context;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
+import android.database.sqlite.SQLiteOpenHelper;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.util.Log;
+
+import java.io.ByteArrayOutputStream;
+import java.io.FilterOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.zip.CRC32;
+
+/**
+ * An image cache that uses local SQLite databases
+ */
+public class DatabaseImageCache implements ImageCache {
+
+    /**
+     * The tag used for logging
+     */
+<span class="fc" id="L46">    private static final String TAG = DatabaseImageCache.class.getSimpleName();</span>
+
+    /**
+     * The format used for compression
+     */
+<span class="fc" id="L51">    private static final Bitmap.CompressFormat FORMAT = Bitmap.CompressFormat.PNG;</span>
+
+    /**
+     * The compression quality level, 0-100 (ignored for PNG)
+     */
+    private static final int QUALITY = 100;
+
+
+    /**
+     * The helper used for database access
+     */
+    private final SQLiteOpenHelper mHelper;
+
+<span class="fc" id="L64">    public DatabaseImageCache(Context context) {</span>
+<span class="fc" id="L65">        mHelper = new ImageOpenHelper(context);</span>
+<span class="fc" id="L66">    }</span>
+
+    @Override
+    public long put(Bitmap image) throws CacheException {
+<span class="fc" id="L70">        Objects.requireNonNull(image, &quot;image must not be null&quot;);</span>
+        // Compress image into a byte array to calculate the CRC
+<span class="fc" id="L72">        final ByteArrayOutputStream bytes = new ByteArrayOutputStream();</span>
+<span class="fc" id="L73">        final CRCOutputStream crcStream = new CRCOutputStream(bytes);</span>
+<span class="fc" id="L74">        final boolean compressResult = image.compress(FORMAT, QUALITY, crcStream);</span>
+<span class="pc bpc" id="L75" title="1 of 2 branches missed.">        if (!compressResult) {</span>
+<span class="nc" id="L76">            throw new CacheException(&quot;Failed to compress image&quot;);</span>
+        }
+
+<span class="fc" id="L79">        final long crc = crcStream.getCrc();</span>
+        // Check for existing image
+        try {
+<span class="fc" id="L82">            final SQLiteDatabase db = mHelper.getWritableDatabase();</span>
+            try {
+<span class="fc" id="L84">                db.beginTransaction();</span>
+                // Select reference count
+<span class="fc" id="L86">                final Cursor result = db.query(ImageOpenHelper.TABLE_NAME, array(&quot;refcount&quot;),</span>
+<span class="fc" id="L87">                        &quot;crc = ?&quot;, array(Long.toString(crc)), null, null, null);</span>
+                try {
+
+<span class="pc bpc" id="L90" title="1 of 2 branches missed.">                    if (result.getCount() &gt; 0) {</span>
+                        // Increment reference count
+<span class="nc bnc" id="L92" title="All 2 branches missed.">                        if (!result.moveToFirst()) {</span>
+<span class="nc" id="L93">                            throw new CacheException(&quot;Failed to access first result&quot;);</span>
+                        }
+<span class="nc" id="L95">                        final long refCount = result.getLong(result.getColumnIndexOrThrow(</span>
+                                &quot;refcount&quot;));
+
+                        // Check reference count value
+<span class="nc bnc" id="L99" title="All 2 branches missed.">                        if (refCount == Long.MAX_VALUE) {</span>
+<span class="nc" id="L100">                            throw new CacheException(&quot;Image reference count is at maximum&quot;);</span>
+                        }
+
+<span class="nc" id="L103">                        final ContentValues values = new ContentValues();</span>
+<span class="nc" id="L104">                        values.put(&quot;refcount&quot;, refCount + 1);</span>
+<span class="nc" id="L105">                        final long count = db.update(ImageOpenHelper.TABLE_NAME, values, &quot;crc = ?&quot;,</span>
+<span class="nc" id="L106">                                array(Long.toString(crc)));</span>
+<span class="nc bnc" id="L107" title="All 2 branches missed.">                        if (count != 1) {</span>
+<span class="nc" id="L108">                            throw new CacheException(&quot;Failed to update reference count&quot;);</span>
+                        }
+<span class="nc" id="L110">                    } else {</span>
+                        // Insert image
+<span class="fc" id="L112">                        final ContentValues values = new ContentValues();</span>
+<span class="fc" id="L113">                        values.put(&quot;crc&quot;, crc);</span>
+<span class="fc" id="L114">                        values.put(&quot;refcount&quot;, 1);</span>
+<span class="fc" id="L115">                        final byte[] imageBytes = bytes.toByteArray();</span>
+<span class="fc" id="L116">                        Log.v(TAG, &quot;Image bytes: length = &quot; + imageBytes.length);</span>
+<span class="fc" id="L117">                        values.put(&quot;data&quot;, imageBytes);</span>
+<span class="fc" id="L118">                        final long rowId = db.insert(ImageOpenHelper.TABLE_NAME, null, values);</span>
+<span class="pc bpc" id="L119" title="1 of 2 branches missed.">                        if (rowId == -1) {</span>
+<span class="nc" id="L120">                            throw new CacheException(&quot;Failed to insert image&quot;);</span>
+                        }
+                    }
+                } finally {
+<span class="pc" id="L124">                    result.close();</span>
+<span class="fc" id="L125">                }</span>
+<span class="fc" id="L126">                db.setTransactionSuccessful();</span>
+            } finally {
+<span class="pc" id="L128">                db.endTransaction();</span>
+<span class="pc" id="L129">                db.close();</span>
+<span class="fc" id="L130">            }</span>
+<span class="nc" id="L131">        } catch (SQLiteException e) {</span>
+<span class="nc" id="L132">            throw new CacheException(&quot;Database error&quot;, e);</span>
+<span class="fc" id="L133">        }</span>
+<span class="fc" id="L134">        return crc;</span>
+    }
+
+    @Override
+    public Bitmap get(long id) throws CacheException {
+        try {
+<span class="fc" id="L140">            final SQLiteDatabase db = mHelper.getReadableDatabase();</span>
+            try {
+<span class="fc" id="L142">                final Cursor result = db.query(ImageOpenHelper.TABLE_NAME, array(&quot;data&quot;),</span>
+<span class="fc" id="L143">                        &quot;crc = ?&quot;, array(Long.toString(id)), null, null, null);</span>
+                try {
+<span class="fc" id="L145">                    Log.v(TAG, &quot;Result count: &quot; + result.getCount());</span>
+<span class="fc" id="L146">                    Log.v(TAG, &quot;data index: &quot; + result.getColumnIndexOrThrow(&quot;data&quot;));</span>
+<span class="fc bfc" id="L147" title="All 2 branches covered.">                    if (result.getCount() &gt; 0) {</span>
+                        // Read and return image
+<span class="fc" id="L149">                        Log.v(TAG, &quot;Initial position: &quot; + result.getPosition());</span>
+<span class="pc bpc" id="L150" title="1 of 2 branches missed.">                        if (!result.moveToFirst()) {</span>
+<span class="nc" id="L151">                            throw new CacheException(&quot;Could not move to first result&quot;);</span>
+                        }
+<span class="fc" id="L153">                        Log.v(TAG, &quot;Updated position: &quot; + result.getPosition());</span>
+<span class="fc" id="L154">                        Log.v(TAG, &quot;Data column type: &quot; + result.getType(result.getColumnIndexOrThrow(&quot;data&quot;)));</span>
+<span class="fc" id="L155">                        final byte[] imageBytes = result.getBlob(result.getColumnIndexOrThrow(</span>
+                                &quot;data&quot;));
+<span class="fc" id="L157">                        return BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);</span>
+                    } else {
+                        // Not found
+<span class="fc" id="L160">                        return null;</span>
+                    }
+                } finally {
+<span class="pc" id="L163">                    result.close();</span>
+                }
+            } finally {
+<span class="pc" id="L166">                db.close();</span>
+            }
+<span class="nc" id="L168">        } catch (SQLiteException e) {</span>
+<span class="nc" id="L169">            throw new CacheException(&quot;Database error&quot;, e);</span>
+        }
+    }
+
+    @Override
+    public Bitmap remove(long id) throws CacheException {
+        try {
+<span class="fc" id="L176">            final SQLiteDatabase db = mHelper.getWritableDatabase();</span>
+<span class="fc" id="L177">            db.beginTransaction();</span>
+            try {
+                // Search for an existing image
+<span class="fc" id="L180">                final Cursor result = db.query(ImageOpenHelper.TABLE_NAME, array(&quot;refcount&quot;, &quot;data&quot;),</span>
+<span class="fc" id="L181">                        &quot;crc = ?&quot;, array(Long.toString(id)), null, null, null);</span>
+                try {
+<span class="fc bfc" id="L183" title="All 2 branches covered.">                    if (result.getCount() &gt; 0) {</span>
+                        // Read and return image
+<span class="pc bpc" id="L185" title="1 of 2 branches missed.">                        if (!result.moveToFirst()) {</span>
+<span class="nc" id="L186">                            throw new CacheException(&quot;Could not move to first result&quot;);</span>
+                        }
+<span class="fc" id="L188">                        final byte[] imageBytes = result.getBlob(result.getColumnIndexOrThrow(</span>
+                                &quot;data&quot;));
+<span class="fc" id="L190">                        final Bitmap image = BitmapFactory.decodeByteArray(imageBytes, 0,</span>
+                                imageBytes.length);
+<span class="fc" id="L192">                        decrementReferenceCount(db, id);</span>
+<span class="fc" id="L193">                        db.setTransactionSuccessful();</span>
+<span class="fc" id="L194">                        return image;</span>
+                    } else {
+                        // Not found
+<span class="fc" id="L197">                        return null;</span>
+                    }
+                } finally {
+<span class="pc" id="L200">                    result.close();</span>
+                }
+            } finally {
+<span class="pc" id="L203">                db.endTransaction();</span>
+<span class="pc" id="L204">                db.close();</span>
+            }
+<span class="nc" id="L206">        } catch (SQLiteException e) {</span>
+<span class="nc" id="L207">            throw new CacheException(&quot;Database error&quot;, e);</span>
+        }
+    }
+
+    /**
+     * Decrements the reference count of the image with the specified CRC, and deletes the image
+     * if the reference count reaches 0
+     * @param db the database to access
+     * @param crc the CRC of the image to manipulate
+     */
+    private void decrementReferenceCount(SQLiteDatabase db, long crc) throws CacheException {
+        // Get current reference count
+<span class="fc" id="L219">        final Cursor result = db.query(ImageOpenHelper.TABLE_NAME, array(&quot;refcount&quot;), &quot;crc = ?&quot;,</span>
+<span class="fc" id="L220">                array(Long.toString(crc)), null, null, null);</span>
+        try {
+<span class="pc bpc" id="L222" title="1 of 2 branches missed.">            if (result.getCount() &gt; 0) {</span>
+<span class="fc" id="L223">                result.moveToFirst();</span>
+                // Get and update reference count
+<span class="fc" id="L225">                long refCount = result.getLong(result.getColumnIndexOrThrow(&quot;refcount&quot;));</span>
+<span class="fc" id="L226">                refCount -= 1;</span>
+
+<span class="pc bpc" id="L228" title="1 of 2 branches missed.">                if (refCount == 0) {</span>
+                    // Delete image
+<span class="pc bpc" id="L230" title="1 of 2 branches missed.">                    if (db.delete(ImageOpenHelper.TABLE_NAME, &quot;crc = ?&quot;, array(Long.toString(crc))) != 1) {</span>
+<span class="nc" id="L231">                        throw new CacheException(&quot;Failed to delete image with reference count 0&quot;);</span>
+                    }
+                }
+                else {
+                    // Update reference count
+<span class="nc" id="L236">                    final ContentValues values = new ContentValues();</span>
+<span class="nc" id="L237">                    values.put(&quot;refcount&quot;, refCount);</span>
+<span class="nc bnc" id="L238" title="All 2 branches missed.">                    if (db.update(ImageOpenHelper.TABLE_NAME, values, &quot;crc = ?&quot;, array(Long.toString(crc))) != 1) {</span>
+<span class="nc" id="L239">                        throw new CacheException(&quot;Failed to update reference count&quot;);</span>
+                    }
+                }
+<span class="fc" id="L242">            }</span>
+            else {
+<span class="nc" id="L244">                throw new CacheException(&quot;No image found with requested ID&quot;);</span>
+            }
+        }
+        finally {
+<span class="pc" id="L248">            result.close();</span>
+<span class="fc" id="L249">        }</span>
+<span class="fc" id="L250">    }</span>
+
+    @Override
+    public void clear() throws CacheException {
+        try {
+<span class="fc" id="L255">            final SQLiteDatabase db = mHelper.getWritableDatabase();</span>
+            try {
+<span class="fc" id="L257">                db.delete(ImageOpenHelper.TABLE_NAME, null, null);</span>
+            }
+            finally {
+<span class="pc" id="L260">                db.close();</span>
+<span class="fc" id="L261">            }</span>
+        }
+<span class="nc" id="L263">        catch (SQLiteException e) {</span>
+<span class="nc" id="L264">            throw new CacheException(&quot;Database error&quot;, e);</span>
+<span class="fc" id="L265">        }</span>
+<span class="fc" id="L266">    }</span>
+
+    /**
+     * Converts an argument list into an array
+     * @param values the values to return
+     * @param &lt;T&gt; the type of the values
+     * @return an array containing the provided values
+     */
+    @SafeVarargs
+    private static &lt;T&gt; T[] array(T... values) {
+<span class="fc" id="L276">        return values;</span>
+    }
+
+
+    /**
+     * An OpenHelper used to access an image cache database
+     */
+    private static class ImageOpenHelper extends SQLiteOpenHelper {
+
+        /**
+         * The name of the database
+         */
+        private static final String DATABASE_NAME = &quot;image_cache&quot;;
+        /**
+         * The name of the table
+         */
+        public static final String TABLE_NAME = &quot;image_cache&quot;;
+        /**
+         * The column key for the image CRC32
+         */
+        public static final String COL_CRC = &quot;crc&quot;;
+        /**
+         * The column key for the image reference count
+         */
+        public static final String COL_REFCOUNT = &quot;refcount&quot;;
+        /**
+         * The column key for the image data
+         */
+        public static final String COL_DATA = &quot;data&quot;;
+        /**
+         * The current database version
+         */
+        private static final int DATABASE_VERSION = 1;
+
+        public ImageOpenHelper(Context context) {
+<span class="fc" id="L311">            super(context, DATABASE_NAME, null, DATABASE_VERSION);</span>
+<span class="fc" id="L312">        }</span>
+
+        @Override
+        public void onCreate(SQLiteDatabase db) {
+<span class="nc" id="L316">            db.execSQL(&quot;CREATE TABLE &quot; + TABLE_NAME + &quot;(&quot; + COL_CRC + &quot; INTEGER PRIMARY KEY,&quot; +</span>
+                    &quot; &quot; + COL_REFCOUNT + &quot; INTEGER NOT NULL DEFAULT 0,&quot; +
+                    &quot; &quot; + COL_DATA + &quot; BLOB NOT NULL)&quot;);
+<span class="nc" id="L319">        }</span>
+
+        @Override
+        public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+            // Implement later when new versions are introduced
+<span class="nc" id="L324">        }</span>
+    }
+
+    /**
+     * An OutputStream that calculates the CRC32 checksum of the bytes written to it
+     */
+    private static class CRCOutputStream extends FilterOutputStream {
+
+        /**
+         * The CRC calculator
+         */
+        private CRC32 mCrc;
+
+        /**
+         * Creates a CRCOutputStream that wraps another stream
+         *
+         * @param inner the stream to wrap. Must not be null.
+         */
+        public CRCOutputStream(OutputStream inner) {
+<span class="fc" id="L343">            super(inner);</span>
+<span class="fc" id="L344">            mCrc = new CRC32();</span>
+<span class="fc" id="L345">        }</span>
+
+        /**
+         * Writes a byte to the underlying stream and updates the CRC32 checksum to include
+         * the written byte.
+         *
+         * If the underlying stream throws an exception, the checksum is not updated.
+         *
+         * @param oneByte the byte to write
+         * @throws IOException if an error occurred writing the byte
+         */
+        @Override
+        public void write(int oneByte) throws IOException {
+<span class="fc" id="L358">            super.write(oneByte);</span>
+<span class="fc" id="L359">            mCrc.update(oneByte);</span>
+<span class="fc" id="L360">        }</span>
+
+        /**
+         * Returns the CRC32 checksum of the bytes written so far
+         *
+         * @return the checksum
+         */
+        public long getCrc() {
+<span class="fc" id="L368">            return mCrc.getValue();</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.4.201502262128</span></div></body></html>

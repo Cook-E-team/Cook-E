@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>StorageParser.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">debug</a> &gt; <a href="index.source.html" class="el_package">org.cook_e.data</a> &gt; <span class="el_source">StorageParser.java</span></div><h1>StorageParser.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2016 the Cook-E development team
+ *
+ * This file is part of Cook-E.
+ *
+ * Cook-E is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Cook-E is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Cook-E.  If not, see &lt;http://www.gnu.org/licenses/&gt;.
+ */
+
+package org.cook_e.data;
+
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.List;
+import org.joda.time.Duration;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+
+/**
+ * This class represents a parser that allows for transforming recipes to strings and strings to recipes
+ */
+<span class="fc" id="L34">public class StorageParser {</span>
+
+    /**
+     * Parses a serialized list of steps
+     * @param stepsString a string representing a list of steps, in the format returned by
+     *                    {@link #serializeRecipeSteps(List)}
+     * @return the steps in the provided String
+     * @throws java.text.ParseException if the steps could not be parsed
+     */
+    public List&lt;Step&gt; parseRecipeSteps(String stepsString) throws ParseException {
+        try {
+<span class="fc" id="L45">            final JSONArray json = new JSONArray(stepsString);</span>
+<span class="fc" id="L46">            final List&lt;Step&gt; steps = new ArrayList&lt;&gt;(json.length());</span>
+<span class="fc bfc" id="L47" title="All 2 branches covered.">            for (int i = 0; i &lt; json.length(); i++) {</span>
+<span class="fc" id="L48">                final JSONObject stepJson = json.getJSONObject(i);</span>
+
+<span class="fc" id="L50">                final String description = stepJson.getString(&quot;description&quot;);</span>
+<span class="fc" id="L51">                final Duration duration = Duration.millis(stepJson.getLong(&quot;duration_ms&quot;));</span>
+<span class="fc" id="L52">                final boolean simultaneous = stepJson.getBoolean(&quot;simultaneous&quot;);</span>
+
+<span class="fc" id="L54">                final JSONArray ingredientsJson = stepJson.getJSONArray(&quot;ingredients&quot;);</span>
+<span class="fc" id="L55">                final List&lt;String&gt; ingredients = new ArrayList&lt;&gt;(ingredientsJson.length());</span>
+<span class="fc bfc" id="L56" title="All 2 branches covered.">                for (int j = 0; j &lt; ingredientsJson.length(); j++) {</span>
+<span class="fc" id="L57">                    ingredients.add(ingredientsJson.getString(j));</span>
+                }
+<span class="fc" id="L59">                steps.add(new Step(ingredients, description, duration, simultaneous));</span>
+            }
+
+<span class="fc" id="L62">            return steps;</span>
+<span class="nc" id="L63">        } catch (JSONException e) {</span>
+<span class="nc" id="L64">            final ParseException parseException = new ParseException(&quot;Invalid JSON&quot;, 0);</span>
+<span class="nc" id="L65">            parseException.initCause(e);</span>
+<span class="nc" id="L66">            throw parseException;</span>
+        }
+    }
+
+    /**
+     * Serializes a list of steps into a String in an implementation-defined format
+     * @param steps the steps to process. Must not be null. Must not contain any null elements.
+     * @return a String representation of the steps
+     */
+    public String serializeRecipeSteps(List&lt;? extends Step&gt; steps) {
+<span class="fc" id="L76">        Objects.requireNonNull(steps, &quot;steps must not be null&quot;);</span>
+        try {
+<span class="fc" id="L78">             JSONArray json = new JSONArray();</span>
+
+<span class="fc bfc" id="L80" title="All 2 branches covered.">            for (Step step : steps) {</span>
+<span class="fc" id="L81">                final JSONObject stepJson = new JSONObject();</span>
+<span class="fc" id="L82">                stepJson.put(&quot;description&quot;, step.getDescription());</span>
+<span class="fc" id="L83">                stepJson.put(&quot;duration_ms&quot;, step.getTime().getMillis());</span>
+
+<span class="fc" id="L85">                final JSONArray ingredientsJson = new JSONArray(step.getIngredients());</span>
+<span class="fc" id="L86">                stepJson.put(&quot;ingredients&quot;, ingredientsJson);</span>
+
+<span class="fc" id="L88">                stepJson.put(&quot;simultaneous&quot;, step.isSimultaneous());</span>
+
+<span class="fc" id="L90">                json.put(stepJson);</span>
+<span class="fc" id="L91">            }</span>
+
+            // Convert to a string with no indentation
+<span class="fc" id="L94">            return json.toString();</span>
+<span class="nc" id="L95">        } catch (JSONException e) {</span>
+<span class="nc" id="L96">            throw new RuntimeException(&quot;Unexpected exception serializing JSON&quot;, e);</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.4.201502262128</span></div></body></html>

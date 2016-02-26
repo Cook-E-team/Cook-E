@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>FileImageCache.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">debug</a> &gt; <a href="index.source.html" class="el_package">org.cook_e.data</a> &gt; <span class="el_source">FileImageCache.java</span></div><h1>FileImageCache.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2016 the Cook-E development team
+ *
+ * This file is part of Cook-E.
+ *
+ * Cook-E is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Cook-E is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Cook-E.  If not, see &lt;http://www.gnu.org/licenses/&gt;.
+ */
+
+package org.cook_e.data;
+
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.util.Log;
+
+import org.cook_e.cook_e.App;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FilterOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.Locale;
+import java.util.zip.CRC32;
+
+/**
+ * An image cache that uses files
+ */
+public class FileImageCache implements ImageCache {
+
+    /**
+     * An OutputStream that calculates the CRC32 checksum of the bytes written to it
+     */
+    private static class CRCOutputStream extends FilterOutputStream {
+
+        /**
+         * The CRC calculator
+         */
+        private CRC32 mCrc;
+
+        /**
+         * Creates a CRCOutputStream that wraps another stream
+         * @param inner the stream to wrap. Must not be null.
+         */
+        public CRCOutputStream(OutputStream inner) {
+<span class="nc" id="L58">            super(inner);</span>
+<span class="nc" id="L59">            mCrc = new CRC32();</span>
+<span class="nc" id="L60">        }</span>
+
+        /**
+         * Writes a byte to the underlying stream and updates the CRC32 checksum to include
+         * the written byte.
+         *
+         * If the underlying stream throws an exception, the checksum is not updated.
+         *
+         * @param oneByte the byte to write
+         * @throws IOException if an error occurred writing the byte
+         */
+        @Override
+        public void write(int oneByte) throws IOException {
+<span class="nc" id="L73">            super.write(oneByte);</span>
+<span class="nc" id="L74">            mCrc.update(oneByte);</span>
+<span class="nc" id="L75">        }</span>
+
+        /**
+         * Returns the CRC32 checksum of the bytes written so far
+         * @return the checksum
+         */
+        public long getCrc() {
+<span class="nc" id="L82">            return mCrc.getValue();</span>
+        }
+    }
+
+    /**
+     * The tag used for logging
+     */
+<span class="nc" id="L89">    private static final String TAG = FileImageCache.class.getSimpleName();</span>
+
+    /**
+     * The name of the directory in which images are stored
+     */
+    private static final String DIRECTORY_NAME = &quot;image_cache&quot;;
+
+    /**
+     * The format used for compression
+     */
+<span class="nc" id="L99">    private static final Bitmap.CompressFormat FORMAT = Bitmap.CompressFormat.PNG;</span>
+
+    /**
+     * The compression quality level, 0-100 (ignored for PNG)
+     */
+    private static final int QUALITY = 100;
+
+    /**
+     * The instance
+     */
+    private static ImageCache instance;
+
+    /**
+     * The context used to access storage
+     */
+    private final Context mContext;
+
+    /**
+     * The directory in which files are stored
+     */
+    private final File mCacheDir;
+
+    @Override
+    public long put(Bitmap image) throws CacheException {
+<span class="nc" id="L123">        File imageFile = null;</span>
+        try {
+            // Compress image into a byte array to calculate the CRC
+<span class="nc" id="L126">            final ByteArrayOutputStream bytes = new ByteArrayOutputStream();</span>
+<span class="nc" id="L127">            final CRCOutputStream crc = new CRCOutputStream(bytes);</span>
+<span class="nc" id="L128">            final boolean result = image.compress(FORMAT, QUALITY, crc);</span>
+<span class="nc bnc" id="L129" title="All 2 branches missed.">            if (!result) {</span>
+<span class="nc" id="L130">                throw new CacheException(&quot;Failed to compress image&quot;);</span>
+            }
+
+<span class="nc" id="L133">            final long crcResult = crc.getCrc();</span>
+            // Write image
+<span class="nc" id="L135">            imageFile = pathForCrc(crcResult);</span>
+<span class="nc" id="L136">            final FileOutputStream fileStream = new FileOutputStream(imageFile);</span>
+<span class="nc" id="L137">            fileStream.write(bytes.toByteArray());</span>
+
+<span class="nc" id="L139">            return crcResult;</span>
+        }
+<span class="nc" id="L141">        catch (IOException e) {</span>
+            // Try to delete file, ignore errors
+            //noinspection ResultOfMethodCallIgnored
+<span class="nc" id="L144">            imageFile.delete();</span>
+<span class="nc" id="L145">            throw new CacheException(&quot;Failed to write image&quot;, e);</span>
+        }
+    }
+
+    @Override
+    public Bitmap get(long id) throws CacheException {
+<span class="nc" id="L151">        final File imageFile = pathForCrc(id);</span>
+<span class="nc bnc" id="L152" title="All 2 branches missed.">        if (!imageFile.exists()) {</span>
+<span class="nc" id="L153">            return null;</span>
+        }
+<span class="nc" id="L155">        return BitmapFactory.decodeFile(imageFile.getPath());</span>
+    }
+
+    @Override
+    public Bitmap remove(long id) throws CacheException {
+<span class="nc" id="L160">        final File imageFile = pathForCrc(id);</span>
+<span class="nc bnc" id="L161" title="All 2 branches missed.">        if (!imageFile.exists()) {</span>
+<span class="nc" id="L162">            return null;</span>
+        }
+<span class="nc" id="L164">        final Bitmap loadedImage = BitmapFactory.decodeFile(imageFile.getPath());</span>
+<span class="nc" id="L165">        final boolean success = imageFile.delete();</span>
+<span class="nc bnc" id="L166" title="All 2 branches missed.">        if (!success) {</span>
+<span class="nc" id="L167">            throw new CacheException(&quot;Failed to delete file &quot; + imageFile.getPath());</span>
+        }
+<span class="nc" id="L169">        return loadedImage;</span>
+    }
+
+    @Override
+    public void clear() throws CacheException {
+<span class="nc bnc" id="L174" title="All 2 branches missed.">        for (File file : mCacheDir.listFiles()) {</span>
+<span class="nc" id="L175">            final boolean success = file.delete();</span>
+<span class="nc bnc" id="L176" title="All 2 branches missed.">            if (!success) {</span>
+<span class="nc" id="L177">                throw new CacheException(&quot;Failed to delete file &quot; + file.getPath());</span>
+            }
+        }
+<span class="nc" id="L180">    }</span>
+
+
+    /**
+     * Returns a File for an image with the specified CRC checksum
+     * @param crc the checksum
+     * @return a File
+     */
+    private File pathForCrc(long crc) {
+<span class="nc" id="L189">        return new File(String.format(Locale.US, &quot;%s%s%016x.png&quot;, mCacheDir.getPath(), File.separator, crc));</span>
+    }
+
+    /**
+     * Ensures that the storage directory exists, and returns a File that represents it
+     * @return the storage directory as a File
+     */
+    private File getStorageDirectory() throws IOException {
+<span class="nc" id="L197">        final File dir = new File(</span>
+<span class="nc" id="L198">                mContext.getCacheDir().getPath() + File.separator + DIRECTORY_NAME);</span>
+        // Ensure directory exists and is a directory
+<span class="nc bnc" id="L200" title="All 2 branches missed.">        if (dir.exists()) {</span>
+<span class="nc bnc" id="L201" title="All 2 branches missed.">            if (!dir.isDirectory()) {</span>
+<span class="nc" id="L202">                final boolean success = dir.delete();</span>
+<span class="nc bnc" id="L203" title="All 2 branches missed.">                if (!success) {</span>
+<span class="nc" id="L204">                    throw new IOException(&quot;Could not delete non-directory file &quot; + dir.getPath());</span>
+                }
+<span class="nc" id="L206">            }</span>
+        }
+        else {
+            // Does not exist
+            // Create as directory
+<span class="nc" id="L211">            final boolean success = dir.mkdirs();</span>
+<span class="nc bnc" id="L212" title="All 2 branches missed.">            if (!success) {</span>
+<span class="nc" id="L213">                throw new IOException(&quot;Could not create directory &quot; + dir.getPath());</span>
+            }
+        }
+<span class="nc" id="L216">        return dir;</span>
+    }
+
+    /**
+     * Creates a new cache
+     * @param context the context to use to access storage. Must not be null.
+     */
+<span class="nc" id="L223">    private FileImageCache(Context context) throws IOException {</span>
+<span class="nc" id="L224">        Objects.requireNonNull(context, &quot;context must not be null&quot;);</span>
+<span class="nc" id="L225">        mContext = context;</span>
+<span class="nc" id="L226">        mCacheDir = getStorageDirectory();</span>
+<span class="nc" id="L227">    }</span>
+
+    /**
+     * Returns the ImageCache used by the application
+     * @return an ImageCache
+     */
+    public static ImageCache getInstance() {
+<span class="nc bnc" id="L234" title="All 2 branches missed.">        if (instance == null) {</span>
+            try {
+<span class="nc" id="L236">                instance = new FileImageCache(App.getAppContext());</span>
+<span class="nc" id="L237">            } catch (IOException e) {</span>
+                // No ideal way to handle this
+<span class="nc" id="L239">                Log.e(TAG, &quot;Failed to set up image cache directory&quot;, e);</span>
+<span class="nc" id="L240">                return null;</span>
+<span class="nc" id="L241">            }</span>
+        }
+<span class="nc" id="L243">        return instance;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.4.201502262128</span></div></body></html>

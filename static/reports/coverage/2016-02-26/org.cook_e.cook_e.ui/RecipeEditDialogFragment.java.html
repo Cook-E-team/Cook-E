@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>RecipeEditDialogFragment.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">debug</a> &gt; <a href="index.source.html" class="el_package">org.cook_e.cook_e.ui</a> &gt; <span class="el_source">RecipeEditDialogFragment.java</span></div><h1>RecipeEditDialogFragment.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2016 the Cook-E development team
+ *
+ * This file is part of Cook-E.
+ *
+ * Cook-E is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Cook-E is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Cook-E.  If not, see &lt;http://www.gnu.org/licenses/&gt;.
+ */
+
+package org.cook_e.cook_e.ui;
+
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.DialogFragment;
+import android.content.DialogInterface;
+import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.view.View;
+import android.widget.EditText;
+
+import org.cook_e.cook_e.R;
+import org.cook_e.data.Recipe;
+
+/**
+ * A dialog fragment that allows the user to the title and author of a {@link org.cook_e.data.Recipe}
+ *
+ * The Activity that uses this dialog must implement the
+ * {@link org.cook_e.cook_e.ui.RecipeEditDialogFragment.RecipeEditListener} interface.
+ */
+public class RecipeEditDialogFragment extends DialogFragment {
+
+    /**
+     * Argument key for title (String)
+     */
+<span class="nc" id="L45">    private static final String ARG_TITLE = RecipeEditDialogFragment.class.getName() + &quot;.ARG_TITLE&quot;;</span>
+    /**
+     * Argument key for author (String)
+     */
+<span class="nc" id="L49">    private static final String ARG_AUTHOR = RecipeEditDialogFragment.class.getName() + &quot;.ARG_AUTHOR&quot;;</span>
+
+    /**
+     * An interface for objects that can accept notifications of when the user finishes editing
+     * a recipe
+     */
+    public interface RecipeEditListener {
+        /**
+         * Called when the user finishes editing a recipe
+         *
+         * @param newTitle the new title of the recipe
+         * @param newAuthor the new author of the recipe
+         */
+        void recipeEditingFinished(@NonNull String newTitle, @NonNull String newAuthor);
+    }
+
+    /**
+     * Title text field
+     */
+    private EditText mTitleField;
+    /**
+     * Author text field
+     */
+    private EditText mAuthorField;
+
+    /**
+     * Creates a fragment
+     *
+     * Client code should normally use {@link #newInstance(Recipe)} instead.
+     */
+<span class="nc" id="L79">    public RecipeEditDialogFragment() {</span>
+
+<span class="nc" id="L81">    }</span>
+
+    /**
+     * Creates a new StepDialogFragment to edit a recipe
+     *
+     * @param recipe the recipe to edit
+     * @return a dialog fragment
+     */
+    public static RecipeEditDialogFragment newInstance(@NonNull Recipe recipe) {
+<span class="nc" id="L90">        final RecipeEditDialogFragment fragment = new RecipeEditDialogFragment();</span>
+
+<span class="nc" id="L92">        final Bundle args = new Bundle();</span>
+<span class="nc" id="L93">        args.putString(ARG_TITLE, recipe.getTitle());</span>
+<span class="nc" id="L94">        args.putString(ARG_AUTHOR, recipe.getAuthor());</span>
+<span class="nc" id="L95">        fragment.setArguments(args);</span>
+
+<span class="nc" id="L97">        return fragment;</span>
+    }
+
+
+    /**
+     * Called when the user presses the positive (OK) button
+     *
+     * @return true to dismiss the dialog, false to continue displaying it
+     */
+    private boolean onOkPressed() {
+<span class="nc" id="L107">        final String title = mTitleField.getText().toString();</span>
+<span class="nc" id="L108">        final String author = mAuthorField.getText().toString();</span>
+
+<span class="nc bnc" id="L110" title="All 2 branches missed.">        if (title.isEmpty()) {</span>
+<span class="nc" id="L111">            mTitleField.setError(&quot;Please enter a title&quot;);</span>
+<span class="nc" id="L112">            return false;</span>
+        }
+
+        // Notify parent
+<span class="nc" id="L116">        ((RecipeEditListener) getActivity()).recipeEditingFinished(title, author);</span>
+<span class="nc" id="L117">        return true;</span>
+    }
+
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+<span class="nc" id="L123">        super.onCreate(savedInstanceState);</span>
+        // Check parent
+<span class="nc bnc" id="L125" title="All 2 branches missed.">        if (!(getActivity() instanceof RecipeEditListener)) {</span>
+<span class="nc" id="L126">            throw new IllegalStateException(&quot;A RecipeEditDialogFragment may only be started from an &quot; +</span>
+                    &quot;activity that implements the RecipeEditDialogFragment.RecipeEditListener interface&quot;);
+        }
+<span class="nc" id="L129">    }</span>
+
+    @Override
+    public Dialog onCreateDialog(Bundle savedInstanceState) {
+<span class="nc" id="L133">        return new AlertDialog.Builder(getActivity())</span>
+<span class="nc" id="L134">                .setTitle(R.string.edit_recipe)</span>
+<span class="nc" id="L135">                .setPositiveButton(android.R.string.ok, null)</span>
+<span class="nc" id="L136">                .setNegativeButton(android.R.string.cancel, null)</span>
+<span class="nc" id="L137">                .setView(createView())</span>
+<span class="nc" id="L138">                .create();</span>
+    }
+
+    @Override
+    public void onStart() {
+<span class="nc" id="L143">        super.onStart();</span>
+        // Override OK button behavior
+        // Do not always dismiss dialog
+<span class="nc" id="L146">        final AlertDialog dialog = (AlertDialog) getDialog();</span>
+<span class="nc" id="L147">        dialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(</span>
+<span class="nc" id="L148">                new View.OnClickListener() {</span>
+                    @Override
+                    public void onClick(View v) {
+<span class="nc" id="L151">                        final boolean close = onOkPressed();</span>
+<span class="nc bnc" id="L152" title="All 2 branches missed.">                        if (close) {</span>
+                            // Close this DialogFragment
+<span class="nc" id="L154">                            dismiss();</span>
+                        }
+<span class="nc" id="L156">                    }</span>
+                });
+<span class="nc" id="L158">    }</span>
+
+    /**
+     * Sets up and returns a View to be displayed in the dialog
+     *
+     * @return the view to display
+     */
+    private View createView() {
+<span class="nc" id="L166">        final View view = getActivity().getLayoutInflater().inflate(R.layout.dialog_recipe_edit, null);</span>
+
+<span class="nc" id="L168">        mTitleField = (EditText) view.findViewById(R.id.recipe_title_field);</span>
+<span class="nc" id="L169">        mAuthorField = (EditText) view.findViewById(R.id.recipe_author_field);</span>
+
+        // Extract data from arguments
+<span class="nc" id="L172">        final Bundle args = getArguments();</span>
+<span class="nc bnc" id="L173" title="All 2 branches missed.">        if (args != null) {</span>
+<span class="nc" id="L174">            mTitleField.setText(args.getString(ARG_TITLE));</span>
+<span class="nc" id="L175">            mAuthorField.setText(args.getString(ARG_AUTHOR));</span>
+        }
+
+<span class="nc" id="L178">        return view;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.4.201502262128</span></div></body></html>

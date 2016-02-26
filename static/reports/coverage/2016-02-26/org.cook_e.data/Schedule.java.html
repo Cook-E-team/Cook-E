@@ -1,0 +1,323 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>Schedule.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">debug</a> &gt; <a href="index.source.html" class="el_package">org.cook_e.data</a> &gt; <span class="el_source">Schedule.java</span></div><h1>Schedule.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2016 the Cook-E development team
+ *
+ * This file is part of Cook-E.
+ *
+ * Cook-E is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Cook-E is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Cook-E.  If not, see &lt;http://www.gnu.org/licenses/&gt;.
+ */
+
+package org.cook_e.data;
+
+import android.support.annotation.NonNull;
+import android.util.Log;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * A class that produces and manages a schedule for a Bunch.
+ */
+public class Schedule {
+    private final List&lt;ScheduledStep&gt; mScheduledStepList;
+    private final List&lt;UnscheduledRecipeSteps&gt; mUnscheduledRecipeStepsList;
+    private final int mTotalStepCount;
+    private final int mOriginalEstimatedTime;
+    private final int mOptimizedEstimatedTime;
+<span class="fc" id="L37">    private int mCurrScheduledStepIndex = -1;</span>
+
+
+    /**
+     * Creates a schedule based on the given Bunch.
+     *
+     * @param b the Bunch to schedule steps from
+     */
+    public Schedule(Bunch b) {
+<span class="fc" id="L46">        this(b, true);</span>
+<span class="fc" id="L47">    }</span>
+
+    /**
+     * Creates a schedule based on the given Bunch. If the given boolean is true,
+     * then estimated times are calculated, otherwise they aren't. This private
+     * constructor with the additional boolean is necessary to avoid infinite
+     * recursive calls due to calculating estimed times.
+     *
+     * @param b the Bunch to schedule steps from
+     * @param calculateEstimatedTimes whether or not estimated times should be calculated
+     */
+<span class="fc" id="L58">    private Schedule(Bunch b, boolean calculateEstimatedTimes) {</span>
+<span class="fc bfc" id="L59" title="All 2 branches covered.">        if (calculateEstimatedTimes) {</span>
+<span class="fc" id="L60">            this.mOriginalEstimatedTime = CookingTimeEstimator.getOriginalTime(b);</span>
+<span class="fc" id="L61">            this.mOptimizedEstimatedTime = CookingTimeEstimator.getOptimizedTime(new Schedule(b, false));</span>
+        } else {
+<span class="fc" id="L63">            this.mOriginalEstimatedTime = -1;</span>
+<span class="fc" id="L64">            this.mOptimizedEstimatedTime = -1;</span>
+        }
+
+<span class="fc" id="L67">        this.mScheduledStepList = new ArrayList&lt;&gt;();</span>
+
+<span class="fc" id="L69">        int totalStepCount = 0;</span>
+<span class="fc" id="L70">        List&lt;Recipe&gt; recipes = b.getRecipes();</span>
+<span class="fc bfc" id="L71" title="All 2 branches covered.">        for(Recipe recipe : recipes) {</span>
+<span class="fc" id="L72">            totalStepCount += recipe.getSteps().size();</span>
+<span class="fc" id="L73">        }</span>
+<span class="fc" id="L74">        this.mTotalStepCount = totalStepCount;</span>
+
+        // populate UnscheduledRecipeStepsList
+<span class="fc" id="L77">        this.mUnscheduledRecipeStepsList = new ArrayList&lt;&gt;();</span>
+<span class="fc bfc" id="L78" title="All 2 branches covered.">        for (Recipe r: recipes) {</span>
+<span class="pc bpc" id="L79" title="1 of 2 branches missed.">            if(r.getSteps().isEmpty()) continue;</span>
+<span class="fc" id="L80">            this.mUnscheduledRecipeStepsList.add(new UnscheduledRecipeSteps(r));</span>
+<span class="fc" id="L81">        }</span>
+<span class="fc" id="L82">    }</span>
+
+    /**
+     * Returns the recipe that contains the current step
+     * @return the recipe current step belongs to
+     */
+    public Recipe getCurrentStepRecipe() {
+<span class="fc" id="L89">        return this.mScheduledStepList.get(this.mCurrScheduledStepIndex).motherRecipe;</span>
+    }
+
+
+    /**
+     * This function returns the next step. Calling this function implies that
+     * the current step has been completed if it is a non-simultaneous task. If
+     * it a simultaneous task, then it is the callers job to call finishStep and
+     * pass in the Step when it has been completed.
+     *
+     * @return The next step after the current step. If it's already at the final step
+     * or no other steps can be scheduled, then null is returned.
+     */
+    public Step getNextStep() {
+<span class="fc" id="L103">        Step nextStep = null;</span>
+<span class="pc bpc" id="L104" title="1 of 2 branches missed.">        if (this.mCurrScheduledStepIndex &lt; this.mScheduledStepList.size() - 1) {</span>
+            // handles the case where the next step has already
+            // been scheduled
+<span class="nc" id="L107">            this.mCurrScheduledStepIndex++;</span>
+<span class="nc" id="L108">            nextStep = this.mScheduledStepList.get(this.mCurrScheduledStepIndex).step;</span>
+<span class="pc bpc" id="L109" title="1 of 2 branches missed.">        } else if (this.mCurrScheduledStepIndex == this.mScheduledStepList.size() -1 &amp;&amp;</span>
+<span class="pc bpc" id="L110" title="1 of 2 branches missed.">                this.mUnscheduledRecipeStepsList.size() &gt; 0) {</span>
+            // handles the case where the next step hasn't been
+            // scheduled yet
+<span class="fc" id="L113">            this.mCurrScheduledStepIndex++;</span>
+<span class="fc" id="L114">            ScheduledStep nextScheduledStep = getNextScheduledStep(this.mUnscheduledRecipeStepsList);</span>
+<span class="fc" id="L115">            this.mScheduledStepList.add(nextScheduledStep);</span>
+<span class="fc" id="L116">            nextStep = nextScheduledStep.step;</span>
+        }
+<span class="fc" id="L118">        return nextStep;</span>
+    }
+
+    /**
+     * After done populating the final scheduled step list. This function will return the previous step
+     * of the current Step. If there is no previous step, then null is returned.
+     *
+     * @return The previous step before the current Step
+     */
+    public Step getPrevStep() {
+<span class="nc" id="L128">        Step prevStep = null;</span>
+<span class="nc bnc" id="L129" title="All 2 branches missed.">        if (this.mCurrScheduledStepIndex &gt; 0) {</span>
+<span class="nc" id="L130">            this.mCurrScheduledStepIndex--;</span>
+<span class="nc" id="L131">            prevStep = this.mScheduledStepList.get(this.mCurrScheduledStepIndex).step;</span>
+        }
+<span class="nc" id="L133">        return prevStep;</span>
+    }
+
+    /**
+     * Calling this function indicates that the blocking simultaneous step
+     * associated with the given recipe has been completed. If no matching recipe
+     * is found, then the function silently does nothing. This is largely due to
+     * how hard it would be for the caller to know if the particular recipe has
+     * has any unscheduled steps left.
+     *
+     * @param recipe the recipe the finished simultaneous step is associated with
+     */
+    public void finishSimultaneousStepFromRecipe(Recipe recipe) {
+<span class="fc" id="L146">        UnscheduledRecipeSteps matchingRecipeSteps = null;</span>
+<span class="fc bfc" id="L147" title="All 2 branches covered.">        for (UnscheduledRecipeSteps currUnscheduledRecipeSteps : mUnscheduledRecipeStepsList) {</span>
+<span class="fc bfc" id="L148" title="All 2 branches covered.">            if (currUnscheduledRecipeSteps.motherReceipe.equals(recipe)) {</span>
+<span class="fc" id="L149">                currUnscheduledRecipeSteps.setReady();</span>
+<span class="fc" id="L150">                return;</span>
+            }
+<span class="fc" id="L152">        }</span>
+<span class="fc" id="L153">    }</span>
+
+    /**
+     * Returns the total number of steps. This value includes both
+     * scheduled and unscheduled steps.
+     *
+     * @return the total number of steps
+     */
+    public int getStepCount() {
+<span class="fc" id="L162">        return this.mTotalStepCount;</span>
+    }
+
+    /*
+     * Removes and returns the step to schedule for shortest cooking time.
+     * The given finalSteps is also modified such that each element in the list
+     * has its busy time shifted properly.
+     *
+     * @param finalSteps the unscheduled finalSteps to pick a next step from
+     * @return the next step to schedule for shortest cooking time
+     */
+    private ScheduledStep getNextScheduledStep(List&lt;UnscheduledRecipeSteps&gt; unscheduledRecipeStepsList) {
+
+        // Finds the recipe with the longest time from the first simultaneous step
+        // to the last step that is ready.
+<span class="fc" id="L177">        int chosenIndex = -1;</span>
+<span class="fc" id="L178">        int maxSimultaneousToEndTime = -1;</span>
+<span class="fc bfc" id="L179" title="All 2 branches covered.">        for (int i = 0; i &lt; unscheduledRecipeStepsList.size(); i++) {</span>
+<span class="fc" id="L180">            UnscheduledRecipeSteps currSteps = unscheduledRecipeStepsList.get(i);</span>
+<span class="fc bfc" id="L181" title="All 2 branches covered.">            if (currSteps.isReady()) {</span>
+                // if the recipe is ready, then check if it is the new best choice
+                // and update accordingly
+<span class="fc" id="L184">                int currSimultaneousToEndTime = currSteps.getSimultaneousToEndTime();</span>
+<span class="fc bfc" id="L185" title="All 2 branches covered.">                if (currSimultaneousToEndTime &gt; maxSimultaneousToEndTime) {</span>
+<span class="fc" id="L186">                    chosenIndex = i;</span>
+<span class="fc" id="L187">                    maxSimultaneousToEndTime = currSimultaneousToEndTime;</span>
+                }
+            }
+        }
+
+<span class="fc" id="L192">        Step nextScheduledStep = null;</span>
+<span class="fc" id="L193">        Recipe motherRecipe = null;</span>
+<span class="pc bpc" id="L194" title="1 of 2 branches missed.">        if (chosenIndex != -1) {</span>
+            // Handles case where one or more recipes were ready by removing and
+            // returning the chosen step.
+<span class="fc" id="L197">            motherRecipe = unscheduledRecipeStepsList.get(chosenIndex).motherReceipe;</span>
+<span class="fc" id="L198">            nextScheduledStep = unscheduledRecipeStepsList.get(chosenIndex).removeNextStep();</span>
+
+<span class="fc" id="L200">            Log.d(&quot;Schedule&quot;, &quot;chosenIndex = &quot; + chosenIndex + &quot;, unscheduled steps = &quot; + unscheduledRecipeStepsList);</span>
+<span class="fc bfc" id="L201" title="All 2 branches covered.">            if (unscheduledRecipeStepsList.get(chosenIndex).isEmpty()) {</span>
+<span class="fc" id="L202">                Log.d(&quot;Schedule&quot;, &quot;chosenIndex = &quot; + chosenIndex + &quot;, unscheduled steps = &quot; + unscheduledRecipeStepsList);</span>
+<span class="fc" id="L203">                unscheduledRecipeStepsList.remove(chosenIndex);</span>
+            }
+        }
+<span class="fc" id="L206">        return new ScheduledStep(nextScheduledStep, motherRecipe);</span>
+    }
+
+    /**
+     * A private helper class used in the process of generating
+     * the schedule.
+     */
+    private class UnscheduledRecipeSteps {
+        // The list of unscheduled finalSteps.
+        private final List&lt;Step&gt; steps;
+        // The time in seconds from the first simultaneous step to the end of the last step.
+        private int simultaneousToEndTime;
+        // Whether or not the recipe is ready or not. A recipes isn't
+        // ready if a simultaneous step is in progress.
+        private boolean isReady;
+
+        public final Recipe motherReceipe;
+
+
+        /**
+         * Creates an UnscheduledRecipeSteps object based on the given Recipe.
+         *
+         * @param r the Recipe to get steps from
+         */
+<span class="fc" id="L230">        public UnscheduledRecipeSteps(Recipe r) {</span>
+<span class="fc" id="L231">            this.steps = r.getSteps();</span>
+<span class="fc" id="L232">            this.isReady = true;</span>
+<span class="fc" id="L233">            this.motherReceipe = r;</span>
+
+            // initializes simultaneousToEndTime
+<span class="fc" id="L236">            this.simultaneousToEndTime = 0;</span>
+<span class="fc" id="L237">            boolean simultaneousSeen = false;</span>
+<span class="fc bfc" id="L238" title="All 2 branches covered.">            for (Step currStep : this.steps) {</span>
+<span class="fc bfc" id="L239" title="All 2 branches covered.">                if (simultaneousSeen) {</span>
+<span class="fc" id="L240">                    this.simultaneousToEndTime += currStep.getDurationMinutes();</span>
+<span class="fc bfc" id="L241" title="All 2 branches covered.">                } else if (currStep.isSimultaneous()) {</span>
+<span class="fc" id="L242">                    simultaneousSeen = true;</span>
+<span class="fc" id="L243">                    this.simultaneousToEndTime = currStep.getDurationMinutes();</span>
+                }
+<span class="fc" id="L245">            }</span>
+<span class="fc" id="L246">        }</span>
+
+        /**
+         * Returns the time in seconds from the first simultaneous step to the end of the last step.
+         *
+         * @return time in seconds from the first simultaneous step to the end of the last step.
+         */
+        public int getSimultaneousToEndTime() {
+<span class="fc" id="L254">            return simultaneousToEndTime;</span>
+        }
+
+        /**
+         * Removes and returns the next step from the unscheduled steps. If there are no
+         * steps left, then null is returned.
+         *
+         * @return the next step if there are any ready ones left, otherwise null
+         */
+        public Step removeNextStep() {
+<span class="pc bpc" id="L264" title="2 of 4 branches missed.">            if (this.isEmpty() || !this.isReady()) {</span>
+<span class="nc" id="L265">                return null;</span>
+            }
+
+<span class="fc" id="L268">            Step nextStep = this.steps.remove(0);</span>
+<span class="fc bfc" id="L269" title="All 2 branches covered.">            if (nextStep.isSimultaneous()) {</span>
+<span class="fc" id="L270">                this.isReady = false;</span>
+<span class="fc" id="L271">                this.simultaneousToEndTime -= nextStep.getDurationMinutes();</span>
+<span class="fc bfc" id="L272" title="All 2 branches covered.">                for (Step currStep : this.steps) {</span>
+<span class="pc bpc" id="L273" title="1 of 2 branches missed.">                    if (currStep.isSimultaneous()) {</span>
+<span class="nc" id="L274">                        break;</span>
+                    }
+<span class="fc" id="L276">                    this.simultaneousToEndTime -= currStep.getDurationMinutes();</span>
+<span class="fc" id="L277">                }</span>
+            }
+<span class="fc" id="L279">            return nextStep;</span>
+        }
+
+        /**
+         * Returns true if the previously removed step has been completed
+         * and the next steps are ready.
+         *
+         * @return true if the next steps are ready to be done
+         */
+        public boolean isReady() {
+<span class="fc" id="L289">            return this.isReady;</span>
+        }
+
+        /**
+         * Sets the next steps as ready to be completed.
+         */
+        public void setReady() {
+<span class="fc" id="L296">            this.isReady = true;</span>
+<span class="fc" id="L297">        }</span>
+
+        /**
+         * Returns if there are any unscheduled steps left.
+         *
+         * @return true if there are unscheduled steps left, false otherwise
+         */
+        public boolean isEmpty() {
+<span class="fc" id="L305">            return this.steps.isEmpty();</span>
+        }
+    }
+
+    /**
+     * A private helper class used to keep steps associated with
+     * their recipes.
+     */
+    private class ScheduledStep {
+        public final Step step;
+        public final Recipe motherRecipe;
+
+<span class="fc" id="L317">        public ScheduledStep(@NonNull Step s, @NonNull Recipe r) {</span>
+<span class="fc" id="L318">            this.step = s;</span>
+<span class="fc" id="L319">            this.motherRecipe = r;</span>
+<span class="fc" id="L320">        }</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.4.201502262128</span></div></body></html>

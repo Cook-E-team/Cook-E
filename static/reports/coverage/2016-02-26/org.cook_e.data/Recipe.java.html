@@ -1,0 +1,301 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>Recipe.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">debug</a> &gt; <a href="index.source.html" class="el_package">org.cook_e.data</a> &gt; <span class="el_source">Recipe.java</span></div><h1>Recipe.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2016 the Cook-E development team
+ *
+ * This file is part of Cook-E.
+ *
+ * Cook-E is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Cook-E is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Cook-E.  If not, see &lt;http://www.gnu.org/licenses/&gt;.
+ */
+
+package org.cook_e.data;
+
+import android.graphics.Bitmap;
+import android.os.Parcel;
+import android.os.Parcelable;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
+import org.joda.time.Duration;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+/*
+ * Represents a recipe
+ *
+ * Has an ordered list of steps, a title, and an author.
+ * No field may be null.
+ */
+public final class Recipe extends DatabaseObject implements Parcelable {
+
+    /**
+     * The steps that this recipe contains
+     */
+    @NonNull
+    private List&lt;Step&gt; mSteps;
+    /**
+     * The title of this recipe
+     */
+    @NonNull
+    private String mTitle;
+    /**
+     * The author of this recipe
+     */
+    @NonNull
+    private String mAuthor;
+
+    /**
+     * The image associated with this recipe, or null if the recipe has no image
+     */
+    @Nullable
+    private Bitmap mImage;
+    /**
+     * Constructor
+     *@param title the title of the recipe, must not be null
+     *@param author the author of the recipe, must not be null
+     *@param steps the list of steps for the recipe, must not be null
+     *@throws NullPointerException if any of the parameters passed to it are null
+     */
+    public Recipe(@NonNull String title, @NonNull String author, @NonNull List&lt;Step&gt; steps) {
+<span class="fc" id="L71">        super();</span>
+<span class="fc" id="L72">        Objects.requireNonNull(title, &quot;title must not be null&quot;);</span>
+<span class="fc" id="L73">        Objects.requireNonNull(author, &quot;author must not be null&quot;);</span>
+<span class="fc" id="L74">        Objects.requireNonNull(steps, &quot;steps must not be null&quot;);</span>
+<span class="fc" id="L75">        mSteps = new ArrayList&lt;&gt;(steps);</span>
+<span class="fc" id="L76">        mTitle = title;</span>
+<span class="fc" id="L77">        mAuthor = author;</span>
+<span class="fc" id="L78">        mImage = null;</span>
+<span class="fc" id="L79">    }</span>
+
+    /**
+     * Creates a deep copy of another recipe. No part of the new recipe will be modifiable from the
+     * old one.
+     * @param other the recipe to copy from
+     */
+    public Recipe(Recipe other) {
+        // Step, and String are immutable, so they do not need to be copied.
+        // The delegated constructor copies the list of steps.
+<span class="fc" id="L89">        this(other.getTitle(), other.getAuthor(), other.getSteps());</span>
+<span class="fc" id="L90">        setImage(other.getImage());</span>
+<span class="fc" id="L91">        setObjectId(other.getObjectId());</span>
+<span class="fc" id="L92">    }</span>
+
+
+    /**
+     * Sets the steps in this recipe
+     * @param steps the steps to set
+     * @throws NullPointerException if steps is null
+     */
+    public void setSteps(@NonNull List&lt;Step&gt; steps) {
+<span class="fc" id="L101">        Objects.requireNonNull(steps, &quot;steps must not be null&quot;);</span>
+<span class="fc" id="L102">        mSteps = new ArrayList&lt;&gt;(steps);</span>
+<span class="fc" id="L103">    }</span>
+
+    /**
+     * Set the ith step in this recipe
+     * The original step will be replaced by the new one
+     * Do nothing if index is less than 0 or greeter than the max index
+     * @param step the step to set
+     * @param i the target index of new step, index start from 0
+     * @throws NullPointerException if step is null
+     */
+    public void setStep(@NonNull Step step, int i) {
+<span class="nc" id="L114">        Objects.requireNonNull(step, &quot;step must not be null&quot;);</span>
+<span class="nc bnc" id="L115" title="All 4 branches missed.">        if (i &gt;= 0 &amp;&amp; i &lt; mSteps.size()) {</span>
+<span class="nc" id="L116">            mSteps.set(i, step);</span>
+        }
+<span class="nc" id="L118">    }</span>
+
+    /**
+     * Add step to end of the list of steps
+     * @param step the step to add
+     * @throws NullPointerException if step is null
+     */
+    public void addStep(@NonNull Step step) {
+<span class="fc" id="L126">        Objects.requireNonNull(step, &quot;step must not be null&quot;);</span>
+<span class="fc" id="L127">        mSteps.add(step);</span>
+<span class="fc" id="L128">    }</span>
+    /**
+     * Returns the steps in this recipe
+     * @return the steps
+     */
+    @NonNull
+    public List&lt;Step&gt; getSteps() {
+<span class="fc" id="L135">        return new ArrayList&lt;&gt;(mSteps);</span>
+    }
+
+    /**
+     * Returns a List of all the ingredients required by all the steps of the recipe
+     */
+    @NonNull
+    public List&lt;String&gt; getIngredients() {
+<span class="nc" id="L143">        List&lt;String&gt; ings = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L144" title="All 2 branches missed.">        for (Step s: mSteps) {</span>
+<span class="nc bnc" id="L145" title="All 2 branches missed.">            for (String ingredient: s.getIngredients()) {</span>
+<span class="nc" id="L146">                ings.add(ingredient);</span>
+<span class="nc" id="L147">            }</span>
+<span class="nc" id="L148">        }</span>
+<span class="nc" id="L149">        return ings;</span>
+    }
+    /**
+     * Returns the total estimated time of all the recipe's mSteps
+     */
+    @NonNull
+    public Duration getTotalTime() {
+<span class="fc" id="L156">        Duration time = Duration.ZERO;</span>
+<span class="fc bfc" id="L157" title="All 2 branches covered.">        for (Step s: mSteps) {</span>
+<span class="fc" id="L158">            time = time.withDurationAdded(s.getTime(), 1);</span>
+<span class="fc" id="L159">        }</span>
+<span class="fc" id="L160">        return time;</span>
+    }
+    @NonNull
+    public String getTitle() {
+<span class="fc" id="L164">        return mTitle;</span>
+    }
+    @NonNull
+    public String getAuthor() {
+<span class="fc" id="L168">        return mAuthor;</span>
+    }
+
+    /**
+     * Remove the ith step in this recipe.
+     * All steps after it will be moved one step forward.
+     * Doesn't modify recipe if index is less than 0 or greater than max index.
+     * @param i the index of step to remove, index starts from 0.
+     * @return The removed step if succeeded, null if failed.
+     */
+    public Step removeStep(int i) {
+<span class="nc bnc" id="L179" title="All 4 branches missed.">        if (i &gt;= 0 &amp;&amp; i &lt; mSteps.size()) return mSteps.remove(i);</span>
+<span class="nc" id="L180">        else return null;</span>
+    }
+
+    /**
+     * Returns the image associated with this recipe
+     * @return an immutable image, or null if this recipe has no image
+     */
+    @Nullable
+    public Bitmap getImage() {
+<span class="pc bpc" id="L189" title="1 of 2 branches missed.">        if (mImage != null) {</span>
+<span class="nc" id="L190">            return Bitmap.createBitmap(mImage);</span>
+        }
+        else {
+<span class="fc" id="L193">            return null;</span>
+        }
+    }
+
+    /**
+     * Sets the image to associate with this recipe
+     * @param image the image to set, or null to set no image
+     */
+    public void setImage(@Nullable Bitmap image) {
+<span class="pc bpc" id="L202" title="1 of 2 branches missed.">        if (image != null) {</span>
+<span class="nc" id="L203">            mImage = Bitmap.createBitmap(image);</span>
+        }
+        else {
+<span class="fc" id="L206">            mImage = null;</span>
+        }
+<span class="fc" id="L208">    }</span>
+
+    public void setTitle(@NonNull String title) {
+<span class="nc" id="L211">        Objects.requireNonNull(title, &quot;title must not be null&quot;);</span>
+<span class="nc" id="L212">        mTitle = title;</span>
+<span class="nc" id="L213">    }</span>
+
+    public void setAuthor(@NonNull String author) {
+<span class="nc" id="L216">        Objects.requireNonNull(author, &quot;author must not be null&quot;);</span>
+<span class="nc" id="L217">        mAuthor = author;</span>
+<span class="nc" id="L218">    }</span>
+
+    @Override
+    public boolean equals(Object o) {
+<span class="fc bfc" id="L222" title="All 2 branches covered.">        if (this == o) return true;</span>
+<span class="pc bpc" id="L223" title="2 of 4 branches missed.">        if (o == null || getClass() != o.getClass()) return false;</span>
+
+<span class="fc" id="L225">        final Recipe recipe = (Recipe) o;</span>
+
+<span class="fc bfc" id="L227" title="All 2 branches covered.">        if (!mSteps.equals(recipe.mSteps)) return false;</span>
+<span class="fc bfc" id="L228" title="All 2 branches covered.">        if (!mTitle.equals(recipe.mTitle)) return false;</span>
+<span class="fc bfc" id="L229" title="All 2 branches covered.">        if (!mAuthor.equals(recipe.mAuthor)) return false;</span>
+<span class="pc bpc" id="L230" title="4 of 6 branches missed.">        return !(mImage != null ? !mImage.equals(recipe.mImage) : recipe.mImage != null);</span>
+
+    }
+
+    @Override
+    public int hashCode() {
+<span class="fc" id="L236">        int result = mSteps.hashCode();</span>
+<span class="fc" id="L237">        result = 31 * result + mTitle.hashCode();</span>
+<span class="fc" id="L238">        result = 31 * result + mAuthor.hashCode();</span>
+<span class="pc bpc" id="L239" title="1 of 2 branches missed.">        result = 31 * result + (mImage != null ? mImage.hashCode() : 0);</span>
+<span class="fc" id="L240">        return result;</span>
+    }
+
+    @Override
+    public String toString() {
+<span class="nc" id="L245">        return &quot;Recipe{&quot; +</span>
+                &quot;mSteps=&quot; + mSteps +
+                &quot;, mTitle='&quot; + mTitle + '\'' +
+                &quot;, mAuthor='&quot; + mAuthor + '\'' +
+                &quot;, mImage=&quot; + mImage +
+                '}';
+    }
+
+    // Parceling section
+<span class="fc" id="L254">    public static final Parcelable.Creator&lt;Recipe&gt; CREATOR = new Parcelable.Creator&lt;Recipe&gt;() {</span>
+
+        @Override
+        public Recipe createFromParcel(Parcel source) {
+<span class="fc" id="L258">            final long id = source.readLong();</span>
+<span class="fc" id="L259">            final Step[] steps = Objects.castArray(</span>
+<span class="fc" id="L260">                    source.readParcelableArray(Step.class.getClassLoader()), Step[].class);</span>
+<span class="fc" id="L261">            final String title = source.readString();</span>
+<span class="fc" id="L262">            final String author = source.readString();</span>
+
+<span class="fc" id="L264">            final byte hasImage = source.readByte();</span>
+<span class="fc" id="L265">            Bitmap image = null;</span>
+<span class="pc bpc" id="L266" title="1 of 2 branches missed.">            if (hasImage == 1) {</span>
+<span class="nc" id="L267">                image = Bitmap.CREATOR.createFromParcel(source);</span>
+            }
+
+<span class="fc" id="L270">            final Recipe recipe = new Recipe(title, author, Arrays.asList(steps));</span>
+<span class="fc" id="L271">            recipe.setImage(image);</span>
+<span class="fc" id="L272">            recipe.setObjectId(id);</span>
+<span class="fc" id="L273">            return recipe;</span>
+        }
+
+        @Override
+        public Recipe[] newArray(int size) {
+<span class="fc" id="L278">            return new Recipe[size];</span>
+        }
+    };
+
+    @Override
+    public int describeContents() {
+<span class="nc" id="L284">        return 0;</span>
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+<span class="fc" id="L289">        dest.writeLong(getObjectId());</span>
+<span class="fc" id="L290">        dest.writeParcelableArray(mSteps.toArray(new Step[mSteps.size()]), flags);</span>
+<span class="fc" id="L291">        dest.writeString(mTitle);</span>
+<span class="fc" id="L292">        dest.writeString(mAuthor);</span>
+        // Write has image: 0 (false) or 1 (true)
+<span class="pc bpc" id="L294" title="1 of 2 branches missed.">        dest.writeByte(mImage != null ? (byte) 1 : (byte) 0);</span>
+<span class="pc bpc" id="L295" title="1 of 2 branches missed.">        if (mImage != null) {</span>
+<span class="nc" id="L296">            mImage.writeToParcel(dest, 0);</span>
+        }
+<span class="fc" id="L298">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.4.201502262128</span></div></body></html>

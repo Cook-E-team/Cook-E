@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>ImageCache.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">debug</a> &gt; <a href="index.source.html" class="el_package">org.cook_e.data</a> &gt; <span class="el_source">ImageCache.java</span></div><h1>ImageCache.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2016 the Cook-E development team
+ *
+ * This file is part of Cook-E.
+ *
+ * Cook-E is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Cook-E is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Cook-E.  If not, see &lt;http://www.gnu.org/licenses/&gt;.
+ */
+
+package org.cook_e.data;
+
+import android.graphics.Bitmap;
+
+/**
+ * A cache that stores images
+ *
+ * Each image is associated with a 64-bit identifier that uniquely identifies it.
+ *
+ * Images stored in a cache are reference-counted. Each call to {@link #put(Bitmap)} increments
+ * the reference count of that image, and each call to {@link #remove(long)} decrements it.
+ * When an image's reference count reaches zero, the image is removed from the cache.
+ */
+public interface ImageCache {
+
+    /**
+     * An exception that indicates a caching failure
+     */
+    class CacheException extends Exception {
+<span class="nc" id="L39">        public CacheException() {</span>
+<span class="nc" id="L40">        }</span>
+
+        public CacheException(String detailMessage) {
+<span class="nc" id="L43">            super(detailMessage);</span>
+<span class="nc" id="L44">        }</span>
+
+        public CacheException(String detailMessage, Throwable throwable) {
+<span class="nc" id="L47">            super(detailMessage, throwable);</span>
+<span class="nc" id="L48">        }</span>
+
+        public CacheException(Throwable throwable) {
+<span class="nc" id="L51">            super(throwable);</span>
+<span class="nc" id="L52">        }</span>
+    }
+
+    /**
+     * Inserts an image into the cache. After this method is called, the image can be retrieved
+     * by calling {@link #get(long)} with the returned image identifier.
+     *
+     * If the same image is already in the cache, its reference count is incremented.
+     *
+     * @param image the image to insert
+     * @return a value that uniquely identifies this image
+     * @throws org.cook_e.data.ImageCache.CacheException if the image could not be stored
+     */
+    long put(Bitmap image) throws CacheException;
+
+    /**
+     * Locates and returns an image with a specified ID
+     * @param id the ID of an image, as returned by {@link #put(Bitmap)}
+     * @return the image, or null if no matching image could be found
+     * @throws org.cook_e.data.ImageCache.CacheException if an error occurred
+     */
+    Bitmap get(long id) throws CacheException;
+
+    /**
+     * Retrieves an image with the specified ID and decrements its reference count.
+     * @param id the ID of an image, as returned by {@link #put(Bitmap)}
+     * @return the image from the cache, or null if no matching image could be found
+     * @throws org.cook_e.data.ImageCache.CacheException if an error occurred
+     */
+    Bitmap remove(long id) throws CacheException;
+
+    /**
+     * Removes all images from this cache, regardless of their reference counts
+     * @throws CacheException if an error occurred
+     */
+    void clear() throws CacheException;
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.4.201502262128</span></div></body></html>

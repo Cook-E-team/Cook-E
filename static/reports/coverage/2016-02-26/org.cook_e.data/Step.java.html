@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>Step.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">debug</a> &gt; <a href="index.source.html" class="el_package">org.cook_e.data</a> &gt; <span class="el_source">Step.java</span></div><h1>Step.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2016 the Cook-E development team
+ *
+ * This file is part of Cook-E.
+ *
+ * Cook-E is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Cook-E is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Cook-E.  If not, see &lt;http://www.gnu.org/licenses/&gt;.
+ */
+
+package org.cook_e.data;
+
+import android.os.Parcel;
+import android.os.Parcelable;
+import android.support.annotation.NonNull;
+
+import org.joda.time.Duration;
+import org.joda.time.ReadableDuration;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Set;
+
+/*
+ * Class representing a step in a recipe
+ *
+ * Every step has a human-readable description, an action category, list of ingredients, and an
+ * estimated time the step takes to perform. None of these values may be null.
+ *
+ * Objects of this class are immutable.
+ */
+public final class Step implements Parcelable {
+
+    /**
+     * A human-readable mDescription of the actions involved in this step
+     */
+    @NonNull
+    private final String mDescription;
+
+    /**
+     * The expected time required to complete this step
+     */
+    @NonNull
+    private final Duration mTime;
+
+    /**
+     * The ingredients required for this step
+     */
+    @NonNull
+    private final List&lt;String&gt; mIngredients;
+
+    /**
+     * Whether this step can be done simultaneously
+     */
+    private final boolean mSimultaneous;
+
+    /**
+     * The set of all string patterns in the description
+     * that indicates this step can be done simultaneously
+     */
+<span class="fc" id="L73">    private static final Set&lt;String&gt; SIMULTANEOUS_PATTERNS = Collections.unmodifiableSet(new HashSet&lt;String&gt;() {{</span>
+<span class="fc" id="L74">        add(&quot;boil&quot;);</span>
+<span class="fc" id="L75">        add(&quot;bake&quot;);</span>
+<span class="fc" id="L76">        add(&quot;microwave&quot;);</span>
+<span class="fc" id="L77">    }});</span>
+    /**
+     * Creates a Step
+     * @param ingredients the ingredients required for this step
+     * @param description a human-readable description of this step
+     * @param duration an estimate of the time required to complete this step
+     * @param isSimultaneous if this step can be done simultaneously
+     * @throws NullPointerException if any parameter is null
+     */
+    public Step(@NonNull List&lt;String&gt; ingredients, @NonNull String description,
+<span class="fc" id="L87">                @NonNull ReadableDuration duration, boolean isSimultaneous) {</span>
+<span class="fc" id="L88">        Objects.requireNonNull(ingredients, &quot;ingredients must not be null&quot;);</span>
+<span class="fc" id="L89">        Objects.requireNonNull(description, &quot;description must not be null&quot;);</span>
+<span class="fc" id="L90">        Objects.requireNonNull(duration, &quot;duration must not be null&quot;);</span>
+<span class="fc" id="L91">        mDescription = description;</span>
+<span class="fc" id="L92">        mTime = duration.toDuration();</span>
+<span class="fc" id="L93">        mIngredients = new ArrayList&lt;&gt;(ingredients);</span>
+<span class="fc" id="L94">        this.mSimultaneous = isSimultaneous;</span>
+<span class="fc" id="L95">    }</span>
+
+    /**
+     * Creates a Step without knowing if step can be done simultaneously
+     * @param ingredients the ingredients required for this step
+     * @param description a human-readable description of this step
+     * @param duration an estimate of the time required to complete this step
+     * @throws NullPointerException if any parameter is null
+     */
+    public Step(@NonNull List&lt;String&gt; ingredients, @NonNull String description,
+                @NonNull ReadableDuration duration) {
+<span class="fc" id="L106">        this(ingredients, description, duration, isSimultaneousParser(description));</span>
+<span class="fc" id="L107">    }</span>
+
+    /**
+     * Identifies if a step can be done simultaneously
+     * @param description description of the step
+     * @return true if this step can be done simultaneously, false otherwise
+     */
+    private static boolean isSimultaneousParser(@NonNull String description) {
+<span class="fc" id="L115">        Objects.requireNonNull(description, &quot;description must not be null&quot;);</span>
+<span class="fc" id="L116">        String[] words = description.split(&quot;\\s+&quot;);</span>
+<span class="fc bfc" id="L117" title="All 2 branches covered.">        for (String word : words) {</span>
+<span class="fc" id="L118">            String lowerCaseWord = word.toLowerCase(Locale.US);</span>
+<span class="fc bfc" id="L119" title="All 2 branches covered.">            for (String pattern : SIMULTANEOUS_PATTERNS) {</span>
+<span class="fc bfc" id="L120" title="All 2 branches covered.">                if (lowerCaseWord.contains(pattern)) return true;</span>
+<span class="fc" id="L121">            }</span>
+        }
+<span class="fc" id="L123">        return false;</span>
+    }
+
+    /**
+     * Returns the description of this step
+     * @return the description
+     */
+    @NonNull
+    public String getDescription() {
+<span class="fc" id="L132">        return mDescription;</span>
+    }
+
+    /**
+     * Returns the duration of this step
+     * @return the duration
+     */
+    @NonNull
+    public ReadableDuration getTime() {
+<span class="fc" id="L141">        return mTime;</span>
+    }
+
+    /**
+     * Returns the duration of this step, truncated to minute precision
+     *
+     * The behavior of this method is undefined if the number of minutes in the duration of this
+     * step is greater than Integer.MAX_VALUE.
+     *
+     * @return the duration of this step, in minutes
+     */
+    public int getDurationMinutes() {
+<span class="fc" id="L153">        return (int) mTime.getStandardMinutes();</span>
+    }
+
+    /**
+     * Returns the ingredients that this step requires
+     * @return the ingredients
+     */
+    @NonNull
+    public List&lt;String&gt; getIngredients() {
+<span class="fc" id="L162">        return new ArrayList&lt;&gt;(mIngredients);</span>
+    }
+
+    /**
+     * Returns if this step can be done simultaneously
+     * @return true if this step can be done simultaneously
+     */
+<span class="fc" id="L169">    public boolean isSimultaneous() { return mSimultaneous; }</span>
+
+    @Override
+    public boolean equals(Object o) {
+<span class="fc bfc" id="L173" title="All 2 branches covered.">        if (this == o) return true;</span>
+<span class="pc bpc" id="L174" title="2 of 4 branches missed.">        if (o == null || getClass() != o.getClass()) return false;</span>
+
+<span class="fc" id="L176">        final Step step = (Step) o;</span>
+
+<span class="fc bfc" id="L178" title="All 2 branches covered.">        if (mSimultaneous != step.mSimultaneous) return false;</span>
+<span class="fc bfc" id="L179" title="All 2 branches covered.">        if (!mDescription.equals(step.mDescription)) return false;</span>
+<span class="pc bpc" id="L180" title="1 of 2 branches missed.">        if (!mTime.equals(step.mTime)) return false;</span>
+<span class="fc" id="L181">        return mIngredients.equals(step.mIngredients);</span>
+    }
+
+    @Override
+    public int hashCode() {
+<span class="fc" id="L186">        int result = mDescription.hashCode();</span>
+<span class="fc" id="L187">        result = 31 * result + mTime.hashCode();</span>
+<span class="fc" id="L188">        result = 31 * result + mIngredients.hashCode();</span>
+<span class="fc bfc" id="L189" title="All 2 branches covered.">        result = 31 * result + (mSimultaneous ? 1 : 0);</span>
+<span class="fc" id="L190">        return result;</span>
+    }
+
+    @Override
+    public String toString() {
+<span class="nc" id="L195">        return &quot;Step{&quot; +</span>
+                &quot;mDescription='&quot; + mDescription + '\'' +
+                &quot;, mTime=&quot; + mTime +
+                &quot;, mIngredients=&quot; + mIngredients +
+                &quot;, mSimultaneous=&quot; + mSimultaneous +
+                '}';
+    }
+
+    // Parceling section
+
+<span class="fc" id="L205">    public static final Parcelable.Creator&lt;Step&gt; CREATOR = new Parcelable.Creator&lt;Step&gt;() {</span>
+
+        @Override
+        public Step createFromParcel(Parcel source) {
+<span class="fc" id="L209">            final String description = source.readString();</span>
+<span class="fc" id="L210">            final Duration duration = (Duration) source.readSerializable();</span>
+<span class="fc" id="L211">            final Boolean simultaneous = (Boolean) source.readSerializable();</span>
+<span class="fc" id="L212">            final List&lt;String&gt; ingredients = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L213">            source.readStringList(ingredients);</span>
+<span class="fc" id="L214">            return new Step(ingredients, description, duration, simultaneous);</span>
+        }
+
+        @Override
+        public Step[] newArray(int size) {
+<span class="fc" id="L219">            return new Step[size];</span>
+        }
+
+    };
+
+    @Override
+    public int describeContents() {
+<span class="nc" id="L226">        return 0;</span>
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+<span class="fc" id="L231">        dest.writeString(mDescription);</span>
+<span class="fc" id="L232">        dest.writeSerializable(mTime);</span>
+<span class="fc" id="L233">        dest.writeSerializable(mSimultaneous);</span>
+<span class="fc" id="L234">        dest.writeStringList(mIngredients);</span>
+<span class="fc" id="L235">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.4.201502262128</span></div></body></html>

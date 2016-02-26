@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>CreateMealActivity.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">debug</a> &gt; <a href="index.source.html" class="el_package">org.cook_e.cook_e</a> &gt; <span class="el_source">CreateMealActivity.java</span></div><h1>CreateMealActivity.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2016 the Cook-E development team
+ *
+ * This file is part of Cook-E.
+ *
+ * Cook-E is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Cook-E is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Cook-E.  If not, see &lt;http://www.gnu.org/licenses/&gt;.
+ */
+
+package org.cook_e.cook_e;
+
+import android.app.AlertDialog;
+import android.content.Intent;
+import android.os.Bundle;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+
+import org.cook_e.data.Bunch;
+import org.cook_e.data.Recipe;
+
+import java.sql.SQLException;
+import java.util.Collections;
+
+
+/**
+ * An activity that lets the user create a meal
+ */
+<span class="nc bnc" id="L42" title="All 2 branches missed.">public class CreateMealActivity extends AppCompatActivity {</span>
+
+    /**
+     * Text field for title
+     */
+    private EditText mTitleField;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+<span class="nc" id="L51">        super.onCreate(savedInstanceState);</span>
+<span class="nc" id="L52">        setContentView(R.layout.activity_create_meal);</span>
+<span class="nc" id="L53">        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);</span>
+<span class="nc" id="L54">        setSupportActionBar(toolbar);</span>
+
+<span class="nc" id="L56">        setUpActionBar();</span>
+
+<span class="nc" id="L58">        mTitleField = (EditText) findViewById(R.id.title_field);</span>
+
+        // Continue button
+<span class="nc" id="L61">        final Button continueButton = (Button) findViewById(R.id.continue_button);</span>
+<span class="nc" id="L62">        continueButton.setOnClickListener(new View.OnClickListener() {</span>
+            @Override
+            public void onClick(View v) {
+<span class="nc" id="L65">                continueCreatingMeal();</span>
+<span class="nc" id="L66">            }</span>
+        });
+
+<span class="nc" id="L69">    }</span>
+
+
+    private void continueCreatingMeal() {
+<span class="nc" id="L73">        final String title = mTitleField.getText().toString();</span>
+<span class="nc bnc" id="L74" title="All 2 branches missed.">        if (title.isEmpty()) {</span>
+<span class="nc" id="L75">            new AlertDialog.Builder(this)</span>
+<span class="nc" id="L76">                    .setTitle(&quot;Empty title&quot;)</span>
+<span class="nc" id="L77">                    .setMessage(&quot;Please enter a meal title&quot;)</span>
+<span class="nc" id="L78">                    .show();</span>
+<span class="nc" id="L79">            return;</span>
+        }
+        // Create a meal
+<span class="nc" id="L82">        final Bunch meal = new Bunch(title, Collections.&lt;Recipe&gt;emptyList());</span>
+
+        // Store the meal
+        try {
+<span class="nc" id="L86">            App.getAccessor().persistBunch(meal);</span>
+<span class="nc" id="L87">        } catch (SQLException e) {</span>
+<span class="nc" id="L88">            new AlertDialog.Builder(this)</span>
+<span class="nc" id="L89">                    .setTitle(&quot;Failed to save meal&quot;)</span>
+<span class="nc" id="L90">                    .setMessage(e.getLocalizedMessage())</span>
+<span class="nc" id="L91">                    .show();</span>
+<span class="nc" id="L92">            return;</span>
+<span class="nc" id="L93">        }</span>
+
+        // Start editor activity
+<span class="nc" id="L96">        final Intent intent = new Intent(this, MealViewActivity.class);</span>
+<span class="nc" id="L97">        intent.putExtra(MealViewActivity.EXTRA_MEAL, meal);</span>
+<span class="nc" id="L98">        startActivity(intent);</span>
+        // Close this activity, so that when the user goes back it will not appear again
+<span class="nc" id="L100">        finish();</span>
+<span class="nc" id="L101">    }</span>
+
+
+    private void setUpActionBar() {
+<span class="nc" id="L105">        final ActionBar bar = getSupportActionBar();</span>
+<span class="nc bnc" id="L106" title="All 4 branches missed.">        assert bar != null;</span>
+<span class="nc" id="L107">        bar.setTitle(R.string.create_meal);</span>
+<span class="nc" id="L108">    }</span>
+
+    /*
+     * This is a workaround for inconsistent behavior.
+     *
+     * Pressing the system back button or calling finish() returns a result to the parent activity,
+     * as expected. However, the default action when the up button is pressed does not send a result
+     * to the parent. This override ensures that a result is sent when the action bar up button is
+     * pressed.
+     */
+    @Override
+    public boolean onSupportNavigateUp() {
+<span class="nc" id="L120">        finish();</span>
+<span class="nc" id="L121">        return true;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.4.201502262128</span></div></body></html>

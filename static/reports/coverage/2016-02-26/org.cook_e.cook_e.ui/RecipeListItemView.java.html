@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>RecipeListItemView.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">debug</a> &gt; <a href="index.source.html" class="el_package">org.cook_e.cook_e.ui</a> &gt; <span class="el_source">RecipeListItemView.java</span></div><h1>RecipeListItemView.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2016 the Cook-E development team
+ *
+ * This file is part of Cook-E.
+ *
+ * Cook-E is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Cook-E is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Cook-E.  If not, see &lt;http://www.gnu.org/licenses/&gt;.
+ */
+
+package org.cook_e.cook_e.ui;
+
+import android.content.Context;
+import android.graphics.drawable.Drawable;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.view.Gravity;
+import android.view.View;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+
+import org.cook_e.cook_e.R;
+
+/**
+ * A view group that displays a drawable image and a title
+ */
+public class RecipeListItemView extends LinearLayout {
+
+    /**
+     * An interface for listeners that can handle requests from the user to remove a recipe from
+     * a meal
+     */
+    public interface OnRecipeRemoveListener {
+        /**
+         * Called when the user asks that the recipe that this view represents be removed
+         */
+        void recipeRemoveRequested();
+    }
+
+    /**
+     * Padding for selected elements, in some pixel-like units
+     */
+    private static final int PADDING = 20;
+
+    /**
+     * Maximum width and height of the image, in some pixel-like units
+     */
+    private static final int IMAGE_DIMENSION = 150;
+
+    /**
+     * The text view that displays the title
+     */
+    private final TextView mTitleView;
+
+    /**
+     * The recipe removal listener, or null if none is associated
+     */
+    @Nullable
+    private OnRecipeRemoveListener mRemoveListener;
+
+    /**
+     * Creates a new view
+     * @param context the context to create the view in
+     */
+    @SuppressWarnings(&quot;Deprecated&quot;)
+    public RecipeListItemView(Context context) {
+<span class="nc" id="L77">        super(context);</span>
+
+        // Set up layout
+<span class="nc" id="L80">        setOrientation(LinearLayout.HORIZONTAL);</span>
+<span class="nc" id="L81">        setPadding(PADDING, PADDING, PADDING, PADDING);</span>
+
+        // Create title view
+<span class="nc" id="L84">        mTitleView = new TextView(context);</span>
+<span class="nc" id="L85">        mTitleView.setPadding(PADDING, PADDING, PADDING, PADDING);</span>
+<span class="nc" id="L86">        mTitleView.setTextAppearance(context, android.R.style.TextAppearance_Large);</span>
+<span class="nc" id="L87">        mTitleView.setCompoundDrawablePadding(PADDING);</span>
+<span class="nc" id="L88">        mTitleView.setGravity(Gravity.CENTER_VERTICAL | Gravity.START);</span>
+
+        // Create delete button
+<span class="nc" id="L91">        final ImageButton deleteButton = new ImageButton(context, null, android.R.attr.borderlessButtonStyle);</span>
+<span class="nc" id="L92">        deleteButton.setImageResource(R.drawable.ic_remove_circle_black_24dp);</span>
+<span class="nc" id="L93">        deleteButton.setMinimumWidth(1);</span>
+<span class="nc" id="L94">        deleteButton.setMaxWidth(10);</span>
+<span class="nc" id="L95">        deleteButton.setOnClickListener(new OnClickListener() {</span>
+            @Override
+            public void onClick(View v) {
+<span class="nc bnc" id="L98" title="All 2 branches missed.">                if (mRemoveListener != null) {</span>
+<span class="nc" id="L99">                    mRemoveListener.recipeRemoveRequested();</span>
+                }
+<span class="nc" id="L101">            }</span>
+        });
+
+<span class="nc" id="L104">        final LayoutParams titleParams = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 0.4f);</span>
+<span class="nc" id="L105">        titleParams.gravity = Gravity.CENTER;</span>
+<span class="nc" id="L106">        addView(mTitleView, titleParams);</span>
+
+<span class="nc" id="L108">        final LayoutParams deleteButtonParams = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);</span>
+<span class="nc" id="L109">        deleteButtonParams.gravity = Gravity.CENTER;</span>
+<span class="nc" id="L110">        addView(deleteButton, deleteButtonParams);</span>
+<span class="nc" id="L111">    }</span>
+
+    /**
+     * Returns the image being displayed, which may be null
+     * @return the current image
+     */
+    @Nullable
+    public Drawable getImage() {
+<span class="nc" id="L119">        final Drawable[] drawables = mTitleView.getCompoundDrawables();</span>
+<span class="nc" id="L120">        return drawables[0];</span>
+    }
+
+    /**
+     * Sets the image to display
+     * @param image an image to display, or null to display no image
+     */
+    public void setImage(@Nullable Drawable image) {
+<span class="nc bnc" id="L128" title="All 2 branches missed.">        if (image != null) {</span>
+            // Call mutate() so that changing the bounds will not affect other users of the same
+            // Drawable
+<span class="nc" id="L131">            image = image.mutate();</span>
+<span class="nc" id="L132">            image.setBounds(0, 0, IMAGE_DIMENSION, IMAGE_DIMENSION);</span>
+        }
+<span class="nc" id="L134">        mTitleView.setCompoundDrawables(image, null, null, null);</span>
+<span class="nc" id="L135">    }</span>
+
+    /**
+     * Returns the title displayed in this view
+     * @return the title
+     */
+    @NonNull
+    public String getTitle() {
+<span class="nc" id="L143">        return mTitleView.getText().toString();</span>
+    }
+
+    /**
+     * Sets the title to display
+     * @param title the title. Must not be null.
+     */
+    public void setTitle(@NonNull String title) {
+<span class="nc" id="L151">        mTitleView.setText(title);</span>
+<span class="nc" id="L152">    }</span>
+
+    /**
+     * Sets the recipe removal listener. The listener will be notified when the user asks to
+     * remove this recipe. If a removal listener is already present, it will be replaced.
+     * @param removeListener the listener, or null to set no listener
+     */
+    public void setRemoveListener(@Nullable OnRecipeRemoveListener removeListener) {
+<span class="nc" id="L160">        mRemoveListener = removeListener;</span>
+<span class="nc" id="L161">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.4.201502262128</span></div></body></html>

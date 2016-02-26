@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>StepListAdapter.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">debug</a> &gt; <a href="index.source.html" class="el_package">org.cook_e.cook_e</a> &gt; <span class="el_source">StepListAdapter.java</span></div><h1>StepListAdapter.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2016 the Cook-E development team
+ *
+ * This file is part of Cook-E.
+ *
+ * Cook-E is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Cook-E is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Cook-E.  If not, see &lt;http://www.gnu.org/licenses/&gt;.
+ */
+
+package org.cook_e.cook_e;
+
+import android.content.Context;
+import android.databinding.ObservableArrayList;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageButton;
+import android.widget.TextView;
+
+import org.cook_e.cook_e.ui.ListListAdapter;
+import org.cook_e.data.Step;
+
+import java.util.List;
+
+/**
+ * Created by Tyler on 2/6/2016.
+ *
+ * This class is an adapter for viewing and editing a recipes steps.
+ */
+public class StepListAdapter extends ListListAdapter&lt;Step&gt; {
+
+    /**
+     * An interface for objects that can handle clicks on steps
+     */
+    public interface StepClickListener {
+        /**
+         * Called when the user clicks on a step
+         * @param step the step the user clicked on
+         * @param index the index in the list of the step
+         */
+        void onStepClicked(Step step, int index);
+    }
+
+    /**
+     * The steps displayed in this list
+     */
+    private final List&lt;? extends Step&gt; mSteps;
+
+    /**
+     * The listener to notify when a step is clicked on
+     */
+    private StepClickListener mStepClickListener;
+
+    /**
+     * Creates a new adapter
+     * @param context the context to use
+     * @param steps the steps to display
+     */
+    public StepListAdapter(Context context, ObservableArrayList&lt;? extends Step&gt; steps) {
+<span class="nc" id="L70">        super(context, steps);</span>
+<span class="nc" id="L71">        mSteps = steps;</span>
+<span class="nc" id="L72">    }</span>
+
+    @Override
+    public View getViewForItem(final Step item, final int index, View convertView, ViewGroup parent, Context context) {
+
+        View view;
+<span class="nc bnc" id="L78" title="All 2 branches missed.">        if (convertView != null) {</span>
+<span class="nc" id="L79">            view = convertView;</span>
+        }
+        else {
+<span class="nc" id="L82">            final LayoutInflater inflater = LayoutInflater.from(context);</span>
+<span class="nc" id="L83">            view = inflater.inflate(R.layout.view_recipe_step_item, parent, false);</span>
+        }
+
+<span class="nc" id="L86">        final TextView titleField = (TextView) view.findViewById(R.id.description_view);</span>
+<span class="nc" id="L87">        final ImageButton deleteButton = (ImageButton) view.findViewById(R.id.delete_button);</span>
+
+<span class="nc" id="L89">        titleField.setText(item.getDescription());</span>
+<span class="nc" id="L90">        deleteButton.setOnClickListener(new View.OnClickListener() {</span>
+            @Override
+            public void onClick(View v) {
+<span class="nc" id="L93">                mSteps.remove(item);</span>
+<span class="nc" id="L94">            }</span>
+        });
+
+<span class="nc" id="L97">        view.setOnClickListener(new View.OnClickListener() {</span>
+            @Override
+            public void onClick(View v) {
+<span class="nc bnc" id="L100" title="All 2 branches missed.">                if (mStepClickListener != null) {</span>
+<span class="nc" id="L101">                    mStepClickListener.onStepClicked(item, index);</span>
+                }
+<span class="nc" id="L103">            }</span>
+        });
+
+<span class="nc" id="L106">        return view;</span>
+    }
+
+    /**
+     * Sets the step click listener
+     * @param stepClickListener the listener to notify when the user clicks on a step,
+     *                          or null to remove an existing listener
+     */
+    public void setStepClickListener(StepClickListener stepClickListener) {
+<span class="nc" id="L115">        mStepClickListener = stepClickListener;</span>
+<span class="nc" id="L116">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.4.201502262128</span></div></body></html>

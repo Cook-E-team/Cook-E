@@ -1,0 +1,861 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>SQLiteAccessor.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">debug</a> &gt; <a href="index.source.html" class="el_package">org.cook_e.data</a> &gt; <span class="el_source">SQLiteAccessor.java</span></div><h1>SQLiteAccessor.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2016 the Cook-E development team
+ *
+ * This file is part of Cook-E.
+ *
+ * Cook-E is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Cook-E is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Cook-E.  If not, see &lt;http://www.gnu.org/licenses/&gt;.
+ */
+
+package org.cook_e.data;
+
+import android.content.ContentValues;
+import android.content.Context;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
+
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+
+/**
+ * This class implements methods allowing for storage and access to an android local sqlite database
+ */
+public class SQLiteAccessor implements SQLAccessor {
+    /**
+     * Parser for transforming a string description into a Recipe and vice versa
+     */
+    private StorageParser mParser;
+    /**
+     * Helper that has methods for accessing the android local sqlite database
+     */
+    private RecipeOpenHelper mHelper;
+    /**
+     * Counter used to set ids for recipes
+     */
+    private long mRecipeCounter;
+    /**
+     * Counter used to set ids for bunches
+     */
+    private long mBunchCounter;
+    /**
+     * Constants for use in creating and accessing columns for the tables
+     */
+    private static final String DATABASE_NAME = &quot;RecipesDatabase&quot;;
+    private static final String RECIPE_TABLE_NAME = &quot;Recipes&quot;;
+<span class="fc" id="L59">    private static final String[] RECIPE_COLUMNS = {&quot;id&quot;, &quot;name&quot;, &quot;author&quot;, &quot;description&quot;}; // note the indexes are 0 based</span>
+    private static final String RECIPE_IMAGE_TABLE_NAME = &quot;RecipeImages&quot;;
+<span class="fc" id="L61">    private static final String[] RECIPE_IMAGE_COLUMNS = {&quot;recipe_id&quot;, &quot;image&quot;};</span>
+    private static final String BUNCH_TABLE_NAME = &quot;Bunches&quot;;
+<span class="fc" id="L63">    private static final String[] BUNCH_COLUMNS = {&quot;id&quot;, &quot;name&quot;};</span>
+    private static final String BUNCH_RECIPES_TABLE_NAME = &quot;BunchRecipes&quot;;
+<span class="fc" id="L65">    private static final String[] BUNCH_RECIPE_COLUMNS = {&quot;bunch_id&quot;, &quot;recipe_id&quot;};</span>
+    private static final String LEARNER_TABLE_NAME = &quot;LearnerData&quot;;
+<span class="fc" id="L67">    private static final String[] LEARNER_COLUMNS = {&quot;recipe_id&quot;, &quot;hash&quot;, &quot;weighted_time&quot;, &quot;learn_rate&quot;};</span>
+    /**
+     * Schema of the Recipes table: (id, name, author, description)
+     */
+<span class="fc" id="L71">    private static final String RECIPE_TABLE_CREATE =</span>
+            &quot;CREATE TABLE &quot; + RECIPE_TABLE_NAME + &quot; (&quot; +
+                    RECIPE_COLUMNS[0] + &quot; INTEGER PRIMARY KEY,&quot; +
+                    RECIPE_COLUMNS[1] + &quot; TEXT NOT NULL DEFAULT \&quot;\&quot;,&quot; +
+                    RECIPE_COLUMNS[2] + &quot; TEXT NOT NULL DEFAULT \&quot;\&quot;,&quot; +
+                    RECIPE_COLUMNS[3] + &quot; TEXT NOT NULL DEFAULT \&quot;\&quot;);&quot;;
+    /**
+     * Schema of the Recipe Images table: (id, image)
+     */
+<span class="fc" id="L80">    private static final String RECIPE_IMAGE_TABLE_CREATE =</span>
+            &quot;CREATE TABLE &quot; + RECIPE_IMAGE_TABLE_NAME + &quot; (&quot; +
+                    RECIPE_IMAGE_COLUMNS[0] + &quot; INTEGER NOT NULL,&quot; +
+                    RECIPE_IMAGE_COLUMNS[1] + &quot; BLOB NOT NULL,&quot; +
+                    &quot; PRIMARY KEY (&quot; + RECIPE_IMAGE_COLUMNS[0] + &quot;, &quot; + RECIPE_IMAGE_COLUMNS[1] + &quot;));&quot;;
+    /**
+     * Schema of the Bunches table: (id, name)
+     */
+<span class="fc" id="L88">    private static final String BUNCH_TABLE_CREATE =</span>
+            &quot;CREATE TABLE &quot; + BUNCH_TABLE_NAME + &quot; (&quot; +
+                    BUNCH_COLUMNS[0] + &quot; INTEGER PRIMARY KEY,&quot; +
+                    BUNCH_COLUMNS[1] + &quot; TEXT NOT NULL DEFAULT \&quot;\&quot;);&quot;;
+    /**
+     * Schema of the Bunch Recipes table: (bunch_id, recipe_id)
+     */
+<span class="fc" id="L95">    private static final String BUNCH_RECIPE_TABLE_CREATE =</span>
+            &quot;CREATE TABLE &quot; + BUNCH_RECIPES_TABLE_NAME + &quot; (&quot; +
+                    BUNCH_RECIPE_COLUMNS[0] + &quot; INT NOT NULL DEFAULT 0,&quot; +
+                    BUNCH_RECIPE_COLUMNS[1] + &quot; INT NOT NULL DEFAULT 0,&quot; +
+                    &quot; PRIMARY KEY (&quot; + BUNCH_RECIPE_COLUMNS[0] + &quot;, &quot; + BUNCH_RECIPE_COLUMNS[1] + &quot;));&quot;;
+<span class="fc" id="L100">    private static final String LEARNER_TABLE_CREATE =</span>
+            &quot;CREATE TABLE &quot; + LEARNER_TABLE_NAME + &quot; (&quot; +
+                    LEARNER_COLUMNS[0] + &quot; INT NOT NULL DEFAULT 0, &quot; +
+                    LEARNER_COLUMNS[1] + &quot; INT NOT NULL DEFAULT 0, &quot; +
+                    LEARNER_COLUMNS[2] + &quot; REAL NOT NULL DEFAULT 0.0, &quot; +
+                    LEARNER_COLUMNS[3] + &quot; REAL NOT NULL DEFAULT 0.0,&quot; +
+                    &quot; PRIMARY KEY (&quot; + LEARNER_COLUMNS[0] + &quot;, &quot; + LEARNER_COLUMNS[1] +
+                    &quot;, &quot; + LEARNER_COLUMNS[2] + &quot;, &quot; + LEARNER_COLUMNS[3] + &quot;));&quot;;
+    /**
+     * Constructor
+     *
+     * @param c      Context of the activity that will be using the sqlite database
+     * @param parser Parser that will implement String &gt; Recipe and Recipe &gt; String transformation
+     */
+<span class="fc" id="L114">    public SQLiteAccessor(Context c, StorageParser parser) {</span>
+<span class="fc" id="L115">        mHelper = new RecipeOpenHelper(c);</span>
+<span class="fc" id="L116">        this.mParser = parser;</span>
+<span class="fc" id="L117">        setupCounters();</span>
+<span class="fc" id="L118">    }</span>
+
+    /**
+     * Store a recipe on the sqlite database
+     *
+     * @param r Recipe object to store
+     */
+    @Override
+    public void storeRecipe(Recipe r) throws SQLException {
+        try {
+<span class="fc" id="L128">            SQLiteDatabase db = mHelper.getWritableDatabase();</span>
+            try {
+<span class="pc bpc" id="L130" title="1 of 2 branches missed.">                if (!r.hasObjectId()) {</span>
+<span class="fc" id="L131">                    r.setObjectId(mRecipeCounter++);</span>
+                }
+<span class="fc" id="L133">                ContentValues values = createContentValues(r);</span>
+<span class="fc" id="L134">                db.insert(RECIPE_TABLE_NAME, null, values);</span>
+            } finally {
+<span class="pc" id="L136">                db.close();</span>
+<span class="fc" id="L137">            }</span>
+<span class="nc" id="L138">        } catch (Exception e) {</span>
+<span class="nc" id="L139">            throw new SQLException(e);</span>
+<span class="fc" id="L140">        }</span>
+<span class="fc" id="L141">    }</span>
+
+    /**
+     * Store a bunch on the sqlite database
+     *
+     * @param b Bunch object to store
+     */
+    @Override
+    public void storeBunch(Bunch b) throws SQLException {
+        try {
+<span class="fc" id="L151">            SQLiteDatabase db = mHelper.getWritableDatabase();</span>
+<span class="fc" id="L152">            db.beginTransaction();</span>
+            try {
+<span class="pc bpc" id="L154" title="1 of 2 branches missed.">                if (!b.hasObjectId()) {</span>
+<span class="fc" id="L155">                    b.setObjectId(mBunchCounter++);</span>
+                }
+<span class="fc" id="L157">                List&lt;ContentValues&gt; values_list = createContentValuesList(b);</span>
+<span class="fc" id="L158">                ContentValues bunch_values = createContentValues(b);</span>
+<span class="fc" id="L159">                db.insert(BUNCH_TABLE_NAME, null, bunch_values);</span>
+<span class="fc bfc" id="L160" title="All 2 branches covered.">                for (ContentValues values : values_list) {</span>
+<span class="fc" id="L161">                    db.insert(BUNCH_RECIPES_TABLE_NAME, null, values);</span>
+<span class="fc" id="L162">                }</span>
+<span class="fc" id="L163">                db.setTransactionSuccessful();</span>
+            } finally {
+<span class="pc" id="L165">                db.endTransaction();</span>
+<span class="pc" id="L166">                db.close();</span>
+<span class="fc" id="L167">            }</span>
+<span class="nc" id="L168">        } catch (Exception e) {</span>
+<span class="nc" id="L169">            throw new SQLException(e);</span>
+<span class="fc" id="L170">        }</span>
+<span class="fc" id="L171">    }</span>
+
+    /**
+     * Edit a recipe stored on the sqlite database
+     *
+     * @param r Recipe object to update
+     */
+    @Override
+    public void editRecipe(Recipe r) throws SQLException {
+        try {
+<span class="fc" id="L181">            SQLiteDatabase db = mHelper.getWritableDatabase();</span>
+            try {
+<span class="fc" id="L183">                ContentValues values = createContentValues(r);</span>
+<span class="fc" id="L184">                String[] whereArgs = {String.valueOf(r.getObjectId())};</span>
+<span class="fc" id="L185">                db.update(RECIPE_TABLE_NAME, values, &quot;id = ?&quot;, whereArgs);</span>
+            } finally {
+<span class="pc" id="L187">                db.close();</span>
+<span class="fc" id="L188">            }</span>
+<span class="nc" id="L189">        } catch (Exception e) {</span>
+<span class="nc" id="L190">            throw new SQLException(e);</span>
+<span class="fc" id="L191">        }</span>
+<span class="fc" id="L192">    }</span>
+
+    /**
+     * Edit a bunch stored on the sqlite database
+     *
+     * @param b Bunch object to edit
+     */
+    @Override
+    public void editBunch(Bunch b) throws SQLException {
+        try {
+<span class="fc" id="L202">            SQLiteDatabase db = mHelper.getWritableDatabase();</span>
+<span class="fc" id="L203">            db.beginTransaction();</span>
+            try {
+<span class="fc" id="L205">                ContentValues bunch_values = createContentValues(b);</span>
+<span class="fc" id="L206">                String[] bunchArgs = {String.valueOf(b.getObjectId())};</span>
+<span class="fc" id="L207">                db.update(BUNCH_TABLE_NAME, bunch_values, &quot;id = ?&quot;, bunchArgs);</span>
+<span class="fc" id="L208">                db.delete(BUNCH_RECIPES_TABLE_NAME, &quot;bunch_id = ?&quot;, bunchArgs);</span>
+<span class="fc" id="L209">                List&lt;ContentValues&gt; bunch_recipe_values = createContentValuesList(b);</span>
+<span class="fc bfc" id="L210" title="All 2 branches covered.">                for (ContentValues cv : bunch_recipe_values) {</span>
+<span class="fc" id="L211">                    db.insert(BUNCH_RECIPES_TABLE_NAME, null, cv);</span>
+<span class="fc" id="L212">                }</span>
+<span class="fc" id="L213">                db.setTransactionSuccessful();</span>
+            } finally {
+<span class="pc" id="L215">                db.endTransaction();</span>
+<span class="pc" id="L216">                db.close();</span>
+<span class="fc" id="L217">            }</span>
+<span class="nc" id="L218">        } catch (Exception e) {</span>
+<span class="nc" id="L219">            throw new SQLException(e);</span>
+<span class="fc" id="L220">        }</span>
+<span class="fc" id="L221">    }</span>
+
+    /**
+     * Load a recipe off the database that matches the provided title and author.
+     *
+     * If two or more recipes have the same title and author, one will be chosen in an unspecified
+     * way and returned.
+     *
+     * @param title  String title of recipe to load
+     * @param author String author of recipe to load
+     * @return Recipe object, or null if no matching recipe was found
+     */
+    @Override
+    public Recipe loadRecipe(String title, String author) throws SQLException {
+<span class="fc" id="L235">        Recipe r = null;</span>
+
+        try {
+<span class="fc" id="L238">            SQLiteDatabase db = mHelper.getReadableDatabase();</span>
+            try {
+<span class="fc" id="L240">                String[] whereArgs = {title, author};</span>
+<span class="fc" id="L241">                Cursor c = db.query(RECIPE_TABLE_NAME, RECIPE_COLUMNS, &quot;name = ? AND author = ?&quot;,</span>
+                        whereArgs,
+                        null, null, &quot;name&quot;);
+                try {
+<span class="fc bfc" id="L245" title="All 2 branches covered.">                    if (c.getCount() &gt; 0) {</span>
+<span class="fc" id="L246">                        c.moveToFirst();</span>
+<span class="fc" id="L247">                        String description = c.getString(3);</span>
+<span class="fc" id="L248">                        final List&lt;Step&gt; steps = mParser.parseRecipeSteps(description);</span>
+<span class="fc" id="L249">                        r = new Recipe(title, author, steps);</span>
+<span class="fc" id="L250">                        r.setObjectId(c.getLong(0));</span>
+<span class="fc" id="L251">                        c.close();</span>
+                    }
+                } finally {
+<span class="pc" id="L254">                    c.close();</span>
+<span class="fc" id="L255">                }</span>
+            } finally {
+<span class="pc" id="L257">                db.close();</span>
+<span class="fc" id="L258">            }</span>
+<span class="nc" id="L259">        } catch (Exception e) {</span>
+<span class="nc" id="L260">            throw new SQLException(e);</span>
+<span class="fc" id="L261">        }</span>
+
+<span class="fc" id="L263">        return r;</span>
+    }
+
+    /**
+     * Load all recipes off the database
+     *
+     * @return List of Recipes
+     */
+    @Override
+    public List&lt;Recipe&gt; loadAllRecipes() throws SQLException {
+<span class="fc" id="L273">        List&lt;Recipe&gt; recipes = new ArrayList&lt;&gt;();</span>
+        try {
+<span class="fc" id="L275">            SQLiteDatabase db = mHelper.getReadableDatabase();</span>
+            try {
+<span class="fc" id="L277">                Cursor c = db.query(RECIPE_TABLE_NAME, RECIPE_COLUMNS, null, null, null, null,</span>
+                        &quot;name&quot;);
+                try {
+<span class="fc bfc" id="L280" title="All 2 branches covered.">                    if (c.getCount() &gt; 0) {</span>
+<span class="fc" id="L281">                        c.moveToFirst();</span>
+                        do {
+<span class="fc" id="L283">                            String title = c.getString(1);</span>
+<span class="fc" id="L284">                            String author = c.getString(2);</span>
+<span class="fc" id="L285">                            String description = c.getString(3);</span>
+<span class="fc" id="L286">                            final List&lt;Step&gt; steps = mParser.parseRecipeSteps(description);</span>
+<span class="fc" id="L287">                            final Recipe r = new Recipe(title, author, steps);</span>
+<span class="fc" id="L288">                            r.setObjectId(c.getLong(0));</span>
+<span class="fc" id="L289">                            recipes.add(r);</span>
+<span class="fc bfc" id="L290" title="All 2 branches covered.">                        } while (c.moveToNext());</span>
+                    }
+                } finally {
+<span class="pc" id="L293">                    c.close();</span>
+<span class="fc" id="L294">                }</span>
+            } finally {
+<span class="pc" id="L296">                db.close();</span>
+<span class="fc" id="L297">            }</span>
+<span class="nc" id="L298">        } catch (Exception e) {</span>
+<span class="nc" id="L299">            throw new SQLException(e);</span>
+<span class="fc" id="L300">        }</span>
+<span class="fc" id="L301">        return recipes;</span>
+    }
+
+    /**
+     * Throws an exception. This method is not implemented in this class
+     * @param title a recipe description
+     * @return does not return
+     * @throws SQLException
+     */
+    @Override
+    public List&lt;Recipe&gt; findRecipesLike(String title) throws SQLException {
+<span class="nc" id="L312">        throw new SQLException(&quot;Not implemented&quot;);</span>
+    }
+
+    @Override
+    public void checkInvariants() throws SQLException {
+<span class="fc" id="L317">        final SQLiteDatabase db = mHelper.getReadableDatabase();</span>
+        try {
+<span class="fc" id="L319">            checkRecipeIds(db);</span>
+<span class="fc" id="L320">            checkBunchIds(db);</span>
+<span class="fc" id="L321">            checkRecipeBunchTable(db);</span>
+        }
+        finally {
+<span class="pc" id="L324">            db.close();</span>
+<span class="fc" id="L325">        }</span>
+<span class="fc" id="L326">    }</span>
+
+    /**
+     * Checks that no recipe has and ID of {@link DatabaseObject#NO_ID}
+     * @param db the database to check
+     * @throws SQLException if a recipe has an invalid ID
+     */
+    private void checkRecipeIds(SQLiteDatabase db) throws SQLException {
+        // Query for recipes with id = -1
+<span class="fc" id="L335">        final Cursor result = db.query(RECIPE_TABLE_NAME, new String[]{RECIPE_COLUMNS[0]},</span>
+<span class="fc" id="L336">                &quot;id = ?&quot;, new String[]{Long.toString(DatabaseObject.NO_ID)}, null, null, null, null);</span>
+        try {
+<span class="pc bpc" id="L338" title="1 of 2 branches missed.">            if (result.getCount() &gt; 0) {</span>
+<span class="nc" id="L339">                throw new SQLException(&quot;Invalid database state: Found a recipe with ID -1&quot;);</span>
+            }
+        } finally {
+<span class="pc" id="L342">            result.close();</span>
+<span class="fc" id="L343">        }</span>
+<span class="fc" id="L344">    }</span>
+    /**
+     * Checks that no bunch has and ID of {@link DatabaseObject#NO_ID}
+     * @param db the database to check
+     * @throws SQLException if a bunch has an invalid ID
+     */
+    private void checkBunchIds(SQLiteDatabase db) throws SQLException {
+        // Query for bunches with id = -1
+<span class="fc" id="L352">        final Cursor result = db.query(BUNCH_TABLE_NAME, new String[]{BUNCH_COLUMNS[0]},</span>
+<span class="fc" id="L353">                &quot;id = ?&quot;, new String[]{Long.toString(DatabaseObject.NO_ID)}, null, null, null, null);</span>
+        try {
+<span class="pc bpc" id="L355" title="1 of 2 branches missed.">            if (result.getCount() &gt; 0) {</span>
+<span class="nc" id="L356">                throw new SQLException(&quot;Invalid database state: Found a bunch with ID -1&quot;);</span>
+            }
+        } finally {
+<span class="pc" id="L359">            result.close();</span>
+<span class="fc" id="L360">        }</span>
+<span class="fc" id="L361">    }</span>
+
+    /**
+     * Checks the recipe-bunch relation table
+     * @param db the database to check
+     * @throws SQLException if part of the table is invalid
+     */
+    private void checkRecipeBunchTable(SQLiteDatabase db) throws SQLException {
+        // Query for all bunch-recipe relations
+<span class="fc" id="L370">        final Cursor result = db.query(BUNCH_RECIPES_TABLE_NAME, BUNCH_RECIPE_COLUMNS, null, null,</span>
+                null, null, null, null);
+        try {
+<span class="fc bfc" id="L373" title="All 2 branches covered.">            while (result.moveToNext()) {</span>
+<span class="fc" id="L374">                final long bunchId = result.getLong(0);</span>
+<span class="pc bpc" id="L375" title="1 of 2 branches missed.">                if (bunchId == DatabaseObject.NO_ID) {</span>
+<span class="nc" id="L376">                    throw new SQLException(&quot;Invalid database state: Bunch ID of -1 in bunch-recipe table&quot;);</span>
+                }
+<span class="fc" id="L378">                final long recipeId = result.getLong(1);</span>
+<span class="pc bpc" id="L379" title="1 of 2 branches missed.">                if (recipeId == DatabaseObject.NO_ID) {</span>
+<span class="nc" id="L380">                    throw new SQLException(&quot;Invalid database state: Recipe ID of -1 in bunch-recipe table&quot;);</span>
+                }
+<span class="fc" id="L382">                checkBunchExists(db, bunchId);</span>
+<span class="fc" id="L383">                checkRecipeExists(db, recipeId);</span>
+<span class="fc" id="L384">            }</span>
+        }
+        finally {
+<span class="pc" id="L387">            result.close();</span>
+<span class="fc" id="L388">        }</span>
+<span class="fc" id="L389">    }</span>
+
+    /**
+     * Checks that a recipe with the provided ID exists
+     * @param db the database to check
+     * @param id the recipe ID to find
+     * @throws SQLException if the recipe does not exist
+     */
+    private void checkRecipeExists(SQLiteDatabase db, long id) throws SQLException {
+<span class="fc" id="L398">        final Cursor result = db.query(RECIPE_TABLE_NAME, new String[0], &quot;id = ?&quot;,</span>
+<span class="fc" id="L399">                new String[]{ Long.toString(id) }, null, null, null);</span>
+        try {
+<span class="pc bpc" id="L401" title="1 of 2 branches missed.">            if (result.getCount() != 1) {</span>
+<span class="nc" id="L402">                throw new SQLException(&quot;Invalid database state: Recipe with id &quot; + id + &quot; does not exist&quot;);</span>
+            }
+        }
+        finally {
+<span class="pc" id="L406">            result.close();</span>
+<span class="fc" id="L407">        }</span>
+<span class="fc" id="L408">    }</span>
+
+    /**
+     * Checks that a bunch with the provided ID exists
+     * @param db the database to check
+     * @param id the bunch ID to find
+     * @throws SQLException if the bunch does not exist
+     */
+    private void checkBunchExists(SQLiteDatabase db, long id) throws SQLException {
+<span class="fc" id="L417">        final Cursor result = db.query(BUNCH_TABLE_NAME, new String[0], &quot;id = ?&quot;,</span>
+<span class="fc" id="L418">                new String[]{ Long.toString(id) }, null, null, null);</span>
+        try {
+<span class="pc bpc" id="L420" title="1 of 2 branches missed.">            if (result.getCount() != 1) {</span>
+<span class="nc" id="L421">                throw new SQLException(&quot;Invalid database state: Bunch with id &quot; + id + &quot; does not exist&quot;);</span>
+            }
+        }
+        finally {
+<span class="pc" id="L425">            result.close();</span>
+<span class="fc" id="L426">        }</span>
+<span class="fc" id="L427">    }</span>
+
+    /**
+     * Load all bunches off the database
+     *
+     * @return List of bunches
+     */
+    @Override
+    public List&lt;Bunch&gt; loadAllBunches() throws SQLException {
+<span class="fc" id="L436">        List&lt;Bunch&gt; bunches = new ArrayList&lt;&gt;();</span>
+        try {
+<span class="fc" id="L438">            SQLiteDatabase db = mHelper.getReadableDatabase();</span>
+            try {
+<span class="fc" id="L440">                Cursor c = db.query(BUNCH_TABLE_NAME, BUNCH_COLUMNS, null, null, null, null,</span>
+                        &quot;name&quot;);
+<span class="fc bfc" id="L442" title="All 2 branches covered.">                if (c.getCount() &gt; 0) {</span>
+<span class="fc" id="L443">                    c.moveToFirst();</span>
+                    do {
+<span class="fc" id="L445">                        List&lt;Recipe&gt; recipes = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L446">                        long bunch_id = c.getLong(0);</span>
+<span class="fc" id="L447">                        String name = c.getString(1);</span>
+<span class="fc" id="L448">                        String[] whereArgs = {String.valueOf(bunch_id)};</span>
+<span class="fc" id="L449">                        Cursor recipe_bunch_cursor = db.query(BUNCH_RECIPES_TABLE_NAME,</span>
+                                BUNCH_RECIPE_COLUMNS, &quot;bunch_id = ?&quot;, whereArgs,
+                                null, null, null);
+                        try {
+<span class="fc bfc" id="L453" title="All 2 branches covered.">                            if (recipe_bunch_cursor.getCount() &gt; 0) {</span>
+<span class="fc" id="L454">                                recipe_bunch_cursor.moveToFirst();</span>
+                                do {
+<span class="fc" id="L456">                                    long recipe_id = recipe_bunch_cursor.getLong(</span>
+<span class="fc" id="L457">                                            recipe_bunch_cursor.getColumnIndexOrThrow(</span>
+                                                    BUNCH_RECIPE_COLUMNS[1]));
+<span class="fc" id="L459">                                    String[] recipeWhereArgs = {String.valueOf(recipe_id)};</span>
+<span class="fc" id="L460">                                    Cursor recipe_cursor = db.query(RECIPE_TABLE_NAME,</span>
+                                            RECIPE_COLUMNS,
+                                            &quot;id = ?&quot;, recipeWhereArgs,
+                                            null, null, null);
+                                    try {
+<span class="pc bpc" id="L465" title="1 of 2 branches missed.">                                        if (recipe_cursor.getCount() &gt; 0) {</span>
+<span class="fc" id="L466">                                            recipe_cursor.moveToFirst();</span>
+<span class="fc" id="L467">                                            String title = recipe_cursor.getString(1);</span>
+<span class="fc" id="L468">                                            String author = recipe_cursor.getString(2);</span>
+<span class="fc" id="L469">                                            String description = recipe_cursor.getString(3);</span>
+<span class="fc" id="L470">                                            final List&lt;Step&gt; steps = mParser.parseRecipeSteps(</span>
+                                                    description);
+<span class="fc" id="L472">                                            final Recipe r = new Recipe(title, author, steps);</span>
+<span class="fc" id="L473">                                            r.setObjectId(recipe_id);</span>
+<span class="fc" id="L474">                                            recipes.add(r);</span>
+<span class="fc" id="L475">                                        } else {</span>
+<span class="nc" id="L476">                                            throw new SQLException(</span>
+                                                    &quot;No recipe with ID &quot; + recipe_id +
+                                                            &quot; in recipes table&quot;);
+                                        }
+                                    } finally {
+<span class="pc" id="L481">                                        recipe_cursor.close();</span>
+<span class="fc" id="L482">                                    }</span>
+<span class="fc bfc" id="L483" title="All 2 branches covered.">                                } while (recipe_bunch_cursor.moveToNext());</span>
+                            }
+<span class="fc" id="L485">                            Bunch b = new Bunch(name, recipes);</span>
+<span class="fc" id="L486">                            b.setObjectId(bunch_id);</span>
+<span class="fc" id="L487">                            bunches.add(b);</span>
+                        } finally {
+<span class="pc" id="L489">                            recipe_bunch_cursor.close();</span>
+<span class="fc" id="L490">                        }</span>
+<span class="fc bfc" id="L491" title="All 2 branches covered.">                    } while (c.moveToNext());</span>
+<span class="fc" id="L492">                    c.close();</span>
+                }
+            } finally {
+<span class="pc" id="L495">                db.close();</span>
+<span class="fc" id="L496">            }</span>
+<span class="nc" id="L497">        } catch (Exception e) {</span>
+<span class="nc" id="L498">            throw new SQLException(e);</span>
+<span class="fc" id="L499">        }</span>
+<span class="fc" id="L500">        return bunches;</span>
+
+    }
+
+    /**
+     * Load a bunch off the database (and all its contained recipes)
+     *
+     * @param name String name of Bunch to load
+     * @return Bunch object, or null if no matching Bunch could be found
+     */
+    @Override
+    public Bunch loadBunch(String name) throws SQLException {
+<span class="fc" id="L512">        Bunch b = null;</span>
+        try {
+<span class="fc" id="L514">            SQLiteDatabase db = mHelper.getReadableDatabase();</span>
+            try {
+<span class="fc" id="L516">                String[] whereArgs = {name};</span>
+<span class="fc" id="L517">                Cursor c = db.query(BUNCH_TABLE_NAME, BUNCH_COLUMNS, &quot;name = ?&quot;, whereArgs,</span>
+                        null, null, &quot;name&quot;);
+                try {
+<span class="fc" id="L520">                    List&lt;Recipe&gt; recipes = new ArrayList&lt;&gt;();</span>
+<span class="fc bfc" id="L521" title="All 2 branches covered.">                    if (c.getCount() &gt; 0) {</span>
+<span class="fc" id="L522">                        c.moveToFirst();</span>
+<span class="fc" id="L523">                        long bunch_id = c.getLong(0);</span>
+<span class="fc" id="L524">                        final String bunchName = c.getString(1);</span>
+                        // Create the bunch
+<span class="fc" id="L526">                        b = new Bunch(bunchName, Collections.&lt;Recipe&gt;emptyList());</span>
+
+<span class="fc" id="L528">                        String[] bunchRecipesWhereArgs = {String.valueOf(bunch_id)};</span>
+<span class="fc" id="L529">                        Cursor recipe_bunch_cursor = db.query(BUNCH_RECIPES_TABLE_NAME,</span>
+                                BUNCH_RECIPE_COLUMNS,
+                                &quot;bunch_id = ?&quot;, bunchRecipesWhereArgs,
+                                null, null, null);
+                        try {
+<span class="fc bfc" id="L534" title="All 2 branches covered.">                            if (recipe_bunch_cursor.getCount() &gt; 0) {</span>
+<span class="fc" id="L535">                                recipe_bunch_cursor.moveToFirst();</span>
+                                do {
+<span class="fc" id="L537">                                    long recipe_id = recipe_bunch_cursor.getLong(1);</span>
+<span class="fc" id="L538">                                    String[] recipeWhereArgs = {String.valueOf(recipe_id)};</span>
+<span class="fc" id="L539">                                    Cursor recipe_cursor = db.query(RECIPE_TABLE_NAME,</span>
+                                            RECIPE_COLUMNS,
+                                            &quot;id = ?&quot;,
+                                            recipeWhereArgs,
+                                            null, null, null);
+                                    try {
+<span class="pc bpc" id="L545" title="1 of 2 branches missed.">                                        if (recipe_cursor.getCount() &gt; 0) {</span>
+<span class="fc" id="L546">                                            recipe_cursor.moveToFirst();</span>
+<span class="fc" id="L547">                                            String title = recipe_cursor.getString(1);</span>
+<span class="fc" id="L548">                                            String author = recipe_cursor.getString(2);</span>
+<span class="fc" id="L549">                                            String description = recipe_cursor.getString(3);</span>
+<span class="fc" id="L550">                                            final List&lt;Step&gt; steps = mParser.parseRecipeSteps(</span>
+                                                    description);
+<span class="fc" id="L552">                                            final Recipe r = new Recipe(title, author, steps);</span>
+<span class="fc" id="L553">                                            r.setObjectId(recipe_id);</span>
+<span class="fc" id="L554">                                            recipes.add(r);</span>
+                                        }
+                                    } finally {
+<span class="pc" id="L557">                                        recipe_cursor.close();</span>
+<span class="fc" id="L558">                                    }</span>
+<span class="pc bpc" id="L559" title="1 of 2 branches missed.">                                } while (recipe_bunch_cursor.moveToNext());</span>
+<span class="fc" id="L560">                                b = new Bunch(name, recipes);</span>
+<span class="fc" id="L561">                                b.setObjectId(bunch_id);</span>
+                            }
+                        } finally {
+<span class="pc" id="L564">                            recipe_bunch_cursor.close();</span>
+<span class="fc" id="L565">                        }</span>
+<span class="fc" id="L566">                        b.setRecipes(recipes);</span>
+                    }
+                } finally {
+<span class="pc" id="L569">                    c.close();</span>
+<span class="fc" id="L570">                }</span>
+            } finally {
+<span class="pc" id="L572">                db.close();</span>
+<span class="fc" id="L573">            }</span>
+<span class="nc" id="L574">        } catch (Exception e) {</span>
+<span class="nc" id="L575">            throw new SQLException(e);</span>
+<span class="fc" id="L576">        }</span>
+<span class="fc" id="L577">        return b;</span>
+    }
+
+    /**
+     * Delete a recipe from the database
+     *
+     * @param r Recipe to delete
+     */
+    @Override
+    public void deleteRecipe(Recipe r) throws SQLException {
+        try {
+<span class="fc" id="L588">            SQLiteDatabase db = mHelper.getWritableDatabase();</span>
+<span class="fc" id="L589">            db.beginTransaction();</span>
+            try {
+<span class="fc" id="L591">                String[] whereArgs = {String.valueOf(r.getObjectId())};</span>
+                // Remove any bunch associations that involve this recipe
+<span class="fc" id="L593">                db.delete(BUNCH_RECIPES_TABLE_NAME, &quot;recipe_id = ?&quot;, whereArgs);</span>
+
+                // Delete the recipe entry
+<span class="fc" id="L596">                db.delete(RECIPE_TABLE_NAME, &quot;id = ?&quot;, whereArgs);</span>
+<span class="fc" id="L597">                db.setTransactionSuccessful();</span>
+            } finally {
+<span class="pc" id="L599">                db.endTransaction();</span>
+<span class="pc" id="L600">                db.close();</span>
+<span class="fc" id="L601">            }</span>
+<span class="nc" id="L602">        } catch (Exception e) {</span>
+<span class="nc" id="L603">            throw new SQLException(e);</span>
+<span class="fc" id="L604">        }</span>
+<span class="fc" id="L605">    }</span>
+
+    /**
+     * Delete a bunch from the database
+     *
+     * @param b Bunch to delete
+     */
+    @Override
+    public void deleteBunch(Bunch b) throws SQLException {
+        try {
+<span class="fc" id="L615">            SQLiteDatabase db = mHelper.getWritableDatabase();</span>
+<span class="fc" id="L616">            db.beginTransaction();</span>
+            try {
+<span class="fc" id="L618">                String[] whereArgs = {String.valueOf(b.getObjectId())};</span>
+<span class="fc" id="L619">                db.delete(BUNCH_TABLE_NAME, &quot;id = ?&quot;, whereArgs);</span>
+<span class="fc" id="L620">                db.delete(BUNCH_RECIPES_TABLE_NAME, &quot;bunch_id = ?&quot;, whereArgs);</span>
+<span class="fc" id="L621">                db.setTransactionSuccessful();</span>
+            } finally {
+<span class="pc" id="L623">                db.endTransaction();</span>
+<span class="pc" id="L624">                db.close();</span>
+<span class="fc" id="L625">            }</span>
+<span class="nc" id="L626">        } catch (Exception e) {</span>
+<span class="nc" id="L627">            throw new SQLException(e);</span>
+<span class="fc" id="L628">        }</span>
+<span class="fc" id="L629">    }</span>
+    @Override
+    public void storeLearnerData(Recipe r, Collection&lt;LearningWeight&gt; weights) throws SQLException{
+        try {
+<span class="nc" id="L633">            SQLiteDatabase db = mHelper.getWritableDatabase();</span>
+<span class="nc" id="L634">            db.beginTransaction();</span>
+            try {
+<span class="nc" id="L636">                List&lt;ContentValues&gt; learner_cvs = createContentValues(r, weights);</span>
+<span class="nc bnc" id="L637" title="All 2 branches missed.">                for (ContentValues cv : learner_cvs) {</span>
+<span class="nc" id="L638">                    db.insert(LEARNER_TABLE_NAME, null, cv);</span>
+<span class="nc" id="L639">                }</span>
+            } finally {
+<span class="nc" id="L641">                db.endTransaction();</span>
+<span class="nc" id="L642">                db.close();</span>
+<span class="nc" id="L643">            }</span>
+<span class="nc" id="L644">        } catch (Exception e) {</span>
+<span class="nc" id="L645">            throw new SQLException(e);</span>
+<span class="nc" id="L646">        }</span>
+<span class="nc" id="L647">    }</span>
+    @Override
+    public Collection&lt;LearningWeight&gt; loadLearnerData(Recipe r) throws SQLException {
+<span class="nc" id="L650">        Collection&lt;LearningWeight&gt; results = new ArrayList&lt;&gt;();</span>
+        try {
+<span class="nc" id="L652">            SQLiteDatabase db = mHelper.getWritableDatabase();</span>
+<span class="nc" id="L653">            db.beginTransaction();</span>
+            try {
+<span class="nc" id="L655">                String[] whereArgs = {String.valueOf(r.getObjectId())};</span>
+<span class="nc" id="L656">                Cursor c = db.query(LEARNER_TABLE_NAME, LEARNER_COLUMNS, &quot;recipe_id = ?&quot;, whereArgs, null, null, null, &quot;hash&quot;);</span>
+<span class="nc bnc" id="L657" title="All 2 branches missed.">                if (c != null) {</span>
+<span class="nc" id="L658">                    c.moveToFirst();</span>
+                    do {
+<span class="nc" id="L660">                        int hash = c.getInt(1);</span>
+<span class="nc" id="L661">                        double weighted_time = c.getDouble(2);</span>
+<span class="nc" id="L662">                        double learn_rate = c.getDouble(3);</span>
+
+<span class="nc" id="L664">                        LearningWeight weight = new LearningWeight(hash, weighted_time, learn_rate);</span>
+<span class="nc" id="L665">                        results.add(weight);</span>
+<span class="nc bnc" id="L666" title="All 2 branches missed.">                    } while (c.moveToNext());</span>
+<span class="nc" id="L667">                    c.close();</span>
+                }
+            } finally {
+<span class="nc" id="L670">                db.endTransaction();</span>
+<span class="nc" id="L671">                db.close();</span>
+<span class="nc" id="L672">            }</span>
+<span class="nc" id="L673">        } catch (Exception e) {</span>
+<span class="nc" id="L674">            throw new SQLException(e);</span>
+<span class="nc" id="L675">        }</span>
+
+<span class="nc" id="L677">        return results;</span>
+    }
+    /**
+     * Helper that creates a ContentValues object for the Recipes table
+     *
+     * @param r Recipe object to take values from
+     * @return ContentValues containing the mapping from column name to value for Recipes Table
+     */
+    private ContentValues createContentValues(Recipe r) {
+<span class="fc" id="L686">        ContentValues values = new ContentValues();</span>
+<span class="fc" id="L687">        values.put(RECIPE_COLUMNS[0], r.getObjectId());</span>
+<span class="fc" id="L688">        values.put(RECIPE_COLUMNS[1], r.getTitle());</span>
+<span class="fc" id="L689">        values.put(RECIPE_COLUMNS[2], r.getAuthor());</span>
+<span class="fc" id="L690">        values.put(RECIPE_COLUMNS[3], mParser.serializeRecipeSteps(r.getSteps()));</span>
+<span class="fc" id="L691">        return values;</span>
+    }
+
+    /**
+     * Helper that creates a ContentValues object for the Bunches table
+     *
+     * @param b Bunch object to take values from
+     * @return ContentValues containing the mapping from column name to value for Bunches Table
+     */
+    private ContentValues createContentValues(Bunch b) {
+<span class="fc" id="L701">        ContentValues values = new ContentValues();</span>
+<span class="fc" id="L702">        values.put(RECIPE_COLUMNS[0], b.getObjectId());</span>
+<span class="fc" id="L703">        values.put(RECIPE_COLUMNS[1], b.getTitle());</span>
+<span class="fc" id="L704">        return values;</span>
+    }
+
+    /**
+     * Helper that creates a list of ContentValues for the Bunch Recipes table
+     *
+     * @param b Bunch object
+     * @return List of ContentValues containing the mapping from column name to value for the Bunch Recipes table
+     */
+    private List&lt;ContentValues&gt; createContentValuesList(Bunch b) {
+<span class="fc" id="L714">        List&lt;ContentValues&gt; values_list = new ArrayList&lt;&gt;();</span>
+<span class="fc bfc" id="L715" title="All 2 branches covered.">        for (Recipe r : b.getRecipes()) {</span>
+<span class="fc" id="L716">            ContentValues values = createContentValues(b, r);</span>
+<span class="fc" id="L717">            values_list.add(values);</span>
+<span class="fc" id="L718">        }</span>
+<span class="fc" id="L719">        return values_list;</span>
+    }
+
+    /**
+     * Helper that creates a ContentValues object for the Bunch Recipes table
+     *
+     * @param b Bunch object
+     * @param r Recipe object in the bunch
+     * @return ContentValues object containing the mapping from column name to value for the Bunch Recipes Table
+     */
+    private ContentValues createContentValues(Bunch b, Recipe r) {
+<span class="fc" id="L730">        ContentValues values = new ContentValues();</span>
+<span class="fc" id="L731">        values.put(BUNCH_RECIPE_COLUMNS[0], b.getObjectId());</span>
+<span class="fc" id="L732">        values.put(BUNCH_RECIPE_COLUMNS[1], r.getObjectId());</span>
+<span class="fc" id="L733">        return values;</span>
+    }
+    private List&lt;ContentValues&gt; createContentValues(Recipe r, Collection&lt;LearningWeight&gt; weights) {
+<span class="nc" id="L736">        List&lt;ContentValues&gt; values = new ArrayList&lt;ContentValues&gt;();</span>
+<span class="nc bnc" id="L737" title="All 2 branches missed.">        for (LearningWeight weight: weights) {</span>
+<span class="nc" id="L738">            values.add(createContentValues(r, weight));</span>
+<span class="nc" id="L739">        }</span>
+<span class="nc" id="L740">        return values;</span>
+    }
+    private ContentValues createContentValues(Recipe r, LearningWeight weight) {
+<span class="nc" id="L743">        ContentValues values = new ContentValues();</span>
+<span class="nc" id="L744">        values.put(LEARNER_COLUMNS[0], r.getObjectId());</span>
+<span class="nc" id="L745">        values.put(LEARNER_COLUMNS[1], weight.hash);</span>
+<span class="nc" id="L746">        values.put(LEARNER_COLUMNS[2], weight.timeWeight);</span>
+<span class="nc" id="L747">        values.put(LEARNER_COLUMNS[3], weight.learnRate);</span>
+<span class="nc" id="L748">        return values;</span>
+    }
+    /**
+     * Private helper class that has methods that allows for access to the underlying android sqlite database
+     */
+    private class RecipeOpenHelper extends SQLiteOpenHelper {
+        private static final int DATABASE_VERSION = 2;
+
+<span class="fc" id="L756">        public RecipeOpenHelper(Context c) {</span>
+<span class="fc" id="L757">            super(c, DATABASE_NAME, null, DATABASE_VERSION);</span>
+<span class="fc" id="L758">        }</span>
+
+        @Override
+        public void onCreate(SQLiteDatabase db) {
+<span class="nc" id="L762">            db.execSQL(RECIPE_TABLE_CREATE);</span>
+<span class="nc" id="L763">            db.execSQL(RECIPE_IMAGE_TABLE_CREATE);</span>
+<span class="nc" id="L764">            db.execSQL(BUNCH_TABLE_CREATE);</span>
+<span class="nc" id="L765">            db.execSQL(BUNCH_RECIPE_TABLE_CREATE);</span>
+<span class="nc" id="L766">            db.execSQL(LEARNER_TABLE_CREATE);</span>
+<span class="nc" id="L767">        }</span>
+
+        @Override
+        public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+            //do nothing for now
+<span class="nc" id="L772">        }</span>
+    }
+
+    /**
+     * Helper that initiates the counters used to assign ids
+     * This is necessary because when a user quits the app this class will be destroyed but the underlying database remains
+     * Therefore in order to make sure there are no id collisions we need to check if there are already records in the database
+     * and set the counter to the highest id in the database + 1
+     * If an error occurs trying to query the database the counters will be set to 0
+     */
+    private void setupCounters() {
+        try {
+<span class="fc" id="L784">            SQLiteDatabase db = mHelper.getReadableDatabase();</span>
+<span class="fc" id="L785">            String[] column = {&quot;id&quot;};</span>
+<span class="fc" id="L786">            Cursor recipes = db.query(RECIPE_TABLE_NAME, column, null, null, null, null, &quot;id DESC&quot;,</span>
+                    &quot;1&quot;);
+            try {
+<span class="pc bpc" id="L789" title="1 of 2 branches missed.">                if (recipes.getCount() &gt; 0) {</span>
+<span class="nc" id="L790">                    recipes.moveToFirst();</span>
+<span class="nc" id="L791">                    mRecipeCounter = recipes.getLong(0);</span>
+<span class="nc" id="L792">                    mRecipeCounter++;</span>
+                } else {
+<span class="fc" id="L794">                    mRecipeCounter = 0;</span>
+                }
+            } finally {
+<span class="pc" id="L797">                recipes.close();</span>
+<span class="fc" id="L798">            }</span>
+<span class="fc" id="L799">            Cursor bunches = db.query(BUNCH_TABLE_NAME, column, null, null, null, null, &quot;id DESC&quot;,</span>
+                    &quot;1&quot;);
+            try {
+<span class="fc bfc" id="L802" title="All 2 branches covered.">                if (bunches.getCount() &gt; 0) {</span>
+<span class="fc" id="L803">                    bunches.moveToFirst();</span>
+<span class="fc" id="L804">                    mBunchCounter = bunches.getLong(0);</span>
+<span class="fc" id="L805">                    mBunchCounter++;</span>
+                } else {
+<span class="fc" id="L807">                    mBunchCounter = 0;</span>
+                }
+            } finally {
+<span class="pc" id="L810">                bunches.close();</span>
+<span class="fc" id="L811">            }</span>
+<span class="nc" id="L812">        } catch (Exception e) {</span>
+<span class="nc" id="L813">            mRecipeCounter = 0;</span>
+<span class="nc" id="L814">            mBunchCounter = 0;</span>
+<span class="fc" id="L815">        }</span>
+<span class="fc" id="L816">    }</span>
+
+    /**
+     * Warning, this clears all the tables in the database
+     * Should only call for testing purposes
+     */
+    @Override
+    public void clearAllTables() throws SQLException {
+        try {
+<span class="fc" id="L825">            SQLiteDatabase db = mHelper.getWritableDatabase();</span>
+<span class="fc" id="L826">            db.beginTransaction();</span>
+            try {
+<span class="fc" id="L828">                db.delete(RECIPE_TABLE_NAME, null, null);</span>
+<span class="fc" id="L829">                db.delete(BUNCH_TABLE_NAME, null, null);</span>
+<span class="fc" id="L830">                db.delete(RECIPE_IMAGE_TABLE_NAME, null, null);</span>
+<span class="fc" id="L831">                db.delete(BUNCH_RECIPES_TABLE_NAME, null, null);</span>
+<span class="fc" id="L832">                db.setTransactionSuccessful();</span>
+            }
+            finally {
+<span class="pc" id="L835">                db.endTransaction();</span>
+<span class="pc" id="L836">                db.close();</span>
+<span class="fc" id="L837">            }</span>
+<span class="nc" id="L838">        } catch (Exception e) {</span>
+<span class="nc" id="L839">            throw new SQLException(e);</span>
+<span class="fc" id="L840">        }</span>
+<span class="fc" id="L841">    }</span>
+
+    @Override
+    public boolean containsRecipe(long id) throws SQLException {
+<span class="nc" id="L845">        final SQLiteDatabase db = mHelper.getReadableDatabase();</span>
+        try {
+            // Query for up to 1 row with the matching ID
+<span class="nc" id="L848">            final Cursor result = db.query(true, RECIPE_TABLE_NAME,</span>
+<span class="nc" id="L849">                    new String[]{ RECIPE_COLUMNS[0] }, &quot;id = ?&quot;, new String[]{ Long.toString(id) },</span>
+                    null, null, null, &quot;1&quot;);
+            try {
+<span class="nc bnc" id="L852" title="All 2 branches missed.">                return result.getCount() != 0;</span>
+            } finally {
+<span class="nc" id="L854">                result.close();</span>
+            }
+        } finally {
+<span class="nc" id="L857">            db.close();</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.4.201502262128</span></div></body></html>

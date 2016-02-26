@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>DatabaseObject.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">debug</a> &gt; <a href="index.source.html" class="el_package">org.cook_e.data</a> &gt; <span class="el_source">DatabaseObject.java</span></div><h1>DatabaseObject.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2016 the Cook-E development team
+ *
+ * This file is part of Cook-E.
+ *
+ * Cook-E is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Cook-E is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Cook-E.  If not, see &lt;http://www.gnu.org/licenses/&gt;.
+ */
+
+package org.cook_e.data;
+
+/**
+ * A base class for objects that can be stored in a database
+ *
+ * Provides access to an object ID
+ */
+public abstract class DatabaseObject {
+
+    /**
+     * A special ID value that indicates this object has no ID
+     */
+    public static final long NO_ID = -1l;
+
+    /**
+     * The ID of this object, as used in the database as a row ID
+     *
+     * A value of {@link #NO_ID} indicates that this object has no ID
+     */
+    private long mObjectId;
+
+    /**
+     * Creates a database object with no ID
+     */
+<span class="fc" id="L44">    public DatabaseObject() {</span>
+<span class="fc" id="L45">        mObjectId = NO_ID;</span>
+<span class="fc" id="L46">    }</span>
+
+    /**
+     * Sets the ID of this object. The ID to set may be {@link #NO_ID}.
+     * @param newId the ID to set
+     */
+    public final void setObjectId(long newId) {
+<span class="fc" id="L53">        mObjectId = newId;</span>
+<span class="fc" id="L54">    }</span>
+
+    /**
+     * Returns the ID of this object
+     * @return the ID of this object, or {@link #NO_ID} if this object has no ID
+     */
+    public final long getObjectId() {
+<span class="fc" id="L61">        return mObjectId;</span>
+    }
+
+    /**
+     * Determines if this object has a valid ID
+     * @return true if this object has a valid ID, otherwise false
+     */
+    public final boolean hasObjectId() {
+<span class="pc bpc" id="L69" title="1 of 2 branches missed.">        return mObjectId != NO_ID;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.4.201502262128</span></div></body></html>

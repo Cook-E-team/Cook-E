@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>TimeLearner.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">debug</a> &gt; <a href="index.source.html" class="el_package">org.cook_e.data</a> &gt; <span class="el_source">TimeLearner.java</span></div><h1>TimeLearner.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2016 the Cook-E development team
+ *
+ *  This file is part of Cook-E.
+ *
+ *  Cook-E is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  Cook-E is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with Cook-E.  If not, see &lt;http://www.gnu.org/licenses/&gt;.
+ */
+
+package org.cook_e.data;
+
+import android.support.annotation.NonNull;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.joda.time.Duration;
+
+/**
+ * According to the step and actual time given
+ * this class will perform operations to give more accurate estimate time for one user
+ */
+public class TimeLearner {
+    // Maximum multiple of estimated time learner can change each time
+    private static final double LEARNING_LIMIT = 2.0;
+
+    // The rate that learn rate decays for each learn
+    private static final double LEARN_RATE_DECAY_RATE = 0.75;
+
+    // Sorted list of learning weights. List is sorted by hash code
+    @NonNull
+    private static List&lt;LearningWeight&gt; weightList;
+
+<span class="fc" id="L44">    public TimeLearner() {</span>
+        // TODO: read actual list from storage
+<span class="fc" id="L46">        weightList = new ArrayList&lt;LearningWeight&gt;();</span>
+<span class="fc" id="L47">    }</span>
+
+    /**
+     * Learns the actual time of a step.
+     * @param s the step you want to learn
+     * @param time the actual time user took to finish this step (in milliseconds)
+     * @throws IllegalArgumentException when actual time is negative
+     */
+    public void learnStep(@NonNull Step s, @NonNull Duration time) throws IllegalArgumentException{
+<span class="fc" id="L56">        Objects.requireNonNull(s, &quot;step must not be null&quot;);</span>
+<span class="fc" id="L57">        Objects.requireNonNull(s, &quot;time must not be null&quot;);</span>
+<span class="fc" id="L58">        long actualTime = time.getMillis();</span>
+<span class="pc bpc" id="L59" title="1 of 2 branches missed.">        if (actualTime &lt; 0) throw new IllegalArgumentException(&quot;time must not be negative&quot;);</span>
+
+        // find old weight, create one if not exist
+<span class="fc" id="L62">        int hash = s.hashCode();</span>
+<span class="fc" id="L63">        int index = searchStep(hash);</span>
+<span class="fc bfc" id="L64" title="All 2 branches covered.">        if (index &lt; 0) {</span>
+<span class="fc" id="L65">            index = -(index + 1);</span>
+<span class="fc" id="L66">            addStep(hash, index);</span>
+        }
+<span class="fc" id="L68">        LearningWeight lw = weightList.get(index);</span>
+
+        // calculate new weight
+<span class="fc" id="L71">        long oldEstimatedTime = (long) (s.getTime().getMillis() * lw.timeWeight);</span>
+        double weightChange;
+<span class="pc bpc" id="L73" title="1 of 2 branches missed.">        if (actualTime &gt;= oldEstimatedTime * LEARNING_LIMIT)</span>
+<span class="nc" id="L74">            weightChange = LEARNING_LIMIT - 1;</span>
+<span class="fc bfc" id="L75" title="All 2 branches covered.">        else if (actualTime * LEARNING_LIMIT &lt;= oldEstimatedTime)</span>
+<span class="fc" id="L76">            weightChange = (1 / LEARNING_LIMIT) - 1;</span>
+        else {
+<span class="fc" id="L78">            weightChange = (actualTime * 1.0 / oldEstimatedTime) - 1;</span>
+        }
+
+<span class="fc" id="L81">        lw.timeWeight = lw.timeWeight + lw.timeWeight * weightChange * lw.learnRate;</span>
+<span class="fc" id="L82">        lw.learnRate = lw.learnRate * LEARN_RATE_DECAY_RATE;</span>
+
+        // TODO: write new list to storage
+<span class="fc" id="L85">    }</span>
+
+    /**
+     * Returns the estimated time for a step based on learning result.
+     * If step is not learned before, returns the estimate time of that step.
+     * @param s the step you need to estimate the time for
+     * @return the estimated time (in milliseconds) for that specific step
+     */
+    @NonNull
+    public Duration getEstimatedTime(@NonNull Step s) {
+<span class="fc" id="L95">        Objects.requireNonNull(s, &quot;step must not be null&quot;);</span>
+<span class="fc" id="L96">        int index = searchStep(s.hashCode());</span>
+<span class="fc bfc" id="L97" title="All 2 branches covered.">        if (index &gt;= 0) {</span>
+<span class="fc" id="L98">            long time = (long) (s.getTime().getMillis() * weightList.get(index).timeWeight);</span>
+<span class="fc" id="L99">            return new Duration(time);</span>
+        }
+<span class="fc" id="L101">        return s.getTime().toDuration();</span>
+    }
+
+    /**
+     * Clears all data stored in learner
+     */
+    public void clearLearner() {
+<span class="fc" id="L108">        weightList.clear();</span>
+        // TODO: write empty list to storage
+<span class="fc" id="L110">    }</span>
+
+    /**
+     * Searches for the index of the given step in sorted weight list
+     * @param hash hash code of the step you want to search for
+     * @return index of that step in weight list.
+     *              If the step is not in the weight list, return an indicator of the position if
+     *              that step is in the list. position = -(return value + 1)
+     */
+    private int searchStep(int hash) {
+<span class="fc" id="L120">        int start = 0;</span>
+<span class="fc" id="L121">        int end = weightList.size() - 1;</span>
+<span class="fc bfc" id="L122" title="All 2 branches covered.">        while (start &lt;= end) {</span>
+<span class="fc" id="L123">            int cur = (start + end) / 2;</span>
+<span class="fc" id="L124">            int curHash = weightList.get(cur).hash;</span>
+<span class="fc bfc" id="L125" title="All 2 branches covered.">            if (hash == curHash) return cur;</span>
+<span class="fc bfc" id="L126" title="All 2 branches covered.">            else if (hash &lt; curHash) end = cur - 1;</span>
+<span class="fc" id="L127">            else start = cur + 1;</span>
+<span class="fc" id="L128">        }</span>
+<span class="fc" id="L129">        return -start - 1;</span>
+    }
+
+    /**
+     * Adds the given step to sorted weight list at given index
+     * @param hash hash code of the step you want to search
+     * @param index index that you want to add to
+     * @throws IndexOutOfBoundsException when index is out of bound
+     */
+    private void addStep(int hash, int index) throws IndexOutOfBoundsException{
+<span class="pc bpc" id="L139" title="2 of 4 branches missed.">        if (index &lt; 0 || index &gt; weightList.size())</span>
+<span class="nc" id="L140">            throw new IndexOutOfBoundsException(&quot;Index is out of bound&quot;);</span>
+<span class="fc" id="L141">        LearningWeight lw = new LearningWeight(hash);</span>
+<span class="fc" id="L142">        weightList.add(index, lw);</span>
+<span class="fc" id="L143">    }</span>
+
+    private class LearningWeight implements Comparable&lt;LearningWeight&gt; {
+        public int hash; // the hash code of the step
+        public double timeWeight; // learned weight for estimated time of this step
+        public double learnRate; // learning rate of this step
+
+        /**
+         * Construct a new object for step with hash code hash
+         * @param hash hash code of that step
+         */
+<span class="fc" id="L154">        public LearningWeight(int hash) {</span>
+<span class="fc" id="L155">            this.hash = hash;</span>
+<span class="fc" id="L156">            this.timeWeight = 1;</span>
+<span class="fc" id="L157">            this.learnRate = 1;</span>
+<span class="fc" id="L158">        }</span>
+
+        @Override
+        public int compareTo(LearningWeight lw) {
+<span class="nc" id="L162">            return this.hash - lw.hash;</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.4.201502262128</span></div></body></html>

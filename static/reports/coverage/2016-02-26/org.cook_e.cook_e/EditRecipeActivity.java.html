@@ -1,0 +1,349 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>EditRecipeActivity.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">debug</a> &gt; <a href="index.source.html" class="el_package">org.cook_e.cook_e</a> &gt; <span class="el_source">EditRecipeActivity.java</span></div><h1>EditRecipeActivity.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2016 the Cook-E development team
+ *
+ * This file is part of Cook-E.
+ *
+ * Cook-E is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Cook-E is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Cook-E.  If not, see &lt;http://www.gnu.org/licenses/&gt;.
+ */
+
+package org.cook_e.cook_e;
+
+import android.app.AlertDialog;
+import android.app.DialogFragment;
+import android.app.Fragment;
+import android.app.FragmentTransaction;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.databinding.ObservableArrayList;
+import android.databinding.ObservableList;
+import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.ImageButton;
+import android.widget.ListView;
+import android.widget.TextView;
+
+import org.cook_e.cook_e.ui.RecipeEditDialogFragment;
+import org.cook_e.cook_e.ui.StepDialogFragment;
+import org.cook_e.data.Recipe;
+import org.cook_e.data.Step;
+
+import java.sql.SQLException;
+
+/**
+ * Created by Tyler on 2/4/2016.
+ *
+ * This is the activity for editing a particular recipe.
+ */
+<span class="nc" id="L54">public class EditRecipeActivity extends AppCompatActivity</span>
+        implements StepDialogFragment.StepEditListener, RecipeEditDialogFragment.RecipeEditListener {
+
+    /**
+     * Intent extra that provides the activity to edit
+     */
+<span class="nc" id="L60">    public static final String EXTRA_RECIPE = EditRecipeActivity.class.getName() + &quot;.RECIPE&quot;;</span>
+
+    /**
+     * Key used in bundles when saving and restoring the state of {@link #mRecipe}
+     */
+<span class="nc" id="L65">    private static final String KEY_RECIPE = EditRecipeActivity.class.getName() + &quot;.RECIPE&quot;;</span>
+    /**
+     * Key used in bundles when saving and restoring the state of {@link #mStepEditIndex}
+     */
+<span class="nc" id="L69">    private static final String KEY_STEP_EDIT_INDEX = EditRecipeActivity.class.getName() + &quot;.STEP_EDIT_INDEX&quot;;</span>
+
+
+    /**
+     * The recipe being edited
+     */
+    private Recipe mRecipe;
+
+    /**
+     * The steps of the recipe being edited
+     */
+    private ObservableArrayList&lt;Step&gt; mSteps;
+
+    /**
+     * The index in {@link #mSteps} of the step currently being edited, or -1 if no step is being
+     * edited
+     */
+    private int mStepEditIndex;
+    private TextView mAuthorView;
+
+    /*
+     * Sets up the main view to edit recipes.
+     */
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+<span class="nc" id="L94">        super.onCreate(savedInstanceState);</span>
+<span class="nc" id="L95">        setContentView(R.layout.activity_edit_recipe);</span>
+
+<span class="nc bnc" id="L97" title="All 2 branches missed.">        if (savedInstanceState == null) {</span>
+            // Get recipe from intent
+<span class="nc" id="L99">            mRecipe = unpackRecipe();</span>
+<span class="nc" id="L100">            mStepEditIndex = -1;</span>
+        } else {
+            // Get recipe from saved state
+<span class="nc" id="L103">            mRecipe = savedInstanceState.getParcelable(KEY_RECIPE);</span>
+<span class="nc bnc" id="L104" title="All 2 branches missed.">            if (mRecipe == null) {</span>
+<span class="nc" id="L105">                throw new IllegalStateException(&quot;No saved recipe in savedInstanceState&quot;);</span>
+            }
+<span class="nc" id="L107">            mStepEditIndex = savedInstanceState.getInt(KEY_STEP_EDIT_INDEX);</span>
+        }
+<span class="nc" id="L109">        mSteps = new ObservableArrayList&lt;&gt;();</span>
+<span class="nc" id="L110">        mSteps.addAll(mRecipe.getSteps());</span>
+
+<span class="nc" id="L112">        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);</span>
+<span class="nc" id="L113">        setSupportActionBar(toolbar);</span>
+<span class="nc" id="L114">        final ActionBar actionBar = getSupportActionBar();</span>
+<span class="nc bnc" id="L115" title="All 2 branches missed.">        if (actionBar != null) {</span>
+<span class="nc" id="L116">            actionBar.setTitle(mRecipe.getTitle());</span>
+        }
+
+        // Set up recipe description
+<span class="nc" id="L120">        mAuthorView = (TextView) findViewById(R.id.recipe_author);</span>
+<span class="nc" id="L121">        mAuthorView.setText(mRecipe.getAuthor());</span>
+        // Recipe image
+<span class="nc" id="L123">        final ImageButton imageView = (ImageButton) findViewById(R.id.recipe_image_button);</span>
+<span class="nc" id="L124">        imageView.setImageBitmap(mRecipe.getImage());</span>
+
+<span class="nc" id="L126">        final StepListAdapter stepsAdapter = new StepListAdapter(this, mSteps);</span>
+<span class="nc" id="L127">        ListView stepsList = (ListView) findViewById(R.id.recipeSteps);</span>
+<span class="nc" id="L128">        stepsList.setAdapter(stepsAdapter);</span>
+
+<span class="nc" id="L130">        (findViewById(R.id.step_add_button)).setOnClickListener(</span>
+<span class="nc" id="L131">                new View.OnClickListener() {</span>
+                    @Override
+                    public void onClick(View v) {
+                        // Set the index at which to insert the step
+<span class="nc" id="L135">                        mStepEditIndex = mSteps.size();</span>
+                        // Show a dialog to create a step
+<span class="nc" id="L137">                        final FragmentTransaction transaction = getFragmentManager().beginTransaction();</span>
+<span class="nc" id="L138">                        final Fragment previous = getFragmentManager().findFragmentByTag(&quot;dialog&quot;);</span>
+<span class="nc bnc" id="L139" title="All 2 branches missed.">                        if (previous != null) {</span>
+<span class="nc" id="L140">                            transaction.remove(previous);</span>
+                        }
+<span class="nc" id="L142">                        transaction.addToBackStack(null);</span>
+<span class="nc" id="L143">                        final StepDialogFragment dialog = StepDialogFragment.newInstance(null);</span>
+<span class="nc" id="L144">                        dialog.show(transaction, &quot;dialog&quot;);</span>
+<span class="nc" id="L145">                    }</span>
+                }
+        );
+
+        // Begin editing a step when the user clicks on it
+<span class="nc" id="L150">        stepsAdapter.setStepClickListener(new StepListAdapter.StepClickListener() {</span>
+            @Override
+            public void onStepClicked(Step step, int index) {
+<span class="nc" id="L153">                mStepEditIndex = index;</span>
+                // Show a dialog to edit the step
+<span class="nc" id="L155">                final FragmentTransaction transaction = getFragmentManager().beginTransaction();</span>
+<span class="nc" id="L156">                final Fragment previous = getFragmentManager().findFragmentByTag(&quot;dialog&quot;);</span>
+<span class="nc bnc" id="L157" title="All 2 branches missed.">                if (previous != null) {</span>
+<span class="nc" id="L158">                    transaction.remove(previous);</span>
+                }
+<span class="nc" id="L160">                transaction.addToBackStack(null);</span>
+<span class="nc" id="L161">                final StepDialogFragment dialog = StepDialogFragment.newInstance(step);</span>
+<span class="nc" id="L162">                dialog.show(transaction, &quot;dialog&quot;);</span>
+<span class="nc" id="L163">            }</span>
+        });
+
+        // Update recipe when step list changes
+<span class="nc" id="L167">        mSteps.addOnListChangedCallback(new ObservableList.OnListChangedCallback() {</span>
+            @Override
+            public void onChanged(ObservableList sender) {
+<span class="nc" id="L170">                updateRecipeSteps();</span>
+<span class="nc" id="L171">            }</span>
+
+            @Override
+            public void onItemRangeChanged(ObservableList sender, int positionStart, int itemCount) {
+<span class="nc" id="L175">                updateRecipeSteps();</span>
+<span class="nc" id="L176">            }</span>
+
+            @Override
+            public void onItemRangeInserted(ObservableList sender, int positionStart, int itemCount) {
+<span class="nc" id="L180">                updateRecipeSteps();</span>
+<span class="nc" id="L181">            }</span>
+
+            @Override
+            public void onItemRangeMoved(ObservableList sender, int fromPosition, int toPosition, int itemCount) {
+<span class="nc" id="L185">                updateRecipeSteps();</span>
+<span class="nc" id="L186">            }</span>
+
+            @Override
+            public void onItemRangeRemoved(ObservableList sender, int positionStart, int itemCount) {
+<span class="nc" id="L190">                updateRecipeSteps();</span>
+<span class="nc" id="L191">            }</span>
+        });
+<span class="nc" id="L193">    }</span>
+
+    @Override
+    public void stepEditingFinished(@NonNull Step step) {
+        // User finished editing a step
+        // Put it in the list
+<span class="nc bnc" id="L199" title="All 2 branches missed.">        if (mStepEditIndex == -1) {</span>
+<span class="nc" id="L200">            throw new IllegalStateException(&quot;mStepEditIndex is -1&quot;);</span>
+        }
+<span class="nc bnc" id="L202" title="All 2 branches missed.">        if (mStepEditIndex &gt; mSteps.size()) {</span>
+<span class="nc" id="L203">            throw new IllegalStateException(&quot;mStepEditIndex is too large&quot;);</span>
+        }
+
+<span class="nc bnc" id="L206" title="All 2 branches missed.">        if (mStepEditIndex == mSteps.size()) {</span>
+<span class="nc" id="L207">            mSteps.add(step);</span>
+        } else {
+<span class="nc" id="L209">            mSteps.set(mStepEditIndex, step);</span>
+        }
+<span class="nc" id="L211">        mStepEditIndex = -1;</span>
+<span class="nc" id="L212">    }</span>
+
+
+    @Override
+    public void recipeEditingFinished(@NonNull String newTitle, @NonNull String newAuthor) {
+<span class="nc" id="L217">        mRecipe.setTitle(newTitle);</span>
+<span class="nc" id="L218">        mRecipe.setAuthor(newAuthor);</span>
+        // Update UI
+<span class="nc" id="L220">        final ActionBar actionBar = getSupportActionBar();</span>
+<span class="nc bnc" id="L221" title="All 2 branches missed.">        if (actionBar != null) {</span>
+<span class="nc" id="L222">            actionBar.setTitle(newTitle);</span>
+        }
+<span class="nc" id="L224">        mAuthorView.setText(newAuthor);</span>
+<span class="nc" id="L225">        saveRecipe();</span>
+<span class="nc" id="L226">    }</span>
+
+    /**
+     * Updates the steps in {@link #mRecipe} to equal {@link #mSteps}, and saves mRecipe
+     */
+    private void updateRecipeSteps() {
+<span class="nc" id="L232">        mRecipe.setSteps(mSteps);</span>
+<span class="nc" id="L233">        saveRecipe();</span>
+<span class="nc" id="L234">    }</span>
+
+    /**
+     * Tries to save the recipe
+     */
+    private void saveRecipe() {
+        try {
+<span class="nc" id="L241">            App.getAccessor().persistRecipe(mRecipe);</span>
+<span class="nc" id="L242">        } catch (SQLException e) {</span>
+<span class="nc" id="L243">            new AlertDialog.Builder(this)</span>
+<span class="nc" id="L244">                    .setTitle(&quot;Failed to save&quot;)</span>
+<span class="nc" id="L245">                    .setMessage(e.getLocalizedMessage())</span>
+<span class="nc" id="L246">                    .show();</span>
+<span class="nc" id="L247">        }</span>
+<span class="nc" id="L248">    }</span>
+
+    /**
+     * Tries to delete the recipe, then exits
+     */
+    private void deleteRecipe() {
+        try {
+<span class="nc" id="L255">            App.getAccessor().deleteRecipe(mRecipe);</span>
+<span class="nc" id="L256">            finish();</span>
+<span class="nc" id="L257">        } catch (SQLException e) {</span>
+<span class="nc" id="L258">            new AlertDialog.Builder(this)</span>
+<span class="nc" id="L259">                    .setTitle(&quot;Failed to delete recipe&quot;)</span>
+<span class="nc" id="L260">                    .setMessage(e.getLocalizedMessage())</span>
+<span class="nc" id="L261">                    .show();</span>
+<span class="nc" id="L262">        }</span>
+<span class="nc" id="L263">    }</span>
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+<span class="nc" id="L267">        super.onSaveInstanceState(outState);</span>
+        // Save the current recipe and edit state
+<span class="nc" id="L269">        outState.putParcelable(KEY_RECIPE, mRecipe);</span>
+<span class="nc" id="L270">        outState.putInt(KEY_STEP_EDIT_INDEX, mStepEditIndex);</span>
+<span class="nc" id="L271">    }</span>
+
+    /**
+     * Accesses the recipe to be edited
+     *
+     * @return a recipe from the intent that started this activity
+     */
+    private Recipe unpackRecipe() {
+<span class="nc" id="L279">        final Intent intent = getIntent();</span>
+<span class="nc" id="L280">        final Recipe recipe = intent.getParcelableExtra(EXTRA_RECIPE);</span>
+<span class="nc bnc" id="L281" title="All 2 branches missed.">        if (recipe == null) {</span>
+<span class="nc" id="L282">            throw new IllegalStateException(&quot;No activity extra provided in intent&quot;);</span>
+        }
+<span class="nc" id="L284">        return recipe;</span>
+    }
+
+
+    /*
+     * This is a workaround for inconsistent behavior.
+     *
+     * Pressing the system back button or calling finish() returns a result to the parent activity,
+     * as expected. However, the default action when the up button is pressed does not send a result
+     * to the parent. This override ensures that a result is sent when the action bar up button is
+     * pressed.
+     */
+    @Override
+    public boolean onSupportNavigateUp() {
+<span class="nc" id="L298">        finish();</span>
+<span class="nc" id="L299">        return true;</span>
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+<span class="nc" id="L304">        getMenuInflater().inflate(R.menu.edit_recipe, menu);</span>
+
+<span class="nc" id="L306">        final MenuItem editItem = menu.findItem(R.id.item_edit_recipe);</span>
+<span class="nc" id="L307">        editItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {</span>
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                // Open the RecipeEditDialogFragment
+                // Show a dialog to create a step
+<span class="nc" id="L312">                final FragmentTransaction transaction = getFragmentManager().beginTransaction();</span>
+<span class="nc" id="L313">                final Fragment previous = getFragmentManager().findFragmentByTag(&quot;dialog&quot;);</span>
+<span class="nc bnc" id="L314" title="All 2 branches missed.">                if (previous != null) {</span>
+<span class="nc" id="L315">                    transaction.remove(previous);</span>
+                }
+<span class="nc" id="L317">                transaction.addToBackStack(null);</span>
+<span class="nc" id="L318">                final DialogFragment dialog = RecipeEditDialogFragment.newInstance(mRecipe);</span>
+<span class="nc" id="L319">                dialog.show(transaction, &quot;dialog&quot;);</span>
+
+<span class="nc" id="L321">                return true;</span>
+            }
+        });
+
+<span class="nc" id="L325">        final MenuItem deleteItem = menu.findItem(R.id.item_delete_recipe);</span>
+<span class="nc" id="L326">        deleteItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {</span>
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                // Show a confirmation dialog
+<span class="nc" id="L330">                new AlertDialog.Builder(EditRecipeActivity.this)</span>
+<span class="nc" id="L331">                        .setTitle(R.string.question_delete_recipe)</span>
+<span class="nc" id="L332">                        .setPositiveButton(android.R.string.ok,</span>
+<span class="nc" id="L333">                                new DialogInterface.OnClickListener() {</span>
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+<span class="nc" id="L336">                                        deleteRecipe();</span>
+<span class="nc" id="L337">                                    }</span>
+                                })
+<span class="nc" id="L339">                        .setNegativeButton(android.R.string.cancel, null)</span>
+<span class="nc" id="L340">                        .show();</span>
+
+<span class="nc" id="L342">                return true;</span>
+            }
+        });
+
+<span class="nc" id="L346">        return true;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.4.201502262128</span></div></body></html>

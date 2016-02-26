@@ -1,0 +1,280 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>MealViewActivity.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">debug</a> &gt; <a href="index.source.html" class="el_package">org.cook_e.cook_e</a> &gt; <span class="el_source">MealViewActivity.java</span></div><h1>MealViewActivity.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2016 the Cook-E development team
+ *
+ * This file is part of Cook-E.
+ *
+ * Cook-E is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Cook-E is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Cook-E.  If not, see &lt;http://www.gnu.org/licenses/&gt;.
+ */
+
+package org.cook_e.cook_e;
+
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.databinding.ObservableArrayList;
+import android.databinding.ObservableList;
+import android.os.Bundle;
+import android.os.Parcelable;
+import android.support.design.widget.FloatingActionButton;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.ListView;
+
+import org.cook_e.data.Bunch;
+import org.cook_e.data.DatabaseObject;
+import org.cook_e.data.Objects;
+import org.cook_e.data.Recipe;
+import org.cook_e.data.StorageAccessor;
+
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
+<span class="pc bpc" id="L49" title="1 of 2 branches missed.">public class MealViewActivity extends AppCompatActivity {</span>
+    @SuppressWarnings(&quot;unused&quot;)
+<span class="fc" id="L51">    private static final String TAG = MealViewActivity.class.getSimpleName();</span>
+
+    /**
+     * The extra key used when sending a meal to display in an Intent
+     */
+<span class="fc" id="L56">    public static final String EXTRA_MEAL = MealViewActivity.class.getName() + &quot;.EXTRA_MEAL&quot;;</span>
+
+    /**
+     * The recipes in the meal being displayed
+     */
+    private ObservableArrayList&lt;Recipe&gt; mRecipes;
+    /**
+     * The meal being displayed
+     */
+    private Bunch mMeal;
+
+    /**
+     * The accessor used to access storage
+     */
+    private StorageAccessor mAccessor;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+<span class="fc" id="L74">        super.onCreate(savedInstanceState);</span>
+
+<span class="fc" id="L76">        mMeal = unpackMeal();</span>
+
+<span class="fc" id="L78">        setContentView(R.layout.activity_meal_view);</span>
+<span class="fc" id="L79">        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);</span>
+<span class="fc" id="L80">        setSupportActionBar(toolbar);</span>
+
+<span class="fc" id="L82">        setUpActionBar();</span>
+
+        // Get recipes
+<span class="fc" id="L85">        mRecipes = new ObservableArrayList&lt;&gt;();</span>
+<span class="fc" id="L86">        mRecipes.addAll(mMeal.getRecipes());</span>
+
+        // Set up recipe list
+<span class="fc" id="L89">        final ListView recipeList = (ListView) findViewById(R.id.recipe_list);</span>
+<span class="fc" id="L90">        recipeList.setAdapter(new MealRecipeListAdapter(this, mRecipes));</span>
+
+        // Set up floating action button
+<span class="fc" id="L93">        final FloatingActionButton floatingButton = (FloatingActionButton) findViewById(R.id.add_button);</span>
+<span class="fc" id="L94">        floatingButton.setOnClickListener(new OnClickListener() {</span>
+            @Override
+            public void onClick(View v) {
+                // Open item add view
+<span class="nc" id="L98">                final Intent intent = new Intent(MealViewActivity.this, MealRecipeAddActivity.class);</span>
+
+                try {
+<span class="nc" id="L101">                    final List&lt;Recipe&gt; availableRecipes = mAccessor.loadAllRecipes();</span>
+<span class="nc" id="L102">                    intent.putExtra(MealRecipeAddActivity.EXIST_RECIPES,</span>
+<span class="nc" id="L103">                            mRecipes.toArray(new Recipe[mRecipes.size()]));</span>
+<span class="nc" id="L104">                    intent.putExtra(MealRecipeAddActivity.EXTRA_RECIPES,</span>
+<span class="nc" id="L105">                            availableRecipes.toArray(new Recipe[availableRecipes.size()]));</span>
+<span class="nc" id="L106">                    startActivityForResult(intent, MealRecipeAddActivity.REQUEST_ADD_RECIPES);</span>
+                }
+<span class="nc" id="L108">                catch (Exception e) {</span>
+<span class="nc" id="L109">                    new AlertDialog.Builder(MealViewActivity.this)</span>
+<span class="nc" id="L110">                            .setTitle(&quot;Failed to load recipes&quot;)</span>
+<span class="nc" id="L111">                            .setMessage(e.getLocalizedMessage())</span>
+<span class="nc" id="L112">                            .show();</span>
+<span class="nc" id="L113">                }</span>
+<span class="nc" id="L114">            }</span>
+        });
+
+        // Set up accessor
+<span class="fc" id="L118">        mAccessor = App.getAccessor();</span>
+
+        // Save meal when recipe list changes
+<span class="fc" id="L121">        mRecipes.addOnListChangedCallback(new ObservableList.OnListChangedCallback() {</span>
+            @Override
+            public void onChanged(ObservableList sender) {
+<span class="nc" id="L124">                updateRecipes();</span>
+<span class="nc" id="L125">            }</span>
+
+            @Override
+            public void onItemRangeChanged(ObservableList sender, int positionStart, int itemCount) {
+<span class="nc" id="L129">                updateRecipes();</span>
+<span class="nc" id="L130">            }</span>
+
+            @Override
+            public void onItemRangeInserted(ObservableList sender, int positionStart, int itemCount) {
+<span class="nc" id="L134">                updateRecipes();</span>
+<span class="nc" id="L135">            }</span>
+
+            @Override
+            public void onItemRangeMoved(ObservableList sender, int fromPosition, int toPosition, int itemCount) {
+<span class="nc" id="L139">                updateRecipes();</span>
+<span class="nc" id="L140">            }</span>
+
+            @Override
+            public void onItemRangeRemoved(ObservableList sender, int positionStart, int itemCount) {
+<span class="nc" id="L144">                updateRecipes();</span>
+<span class="nc" id="L145">            }</span>
+        });
+<span class="fc" id="L147">    }</span>
+
+    /**
+     * Sets the recipes in {@link #mMeal} to {@link #mRecipes}, then saves the meal
+     */
+    private void updateRecipes() {
+<span class="nc" id="L153">        saveMeal();</span>
+<span class="nc" id="L154">    }</span>
+
+    /**
+     * Tries to save the meal
+     */
+    private void saveMeal() {
+        try {
+
+            // Save recipes that were copied from the remote database but are not saved locally
+            // yet
+<span class="nc bnc" id="L164" title="All 2 branches missed.">            for (Recipe recipe : mRecipes) {</span>
+<span class="nc bnc" id="L165" title="All 2 branches missed.">                if (!mAccessor.containsLocalRecipe(recipe.getObjectId())) {</span>
+<span class="nc" id="L166">                    mAccessor.storeRecipe(recipe);</span>
+                }
+<span class="nc" id="L168">            }</span>
+<span class="nc" id="L169">            mMeal.setRecipes(mRecipes);</span>
+<span class="nc" id="L170">            mAccessor.persistBunch(mMeal);</span>
+        }
+<span class="nc" id="L172">        catch (Exception e) {</span>
+<span class="nc" id="L173">            new AlertDialog.Builder(MealViewActivity.this)</span>
+<span class="nc" id="L174">                    .setTitle(&quot;Failed to save meal&quot;)</span>
+<span class="nc" id="L175">                    .setMessage(e.getLocalizedMessage())</span>
+<span class="nc" id="L176">                    .show();</span>
+<span class="nc" id="L177">        }</span>
+<span class="nc" id="L178">    }</span>
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+<span class="nc bnc" id="L182" title="All 4 branches missed.">        if (requestCode == MealRecipeAddActivity.REQUEST_ADD_RECIPES &amp;&amp; resultCode == RESULT_OK) {</span>
+<span class="nc" id="L183">            final Parcelable[] parcelables = data.getParcelableArrayExtra(MealRecipeAddActivity.EXTRA_RECIPES);</span>
+<span class="nc" id="L184">            final Recipe[] recipesToAdd = Objects.castArray(parcelables, Recipe[].class);</span>
+            // Add recipes
+<span class="nc" id="L186">            final List&lt;Recipe&gt; addedRecipes = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L187" title="All 2 branches missed.">            for (Recipe newRecipe : recipesToAdd) {</span>
+<span class="nc bnc" id="L188" title="All 2 branches missed.">                if (!mRecipes.contains(newRecipe)) {</span>
+<span class="nc" id="L189">                    addedRecipes.add(newRecipe);</span>
+                }
+            }
+<span class="nc" id="L192">            mRecipes.addAll(addedRecipes);</span>
+        }
+<span class="nc" id="L194">    }</span>
+
+    private void setUpActionBar() {
+<span class="fc" id="L197">        final ActionBar bar = getSupportActionBar();</span>
+<span class="pc bpc" id="L198" title="3 of 4 branches missed.">        assert bar != null;</span>
+<span class="fc" id="L199">        bar.setTitle(mMeal.getTitle());</span>
+<span class="fc" id="L200">    }</span>
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+<span class="fc" id="L204">        getMenuInflater().inflate(R.menu.meal_view, menu);</span>
+<span class="fc" id="L205">        return true;</span>
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+<span class="nc bnc" id="L210" title="All 3 branches missed.">        switch (item.getItemId()) {</span>
+            case R.id.start:
+                // User chose the &quot;schedule&quot; item,
+<span class="nc" id="L213">                int amount = mMeal.getNumOfRecipes();</span>
+<span class="nc bnc" id="L214" title="All 2 branches missed.">                if (amount &gt; 0) {</span>
+<span class="nc" id="L215">                    final Intent intent = new Intent(MealViewActivity.this, CookActivity.class);</span>
+<span class="nc" id="L216">                    intent.putExtra(CookActivity.EXTRA_BUNCH, mMeal);</span>
+<span class="nc" id="L217">                    startActivity(intent);</span>
+<span class="nc" id="L218">                } else {</span>
+<span class="nc" id="L219">                    new AlertDialog.Builder(MealViewActivity.this)</span>
+<span class="nc" id="L220">                            .setMessage(&quot;You should have at least one recipe to start cooking.&quot;)</span>
+<span class="nc" id="L221">                            .show();</span>
+                }
+<span class="nc" id="L223">                return true;</span>
+
+            case R.id.meal_delete_item:
+                // Show a confirmation dialog
+<span class="nc" id="L227">                new AlertDialog.Builder(MealViewActivity.this)</span>
+<span class="nc" id="L228">                        .setTitle(R.string.question_delete_meal)</span>
+<span class="nc" id="L229">                        .setPositiveButton(android.R.string.ok,</span>
+<span class="nc" id="L230">                                new DialogInterface.OnClickListener() {</span>
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+<span class="nc" id="L233">                                        deleteMeal();</span>
+<span class="nc" id="L234">                                    }</span>
+                                })
+<span class="nc" id="L236">                        .setNegativeButton(android.R.string.cancel, null)</span>
+<span class="nc" id="L237">                        .show();</span>
+
+            default:
+                // If we got here, the user's action was not recognized.
+                // Invoke the superclass to handle it.
+<span class="nc" id="L242">                return super.onOptionsItemSelected(item);</span>
+        }
+    }
+
+    /**
+     * Deletes the meal, then exits
+     */
+    private void deleteMeal() {
+        try {
+<span class="nc" id="L251">            App.getAccessor().deleteBunch(mMeal);</span>
+<span class="nc" id="L252">            finish();</span>
+<span class="nc" id="L253">        } catch (SQLException e) {</span>
+<span class="nc" id="L254">            new AlertDialog.Builder(this)</span>
+<span class="nc" id="L255">                    .setTitle(&quot;Failed to delete meal&quot;)</span>
+<span class="nc" id="L256">                    .setMessage(e.getLocalizedMessage())</span>
+<span class="nc" id="L257">                    .show();</span>
+<span class="nc" id="L258">        }</span>
+<span class="nc" id="L259">    }</span>
+
+    /**
+     * Saves the current menu
+     * @param outState the state to save to
+     */
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+<span class="nc" id="L267">        super.onSaveInstanceState(outState);</span>
+        // TODO
+<span class="nc" id="L269">    }</span>
+
+    private Bunch unpackMeal() {
+<span class="fc" id="L272">        final Intent intent = getIntent();</span>
+<span class="fc" id="L273">        final Bunch meal = intent.getParcelableExtra(EXTRA_MEAL);</span>
+<span class="pc bpc" id="L274" title="1 of 2 branches missed.">        if (meal == null) {</span>
+<span class="nc" id="L275">            throw new IllegalStateException(&quot;No meal extra in intent&quot;);</span>
+        }
+<span class="fc" id="L277">        return meal;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.4.201502262128</span></div></body></html>

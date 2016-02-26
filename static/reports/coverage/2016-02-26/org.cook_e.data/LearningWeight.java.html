@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>LearningWeight.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">debug</a> &gt; <a href="index.source.html" class="el_package">org.cook_e.data</a> &gt; <span class="el_source">LearningWeight.java</span></div><h1>LearningWeight.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2016 the Cook-E development team
+ *
+ * This file is part of Cook-E.
+ *
+ * Cook-E is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Cook-E is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Cook-E.  If not, see &lt;http://www.gnu.org/licenses/&gt;.
+ */
+
+package org.cook_e.data;
+
+/**
+ * Created by kylewoo on 2/25/16.
+ */
+public class LearningWeight implements Comparable&lt;LearningWeight&gt; {
+    public int hash; // the hash code of the step
+    public double timeWeight; // learned weight for estimated time of this step
+    public double learnRate; // learning rate of this step
+
+    /**
+     * Construct a new object for step with hash code hash
+     * @param hash hash code of that step
+     */
+<span class="nc" id="L34">    public LearningWeight(int hash) {</span>
+<span class="nc" id="L35">        this.hash = hash;</span>
+<span class="nc" id="L36">        this.timeWeight = 1;</span>
+<span class="nc" id="L37">        this.learnRate = 1;</span>
+<span class="nc" id="L38">    }</span>
+<span class="nc" id="L39">    public LearningWeight(int hash, double weighted_time, double learn_rate) {</span>
+<span class="nc" id="L40">        this.hash = hash;</span>
+<span class="nc" id="L41">        timeWeight = weighted_time;</span>
+<span class="nc" id="L42">        learnRate = learn_rate;</span>
+<span class="nc" id="L43">    }</span>
+
+    @Override
+    public int compareTo(LearningWeight lw) {
+<span class="nc" id="L47">        return this.hash - lw.hash;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.4.201502262128</span></div></body></html>
