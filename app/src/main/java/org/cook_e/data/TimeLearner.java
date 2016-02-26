@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.joda.time.Duration;
-import org.joda.time.ReadableDuration;
 
 /**
  * According to the step and actual time given
@@ -34,8 +33,10 @@ public class TimeLearner {
      * @param actualTime the actual time user took to finish this step (in milliseconds)
      * @throws IllegalArgumentException when actual time is negative
      */
-    public void learnStep(@NonNull Step s, long actualTime) throws IllegalArgumentException{
+    public void learnStep(@NonNull Step s, @NonNull Duration time) throws IllegalArgumentException{
         Objects.requireNonNull(s, "step must not be null");
+        Objects.requireNonNull(s, "time must not be null");
+        long actualTime = time.getMillis();
         if (actualTime < 0) throw new IllegalArgumentException("time must not be negative");
 
         // find old weight, create one if not exist
@@ -69,6 +70,7 @@ public class TimeLearner {
      * @param s the step you need to estimate the time for
      * @return the estimated time (in milliseconds) for that specific step
      */
+    @NonNull
     public Duration getEstimatedTime(@NonNull Step s) {
         Objects.requireNonNull(s, "step must not be null");
         int index = searchStep(s.hashCode());
