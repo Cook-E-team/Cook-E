@@ -139,7 +139,9 @@ public class MealRecipeAddActivity extends AppCompatActivity {
                 }
                 Log.d(TAG, "Added recipe " + recipe);
                 // Add to list of recipes to add
-                mSelectedRecipes.add(recipe);
+                if (!mSelectedRecipes.contains(recipe)) {
+                    mSelectedRecipes.add(recipe);
+                }
                 updateResult();
             }
         });
