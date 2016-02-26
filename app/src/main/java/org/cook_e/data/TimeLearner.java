@@ -72,7 +72,7 @@ public class TimeLearner {
     public Duration getEstimatedTime(@NonNull Step s) {
         Objects.requireNonNull(s, "step must not be null");
         int index = searchStep(s.hashCode());
-        if (index != -1) {
+        if (index >= 0) {
             long time = (long) (s.getTime().getMillis() * weightList.get(index).timeWeight);
             return new Duration(time);
         }
