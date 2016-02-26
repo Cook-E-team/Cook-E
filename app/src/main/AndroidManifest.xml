@@ -16,9 +16,9 @@
   ~  You should have received a copy of the GNU General Public License
   ~  along with Cook-E.  If not, see <http://www.gnu.org/licenses/>.
 -->
-<manifest package="org.cook_e.cook_e"
-          xmlns:android="http://schemas.android.com/apk/res/android"
-          xmlns:tools="http://schemas.android.com/tools">
+<manifest
+    package="org.cook_e.cook_e"
+    xmlns:android="http://schemas.android.com/apk/res/android">
 
     <!-- Reads external storage to get recipe images -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
@@ -35,7 +35,6 @@
             android:windowSoftInputMode="stateHidden">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
-
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
@@ -44,7 +43,9 @@
         <activity
             android:name=".MealRecipeAddActivity">
         </activity>
-        <activity android:name=".CookActivity"/>
+        <!-- To work around destruction and recreation problems, lock CookActivity to portrait orientation -->
+        <activity android:name=".CookActivity"
+            android:screenOrientation="portrait"/>
         <activity
             android:name=".CreateRecipe"
             android:windowSoftInputMode="stateVisible"/>

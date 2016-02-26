@@ -19,16 +19,17 @@
 
 package org.cook_e.cook_e;
 
+import android.app.AlertDialog;
 import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import org.cook_e.cook_e.ui.CookStep;
 import org.cook_e.cook_e.ui.TimerFragment;
@@ -37,21 +38,39 @@ import org.cook_e.data.Recipe;
 import org.cook_e.data.Schedule;
 import org.cook_e.data.Step;
 
-public class CookActivity extends AppCompatActivity {
+/**
+ * An activity that shows the steps involved in cooking a {@link Bunch}
+ *
+ * When this activity is started, its intent must include an extra with the key {@link #EXTRA_BUNCH}
+ * containing the bunch to be cooked.
+ */
+public class CookActivity extends AppCompatActivity implements TimerFragment.StepFinishListener {
+    /**
+     * The tag used for logging
+     */
     private static final String TAG = CookActivity.class.getSimpleName();
+    /**
+     * The extra key used to provide a bunch/meal to cook
+     */
+    public static final String EXTRA_BUNCH = CookActivity.class.getName() + ".EXTRA_BUNCH";
 
     /**
-     * The {@link android.support.v4.view.PagerAdapter} that will provide
-     * fragments for each of the sections. We use a
-     * {@link FragmentPagerAdapter} derivative, which will keep every
-     * loaded fragment in memory. If this becomes too memory intensive, it
-     * may be best to switch to a
-     * {@link android.support.v4.app.FragmentStatePagerAdapter}.
+     * The bunch/meal being prepared
      */
     private Bunch mBunch;
+    /**
+     * The schedule
+     */
     private Schedule mSchedule;
+    /**
+     * The cook step fragment, that displays each step
+     */
     private CookStep mCookStep;
-    public static final String Bunch = CookActivity.class.getName() + ".Bunch";
+
+    /**
+     * The number of simultaneous steps with active timers
+     */
+    private int mActiveSimultaneousSteps = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -104,6 +123,12 @@ public class CookActivity extends AppCompatActivity {
                 step = mSchedule.getNextStep();
                 if (step != null) {
                     setCurrentStep(step, mSchedule.getCurrentStepRecipe());
+                } else  if (mActiveSimultaneousSteps != 0) {
+                    // Explain to the user why they cannot advance
+                    new AlertDialog.Builder(this)
+                            .setTitle(R.string.dialog_title_waiting_for_step)
+                            .setMessage(R.string.dialog_waiting_for_step)
+                            .show();
                 }
                 return true;
 
@@ -121,13 +146,14 @@ public class CookActivity extends AppCompatActivity {
      */
     private void setCurrentStep(Step step, Recipe recipe) {
         mCookStep.setStep(step, recipe.getTitle());
-        Log.d(TAG, "Step: " + step);
         if (step.isSimultaneous()) {
             // Add a timer fragment for the step
-            final TimerFragment timerFragment = TimerFragment.newInstance(step);
+            final TimerFragment timerFragment = TimerFragment.newInstance(recipe, step);
             final FragmentTransaction transaction = getFragmentManager().beginTransaction();
             transaction.add(R.id.timer_container, timerFragment);
             transaction.commit();
+
+            mActiveSimultaneousSteps++;
         }
     }
 
@@ -139,10 +165,23 @@ public class CookActivity extends AppCompatActivity {
 
     private Bunch getBunch() {
         final Intent intent = getIntent();
-        final Bunch meal = intent.getParcelableExtra(Bunch);
+        final Bunch meal = intent.getParcelableExtra(EXTRA_BUNCH);
         if (meal == null) {
             throw new IllegalStateException("No bunch in intent");
         }
         return meal;
+    }
+
+    @Override
+    public void onStepFinished(TimerFragment timerFragment, Recipe recipe, Step step) {
+        // Remove the fragment
+        final FragmentTransaction transaction = getFragmentManager().beginTransaction();
+        transaction.remove(timerFragment);
+        transaction.commit();
+        // Notify the scheduler that the step is done
+        mSchedule.finishSimultaneousStepFromRecipe(recipe);
+        Toast.makeText(this, "Step \"" + step.getDescription() + "\" finished", Toast.LENGTH_LONG).show();
+
+        mActiveSimultaneousSteps--;
     }
 }

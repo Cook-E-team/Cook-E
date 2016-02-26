@@ -39,12 +39,10 @@ import android.widget.ListView;
 import org.cook_e.data.Bunch;
 import org.cook_e.data.Objects;
 import org.cook_e.data.Recipe;
-import org.cook_e.data.Step;
 import org.cook_e.data.StorageAccessor;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class MealViewActivity extends AppCompatActivity {
@@ -204,7 +202,7 @@ public class MealViewActivity extends AppCompatActivity {
                 int amount = mMeal.getNumOfRecipes();
                 if (amount > 0) {
                     final Intent intent = new Intent(MealViewActivity.this, CookActivity.class);
-                    intent.putExtra(CookActivity.Bunch, mMeal);
+                    intent.putExtra(CookActivity.EXTRA_BUNCH, mMeal);
                     startActivity(intent);
                 } else {
                     new AlertDialog.Builder(MealViewActivity.this)

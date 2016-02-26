@@ -46,4 +46,14 @@
         android:id="@+id/timer_view"
         android:layout_weight="0.5"
         android:layout_gravity="center_vertical|end"/>
+
+    <ImageButton
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/done"
+        android:id="@+id/done_button"
+        android:layout_weight="0.7"
+        android:src="@drawable/ic_check_box_black_24dp"
+        style="@style/Base.Widget.AppCompat.Button.Borderless"
+        android:contentDescription="@string/done"/>
 </LinearLayout>

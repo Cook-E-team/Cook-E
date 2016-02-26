@@ -104,4 +104,7 @@ This application uses the material icons developed by Google (https://design.goo
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="done">Done</string>
+    <string name="dialog_title_waiting_for_step">Waiting for a step</string>
+    <string name="dialog_waiting_for_step">A step is still in progress. Finish the step to proceed.</string>
 </resources>
