@@ -22,6 +22,8 @@ package org.cook_e.data;
 import android.os.StrictMode;
 import android.util.Log;
 
+import org.joda.time.field.UnsupportedDurationField;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -288,7 +290,7 @@ public class SQLServerAccessor implements SQLAccessor {
         // TODO: Remodel all database access to run on a separate thread (issue #26)
         StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder().permitAll().build());
 
-        r.setObjectId(++mRecipeCounter);
+        r.setObjectId(--mRecipeCounter);
         mRecipeInsertStatement.setLong(1, r.getObjectId());
         mRecipeInsertStatement.setString(2, r.getTitle());
         mRecipeInsertStatement.setString(3, r.getAuthor());
@@ -361,14 +363,7 @@ public class SQLServerAccessor implements SQLAccessor {
 
     @Override
     public void clearAllTables() throws SQLException {
-        final Statement statement = mConnection.createStatement();
-        try {
-            statement.executeUpdate(String.format(Locale.US, "DELETE FROM %s", RECIPE_TABLE_NAME));
-            statement.executeUpdate(String.format(Locale.US, "DELETE FROM %s", BUNCH_TABLE_NAME));
-            statement.executeUpdate(String.format(Locale.US, "DELETE FROM %s", BUNCH_RECIPE_TABLE_NAME));
-        } finally {
-            statement.close();
-        }
+        throw new UnsupportedOperationException("Not implemented");
     }
 
     @Override
@@ -403,7 +398,7 @@ public class SQLServerAccessor implements SQLAccessor {
             if (results.next()) {
                 mRecipeCounter = results.getLong("id") - 1;
             } else {
-                mRecipeCounter = 1;
+                mRecipeCounter = -1;
             }
             results.close();
         } finally {
