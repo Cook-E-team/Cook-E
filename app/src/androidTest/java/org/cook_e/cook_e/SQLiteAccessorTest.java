@@ -33,6 +33,7 @@ import org.junit.Test;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -171,9 +172,11 @@ public class SQLiteAccessorTest {
     public void testDeleteRecipeInBunch() throws SQLException {
         final String mealName = "The 42905204th meal";
         final Recipe recipe = new Recipe("A Recipe", "Alan Smithee", Collections.<Step>emptyList());
-        final Bunch meal = new Bunch(mealName, Collections.singletonList(recipe));
 
         mAccessor.storeRecipe(recipe);
+        
+        final Bunch meal = new Bunch(mealName, Collections.singletonList(recipe));
+
         mAccessor.storeBunch(meal);
         mAccessor.checkInvariants();
 
@@ -244,23 +247,20 @@ public class SQLiteAccessorTest {
         Recipe r = RecipeUnitTest.createGenericRecipe("My Recipe", "Kyle Woo", 0, 0, 5, false);
         Recipe r2 = RecipeUnitTest.createGenericRecipe("My Recipe 2", "Kyle Woo", 0, 0, 5, false);
         Recipe r3 = RecipeUnitTest.createGenericRecipe("My Recipe 3", "Kyle Woo", 0, 0, 5, false);
-        List<Recipe> b1_list = new ArrayList<>();
-        List<Recipe> b2_list = new ArrayList<>();
-        b1_list.add(r);
-        b1_list.add(r2);
-        b2_list.add(r);
-        b2_list.add(r3);
-        Bunch b1 = new Bunch("Bunch 1", b1_list);
-        Bunch b2 = new Bunch("Bunch 2", b2_list);
-        List<Bunch> expected = new ArrayList<>();
-        expected.add(b1);
-        expected.add(b2);
+
         mAccessor.storeRecipe(r);
         mAccessor.checkInvariants();
         mAccessor.storeRecipe(r2);
         mAccessor.checkInvariants();
         mAccessor.storeRecipe(r3);
         mAccessor.checkInvariants();
+
+        // Recipes must be added to bunches after they are stored so that their IDs will be set
+        // correctly
+        final Bunch b1 = new Bunch("Bunch 1", Arrays.asList(r, r2));
+        final Bunch b2 = new Bunch("Bunch 2", Arrays.asList(r, r3));
+        final List<Bunch> expected = Arrays.asList(b1, b2);
+
         mAccessor.storeBunch(b1);
         mAccessor.checkInvariants();
         mAccessor.storeBunch(b2);

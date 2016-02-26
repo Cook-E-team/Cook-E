@@ -142,7 +142,6 @@ public class SQLiteAccessor implements SQLAccessor {
 
     /**
      * Store a bunch on the sqlite database
-     * Assumes that all recipes within this bunch have been stored on the database
      *
      * @param b Bunch object to store
      */
