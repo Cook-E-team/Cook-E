@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class TimeLearnerTest {
     public final List<String> list = new ArrayList<String>();
@@ -36,13 +37,18 @@ public class TimeLearnerTest {
 
     @Test
     public void testGetTimeNoLearn() {
-        assertEquals(10000, learner.getEstimatedTime(s));
+        assertEquals(10000, learner.getEstimatedTime(s).getMillis());
     }
 
     @Test
     public void testGetTimeOneLearn() {
         learner.learnStep(s, new Duration(8000));
-        assertEquals(8000, learner.getEstimatedTime(s));
+        assertEquals(8000, learner.getEstimatedTime(s).getMillis());
+    }
+
+    @Test
+    public void testClear() {
         learner.clearLearner();
+        assertEquals(10000, learner.getEstimatedTime(s).getMillis());
     }
 }
