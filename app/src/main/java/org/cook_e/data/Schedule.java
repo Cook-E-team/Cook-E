@@ -19,6 +19,7 @@
 
 package org.cook_e.data;
 
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -313,7 +314,7 @@ public class Schedule {
         public final Step step;
         public final Recipe motherRecipe;
 
-        public ScheduledStep(Step s, Recipe r) {
+        public ScheduledStep(@NonNull Step s, @NonNull Recipe r) {
             this.step = s;
             this.motherRecipe = r;
         }
