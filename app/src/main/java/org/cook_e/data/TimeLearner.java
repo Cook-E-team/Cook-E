@@ -17,6 +17,7 @@ public class TimeLearner {
     private static final double LEARN_RATE_DECAY_RATE = 0.75;
 
     // Sorted list of learning weights. List is sorted by hash code
+    @NonNull
     private static List<LearningWeight> weightList;
 
     public TimeLearner() {
@@ -28,6 +29,7 @@ public class TimeLearner {
      * Learns the actual time of a step.
      * @param s the step you want to learn
      * @param actualTime the actual time user took to finish this step (in milliseconds)
+     * @throws IllegalArgumentException when actual time is negative
      */
     public void learnStep(@NonNull Step s, long actualTime) throws IllegalArgumentException{
         Objects.requireNonNull(s, "step must not be null");
@@ -36,22 +38,23 @@ public class TimeLearner {
         // find old weight, create one if not exist
         int hash = s.hashCode();
         int index = searchStep(hash);
-        if (index == -1) {
-            index = addStep(hash);
+        if (index < 0) {
+            index = -(index + 1);
+            addStep(hash, index);
         }
         LearningWeight lw = weightList.get(index);
 
         // calculate new weight
         long oldEstimatedTime = (long) (s.getTime().getMillis() * lw.timeWeight);
-        double weight;
+        double weightChange;
         if (actualTime >= oldEstimatedTime * LEARNING_LIMIT)
-            weight = LEARNING_LIMIT - 1;
+            weightChange = LEARNING_LIMIT - 1;
         else if (actualTime * LEARNING_LIMIT <= oldEstimatedTime)
-            weight = (1 / LEARNING_LIMIT) - 1;
+            weightChange = (1 / LEARNING_LIMIT) - 1;
         else {
-            weight = (actualTime / oldEstimatedTime) - 1;
+            weightChange = (actualTime / oldEstimatedTime) - 1;
         }
-        lw.timeWeight = lw.timeWeight + lw.timeWeight * weight * lw.learnRate;
+        lw.timeWeight = lw.timeWeight + lw.timeWeight * weightChange * lw.learnRate;
         lw.learnRate = lw.learnRate * LEARN_RATE_DECAY_RATE;
 
         // TODO: write new list to storage
@@ -74,7 +77,9 @@ public class TimeLearner {
     /**
      * Searches for the index of the given step in sorted weight list
      * @param hash hash code of the step you want to search for
-     * @return index of that step in weight list, or -1 if it is not in the list
+     * @return index of that step in weight list.
+     *              If the step is not in the weight list, return an indicator of the position if
+     *              that step is in the list. position = -(return value + 1)
      */
     private int searchStep(int hash) {
         int start = 0;
@@ -86,25 +91,20 @@ public class TimeLearner {
             else if (hash < curHash) end = cur - 1;
             else start = cur + 1;
         }
-        return -1;
+        return -start - 1;
     }
 
     /**
-     * Adds the given step to sorted weight list
-     * @param hash hash code of the step you want to search.
-     *             This step must not be already in the list
-     * @return index of the place that step is added
+     * Adds the given step to sorted weight list at given index
+     * @param hash hash code of the step you want to search
+     * @param index index that you want to add to
+     * @throws IndexOutOfBoundsException when index is out of bound
      */
-    private int addStep(int hash) {
+    private void addStep(int hash, int index) throws IndexOutOfBoundsException{
+        if (index < 0 || index > weightList.size())
+            throw new IndexOutOfBoundsException("Index is out of bound");
         LearningWeight lw = new LearningWeight(hash);
-        for (int i = 0; i < weightList.size(); i++) {
-            if (hash < weightList.get(i).hash) {
-                weightList.add(i, lw);
-                return i;
-            }
-        }
-        weightList.add(lw);
-        return weightList.size() - 1;
+        weightList.add(index, lw);
     }
 
     private class LearningWeight implements Comparable<LearningWeight> {
