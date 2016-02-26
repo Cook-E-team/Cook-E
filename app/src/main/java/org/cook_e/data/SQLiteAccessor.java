@@ -64,7 +64,7 @@ public class SQLiteAccessor implements SQLAccessor {
     private static final String BUNCH_RECIPES_TABLE_NAME = "BunchRecipes";
     private static final String[] BUNCH_RECIPE_COLUMNS = {"bunch_id", "recipe_id"};
     private static final String LEARNER_TABLE_NAME = "LearnerData";
-    private static final String[] LEARNER_COLUMNS = {"recipe_id, hash, weighted_time, learn_rate"};
+    private static final String[] LEARNER_COLUMNS = {"recipe_id", "hash", "weighted_time", "learn_rate"};
     /**
      * Schema of the Recipes table: (id, name, author, description)
      */

@@ -22,33 +22,45 @@ package org.cook_e.cook_e;
 import org.cook_e.data.Step;
 import org.cook_e.data.TimeLearner;
 import org.joda.time.Duration;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class TimeLearnerTest {
-    public final List<String> list = new ArrayList<String>();
-    public final Step s = new Step(list, "a step", new Duration(10000), false);
-    public final TimeLearner learner = new TimeLearner();
+    private static final Step STEP = new Step(Collections.<String>emptyList(), "a step", new Duration(10000), false);
+    private TimeLearner learner;
+
+    @Before
+    public void setUp() {
+        learner = new TimeLearner();
+    }
+
+    @After
+    public void tearDown() {
+        learner = null;
+    }
 
     @Test
     public void testGetTimeNoLearn() {
-        assertEquals(10000, learner.getEstimatedTime(s).getMillis());
+        assertEquals(10000, learner.getEstimatedTime(STEP).getMillis());
     }
 
     @Test
     public void testGetTimeOneLearn() {
-        learner.learnStep(s, new Duration(8000));
-        assertEquals(8000, learner.getEstimatedTime(s).getMillis());
+        learner.learnStep(STEP, new Duration(8000));
+        assertEquals(8000, learner.getEstimatedTime(STEP).getMillis());
     }
 
     @Test
     public void testClear() {
         learner.clearLearner();
-        assertEquals(10000, learner.getEstimatedTime(s).getMillis());
+        assertEquals(10000, learner.getEstimatedTime(STEP).getMillis());
     }
 }
