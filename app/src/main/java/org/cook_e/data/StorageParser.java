@@ -75,7 +75,7 @@ public class StorageParser {
     public String serializeRecipeSteps(List<? extends Step> steps) {
         Objects.requireNonNull(steps, "steps must not be null");
         try {
-            final JSONArray json = new JSONArray();
+             JSONArray json = new JSONArray();
 
             for (Step step : steps) {
                 final JSONObject stepJson = new JSONObject();
