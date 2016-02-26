@@ -1,20 +1,20 @@
 /*
  * Copyright 2016 the Cook-E development team
  *
- *  This file is part of Cook-E.
+ * This file is part of Cook-E.
  *
- *  Cook-E is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
+ * Cook-E is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- *  Cook-E is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ * Cook-E is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- *  You should have received a copy of the GNU General Public License
- *  along with Cook-E.  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU General Public License
+ * along with Cook-E.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 package org.cook_e.cook_e;
@@ -39,12 +39,10 @@ import android.widget.ListView;
 import org.cook_e.data.Bunch;
 import org.cook_e.data.Objects;
 import org.cook_e.data.Recipe;
-import org.cook_e.data.Step;
 import org.cook_e.data.StorageAccessor;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class MealViewActivity extends AppCompatActivity {
@@ -100,6 +98,8 @@ public class MealViewActivity extends AppCompatActivity {
 
                 try {
                     final List<Recipe> availableRecipes = mAccessor.loadAllRecipes();
+                    intent.putExtra(MealRecipeAddActivity.EXIST_RECIPES,
+                            mRecipes.toArray(new Recipe[mRecipes.size()]));
                     intent.putExtra(MealRecipeAddActivity.EXTRA_RECIPES,
                             availableRecipes.toArray(new Recipe[availableRecipes.size()]));
                     startActivityForResult(intent, MealRecipeAddActivity.REQUEST_ADD_RECIPES);
@@ -204,7 +204,7 @@ public class MealViewActivity extends AppCompatActivity {
                 int amount = mMeal.getNumOfRecipes();
                 if (amount > 0) {
                     final Intent intent = new Intent(MealViewActivity.this, CookActivity.class);
-                    intent.putExtra(CookActivity.Bunch, mMeal);
+                    intent.putExtra(CookActivity.EXTRA_BUNCH, mMeal);
                     startActivity(intent);
                 } else {
                     new AlertDialog.Builder(MealViewActivity.this)

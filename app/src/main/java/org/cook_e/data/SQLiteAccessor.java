@@ -1,20 +1,20 @@
 /*
  * Copyright 2016 the Cook-E development team
  *
- *  This file is part of Cook-E.
+ * This file is part of Cook-E.
  *
- *  Cook-E is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
+ * Cook-E is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- *  Cook-E is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ * Cook-E is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- *  You should have received a copy of the GNU General Public License
- *  along with Cook-E.  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU General Public License
+ * along with Cook-E.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 package org.cook_e.data;
@@ -27,6 +27,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -62,6 +63,8 @@ public class SQLiteAccessor implements SQLAccessor {
     private static final String[] BUNCH_COLUMNS = {"id", "name"};
     private static final String BUNCH_RECIPES_TABLE_NAME = "BunchRecipes";
     private static final String[] BUNCH_RECIPE_COLUMNS = {"bunch_id", "recipe_id"};
+    private static final String LEARNER_TABLE_NAME = "LearnerData";
+    private static final String[] LEARNER_COLUMNS = {"recipe_id", "hash", "weighted_time", "learn_rate"};
     /**
      * Schema of the Recipes table: (id, name, author, description)
      */
@@ -94,7 +97,14 @@ public class SQLiteAccessor implements SQLAccessor {
                     BUNCH_RECIPE_COLUMNS[0] + " INT NOT NULL DEFAULT 0," +
                     BUNCH_RECIPE_COLUMNS[1] + " INT NOT NULL DEFAULT 0," +
                     " PRIMARY KEY (" + BUNCH_RECIPE_COLUMNS[0] + ", " + BUNCH_RECIPE_COLUMNS[1] + "));";
-
+    private static final String LEARNER_TABLE_CREATE =
+            "CREATE TABLE " + LEARNER_TABLE_NAME + " (" +
+                    LEARNER_COLUMNS[0] + " INT NOT NULL DEFAULT 0, " +
+                    LEARNER_COLUMNS[1] + " INT NOT NULL DEFAULT 0, " +
+                    LEARNER_COLUMNS[2] + " REAL NOT NULL DEFAULT 0.0, " +
+                    LEARNER_COLUMNS[3] + " REAL NOT NULL DEFAULT 0.0," +
+                    " PRIMARY KEY (" + LEARNER_COLUMNS[0] + ", " + LEARNER_COLUMNS[1] +
+                    ", " + LEARNER_COLUMNS[2] + ", " + LEARNER_COLUMNS[3] + "));";
     /**
      * Constructor
      *
@@ -294,12 +304,12 @@ public class SQLiteAccessor implements SQLAccessor {
 
     /**
      * Throws an exception. This method is not implemented in this class
-     * @param description a recipe description
+     * @param title a recipe description
      * @return does not return
      * @throws SQLException
      */
     @Override
-    public List<Recipe> findRecipesLike(String description) throws SQLException {
+    public List<Recipe> findRecipesLike(String title) throws SQLException {
         throw new SQLException("Not implemented");
     }
 
@@ -618,7 +628,55 @@ public class SQLiteAccessor implements SQLAccessor {
             throw new SQLException(e);
         }
     }
+    @Override
+    public void storeLearnerData(Recipe r, Collection<LearningWeight> weights) throws SQLException{
+        try {
+            SQLiteDatabase db = mHelper.getWritableDatabase();
+            db.beginTransaction();
+            try {
+                List<ContentValues> learner_cvs = createContentValues(r, weights);
+                for (ContentValues cv : learner_cvs) {
+                    db.insert(LEARNER_TABLE_NAME, null, cv);
+                }
+            } finally {
+                db.endTransaction();
+                db.close();
+            }
+        } catch (Exception e) {
+            throw new SQLException(e);
+        }
+    }
+    @Override
+    public Collection<LearningWeight> loadLearnerData(Recipe r) throws SQLException {
+        Collection<LearningWeight> results = new ArrayList<>();
+        try {
+            SQLiteDatabase db = mHelper.getWritableDatabase();
+            db.beginTransaction();
+            try {
+                String[] whereArgs = {String.valueOf(r.getObjectId())};
+                Cursor c = db.query(LEARNER_TABLE_NAME, LEARNER_COLUMNS, "recipe_id = ?", whereArgs, null, null, null, "hash");
+                if (c != null) {
+                    c.moveToFirst();
+                    do {
+                        int hash = c.getInt(1);
+                        double weighted_time = c.getDouble(2);
+                        double learn_rate = c.getDouble(3);
 
+                        LearningWeight weight = new LearningWeight(hash, weighted_time, learn_rate);
+                        results.add(weight);
+                    } while (c.moveToNext());
+                    c.close();
+                }
+            } finally {
+                db.endTransaction();
+                db.close();
+            }
+        } catch (Exception e) {
+            throw new SQLException(e);
+        }
+
+        return results;
+    }
     /**
      * Helper that creates a ContentValues object for the Recipes table
      *
@@ -675,7 +733,21 @@ public class SQLiteAccessor implements SQLAccessor {
         values.put(BUNCH_RECIPE_COLUMNS[1], r.getObjectId());
         return values;
     }
-
+    private List<ContentValues> createContentValues(Recipe r, Collection<LearningWeight> weights) {
+        List<ContentValues> values = new ArrayList<ContentValues>();
+        for (LearningWeight weight: weights) {
+            values.add(createContentValues(r, weight));
+        }
+        return values;
+    }
+    private ContentValues createContentValues(Recipe r, LearningWeight weight) {
+        ContentValues values = new ContentValues();
+        values.put(LEARNER_COLUMNS[0], r.getObjectId());
+        values.put(LEARNER_COLUMNS[1], weight.hash);
+        values.put(LEARNER_COLUMNS[2], weight.timeWeight);
+        values.put(LEARNER_COLUMNS[3], weight.learnRate);
+        return values;
+    }
     /**
      * Private helper class that has methods that allows for access to the underlying android sqlite database
      */
@@ -692,6 +764,7 @@ public class SQLiteAccessor implements SQLAccessor {
             db.execSQL(RECIPE_IMAGE_TABLE_CREATE);
             db.execSQL(BUNCH_TABLE_CREATE);
             db.execSQL(BUNCH_RECIPE_TABLE_CREATE);
+            db.execSQL(LEARNER_TABLE_CREATE);
         }
 
         @Override
@@ -747,6 +820,7 @@ public class SQLiteAccessor implements SQLAccessor {
      * Warning, this clears all the tables in the database
      * Should only call for testing purposes
      */
+    @Override
     public void clearAllTables() throws SQLException {
         try {
             SQLiteDatabase db = mHelper.getWritableDatabase();

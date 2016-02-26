@@ -1,20 +1,20 @@
 /*
  * Copyright 2016 the Cook-E development team
  *
- *  This file is part of Cook-E.
+ * This file is part of Cook-E.
  *
- *  Cook-E is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
+ * Cook-E is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- *  Cook-E is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ * Cook-E is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- *  You should have received a copy of the GNU General Public License
- *  along with Cook-E.  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU General Public License
+ * along with Cook-E.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 package org.cook_e.cook_e;
@@ -54,11 +54,10 @@ public class App extends Application {
     public void onCreate() {
         super.onCreate();
         context = getApplicationContext();
-        mAccessor = new StorageAccessor(context);
         try {
-            setUpTestData();
+            mAccessor = new StorageAccessor(context);
         } catch (SQLException e) {
-            Log.e(TAG, "Failed to set up test data", e);
+            Log.e(TAG, "Failed to connect to database", e);
         }
     }
 
@@ -83,44 +82,5 @@ public class App extends Application {
             throw new IllegalStateException("Application not yet created");
         }
         return mAccessor;
-    }
-
-    private static void setUpTestData() throws SQLException {
-        if (mAccessor != null) {
-            final List<Bunch> meals = mAccessor.loadAllBunches();
-            final List<Recipe> recipes = mAccessor.loadAllRecipes();
-
-            if (recipes.isEmpty() && meals.isEmpty()) {
-
-                final Step step1_1 = new Step(Collections.<String>emptyList(), "Recipe 1 step 1",
-                        Duration.standardMinutes(1), false);
-                final Step step1_2 = new Step(Collections.<String>emptyList(), "Recipe 1 step 2",
-                        Duration.standardMinutes(1), false);
-                final Step step2_1 = new Step(Collections.<String>emptyList(), "Recipe 2 step 1",
-                        Duration.standardMinutes(1), false);
-                final Step step2_2 = new Step(Collections.<String>emptyList(), "Recipe 2 step 2",
-                        Duration.standardMinutes(1), false);
-
-
-                final Recipe recipe1 = new Recipe("Recipe 1", "Clamify Flumingaster",
-                        Arrays.asList(step1_1, step1_2));
-                final Recipe recipe2 = new Recipe("Recipe 2", "Oysterify Flumingaster",
-                        Arrays.asList(step2_1, step2_2));
-                mAccessor.storeRecipe(recipe1);
-                mAccessor.storeRecipe(recipe2);
-
-                final List<Recipe> retrieved = mAccessor.loadAllRecipes();
-                Log.d(TAG, "After storing, retrieved recipes: " + retrieved);
-
-                final Bunch testMeal = new Bunch();
-                testMeal.setTitle("Test meal 1");
-                testMeal.addRecipe(recipe1);
-                testMeal.addRecipe(recipe2);
-                mAccessor.storeBunch(testMeal);
-
-                final List<Bunch> retrievedMeals = mAccessor.loadAllBunches();
-                Log.d(TAG, "After storing, retrieved meals: " + retrievedMeals);
-            }
-        }
     }
 }

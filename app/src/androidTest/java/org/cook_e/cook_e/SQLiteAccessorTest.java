@@ -1,4 +1,5 @@
-/* Copyright 2016 the Cook-E development team
+/*
+ * Copyright 2016 the Cook-E development team
  *
  * This file is part of Cook-E.
  *

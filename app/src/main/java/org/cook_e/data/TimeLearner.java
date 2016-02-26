@@ -1,9 +1,30 @@
+/*
+ * Copyright 2016 the Cook-E development team
+ *
+ *  This file is part of Cook-E.
+ *
+ *  Cook-E is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  Cook-E is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with Cook-E.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package org.cook_e.data;
 
 import android.support.annotation.NonNull;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import org.joda.time.Duration;
 
 /**
  * According to the step and actual time given
@@ -28,11 +49,13 @@ public class TimeLearner {
     /**
      * Learns the actual time of a step.
      * @param s the step you want to learn
-     * @param actualTime the actual time user took to finish this step (in milliseconds)
+     * @param time the actual time user took to finish this step (in milliseconds)
      * @throws IllegalArgumentException when actual time is negative
      */
-    public void learnStep(@NonNull Step s, long actualTime) throws IllegalArgumentException{
+    public void learnStep(@NonNull Step s, @NonNull Duration time) throws IllegalArgumentException{
         Objects.requireNonNull(s, "step must not be null");
+        Objects.requireNonNull(s, "time must not be null");
+        long actualTime = time.getMillis();
         if (actualTime < 0) throw new IllegalArgumentException("time must not be negative");
 
         // find old weight, create one if not exist
@@ -66,12 +89,23 @@ public class TimeLearner {
      * @param s the step you need to estimate the time for
      * @return the estimated time (in milliseconds) for that specific step
      */
-    public long getEstimatedTime(@NonNull Step s) {
+    @NonNull
+    public Duration getEstimatedTime(@NonNull Step s) {
         Objects.requireNonNull(s, "step must not be null");
         int index = searchStep(s.hashCode());
-        if (index != -1)
-            return (long) (s.getTime().getMillis() * weightList.get(index).timeWeight);
-        return s.getTime().getMillis();
+        if (index >= 0) {
+            long time = (long) (s.getTime().getMillis() * weightList.get(index).timeWeight);
+            return new Duration(time);
+        }
+        return s.getTime().toDuration();
+    }
+
+    /**
+     * Clears all data stored in learner
+     */
+    public void clearLearner() {
+        weightList.clear();
+        // TODO: write empty list to storage
     }
 
     /**

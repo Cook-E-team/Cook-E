@@ -1,20 +1,20 @@
 /*
  * Copyright 2016 the Cook-E development team
  *
- *  This file is part of Cook-E.
+ * This file is part of Cook-E.
  *
- *  Cook-E is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
+ * Cook-E is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- *  Cook-E is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ * Cook-E is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- *  You should have received a copy of the GNU General Public License
- *  along with Cook-E.  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU General Public License
+ * along with Cook-E.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 package org.cook_e.cook_e.ui;
@@ -95,17 +95,6 @@ public class RecipeList extends Fragment {
         mSearchView = (SearchView) view.findViewById(R.id.search);
         mSearchView.setOnQueryTextListener(new SearchHandler());
 
-        // Set up floating action button
-        final FloatingActionButton floatingButton = (FloatingActionButton) view.findViewById(R.id.add_button);
-        floatingButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Open recipe creation view
-                final Intent intent = new Intent(getActivity(), CreateRecipe.class);
-                startActivity(intent);
-            }
-        });
-
         // Empty view, shown when list is empty
         final TextView emptyView = (TextView) view.findViewById(R.id.empty_list_view);
         emptyView.setText(R.string.no_recipes);
@@ -120,6 +109,17 @@ public class RecipeList extends Fragment {
         mRecipes.addOnListChangedCallback(new VisibleRecipeUpdater<Recipe>());
 
         return view;
+    }
+
+
+    /**
+     * Called from the parent activity when an add button is pressed. Starts the process of creating
+     * a new recipe.
+     */
+    public void onAddButtonPressed() {
+        // Open recipe creation view
+        final Intent intent = new Intent(getActivity(), CreateRecipe.class);
+        startActivity(intent);
     }
 
     /**
