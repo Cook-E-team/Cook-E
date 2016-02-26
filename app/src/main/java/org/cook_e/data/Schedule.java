@@ -162,6 +162,26 @@ public class Schedule {
         return this.mTotalStepCount;
     }
 
+    /**
+     * Returns the index of the current step. If no step
+     * has been visited, then the behavior is undefined.
+     *
+     * @return the index of the current step
+     */
+    public int getCurrStepIndex() {
+        return mCurrScheduledStepIndex;
+    }
+
+    /**
+     * Returns the largest index that has been visited. If
+     * no step has been visited, then the behavior is undefined.
+     *
+     * @return the largest index that has been visited
+     */
+    public int getMaxVisitedStepIndex() {
+        return mScheduledStepList.size() - 1;
+    }
+
     /*
      * Removes and returns the step to schedule for shortest cooking time.
      * The given finalSteps is also modified such that each element in the list

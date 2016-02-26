@@ -149,4 +149,50 @@ public class ScheduleTest {
                     sched.getNextStep());
         }
     }
+
+    @Test
+    public void testGetCurrStepIndex() {
+        List<Step> steps = new ArrayList<>();
+        steps.add(fiveNonSimul);
+        steps.add(sevenNonSimul);
+        List<Recipe> recipies = new ArrayList<>();
+        Recipe recipeN5N5 = new Recipe("N5N7", "test", steps);
+        recipies.add(recipeN5N5);
+        Bunch bunch = new Bunch("test", recipies);
+        Schedule sched = new Schedule(bunch);
+
+        sched.getNextStep();
+        assertEquals(0, sched.getCurrStepIndex());
+        sched.getNextStep();
+        assertEquals(1, sched.getCurrStepIndex());
+        sched.getNextStep();
+        assertEquals(1, sched.getCurrStepIndex());
+        sched.getPrevStep();
+        assertEquals(0, sched.getCurrStepIndex());
+        sched.getPrevStep();
+        assertEquals(0, sched.getCurrStepIndex());
+    }
+
+    @Test
+    public void testGetMaxVisitedStepIndex() {
+        List<Step> steps = new ArrayList<>();
+        steps.add(fiveNonSimul);
+        steps.add(sevenNonSimul);
+        List<Recipe> recipies = new ArrayList<>();
+        Recipe recipeN5N5 = new Recipe("N5N7", "test", steps);
+        recipies.add(recipeN5N5);
+        Bunch bunch = new Bunch("test", recipies);
+        Schedule sched = new Schedule(bunch);
+
+        sched.getNextStep();
+        assertEquals(0, sched.getMaxVisitedStepIndex());
+        sched.getNextStep();
+        assertEquals(1, sched.getMaxVisitedStepIndex());
+        sched.getNextStep();
+        assertEquals(1, sched.getMaxVisitedStepIndex());
+        sched.getPrevStep();
+        assertEquals(1, sched.getMaxVisitedStepIndex());
+        sched.getPrevStep();
+        assertEquals(1, sched.getMaxVisitedStepIndex());
+    }
 }
