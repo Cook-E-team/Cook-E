@@ -120,7 +120,7 @@ public class CookActivity extends AppCompatActivity implements TimerFragment.Ste
 
             case R.id.next:
                 // User chose the "next" item,
-                boolean setBefore = mSchedule.getCurrStepIndex() == mSchedule.getMaxVisitedStepIndex();
+                boolean setBefore = mSchedule.getCurrStepIndex() != mSchedule.getMaxVisitedStepIndex();
                 step = mSchedule.getNextStep();
                 if (step != null) {
                     setCurrentStep(step, mSchedule.getCurrentStepRecipe(), setBefore);
