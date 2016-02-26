@@ -1,26 +1,28 @@
 /*
  * Copyright 2016 the Cook-E development team
  *
- *  This file is part of Cook-E.
+ * This file is part of Cook-E.
  *
- *  Cook-E is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
+ * Cook-E is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- *  Cook-E is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ * Cook-E is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- *  You should have received a copy of the GNU General Public License
- *  along with Cook-E.  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU General Public License
+ * along with Cook-E.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 package org.cook_e.cook_e;
 
+import android.app.Fragment;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
 import android.support.design.widget.TabLayout.Tab;
 import android.support.v4.view.ViewPager;
@@ -30,6 +32,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 
 import org.cook_e.cook_e.ui.HomePageAdapter;
 
@@ -96,6 +99,20 @@ public class HomeActivity extends AppCompatActivity {
         // Set up HomePageAdapter
         mPageAdapter = new HomePageAdapter(getFragmentManager());
         mViewPager.setAdapter(mPageAdapter);
+
+        // Set up add button for recipes/meals
+        final FloatingActionButton addButton = (FloatingActionButton) findViewById(R.id.add_button);
+        addButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final Fragment visibleFragment = mPageAdapter.getItem(mViewPager.getCurrentItem());
+                if (visibleFragment == mPageAdapter.getMealList()) {
+                    mPageAdapter.getMealList().onAddButtonPressed();
+                } else {
+                    mPageAdapter.getRecipeList().onAddButtonPressed();
+                }
+            }
+        });
     }
 
     @Override
