@@ -30,7 +30,7 @@ public class TimeLearner {
     /**
      * Learns the actual time of a step.
      * @param s the step you want to learn
-     * @param actualTime the actual time user took to finish this step (in milliseconds)
+     * @param time the actual time user took to finish this step (in milliseconds)
      * @throws IllegalArgumentException when actual time is negative
      */
     public void learnStep(@NonNull Step s, @NonNull Duration time) throws IllegalArgumentException{
