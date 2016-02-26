@@ -95,10 +95,15 @@ public class CookingTimeEstimator {
      * @param schedule the schedule to update when recipes busy times hit zero
      */
     private static void updateBusyTimes(Map<Recipe, Integer> busyTimes, int offset, Schedule schedule) {
-        for (Recipe recipe : busyTimes.keySet()) {
-            busyTimes.put(recipe, Math.max(busyTimes.get(recipe) - offset, 0));
+        Iterator<Map.Entry<Recipe, Integer>> busyTimesIterator = busyTimes.entrySet().iterator();
+        while (busyTimesIterator.hasNext()) {
+            Map.Entry<Recipe, Integer> currBusyTimeEntry = busyTimesIterator.next();
+            Recipe recipe = currBusyTimeEntry.getKey();
+            int busyTime = currBusyTimeEntry.getValue();
+
+            busyTimes.put(recipe, Math.max(busyTime - offset, 0));
             if (busyTimes.get(recipe) == 0) {
-                busyTimes.remove(recipe);
+                busyTimesIterator.remove();
                 schedule.finishSimultaneousStepFromRecipe(recipe);
             }
         }
