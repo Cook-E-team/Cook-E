@@ -82,13 +82,30 @@ public class StorageAccessor {
     }
 
     /**
+     * Find recipes from external storage based on keyword
+     * @param keyword String to search on
+     * @return List of Recipes containing keyword in their title
+     * @throws SQLException
+     */
+    public List<Recipe> loadRecipes(String keyword) throws SQLException {
+       return mExternal.findRecipesLike(keyword);
+    }
+    /**
      * Retrieve a recipe from storage
      * @param title String title of the recipe
      * @param author String author of the recipe
      * @return Recipe object or null if recipe could not be found
      */
     public Recipe loadRecipe(String title, String author) throws SQLException {
-        return mLocal.loadRecipe(title, author);
+
+        Recipe result = mLocal.loadRecipe(title, author);
+        if (result == null) {
+            result = mExternal.loadRecipe(title, author);
+            if (mExternal != null) {
+                mLocal.storeRecipe(result);
+            }
+        }
+        return result;
     }
 
     /**
