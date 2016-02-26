@@ -102,6 +102,9 @@ public class ScheduleTest {
         steps.add(sevenNonSimul);
         steps.add(tenNonSimul);
         for(int i = 0; i < sched.getStepCount(); i++) {
+            if (i == 3)
+                sched.finishSimultaneousStepFromRecipe(recipe10N10);
+
             assertEquals(steps.get(i),
                     sched.getNextStep());
         }
@@ -136,6 +139,11 @@ public class ScheduleTest {
         steps.add(sevenNonSimul);
         steps.add(tenNonSimul);
         for(int i = 0; i < sched.getStepCount(); i++) {
+            if (i == 4)
+                sched.finishSimultaneousStepFromRecipe(recipe10N10);
+            else if (i == 5)
+                sched.finishSimultaneousStepFromRecipe(recipeN5Y10);
+
             assertEquals(steps.get(i),
                     sched.getNextStep());
         }
