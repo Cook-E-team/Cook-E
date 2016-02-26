@@ -26,15 +26,16 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class TimeLearnerTest {
-    private static final Step STEP = new Step(Collections.<String>emptyList(), "a step", new Duration(10000), false);
+    private static final Step STEP_ONE = new Step(Collections.<String>emptyList(), "step 1", new Duration(10000), false);
+    private static final Step STEP_TWO = new Step(Collections.<String>emptyList(), "step 2", new Duration(20000), false);
+    private static final Step STEP_THREE = new Step(Collections.<String>emptyList(), "step 3", new Duration(10000), true);
+
     private TimeLearner learner;
 
     @Before
@@ -48,19 +49,55 @@ public class TimeLearnerTest {
     }
 
     @Test
-    public void testGetTimeNoLearn() {
-        assertEquals(10000, learner.getEstimatedTime(STEP).getMillis());
+    public void testOneStepNoLearn() {
+        assertEquals(10000, learner.getEstimatedTime(STEP_ONE).getMillis());
     }
 
     @Test
-    public void testGetTimeOneLearn() {
-        learner.learnStep(STEP, new Duration(8000));
-        assertEquals(8000, learner.getEstimatedTime(STEP).getMillis());
+    public void testOneStepOneLearn() {
+        learner.learnStep(STEP_ONE, new Duration(8000));
+        assertEquals(8000, learner.getEstimatedTime(STEP_ONE).getMillis());
     }
 
     @Test
     public void testClear() {
         learner.clearLearner();
-        assertEquals(10000, learner.getEstimatedTime(STEP).getMillis());
+        assertEquals(10000, learner.getEstimatedTime(STEP_ONE).getMillis());
+    }
+
+    @Test
+    public void testOneStepOneLearnOverLimit() {
+        learner.learnStep(STEP_ONE, new Duration(3000));
+        assertEquals(5000, learner.getEstimatedTime(STEP_ONE).getMillis());
+        learner.clearLearner();
+    }
+
+    @Test
+    public void testOneStepMulLearn() {
+        learner.learnStep(STEP_ONE, new Duration(8000));
+        assertEquals(8000, learner.getEstimatedTime(STEP_ONE).getMillis());
+        learner.learnStep(STEP_ONE, new Duration(12000));
+        assertEquals(11000, learner.getEstimatedTime(STEP_ONE).getMillis());
+        learner.learnStep(STEP_ONE, new Duration(7000));
+        assertEquals(8750, learner.getEstimatedTime(STEP_ONE).getMillis());
+        learner.clearLearner();
+    }
+
+    @Test
+    public void testMulStep() {
+        learner.learnStep(STEP_ONE, new Duration(8000));
+        assertEquals(8000, learner.getEstimatedTime(STEP_ONE).getMillis());
+        learner.learnStep(STEP_TWO, new Duration(30000));
+        assertEquals(8000, learner.getEstimatedTime(STEP_ONE).getMillis());
+        assertEquals(30000, learner.getEstimatedTime(STEP_TWO).getMillis());
+        learner.learnStep(STEP_THREE, new Duration(12000));
+        assertEquals(8000, learner.getEstimatedTime(STEP_ONE).getMillis());
+        assertEquals(30000, learner.getEstimatedTime(STEP_TWO).getMillis());
+        assertEquals(12000, learner.getEstimatedTime(STEP_THREE).getMillis());
+        learner.learnStep(STEP_ONE, new Duration(12000));
+        assertEquals(11000, learner.getEstimatedTime(STEP_ONE).getMillis());
+        assertEquals(30000, learner.getEstimatedTime(STEP_TWO).getMillis());
+        assertEquals(12000, learner.getEstimatedTime(STEP_THREE).getMillis());
+        learner.clearLearner();
     }
 }
