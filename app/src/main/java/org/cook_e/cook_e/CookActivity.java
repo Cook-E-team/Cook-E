@@ -26,7 +26,6 @@ import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
@@ -48,6 +47,7 @@ public class CookActivity extends AppCompatActivity implements TimerFragment.Ste
     /**
      * The tag used for logging
      */
+    @SuppressWarnings("unused")
     private static final String TAG = CookActivity.class.getSimpleName();
     /**
      * The extra key used to provide a bunch/meal to cook
