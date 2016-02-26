@@ -71,4 +71,7 @@
     <string name="no_recipes">لا وصفات</string>
     <string name="no_items">لا يوجد سلع</string>
     <string name="no_meals">لا وجبات</string>
+    <string name="dialog_title_waiting_for_step">تنتظر خطوة</string>
+    <string name="done">فعله</string>
+    <string name="dialog_waiting_for_step">خطوة لا تزال في التقدم. الانتهاء من الخطوة والمضي قدما.</string>
 </resources>

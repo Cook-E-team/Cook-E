@@ -174,7 +174,7 @@ public class SQLiteAccessorTest {
         final Recipe recipe = new Recipe("A Recipe", "Alan Smithee", Collections.<Step>emptyList());
 
         mAccessor.storeRecipe(recipe);
-        
+
         final Bunch meal = new Bunch(mealName, Collections.singletonList(recipe));
 
         mAccessor.storeBunch(meal);

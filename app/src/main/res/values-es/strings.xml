@@ -64,4 +64,7 @@
     <string name="website">Sitio web</string>
     <string name="time">Duración</string>
     <string name="title">Título</string>
+    <string name="dialog_title_waiting_for_step">A la espera de un paso</string>
+    <string name="dialog_waiting_for_step">Un paso está todavía en curso. Termina el paso para proceder.</string>
+    <string name="done">Hecho</string>
 </resources>
