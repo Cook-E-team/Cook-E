@@ -75,8 +75,9 @@ public class TimeLearner {
         else if (actualTime * LEARNING_LIMIT <= oldEstimatedTime)
             weightChange = (1 / LEARNING_LIMIT) - 1;
         else {
-            weightChange = (actualTime / oldEstimatedTime) - 1;
+            weightChange = (actualTime * 1.0 / oldEstimatedTime) - 1;
         }
+
         lw.timeWeight = lw.timeWeight + lw.timeWeight * weightChange * lw.learnRate;
         lw.learnRate = lw.learnRate * LEARN_RATE_DECAY_RATE;
 
