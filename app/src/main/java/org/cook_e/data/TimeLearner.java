@@ -5,6 +5,9 @@ import android.support.annotation.NonNull;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.joda.time.Duration;
+import org.joda.time.ReadableDuration;
+
 /**
  * According to the step and actual time given
  * this class will perform operations to give more accurate estimate time for one user
@@ -66,12 +69,14 @@ public class TimeLearner {
      * @param s the step you need to estimate the time for
      * @return the estimated time (in milliseconds) for that specific step
      */
-    public long getEstimatedTime(@NonNull Step s) {
+    public Duration getEstimatedTime(@NonNull Step s) {
         Objects.requireNonNull(s, "step must not be null");
         int index = searchStep(s.hashCode());
-        if (index != -1)
-            return (long) (s.getTime().getMillis() * weightList.get(index).timeWeight);
-        return s.getTime().getMillis();
+        if (index != -1) {
+            long time = (long) (s.getTime().getMillis() * weightList.get(index).timeWeight);
+            return new Duration(time);
+        }
+        return s.getTime().toDuration();
     }
 
     /**
