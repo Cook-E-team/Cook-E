@@ -36,9 +36,33 @@ public class CookingTimeEstimator {
      * @return the estimated amount of time it would take to cook the given schedule
      */
     public static int getOptimizedTime(Schedule schedule) {
-        // TODO: Complete the implementation of this function when Schedule is
-        // integrated with the Timers.
-        return -1;
+        int totalTime = 0;
+        Map<Recipe, Integer> busyTimes = new HashMap<Recipe, Integer>();
+        for (int i = 0; i < schedule.getStepCount(); i++) {
+            Step currStep = schedule.getNextStep();
+            if (currStep == null) {
+                // handles case where all remaining recipes are blocked
+                int minBusyTime = Integer.MAX_VALUE;
+                for (Recipe recipe : busyTimes.keySet()) {
+                    int currBusyTime = busyTimes.get(recipe);
+                    if (currBusyTime < minBusyTime) {
+                        minBusyTime = currBusyTime;
+                    }
+                }
+                updateBusyTimes(busyTimes, minBusyTime, schedule);
+                totalTime += minBusyTime;
+            } if (currStep.isSimultaneous()) {
+                // handles case where the next step is simultaneous
+                busyTimes.put(schedule.getCurrentStepRecipe(), currStep.getDurationMinutes());
+            } else {
+                // handles case where the next step is not simultaneous
+                int currStepTime = currStep.getDurationMinutes();
+                updateBusyTimes(busyTimes, currStepTime, schedule);
+                totalTime += currStepTime;
+            }
+        }
+
+        return totalTime;
     }
 
     /**
@@ -61,5 +85,22 @@ public class CookingTimeEstimator {
         }
 
         return totalTime;
+    }
+
+    /**
+     *
+     *
+     * @param busyTimes the map of recipes to the amount of busy time left to update
+     * @param offset the amount to decrease the busy times by
+     * @param schedule the schedule to update when recipes busy times hit zero
+     */
+    private static void updateBusyTimes(Map<Recipe, Integer> busyTimes, int offset, Schedule schedule) {
+        for (Recipe recipe : busyTimes.keySet()) {
+            busyTimes.put(recipe, Math.max(busyTimes.get(recipe) - offset, 0));
+            if (busyTimes.get(recipe) == 0) {
+                busyTimes.remove(recipe);
+                schedule.finishSimultaneousStepFromRecipe(recipe);
+            }
+        }
     }
 }
