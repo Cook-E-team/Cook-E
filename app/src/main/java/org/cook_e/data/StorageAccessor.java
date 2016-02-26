@@ -85,6 +85,15 @@ public class StorageAccessor {
     }
 
     /**
+     * Find recipes from external storage based on keyword
+     * @param keyword String to search on
+     * @return List of Recipes containing keyword in their title
+     * @throws SQLException
+     */
+    public List<Recipe> loadRecipes(String keyword) throws SQLException {
+       return mExternal.findRecipesLike(keyword);
+    }
+    /**
      * Retrieve a recipe from storage
      *
      * If recipes are found in both the local and remote databases, the recipe from the local
