@@ -24,6 +24,7 @@ import org.cook_e.data.Step;
 import org.joda.time.Duration;
 import org.junit.Test;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -73,5 +74,11 @@ public class StepUnitTest {
         assertFalse(s1.equals(s2));
         assertFalse(s1.equals(s3));
         assertFalse(s1.equals(s4));
+    }
+
+    @Test
+    public void testBakeSimultaneous() {
+        final Step step = new Step(Collections.<String>emptyList(), "Bake the thing", Duration.standardSeconds(1));
+        assertTrue(step.isSimultaneous());
     }
 }

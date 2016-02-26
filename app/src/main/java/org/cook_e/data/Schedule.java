@@ -19,6 +19,7 @@
 
 package org.cook_e.data;
 
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,23 +28,42 @@ import java.util.List;
  * A class that produces and manages a schedule for a Bunch.
  */
 public class Schedule {
-
-
-    private final List<Step> mFinalSteps;
-    private int mCurrSelectedFinalStep = -1;
+    private final List<ScheduledStep> mScheduledStepList;
     private final List<UnscheduledRecipeSteps> mUnscheduledRecipeStepsList;
     private final int mTotalStepCount;
-    private List<Recipe> mFinalStepMapToRecipe;
+    private final int mOriginalEstimatedTime;
+    private final int mOptimizedEstimatedTime;
+    private int mCurrScheduledStepIndex = -1;
+
 
     /**
      * Creates a schedule based on the given Bunch.
      *
-     * @param b the Bunch to schedule finalSteps from
+     * @param b the Bunch to schedule steps from
      */
     public Schedule(Bunch b) {
-        this.mFinalSteps = new ArrayList<>();
-        // this.stepToRecipeMap = new HashMap<>();
-        this.mFinalStepMapToRecipe = new ArrayList<>();
+        this(b, true);
+    }
+
+    /**
+     * Creates a schedule based on the given Bunch. If the given boolean is true,
+     * then estimated times are calculated, otherwise they aren't. This private
+     * constructor with the additional boolean is necessary to avoid infinite
+     * recursive calls due to calculating estimed times.
+     *
+     * @param b the Bunch to schedule steps from
+     * @param calculateEstimatedTimes whether or not estimated times should be calculated
+     */
+    private Schedule(Bunch b, boolean calculateEstimatedTimes) {
+        if (calculateEstimatedTimes) {
+            this.mOriginalEstimatedTime = CookingTimeEstimator.getOriginalTime(b);
+            this.mOptimizedEstimatedTime = CookingTimeEstimator.getOptimizedTime(new Schedule(b, false));
+        } else {
+            this.mOriginalEstimatedTime = -1;
+            this.mOptimizedEstimatedTime = -1;
+        }
+
+        this.mScheduledStepList = new ArrayList<>();
 
         int totalStepCount = 0;
         List<Recipe> recipes = b.getRecipes();
@@ -53,10 +73,10 @@ public class Schedule {
         this.mTotalStepCount = totalStepCount;
 
         // populate UnscheduledRecipeStepsList
-        mUnscheduledRecipeStepsList = new ArrayList<>();
+        this.mUnscheduledRecipeStepsList = new ArrayList<>();
         for (Recipe r: recipes) {
             if(r.getSteps().isEmpty()) continue;
-            mUnscheduledRecipeStepsList.add(new UnscheduledRecipeSteps(r));
+            this.mUnscheduledRecipeStepsList.add(new UnscheduledRecipeSteps(r));
         }
     }
 
@@ -65,7 +85,7 @@ public class Schedule {
      * @return the recipe current step belongs to
      */
     public Recipe getCurrentStepRecipe() {
-        return mFinalStepMapToRecipe.get(mCurrSelectedFinalStep);
+        return this.mScheduledStepList.get(this.mCurrScheduledStepIndex).motherRecipe;
     }
 
 
@@ -80,21 +100,19 @@ public class Schedule {
      */
     public Step getNextStep() {
         Step nextStep = null;
-        if (mCurrSelectedFinalStep < mFinalSteps.size() - 1) {
+        if (this.mCurrScheduledStepIndex < this.mScheduledStepList.size() - 1) {
             // handles the case where the next step has already
             // been scheduled
-            mCurrSelectedFinalStep++;
-            nextStep = mFinalSteps.get(mCurrSelectedFinalStep);
-        } else if (mCurrSelectedFinalStep == mFinalSteps.size() -1 &&
-                mUnscheduledRecipeStepsList.size() > 0) {
+            this.mCurrScheduledStepIndex++;
+            nextStep = this.mScheduledStepList.get(this.mCurrScheduledStepIndex).step;
+        } else if (this.mCurrScheduledStepIndex == this.mScheduledStepList.size() -1 &&
+                this.mUnscheduledRecipeStepsList.size() > 0) {
             // handles the case where the next step hasn't been
             // scheduled yet
-            mCurrSelectedFinalStep++;
-            ScheduledStep ss = getNextScheduledStep(mUnscheduledRecipeStepsList);
-            nextStep = ss.getStep();
-
-            // nextStep = getNextScheduledStep(mUnscheduledRecipeStepsList);
-            this.mFinalSteps.add(nextStep);
+            this.mCurrScheduledStepIndex++;
+            ScheduledStep nextScheduledStep = getNextScheduledStep(this.mUnscheduledRecipeStepsList);
+            this.mScheduledStepList.add(nextScheduledStep);
+            nextStep = nextScheduledStep.step;
         }
         return nextStep;
     }
@@ -107,21 +125,30 @@ public class Schedule {
      */
     public Step getPrevStep() {
         Step prevStep = null;
-        if (mCurrSelectedFinalStep > 0) {
-            mCurrSelectedFinalStep--;
-            prevStep = mFinalSteps.get(mCurrSelectedFinalStep);
+        if (this.mCurrScheduledStepIndex > 0) {
+            this.mCurrScheduledStepIndex--;
+            prevStep = this.mScheduledStepList.get(this.mCurrScheduledStepIndex).step;
         }
         return prevStep;
     }
 
     /**
+     * Calling this function indicates that the blocking simultaneous step
+     * associated with the given recipe has been completed. If no matching recipe
+     * is found, then the function silently does nothing. This is largely due to
+     * how hard it would be for the caller to know if the particular recipe has
+     * has any unscheduled steps left.
      *
-     *
-     * @param step
+     * @param recipe the recipe the finished simultaneous step is associated with
      */
-    public void finishStep(Step step) {
-        // TODO: Implement this function once we can get the UnscheduledRecipeStep associated
-        // with the given Step.
+    public void finishSimultaneousStepFromRecipe(Recipe recipe) {
+        UnscheduledRecipeSteps matchingRecipeSteps = null;
+        for (UnscheduledRecipeSteps currUnscheduledRecipeSteps : mUnscheduledRecipeStepsList) {
+            if (currUnscheduledRecipeSteps.motherReceipe.equals(recipe)) {
+                currUnscheduledRecipeSteps.setReady();
+                return;
+            }
+        }
     }
 
     /**
@@ -131,7 +158,7 @@ public class Schedule {
      * @return the total number of steps
      */
     public int getStepCount() {
-        return mTotalStepCount;
+        return this.mTotalStepCount;
     }
 
     /*
@@ -162,15 +189,20 @@ public class Schedule {
         }
 
         Step nextScheduledStep = null;
+        Recipe motherRecipe = null;
         if (chosenIndex != -1) {
             // Handles case where one or more recipes were ready by removing and
             // returning the chosen step.
+            motherRecipe = unscheduledRecipeStepsList.get(chosenIndex).motherReceipe;
             nextScheduledStep = unscheduledRecipeStepsList.get(chosenIndex).removeNextStep();
+
+            Log.d("Schedule", "chosenIndex = " + chosenIndex + ", unscheduled steps = " + unscheduledRecipeStepsList);
             if (unscheduledRecipeStepsList.get(chosenIndex).isEmpty()) {
+                Log.d("Schedule", "chosenIndex = " + chosenIndex + ", unscheduled steps = " + unscheduledRecipeStepsList);
                 unscheduledRecipeStepsList.remove(chosenIndex);
             }
         }
-        return new ScheduledStep(nextScheduledStep, unscheduledRecipeStepsList.get(chosenIndex).motherReceipe);
+        return new ScheduledStep(nextScheduledStep, motherRecipe);
     }
 
     /**
@@ -186,7 +218,7 @@ public class Schedule {
         // ready if a simultaneous step is in progress.
         private boolean isReady;
 
-        public Recipe motherReceipe;
+        public final Recipe motherReceipe;
 
 
         /**
@@ -273,21 +305,17 @@ public class Schedule {
         }
     }
 
+    /**
+     * A private helper class used to keep steps associated with
+     * their recipes.
+     */
     private class ScheduledStep {
-        private Step step;
-        private Recipe motherRecipe;
+        public final Step step;
+        public final Recipe motherRecipe;
 
         public ScheduledStep(Step s, Recipe r) {
             this.step = s;
             this.motherRecipe = r;
-        }
-
-        public Step getStep() {
-            return step;
-        }
-
-        public Recipe getRecipe() {
-            return motherRecipe;
         }
     }
 }

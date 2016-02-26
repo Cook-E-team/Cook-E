@@ -101,4 +101,7 @@ This application uses the material icons developed by Google (https://design.goo
     <string name="no_recipes">No recipes</string>
     <string name="no_items">No items</string>
     <string name="no_meals">No meals</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
