@@ -23,7 +23,10 @@ import android.content.Context;
 
 
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Class that handles storing and retrieving recipes and bunches from the local database and
@@ -62,7 +65,7 @@ public class StorageAccessor {
      * @throws IllegalArgumentException if the provided recipe already has an object ID
      */
     public void storeRecipe(Recipe r) throws SQLException {
-        if (r.hasObjectId()) {
+        if (r.getObjectId() != DatabaseObject.NO_ID && mLocal.containsRecipe(r.getObjectId())) {
             throw new IllegalArgumentException("Recipe has already been stored");
         }
         mLocal.storeRecipe(r);
@@ -83,16 +86,26 @@ public class StorageAccessor {
 
     /**
      * Retrieve a recipe from storage
+     *
+     * If recipes are found in both the local and remote databases, the recipe from the local
+     * database will be returned.
+     *
      * @param title String title of the recipe
      * @param author String author of the recipe
      * @return Recipe object or null if recipe could not be found
      */
     public Recipe loadRecipe(String title, String author) throws SQLException {
-        return mLocal.loadRecipe(title, author);
+        final Recipe local = mLocal.loadRecipe(title, author);
+        if (local == null) {
+            return mExternal.loadRecipe(title, author);
+        } else {
+            return local;
+        }
     }
 
     /**
      * Retrieve a bunch from storage
+     *
      * @param name String name of the Bunch
      * @return Bunch object or null if bunch could not be found
      */
@@ -102,10 +115,17 @@ public class StorageAccessor {
 
     /**
      * Retrieve all recipes from storage
+     *
+     * If a recipe appears in both the local database and remote database, only one of the two
+     * recipes will be returned.
+     *
      * @return List of Recipe objects
      */
     public List<Recipe> loadAllRecipes() throws SQLException {
-        return mLocal.loadAllRecipes();
+        final Set<Recipe> recipeSet = new HashSet<>();
+        recipeSet.addAll(mLocal.loadAllRecipes());
+        recipeSet.addAll(mExternal.loadAllRecipes());
+        return new ArrayList<>(recipeSet);
     }
 
     /**
@@ -194,5 +214,15 @@ public class StorageAccessor {
             throw new IllegalArgumentException("Bunch has not been stored");
         }
         mLocal.deleteBunch(b);
+    }
+
+    /**
+     * Determines if the local database has a recipe with the provided ID
+     * @param id the ID to check
+     * @return true if the local database has a recipe with the provided ID, otherwise false
+     * @throws SQLException if an error occurs
+     */
+    public boolean containsLocalRecipe(long id) throws SQLException {
+        return mLocal.containsRecipe(id);
     }
 }

@@ -51,14 +51,16 @@ public class CookingTimeEstimator {
                 }
                 updateBusyTimes(busyTimes, minBusyTime, schedule);
                 totalTime += minBusyTime;
-            } if (currStep.isSimultaneous()) {
-                // handles case where the next step is simultaneous
-                busyTimes.put(schedule.getCurrentStepRecipe(), currStep.getDurationMinutes());
             } else {
-                // handles case where the next step is not simultaneous
-                int currStepTime = currStep.getDurationMinutes();
-                updateBusyTimes(busyTimes, currStepTime, schedule);
-                totalTime += currStepTime;
+                if (currStep.isSimultaneous()) {
+                    // handles case where the next step is simultaneous
+                    busyTimes.put(schedule.getCurrentStepRecipe(), currStep.getDurationMinutes());
+                } else {
+                    // handles case where the next step is not simultaneous
+                    int currStepTime = currStep.getDurationMinutes();
+                    updateBusyTimes(busyTimes, currStepTime, schedule);
+                    totalTime += currStepTime;
+                }
             }
         }
 

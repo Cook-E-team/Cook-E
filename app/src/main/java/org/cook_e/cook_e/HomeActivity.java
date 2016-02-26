@@ -22,6 +22,7 @@ package org.cook_e.cook_e;
 import android.app.Fragment;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
 import android.support.design.widget.TabLayout.Tab;

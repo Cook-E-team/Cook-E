@@ -37,6 +37,7 @@ import android.view.View.OnClickListener;
 import android.widget.ListView;
 
 import org.cook_e.data.Bunch;
+import org.cook_e.data.DatabaseObject;
 import org.cook_e.data.Objects;
 import org.cook_e.data.Recipe;
 import org.cook_e.data.StorageAccessor;
@@ -149,7 +150,6 @@ public class MealViewActivity extends AppCompatActivity {
      * Sets the recipes in {@link #mMeal} to {@link #mRecipes}, then saves the meal
      */
     private void updateRecipes() {
-        mMeal.setRecipes(mRecipes);
         saveMeal();
     }
 
@@ -158,6 +158,15 @@ public class MealViewActivity extends AppCompatActivity {
      */
     private void saveMeal() {
         try {
+
+            // Save recipes that were copied from the remote database but are not saved locally
+            // yet
+            for (Recipe recipe : mRecipes) {
+                if (!mAccessor.containsLocalRecipe(recipe.getObjectId())) {
+                    mAccessor.storeRecipe(recipe);
+                }
+            }
+            mMeal.setRecipes(mRecipes);
             mAccessor.persistBunch(mMeal);
         }
         catch (Exception e) {

@@ -115,7 +115,18 @@ public interface SQLAccessor {
      */
     void checkInvariants() throws SQLException;
 
+    /**
+     * Removes all rows from all tables in this database
+     * @throws SQLException if an error occurs
+     */
     void clearAllTables() throws SQLException;
+
+    /**
+     * Checks if this database contains a recipe with the specified ID
+     * @param id the id to check
+     * @return true if this database contains a recipe with the specified ID, otherwise false
+     */
+    boolean containsRecipe(long id) throws SQLException;
 
     void storeLearnerData(Recipe r, Collection<LearningWeight> weights) throws SQLException;
 

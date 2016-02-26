@@ -74,25 +74,25 @@ public class SQLServerAccessor implements SQLAccessor {
      * SQL query that creates the recipe table if it does not exist
      */
     private static final String RECIPE_TABLE_CREATE = String.format(Locale.US, "IF NOT EXISTS " +
-            "(SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = N'%s') " +
-            "CREATE TABLE %s (id INTEGER PRIMARY KEY, name NVARCHAR(MAX) NOT NULL DEFAULT '', " +
-            "author NVARCHAR(MAX) NOT NULL DEFAULT '', description NVARCHAR(MAX) NOT NULL DEFAULT '');",
+                    "(SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = N'%s') " +
+                    "CREATE TABLE %s (id INTEGER PRIMARY KEY, name NVARCHAR(MAX) NOT NULL DEFAULT '', " +
+                    "author NVARCHAR(MAX) NOT NULL DEFAULT '', description NVARCHAR(MAX) NOT NULL DEFAULT '');",
             RECIPE_TABLE_NAME, RECIPE_TABLE_NAME);
     /**
      * SQL query that creates the recipe-bunch relation table if it does note exist
      */
     private static final String BUNCH_RECIPE_TABLE_CREATE = String.format(Locale.US, "IF NOT EXISTS " +
-            "(SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = N'%s') " +
-            "CREATE TABLE %s (bunch_id INTEGER NOT NULL, recipe_id INTEGER NOT NULL, " +
-            "PRIMARY KEY (bunch_id, recipe_id));",
+                    "(SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = N'%s') " +
+                    "CREATE TABLE %s (bunch_id INTEGER NOT NULL, recipe_id INTEGER NOT NULL, " +
+                    "PRIMARY KEY (bunch_id, recipe_id));",
             BUNCH_RECIPE_TABLE_NAME, BUNCH_RECIPE_TABLE_NAME);
 
     /**
      * SQL query that creates the bunch table if it does not exist
      */
     private static final String BUNCH_TABLE_CREATE = String.format(Locale.US, "IF NOT EXISTS " +
-            "(SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = N'%s') " +
-            "CREATE TABLE %s (id INTEGER PRIMARY KEY, name NVARCHAR(MAX) NOT NULL DEFAULT '');",
+                    "(SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = N'%s') " +
+                    "CREATE TABLE %s (id INTEGER PRIMARY KEY, name NVARCHAR(MAX) NOT NULL DEFAULT '');",
             BUNCH_TABLE_NAME, BUNCH_TABLE_NAME);
 
     /**
@@ -111,6 +111,12 @@ public class SQLServerAccessor implements SQLAccessor {
      */
     private static final String RECIPE_SELECT_LIKE = "SELECT id, name, author, description FROM "
             + RECIPE_TABLE_NAME + " WHERE name LIKE ?";
+
+    /**
+     * Statement for selecting all recipes
+     */
+    private static final String RECIPE_SELECT_ALL = "SELECT id, name, author, description FROM "
+            + RECIPE_TABLE_NAME;
 
     /**
      * Parser used for transforming strings to recipes and recipes to strings
@@ -134,17 +140,16 @@ public class SQLServerAccessor implements SQLAccessor {
      * Prepared statement for selecting a recipe based on a name fragment
      */
     private final PreparedStatement mRecipeSelectLikeStatement;
+    /**
+     * Prepared statement for selecting all recipes
+     */
+    private final PreparedStatement mRecipeSelectAllStatement;
 
     /**
      * This counter is always one greater than the ID of the last inserted recipe. It is used to
      * assign non-duplicate IDs.
      */
     private long mRecipeCounter;
-    /**
-     * This counter is always one greater than the ID of the last inserted bunch. It is used to
-     * assign non-duplicate IDs.
-     */
-    private long mBunchCounter;
 
     /**
      * Constructor
@@ -178,6 +183,7 @@ public class SQLServerAccessor implements SQLAccessor {
         mRecipeInsertStatement = mConnection.prepareStatement(RECIPE_INSERT);
         mRecipeSelectStatement = mConnection.prepareStatement(RECIPE_SELECT_TITLE_AUTHOR);
         mRecipeSelectLikeStatement = mConnection.prepareStatement(RECIPE_SELECT_LIKE);
+        mRecipeSelectAllStatement = mConnection.prepareStatement(RECIPE_SELECT_ALL);
         // Set up ID counters
         setUpCounters();
     }
@@ -185,6 +191,11 @@ public class SQLServerAccessor implements SQLAccessor {
 
     @Override
     public Recipe loadRecipe(String name, String author) throws SQLException {
+
+        // Allow network access on main thread (for testing only)
+        // TODO: Remodel all database access to run on a separate thread (issue #26)
+        StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder().permitAll().build());
+
         mRecipeSelectStatement.setString(1, name);
         mRecipeSelectStatement.setString(2, author);
         mRecipeSelectStatement.execute();
@@ -192,8 +203,7 @@ public class SQLServerAccessor implements SQLAccessor {
         try {
             if (results.next()) {
                 return recipeFromResult(results);
-            }
-            else {
+            } else {
                 return null;
             }
         } catch (ParseException e) {
@@ -205,36 +215,30 @@ public class SQLServerAccessor implements SQLAccessor {
 
     @Override
     public List<Recipe> findRecipesLike(String title) throws SQLException {
+
+        // Allow network access on main thread (for testing only)
+        // TODO: Remodel all database access to run on a separate thread (issue #26)
+        StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder().permitAll().build());
+
         // Create an expression for any string that contains the query
         final String expression = '%' + title + '%';
         mRecipeSelectLikeStatement.setString(1, expression);
         mRecipeSelectLikeStatement.execute();
 
-        final List<Recipe> recipes = new ArrayList<>();
         final ResultSet results = mRecipeSelectLikeStatement.getResultSet();
         try {
-            while (results.next()) {
-                try {
-                    recipes.add(recipeFromResult(results));
-                }
-                catch (ParseException e) {
-                    // TODO: Should this be reported in some other way?
-                    // Will proceed to the next recipe
-                    Log.w(TAG, "Failed to parse recipe steps");
-                }
-            }
-        }
-        finally {
+            return recipesFromResults(results);
+        } finally {
             results.close();
         }
-        return recipes;
     }
 
     /**
      * Creates a Recipe from a ResultSet
+     *
      * @param result the ResultSet to read from. This must already be set to a valid row.
      * @return a Recipe
-     * @throws SQLException if an error occurs
+     * @throws SQLException   if an error occurs
      * @throws ParseException if the steps could not be parsed
      */
     private Recipe recipeFromResult(ResultSet result) throws SQLException, ParseException {
@@ -249,13 +253,41 @@ public class SQLServerAccessor implements SQLAccessor {
         return recipe;
     }
 
+    /**
+     * Creates a list of zero or more recipes from a ResultSet
+     *
+     * Any recipes that cannot be parsed will be ignored.
+     *
+     * @param results a result set to read from. This must be positioned before the first row to read.
+     * @return the recipes provided by the result set
+     * @throws SQLException if an error occurs
+     */
+    private List<Recipe> recipesFromResults(ResultSet results) throws SQLException {
+        final List<Recipe> recipes = new ArrayList<>();
+        while (results.next()) {
+            try {
+                recipes.add(recipeFromResult(results));
+            } catch (ParseException e) {
+                // TODO: Should this be reported in some other way?
+                // Will proceed to the next recipe
+                Log.w(TAG, "Failed to parse recipe steps");
+            }
+        }
+        return recipes;
+    }
+
     @Override
     public void checkInvariants() throws SQLException {
-        throw new UnsupportedOperationException("Not implemented");
+        // No invariants to check for now
     }
 
     @Override
     public void storeRecipe(Recipe r) throws SQLException {
+
+        // Allow network access on main thread (for testing only)
+        // TODO: Remodel all database access to run on a separate thread (issue #26)
+        StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder().permitAll().build());
+
         r.setObjectId(++mRecipeCounter);
         mRecipeInsertStatement.setLong(1, r.getObjectId());
         mRecipeInsertStatement.setString(2, r.getTitle());
@@ -273,7 +305,18 @@ public class SQLServerAccessor implements SQLAccessor {
 
     @Override
     public List<Recipe> loadAllRecipes() throws SQLException {
-        throw new UnsupportedOperationException("Not implemented");
+
+        // Allow network access on main thread (for testing only)
+        // TODO: Remodel all database access to run on a separate thread (issue #26)
+        StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder().permitAll().build());
+
+        mRecipeSelectAllStatement.execute();
+        final ResultSet results = mRecipeSelectAllStatement.getResultSet();
+        try {
+            return recipesFromResults(results);
+        } finally {
+            results.close();
+        }
     }
 
     @Override
@@ -305,14 +348,17 @@ public class SQLServerAccessor implements SQLAccessor {
     public void deleteBunch(Bunch b) throws SQLException {
         throw new UnsupportedOperationException("Not implemented");
     }
+
     @Override
     public void storeLearnerData(Recipe r, Collection<LearningWeight> weights) throws SQLException {
         throw new UnsupportedOperationException("Not implemented");
     }
+
     @Override
     public Collection<LearningWeight> loadLearnerData(Recipe r) throws SQLException {
         throw new UnsupportedOperationException("Not implemented");
     }
+
     @Override
     public void clearAllTables() throws SQLException {
         final Statement statement = mConnection.createStatement();
@@ -320,10 +366,14 @@ public class SQLServerAccessor implements SQLAccessor {
             statement.executeUpdate(String.format(Locale.US, "DELETE FROM %s", RECIPE_TABLE_NAME));
             statement.executeUpdate(String.format(Locale.US, "DELETE FROM %s", BUNCH_TABLE_NAME));
             statement.executeUpdate(String.format(Locale.US, "DELETE FROM %s", BUNCH_RECIPE_TABLE_NAME));
-        }
-        finally {
+        } finally {
             statement.close();
         }
+    }
+
+    @Override
+    public boolean containsRecipe(long id) throws SQLException {
+        throw new UnsupportedOperationException("Not implemented");
     }
 
     /**
@@ -335,47 +385,29 @@ public class SQLServerAccessor implements SQLAccessor {
             statement.executeUpdate(RECIPE_TABLE_CREATE);
             statement.executeUpdate(BUNCH_TABLE_CREATE);
             statement.executeUpdate(BUNCH_RECIPE_TABLE_CREATE);
-        }
-        finally {
+        } finally {
             statement.close();
         }
     }
 
     /**
-     * Initializes {@link #mRecipeCounter} and {@link #mBunchCounter} to one greater than the
-     * greatest ID of any recipe/bunch in the database
-     *
-     * If an error occurs or no items exist, sets the corresponding counter to 1.
+     * Initializes {@link #mRecipeCounter} to one greater than the
+     * greatest ID of any recipe in the database. If the recipes table is empty, sets mRecipeCounter
+     * to 1.
      */
-    private void setUpCounters() {
-        final Statement statement;
+    private void setUpCounters() throws SQLException {
+        final Statement statement = mConnection.createStatement();
         try {
-            statement = mConnection.createStatement();
-            try {
-                statement.execute("SELECT TOP (1) id FROM " + RECIPE_TABLE_NAME + " ORDER BY id DESC");
-                ResultSet results = statement.getResultSet();
-                if (results.next()) {
-                    mRecipeCounter = results.getLong("id") - 1;
-                } else {
-                    mRecipeCounter = -1;
-                }
-                results.close();
-                statement.execute(
-                        "SELECT TOP (1) id FROM " + BUNCH_TABLE_NAME + " ORDER BY id DESC");
-                results = statement.getResultSet();
-                if (results.next()) {
-                    mBunchCounter = results.getLong("id") - 1;
-                } else {
-                    mRecipeCounter = -1;
-                }
-                results.close();
-            } finally {
-                statement.close();
+            statement.execute("SELECT TOP (1) id FROM " + RECIPE_TABLE_NAME + " ORDER BY id DESC");
+            ResultSet results = statement.getResultSet();
+            if (results.next()) {
+                mRecipeCounter = results.getLong("id") - 1;
+            } else {
+                mRecipeCounter = 1;
             }
-        } catch (SQLException e) {
-            Log.w(TAG, "Failed to get counter values, setting counters to 1");
-            mBunchCounter = -1;
-            mRecipeCounter = -1;
+            results.close();
+        } finally {
+            statement.close();
         }
     }
 }

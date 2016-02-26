@@ -66,8 +66,14 @@ public final class Bunch extends DatabaseObject implements Parcelable {
         Objects.requireNonNull(title, "title must not be null");
         Objects.requireNonNull(recipes, "recipes must not be null");
         if (title.isEmpty()) throw new IllegalArgumentException("title must not be empty");
+
+        // Deep copy recipes
+        mRecipes = new ArrayList<>(recipes.size());
+        for (Recipe recipe : recipes) {
+            Objects.requireNonNull(recipe, "No recipe may be null");
+            mRecipes.add(new Recipe(recipe));
+        }
         mTitle = title;
-        mRecipes = new ArrayList<>(recipes);
     }
 
     /**
@@ -125,7 +131,7 @@ public final class Bunch extends DatabaseObject implements Parcelable {
      */
     public void setRecipes(@NonNull List<Recipe> recipes) {
         Objects.requireNonNull(recipes, "recipes must not be null");
-        mRecipes = new ArrayList<>(recipes.size());
+        mRecipes.clear();
         // Deep copy each recipe
         for (Recipe recipe : recipes) {
             Objects.requireNonNull(recipe, "no recipe in recipes may be null");

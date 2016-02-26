@@ -840,4 +840,22 @@ public class SQLiteAccessor implements SQLAccessor {
             throw new SQLException(e);
         }
     }
+
+    @Override
+    public boolean containsRecipe(long id) throws SQLException {
+        final SQLiteDatabase db = mHelper.getReadableDatabase();
+        try {
+            // Query for up to 1 row with the matching ID
+            final Cursor result = db.query(true, RECIPE_TABLE_NAME,
+                    new String[]{ RECIPE_COLUMNS[0] }, "id = ?", new String[]{ Long.toString(id) },
+                    null, null, null, "1");
+            try {
+                return result.getCount() != 0;
+            } finally {
+                result.close();
+            }
+        } finally {
+            db.close();
+        }
+    }
 }
