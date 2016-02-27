@@ -287,7 +287,8 @@ public class SQLiteAccessor implements SQLAccessor {
                         r = new Recipe(title, author, steps);
                         r.setObjectId(c.getLong(0));
                         r.setImageId(c.getLong(4));
-                        r.setImageLink(c.getString(5));
+                        String image_path = c.getString(5);
+                        if (image_path != null && image_path.length() > 0) r.setImageLink(image_path);
                         c.close();
                     }
                 } finally {
@@ -782,7 +783,8 @@ public class SQLiteAccessor implements SQLAccessor {
                 r = new Recipe(title, author, steps);
                 r.setObjectId(recipe_id);
                 r.setImageId(recipe_cursor.getLong(4));
-                r.setImageLink(recipe_cursor.getString(5));
+                String image_path = recipe_cursor.getString(5);
+                if (image_path != null && image_path.length() > 0) r.setImageLink(image_path);
             } else {
                 throw new SQLException(
                         "No recipe with ID " + recipe_id +
