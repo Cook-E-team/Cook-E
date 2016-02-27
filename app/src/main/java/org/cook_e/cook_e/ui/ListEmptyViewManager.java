@@ -64,6 +64,7 @@ public class ListEmptyViewManager extends ObservableList.OnListChangedCallback<O
         mProgressView = progressView;
         mInProgress = false;
         mListEmpty = true;
+        updateVisibility();
     }
 
     /**
