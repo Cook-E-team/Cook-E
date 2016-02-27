@@ -29,59 +29,13 @@ import org.cook_e.cook_e.App;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.FilterOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.Locale;
-import java.util.zip.CRC32;
 
 /**
  * An image cache that uses files
  */
 public class FileImageCache implements ImageCache {
-
-    /**
-     * An OutputStream that calculates the CRC32 checksum of the bytes written to it
-     */
-    private static class CRCOutputStream extends FilterOutputStream {
-
-        /**
-         * The CRC calculator
-         */
-        private CRC32 mCrc;
-
-        /**
-         * Creates a CRCOutputStream that wraps another stream
-         * @param inner the stream to wrap. Must not be null.
-         */
-        public CRCOutputStream(OutputStream inner) {
-            super(inner);
-            mCrc = new CRC32();
-        }
-
-        /**
-         * Writes a byte to the underlying stream and updates the CRC32 checksum to include
-         * the written byte.
-         *
-         * If the underlying stream throws an exception, the checksum is not updated.
-         *
-         * @param oneByte the byte to write
-         * @throws IOException if an error occurred writing the byte
-         */
-        @Override
-        public void write(int oneByte) throws IOException {
-            super.write(oneByte);
-            mCrc.update(oneByte);
-        }
-
-        /**
-         * Returns the CRC32 checksum of the bytes written so far
-         * @return the checksum
-         */
-        public long getCrc() {
-            return mCrc.getValue();
-        }
-    }
 
     /**
      * The tag used for logging
@@ -124,7 +78,7 @@ public class FileImageCache implements ImageCache {
         try {
             // Compress image into a byte array to calculate the CRC
             final ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-            final CRCOutputStream crc = new CRCOutputStream(bytes);
+            final CrcOutputStream crc = new CrcOutputStream(bytes);
             final boolean result = image.compress(FORMAT, QUALITY, crc);
             if (!result) {
                 throw new CacheException("Failed to compress image");

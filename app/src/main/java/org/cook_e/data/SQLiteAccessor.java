@@ -53,19 +53,11 @@ public class SQLiteAccessor implements SQLAccessor {
      */
     private long mBunchCounter;
     /**
-     * Counter used to set ids for bunches
-     */
-    private long mImageCounter;
-    /**
      * Constants for use in creating and accessing columns for the tables
      */
     private static final String DATABASE_NAME = "RecipesDatabase";
     private static final String RECIPE_TABLE_NAME = "Recipes";
-    private static final String[] RECIPE_COLUMNS = {"id", "name", "author", "description"}; // note the indexes are 0 based
-    private static final String RECIPE_IMAGE_TABLE_NAME = "RecipeImages";
-    private static final String[] RECIPE_IMAGE_COLUMNS = {"recipe_id", "image_id"};
-    private static final String IMAGE_TABLE_NAME = "ImageMetaData";
-    private static final String[] IMAGE_COLUMNS = {"image_id", "image_link"};
+    private static final String[] RECIPE_COLUMNS = {"id", "name", "author", "description", "image_path"}; // note the indexes are 0 based
     private static final String BUNCH_TABLE_NAME = "Bunches";
     private static final String[] BUNCH_COLUMNS = {"id", "name"};
     private static final String BUNCH_RECIPES_TABLE_NAME = "BunchRecipes";
@@ -80,20 +72,9 @@ public class SQLiteAccessor implements SQLAccessor {
                     RECIPE_COLUMNS[0] + " INTEGER PRIMARY KEY," +
                     RECIPE_COLUMNS[1] + " TEXT NOT NULL DEFAULT \"\"," +
                     RECIPE_COLUMNS[2] + " TEXT NOT NULL DEFAULT \"\"," +
-                    RECIPE_COLUMNS[3] + " TEXT NOT NULL DEFAULT \"\");";
-    /**
-     * Schema of the Recipe Images table: (id, image)
-     */
-    private static final String RECIPE_IMAGE_TABLE_CREATE =
-            "CREATE TABLE " + RECIPE_IMAGE_TABLE_NAME + " (" +
-                    RECIPE_IMAGE_COLUMNS[0] + " INTEGER NOT NULL," +
-                    RECIPE_IMAGE_COLUMNS[1] + " INTEGER NOT NULL," +
-                    " PRIMARY KEY (" + RECIPE_IMAGE_COLUMNS[0] + ", " + RECIPE_IMAGE_COLUMNS[1] + "));";
-    private static final String IMAGE_TABLE_CREATE =
-            "CREATE TABLE " + IMAGE_TABLE_NAME + " (" +
-                    IMAGE_COLUMNS[0] + " INTEGER NOT NULL, " +
-                    IMAGE_COLUMNS[1] + " TEXT NOT NULL DEFAULT \"\", " +
-                    " PRIMARY KEY (" + IMAGE_COLUMNS[0] + ", " + IMAGE_COLUMNS[1] + "));";
+                    RECIPE_COLUMNS[3] + " TEXT NOT NULL DEFAULT \"\", " +
+                    RECIPE_COLUMNS[4] + " TEXT DEFAULT NULL);";
+
     /**
      * Schema of the Bunches table: (id, name)
      */
@@ -118,17 +99,6 @@ public class SQLiteAccessor implements SQLAccessor {
                     " PRIMARY KEY (" + LEARNER_COLUMNS[0] + ", " + LEARNER_COLUMNS[1] +
                     ", " + LEARNER_COLUMNS[2] + ", " + LEARNER_COLUMNS[3] + "));";
 
-    private static final String RECIPE_IMAGE_JOIN_QUERY =
-            "SELECT Recipes.id, Recipes.name, Recipes.author, Recipes.description, RecipeImages.image_id, ImageMetaData.image_link FROM Recipes LEFT OUTER JOIN RecipeImages ON Recipes.id=RecipeImages.recipe_id " +
-                    "LEFT OUTER JOIN ImageMetaData ON RecipeImages.image_id=ImageMetaData.image_id " +
-                    "WHERE Recipes.name=? AND Recipes.author=?";
-    private static final String RECIPE_IMAGE_ID_JOIN_QUERY =
-            "SELECT Recipes.id, Recipes.name, Recipes.author, Recipes.description, RecipeImages.image_id, ImageMetaData.image_link FROM Recipes LEFT OUTER JOIN RecipeImages ON Recipes.id=RecipeImages.recipe_id " +
-                    "LEFT OUTER JOIN ImageMetaData ON RecipeImages.image_id=ImageMetaData.image_id " +
-                    "WHERE Recipes.id=?";
-    private static final String IMAGE_JOIN_QUERY =
-            "SELECT ImageMetaData.image_id, ImageMetaData.image_link FROM ImageMetaData JOIN RecipeImages ON ImageMetaData.image_id=RecipeImages.image_id " +
-                    "WHERE RecipeImages.recipe_id=?";
     /**
      * Constructor
      *
@@ -154,15 +124,8 @@ public class SQLiteAccessor implements SQLAccessor {
                 if (!r.hasObjectId()) {
                     r.setObjectId(mRecipeCounter++);
                 }
-                if (r.getImage() != null && r.getImageLink() != null && !r.hasImageId()) {
-                    r.setImageId(mImageCounter++);
-                }
                 ContentValues values = createContentValues(r);
                 db.insert(RECIPE_TABLE_NAME, null, values);
-                values = createImageContentValues(r);
-                db.insert(IMAGE_TABLE_NAME, null, values);
-                values = createRecipeImageContentValues(r);
-                db.insert(RECIPE_IMAGE_TABLE_NAME, null, values);
             } finally {
                 db.close();
             }
@@ -213,13 +176,7 @@ public class SQLiteAccessor implements SQLAccessor {
             try {
                 ContentValues values = createContentValues(r);
                 String[] whereArgs = {String.valueOf(r.getObjectId())};
-                String[] imageWhereArgs = {String.valueOf(r.getImageId())};
                 db.update(RECIPE_TABLE_NAME, values, "id = ?", whereArgs);
-                values = createImageContentValues(r);
-                db.insertWithOnConflict(IMAGE_TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_IGNORE);
-                values = createRecipeImageContentValues(r);
-                db.update(RECIPE_IMAGE_TABLE_NAME, values, "recipe_id = ?", whereArgs);
-
             } finally {
                 db.close();
             }
@@ -269,27 +226,18 @@ public class SQLiteAccessor implements SQLAccessor {
      */
     @Override
     public Recipe loadRecipe(String title, String author) throws SQLException {
-        Recipe r = null;
-
         try {
             SQLiteDatabase db = mHelper.getReadableDatabase();
             try {
                 String[] whereArgs = {title, author};
-                /*Cursor c = db.query(RECIPE_TABLE_NAME, RECIPE_COLUMNS, "name = ? AND author = ?",
+                Cursor c = db.query(RECIPE_TABLE_NAME, RECIPE_COLUMNS, "name = ? AND author = ?",
                         whereArgs,
-                        null, null, "name");*/
-                Cursor c = db.rawQuery(RECIPE_IMAGE_JOIN_QUERY, whereArgs);
+                        null, null, "name");
                 try {
-                    if (c.getCount() > 0) {
-                        c.moveToFirst();
-                        String description = c.getString(3);
-                        final List<Step> steps = mParser.parseRecipeSteps(description);
-                        r = new Recipe(title, author, steps);
-                        r.setObjectId(c.getLong(0));
-                        r.setImageId(c.getLong(4));
-                        String image_path = c.getString(5);
-                        if (image_path != null && image_path.length() > 0) r.setImageLink(image_path);
-                        c.close();
+                    if (c.moveToFirst()) {
+                        return recipeFromResult(c);
+                    } else {
+                        return null;
                     }
                 } finally {
                     c.close();
@@ -300,8 +248,24 @@ public class SQLiteAccessor implements SQLAccessor {
         } catch (Exception e) {
             throw new SQLException(e);
         }
+    }
 
-        return r;
+    /**
+     * Creates a recipe from a result
+     * @param result a result, which must not be null and must already be pointing to a valid row
+     * @return a Recipe
+     */
+    private Recipe recipeFromResult(Cursor result) throws SQLException, ParseException {
+        final long id = result.getLong(result.getColumnIndexOrThrow(RECIPE_COLUMNS[0]));
+        final String name = result.getString(result.getColumnIndexOrThrow(RECIPE_COLUMNS[1]));
+        final String author = result.getString(result.getColumnIndexOrThrow(RECIPE_COLUMNS[2]));
+        final String stepString = result.getString(result.getColumnIndexOrThrow(RECIPE_COLUMNS[3]));
+        final String imagePath = result.getString(result.getColumnIndexOrThrow(RECIPE_COLUMNS[4]));
+
+        final Recipe recipe = new Recipe(name, author, mParser.parseRecipeSteps(stepString));
+        recipe.setObjectId(id);
+        recipe.setImageLink(imagePath);
+        return recipe;
     }
 
     /**
@@ -318,25 +282,8 @@ public class SQLiteAccessor implements SQLAccessor {
                 Cursor c = db.query(RECIPE_TABLE_NAME, RECIPE_COLUMNS, null, null, null, null,
                         "name");
                 try {
-                    if (c.getCount() > 0) {
-                        c.moveToFirst();
-                        do {
-                            String title = c.getString(1);
-                            String author = c.getString(2);
-                            String description = c.getString(3);
-                            final List<Step> steps = mParser.parseRecipeSteps(description);
-                            final Recipe r = new Recipe(title, author, steps);
-                            r.setObjectId(c.getLong(0));
-                            Cursor image = db.rawQuery(IMAGE_JOIN_QUERY, new String[]{String.valueOf(r.getObjectId())});
-                            if (image.getCount() > 0) {
-                                image.moveToFirst();
-                                do {
-                                    r.setImageId(image.getLong(0));
-                                    r.setImageLink(image.getString(1));
-                                } while (image.moveToNext());
-                            }
-                            recipes.add(r);
-                        } while (c.moveToNext());
+                    while (c.moveToNext()) {
+                        recipes.add(recipeFromResult(c));
                     }
                 } finally {
                     c.close();
@@ -696,6 +643,7 @@ public class SQLiteAccessor implements SQLAccessor {
         values.put(RECIPE_COLUMNS[1], r.getTitle());
         values.put(RECIPE_COLUMNS[2], r.getAuthor());
         values.put(RECIPE_COLUMNS[3], mParser.serializeRecipeSteps(r.getSteps()));
+        values.put(RECIPE_COLUMNS[4], r.getImageLink());
         return values;
     }
 
@@ -741,7 +689,7 @@ public class SQLiteAccessor implements SQLAccessor {
         return values;
     }
     private List<ContentValues> createContentValues(Recipe r, Collection<LearningWeight> weights) {
-        List<ContentValues> values = new ArrayList<ContentValues>();
+        List<ContentValues> values = new ArrayList<>();
         for (LearningWeight weight: weights) {
             values.add(createContentValues(r, weight));
         }
@@ -755,36 +703,14 @@ public class SQLiteAccessor implements SQLAccessor {
         values.put(LEARNER_COLUMNS[3], weight.learnRate);
         return values;
     }
-    private ContentValues createImageContentValues(Recipe r) {
-        ContentValues values = new ContentValues();
-        values.put(IMAGE_COLUMNS[0], r.getImageId());
-        values.put(IMAGE_COLUMNS[1], r.getImageLink());
-        return values;
-    }
-    private ContentValues createRecipeImageContentValues(Recipe r) {
-        ContentValues values = new ContentValues();
-        values.put(RECIPE_IMAGE_COLUMNS[0], r.getObjectId());
-        values.put(RECIPE_IMAGE_COLUMNS[1], r.getImageId());
-        return values;
-    }
 
     private Recipe loadRecipe(long recipe_id, SQLiteDatabase db) throws ParseException, SQLException{
-        Recipe r = null;
         String[] recipeWhereArgs = {String.valueOf(recipe_id)};
-        Cursor recipe_cursor = db.rawQuery(RECIPE_IMAGE_ID_JOIN_QUERY, recipeWhereArgs);
+        Cursor recipe_cursor = db.query(RECIPE_TABLE_NAME, RECIPE_COLUMNS, "id = ?", recipeWhereArgs,
+                null, null, null);
         try {
-            if (recipe_cursor.getCount() > 0) {
-                recipe_cursor.moveToFirst();
-                String title = recipe_cursor.getString(1);
-                String author = recipe_cursor.getString(2);
-                String description = recipe_cursor.getString(3);
-                final List<Step> steps = mParser.parseRecipeSteps(
-                        description);
-                r = new Recipe(title, author, steps);
-                r.setObjectId(recipe_id);
-                r.setImageId(recipe_cursor.getLong(4));
-                String image_path = recipe_cursor.getString(5);
-                if (image_path != null && image_path.length() > 0) r.setImageLink(image_path);
+            if (recipe_cursor.moveToFirst()) {
+                return recipeFromResult(recipe_cursor);
             } else {
                 throw new SQLException(
                         "No recipe with ID " + recipe_id +
@@ -793,7 +719,6 @@ public class SQLiteAccessor implements SQLAccessor {
         } finally {
             recipe_cursor.close();
         }
-        return r;
     }
     /**
      * Private helper class that has methods that allows for access to the underlying android sqlite database
@@ -808,11 +733,9 @@ public class SQLiteAccessor implements SQLAccessor {
         @Override
         public void onCreate(SQLiteDatabase db) {
             db.execSQL(RECIPE_TABLE_CREATE);
-            db.execSQL(RECIPE_IMAGE_TABLE_CREATE);
             db.execSQL(BUNCH_TABLE_CREATE);
             db.execSQL(BUNCH_RECIPE_TABLE_CREATE);
             db.execSQL(LEARNER_TABLE_CREATE);
-            db.execSQL(IMAGE_TABLE_CREATE);
         }
 
         @Override
@@ -858,23 +781,9 @@ public class SQLiteAccessor implements SQLAccessor {
             } finally {
                 bunches.close();
             }
-            Cursor images = db.query(IMAGE_TABLE_NAME, column, null, null, null, null, "id DESC",
-                    "1");
-            try {
-                if (images.getCount() > 0) {
-                    images.moveToFirst();
-                    mImageCounter = images.getLong(0);
-                    mImageCounter++;
-                } else {
-                    mImageCounter = 0;
-                }
-            } finally {
-                images.close();
-            }
         } catch (Exception e) {
             mRecipeCounter = 0;
             mBunchCounter = 0;
-            mImageCounter = 0;
         }
     }
 
@@ -890,9 +799,7 @@ public class SQLiteAccessor implements SQLAccessor {
             try {
                 db.delete(RECIPE_TABLE_NAME, null, null);
                 db.delete(BUNCH_TABLE_NAME, null, null);
-                db.delete(RECIPE_IMAGE_TABLE_NAME, null, null);
                 db.delete(BUNCH_RECIPES_TABLE_NAME, null, null);
-                db.delete(RECIPE_IMAGE_TABLE_NAME, null, null);
                 db.setTransactionSuccessful();
             }
             finally {

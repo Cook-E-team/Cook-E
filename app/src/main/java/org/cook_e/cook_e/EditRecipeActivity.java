@@ -27,6 +27,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.databinding.ObservableArrayList;
 import android.databinding.ObservableList;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.ActionBar;
@@ -41,6 +42,7 @@ import android.widget.TextView;
 
 import org.cook_e.cook_e.ui.RecipeEditDialogFragment;
 import org.cook_e.cook_e.ui.StepDialogFragment;
+import org.cook_e.data.Bitmaps;
 import org.cook_e.data.Recipe;
 import org.cook_e.data.Step;
 
@@ -68,6 +70,11 @@ public class EditRecipeActivity extends AppCompatActivity
      */
     private static final String KEY_STEP_EDIT_INDEX = EditRecipeActivity.class.getName() + ".STEP_EDIT_INDEX";
 
+    /**
+     * Result code used when requesting images
+     */
+    private static int REQUEST_LOAD_IMAGE = 42;
+
 
     /**
      * The recipe being edited
@@ -84,7 +91,16 @@ public class EditRecipeActivity extends AppCompatActivity
      * edited
      */
     private int mStepEditIndex;
+
+    /**
+     * Text view that shows the recipe author
+     */
     private TextView mAuthorView;
+
+    /**
+     * Image button that displays the recipe image
+     */
+    private ImageButton mImageButton;
 
     /*
      * Sets up the main view to edit recipes.
@@ -120,8 +136,14 @@ public class EditRecipeActivity extends AppCompatActivity
         mAuthorView = (TextView) findViewById(R.id.recipe_author);
         mAuthorView.setText(mRecipe.getAuthor());
         // Recipe image
-        final ImageButton imageView = (ImageButton) findViewById(R.id.recipe_image_button);
-        imageView.setImageBitmap(mRecipe.getImage());
+        mImageButton = (ImageButton) findViewById(R.id.recipe_image_button);
+        mImageButton.setImageBitmap(mRecipe.getImage());
+        mImageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Bitmaps.requestImageSelection(EditRecipeActivity.this, REQUEST_LOAD_IMAGE);
+            }
+        });
 
         final StepListAdapter stepsAdapter = new StepListAdapter(this, mSteps);
         ListView stepsList = (ListView) findViewById(R.id.recipeSteps);
@@ -344,5 +366,25 @@ public class EditRecipeActivity extends AppCompatActivity
         });
 
         return true;
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_LOAD_IMAGE && resultCode == RESULT_OK && data != null) {
+            final Bitmap loadedImage = Bitmaps.bitmapFromResult(this, data);
+            if (loadedImage != null) {
+                mRecipe.setImage(loadedImage);
+                mImageButton.setImageBitmap(mRecipe.getImage());
+                saveRecipe();
+            }
+            else {
+                new AlertDialog.Builder(this)
+                        .setTitle(R.string.could_not_access_image)
+                        .setMessage(R.string.could_not_access_image_explanation)
+                        .setPositiveButton(android.R.string.ok, null)
+                        .show();
+            }
+        }
     }
 }
