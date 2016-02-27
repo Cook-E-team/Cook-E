@@ -24,6 +24,7 @@ import android.content.Context;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -233,5 +234,12 @@ public class StorageAccessor {
      */
     public boolean containsLocalRecipe(long id) throws SQLException {
         return mLocal.containsRecipe(id);
+    }
+
+    public void storeLearnerData(Recipe r, Collection<LearningWeight> weights) throws SQLException {
+        mLocal.storeLearnerData(r, weights);
+    }
+    public Collection<LearningWeight> loadLearnerData(Recipe r) throws SQLException {
+        return mLocal.loadLearnerData(r);
     }
 }
