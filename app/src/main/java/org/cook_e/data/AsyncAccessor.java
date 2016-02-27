@@ -41,7 +41,7 @@ public class AsyncAccessor {
     /**
      * The underlying accessor
      */
-    private final SQLAccessor mAccessor;
+    private final StorageAccessor mAccessor;
 
     /**
      * The executor service used to run tasks
@@ -53,9 +53,11 @@ public class AsyncAccessor {
      *
      * This constructor must be called from the thread that will call other methods and get results.
      *
+     * No other code may access the accessor after this AsyncAccessor is created.
+     *
      * @param accessor the accessor to wrap. The accessor class does not need to be thread-safe.
      */
-    public AsyncAccessor(SQLAccessor accessor) {
+    public AsyncAccessor(StorageAccessor accessor) {
         mAccessor = accessor;
         // Create a new Handler on the thread that called this method
         mHandler = new Handler();
@@ -105,18 +107,50 @@ public class AsyncAccessor {
         });
     }
 
-    /**
-     * Removes all recipes and bunches
-     * @param handler a result handler to be notified if an error occurs
-     */
-    public void clearAllTables(final ResultHandler<?> handler) {
+    public void updateRecipe(final Recipe r, final ResultHandler<?> handler) {
+        final Recipe copy = new Recipe(r);
         mExecutorService.submit(new Runnable() {
             @Override
             public void run() {
                 try {
                     synchronized (mAccessor) {
-                        mAccessor.clearAllTables();
+                        mAccessor.editRecipe(r);
                     }
+                    postResult(handler, null);
+                } catch (SQLException e) {
+                    postException(handler, e);
+                }
+            }
+        });
+    }
+
+    public void insertBunch(Bunch b, final ResultHandler<?> handler) {
+        final Bunch copy = new Bunch(b.getTitle(), b.getRecipes());
+        mExecutorService.submit(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    synchronized (mAccessor) {
+                        mAccessor.storeBunch(copy);
+                    }
+                    postResult(handler, null);
+                } catch (SQLException e) {
+                    postException(handler, e);
+                }
+            }
+        });
+    }
+
+    public void loadAllBunches(final ResultHandler<List<Bunch>> handler) {
+        mExecutorService.submit(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    List<Bunch> result;
+                    synchronized (mAccessor) {
+                        result = mAccessor.loadAllBunches();
+                    }
+                    postResult(handler, result);
                 } catch (SQLException e) {
                     postException(handler, e);
                 }
