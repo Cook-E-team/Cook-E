@@ -67,4 +67,8 @@
     <string name="dialog_title_waiting_for_step">A la espera de un paso</string>
     <string name="dialog_waiting_for_step">Un paso está todavía en curso. Termina el paso para proceder.</string>
     <string name="done">Hecho</string>
+    <string name="describe_the_problem">Describe el problema</string>
+    <string name="mail_report">Enviar la informe</string>
+    <string name="report_a_problem">Informar de un problema</string>
+    <string name="send">Enviar</string>
 </resources>

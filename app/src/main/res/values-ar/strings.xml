@@ -74,4 +74,8 @@
     <string name="dialog_title_waiting_for_step">تنتظر خطوة</string>
     <string name="done">فعله</string>
     <string name="dialog_waiting_for_step">خطوة لا تزال في التقدم. الانتهاء من الخطوة والمضي قدما.</string>
+    <string name="describe_the_problem">صف المشكلة</string>
+    <string name="mail_report">البريد التقرير</string>
+    <string name="report_a_problem">الإبلاغ عن مشكلة</string>
+    <string name="send">إرسال</string>
 </resources>
