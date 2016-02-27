@@ -88,7 +88,7 @@ public class SQLiteAccessorTest {
         Recipe r = RecipeUnitTest.createGenericRecipe("My Recipe", "Kyle Woo", 0, 0, 5, false);
         Recipe edited_r = RecipeUnitTest.createGenericRecipe("My Recipe", "Kyle Woo", 1, 1, 5,
                 false);
-        Step edited_s = StepUnitTest.createGenericStep(1, 1, 5, false);
+        Step edited_s = StepUnitTest.createGenericStep(1, 1, 5, false, 0);
         List<Step> steps = new ArrayList<>();
         steps.add(edited_s);
         mAccessor.storeRecipe(r);

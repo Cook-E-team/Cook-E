@@ -35,7 +35,7 @@ import org.joda.time.Duration;
  * According to the step and actual time given
  * this class will perform operations to give more accurate estimate time for one user
  */
-public class TimeLearner {
+public class TimeLearner implements TimeLearnerInterface {
     // Maximum multiple of estimated time learner can change each time
     private static final double LEARNING_LIMIT = 2.0;
 
@@ -48,10 +48,8 @@ public class TimeLearner {
 
     private StorageAccessor mStorageAccessor;
 
-    private Bunch mBunch;
     public TimeLearner(StorageAccessor sA, Bunch b) throws SQLException {
         mStorageAccessor = sA;
-        mBunch = b;
         mWeights = mStorageAccessor.loadLearnerData(b);
 
     }
@@ -62,6 +60,7 @@ public class TimeLearner {
      * @param time the actual time user took to finish this step (in milliseconds)
      * @throws IllegalArgumentException when actual time is negative
      */
+    @Override
     public void learnStep(@NonNull Recipe r, Step s, @NonNull Duration time) throws IllegalArgumentException, SQLException{
         Objects.requireNonNull(r, "recipe must not be null");
         Objects.requireNonNull(time, "time must not be null");
@@ -94,8 +93,12 @@ public class TimeLearner {
      */
     private LearningWeight accessOrCreateLearningWeight(Recipe r, Step s) {
         List<LearningWeight> weights = mWeights.get(r.getObjectId());
-        if (weights == null) {
-            weights = new ArrayList<>();
+        if (weights == null || weights.size() == 0) {
+            int stepCount = r.getSteps().size();
+            weights = new ArrayList<>(stepCount);
+            for (int i = 0; i < stepCount; i++) {
+                weights.add(new LearningWeight(i));
+            }
             mWeights.put(r.getObjectId(), weights);
         }
 
@@ -113,6 +116,7 @@ public class TimeLearner {
      * @param s the step you need to estimate the time for
      * @return the estimated time (in milliseconds) for that specific step
      */
+    @Override
     @NonNull
     public Duration getEstimatedTime(@NonNull Recipe r, @NonNull Step s) {
         Objects.requireNonNull(r, "recipe must not be null");

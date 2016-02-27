@@ -55,13 +55,13 @@ public class MealViewActivityTest extends ActivityInstrumentationTestCase2<MealV
 
         // Create a meal with recipes, with steps
         final Step step1_1 = new Step(Collections.<String>emptyList(), "Recipe 1 step 1",
-                Duration.standardMinutes(1), false);
+                Duration.standardMinutes(1), false, 0);
         final Step step1_2 = new Step(Collections.<String>emptyList(), "Recipe 1 step 2",
-                Duration.standardMinutes(1), false);
+                Duration.standardMinutes(1), false, 1);
         final Step step2_1 = new Step(Collections.<String>emptyList(), "Recipe 2 step 1",
-                Duration.standardMinutes(1), false);
+                Duration.standardMinutes(1), false, 2);
         final Step step2_2 = new Step(Collections.<String>emptyList(), "Recipe 2 step 2",
-                Duration.standardMinutes(1), false);
+                Duration.standardMinutes(1), false, 3);
 
 
         final Recipe recipe1 = new Recipe("Recipe 1", "Clamify Flumingaster",

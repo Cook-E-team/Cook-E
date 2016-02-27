@@ -38,12 +38,14 @@ public class StepUnitTest {
      * @param ing_index index into the INGREDIENTS array from the UnitTestSharedData class
      * @param duration_min the number of minutes the duration of the step should be
      */
-    public static Step createGenericStep(int action_index, int ing_index, int duration_min, boolean isSimultaneous) {
+    public static Step createGenericStep(int action_index, int ing_index, int duration_min, boolean isSimultaneous,
+                                         int index) {
         List<String> ings = new ArrayList<>();
         String action = UnitTestSharedData.ACTIONS[action_index];
         String ing = UnitTestSharedData.INGREDIENTS[ing_index];
         ings.add(ing);
-        return new Step(ings, UnitTestSharedData.generateDescription(ing, action), Duration.standardMinutes(duration_min), isSimultaneous);
+        return new Step(ings, UnitTestSharedData.generateDescription(ing, action), Duration.standardMinutes(duration_min),
+                isSimultaneous, index);
     }
 
     @Test
@@ -55,7 +57,7 @@ public class StepUnitTest {
 
         String description = UnitTestSharedData.generateDescription(ing, action);
         Duration duration = Duration.standardMinutes(1);
-        Step s = new Step(ings, description, duration, false);
+        Step s = new Step(ings, description, duration, false, 0);
 
         assertEquals(ings, s.getIngredients());
         assertEquals(description, s.getDescription());
@@ -65,11 +67,11 @@ public class StepUnitTest {
     @Test
     public void testEquals() {
 
-        Step s1 = createGenericStep(0, 0, 5, false);
-        Step s1_match = createGenericStep(0, 0, 5, false);
-        Step s2 = createGenericStep(1, 0, 5, false);
-        Step s3 = createGenericStep(0, 1, 5, false);
-        Step s4 = createGenericStep(0, 0, 5, true);
+        Step s1 = createGenericStep(0, 0, 5, false, 0);
+        Step s1_match = createGenericStep(0, 0, 5, false, 0);
+        Step s2 = createGenericStep(1, 0, 5, false, 0);
+        Step s3 = createGenericStep(0, 1, 5, false, 0);
+        Step s4 = createGenericStep(0, 0, 5, true, 0);
         assertEquals(s1, s1_match);
         assertFalse(s1.equals(s2));
         assertFalse(s1.equals(s3));

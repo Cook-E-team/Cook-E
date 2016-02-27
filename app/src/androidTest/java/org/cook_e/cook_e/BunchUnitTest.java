@@ -36,7 +36,7 @@ public class BunchUnitTest {
     public void testCreation() {
         List<Recipe> recipes = new ArrayList<>();
 	List<Step> steps = new ArrayList<>();
-	steps.add(StepUnitTest.createGenericStep(0, 0, 1, false));
+	steps.add(StepUnitTest.createGenericStep(0, 0, 1, false, 0));
         Recipe r = new Recipe("My Recipe", "Kyle", steps);
         recipes.add(r);
         Bunch b = new Bunch("My Bunch", recipes);
@@ -47,7 +47,7 @@ public class BunchUnitTest {
     public void testEquals() {
         List<Recipe> recipes = new ArrayList<>();
 	List<Step> steps = new ArrayList<>();
-	steps.add(StepUnitTest.createGenericStep(0, 0, 1, false));
+	steps.add(StepUnitTest.createGenericStep(0, 0, 1, false, 0));
         Recipe r = new Recipe("My Recipe", "Kyle", steps);
         recipes.add(r);
         Bunch b1 = new Bunch("My Bunch", recipes);

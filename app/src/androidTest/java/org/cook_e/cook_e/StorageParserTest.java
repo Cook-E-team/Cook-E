@@ -49,12 +49,12 @@ public class StorageParserTest {
         List<Step> steps = new ArrayList<>();
         List<String> ing = new ArrayList<>();
         ing.add("ingredients");
-        steps.add(new Step(ing, "lalalal",Duration.millis(600000),true));
-        steps.add(new Step(ing, "lalalal",Duration.millis(600000),false));
+        steps.add(new Step(ing, "lalalal",Duration.millis(600000),true, 0));
+        steps.add(new Step(ing, "lalalal",Duration.millis(600000),false, 1));
         final List<Step> parsedSteps = parser.parseRecipeSteps(stepDesc);
         Recipe recipe = new Recipe("Title", "Author", parsedSteps);
-        assertEquals(recipe.getSteps().get(0), steps.get(0));
-        assertEquals(recipe.getSteps().get(1), steps.get(1));
+        assertEquals(steps.get(0), recipe.getSteps().get(0));
+        assertEquals(steps.get(1), recipe.getSteps().get(1));
     }
 
     @Test
@@ -66,17 +66,17 @@ public class StorageParserTest {
     public void testOneStepNoIngredients() throws ParseException {
         checkRoundTrip(Collections.singletonList(
                 new Step(Collections.<String>emptyList(), "Description of a step",
-                        Duration.standardMinutes(32), true)));
+                        Duration.standardMinutes(32), true, 0)));
     }
 
     @Test
     public void testThreeStepsSeveralIngredients() throws ParseException {
         final Step stepA1 = new Step(Arrays.asList("250 mL white truffle oil",
-                "100 mL anchovy licorice sauce"), "Step A 1", Duration.standardSeconds(93));
+                "100 mL anchovy licorice sauce"), "Step A 1", Duration.standardSeconds(93), false, 0);
         final Step stepA2 = new Step(Arrays.asList("1 anchovy fillet", "50 mL fish sauce"),
-                "Step A 2", Duration.standardMinutes(9));
+                "Step A 2", Duration.standardMinutes(9), false, 1);
         final Step stepA3 = new Step(Collections.singletonList("40 cloves of garlic"),
-                "Step A 3", Duration.standardMinutes(21));
+                "Step A 3", Duration.standardMinutes(21), false, 2);
 
         final List<Step> steps = Arrays.asList(stepA1, stepA2, stepA3);
         checkRoundTrip(steps);

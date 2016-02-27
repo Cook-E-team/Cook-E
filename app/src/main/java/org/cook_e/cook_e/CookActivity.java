@@ -36,6 +36,11 @@ import org.cook_e.data.Bunch;
 import org.cook_e.data.Recipe;
 import org.cook_e.data.Schedule;
 import org.cook_e.data.Step;
+import org.cook_e.data.TimeLearner;
+import org.joda.time.Duration;
+import org.joda.time.Instant;
+
+import java.sql.SQLException;
 
 /**
  * An activity that shows the steps involved in cooking a {@link Bunch}
@@ -63,9 +68,18 @@ public class CookActivity extends AppCompatActivity implements TimerFragment.Ste
      */
     private Schedule mSchedule;
     /**
+     * The time learner
+     */
+    private TimeLearner mTimeLearner;
+    /**
+     * The start instant of the current step.
+     */
+    private Instant mStartInstant;
+    /**
      * The cook step fragment, that displays each step
      */
     private CookStep mCookStep;
+
 
     /**
      * The number of simultaneous steps with active timers
@@ -77,8 +91,13 @@ public class CookActivity extends AppCompatActivity implements TimerFragment.Ste
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_cook);
 
+        try {
+            mTimeLearner = new TimeLearner(App.getAccessor(), mBunch);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
         mBunch = getBunch();
-        mSchedule = new Schedule(mBunch);
+        mSchedule = new Schedule(mBunch, mTimeLearner);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -89,6 +108,7 @@ public class CookActivity extends AppCompatActivity implements TimerFragment.Ste
             throw new IllegalStateException("No steps");
         }
         setCurrentStep(firstStep, mSchedule.getCurrentStepRecipe(), false);
+        mStartInstant = new Instant();
 
         setUpActionBar();
     }
@@ -120,10 +140,22 @@ public class CookActivity extends AppCompatActivity implements TimerFragment.Ste
 
             case R.id.next:
                 // User chose the "next" item,
-                boolean setBefore = mSchedule.getCurrStepIndex() != mSchedule.getMaxVisitedStepIndex();
                 step = mSchedule.getNextStep();
+                Recipe currRecipe = mSchedule.getCurrentStepRecipe();
+                boolean setBefore = mSchedule.getCurrStepIndex() != mSchedule.getMaxVisitedStepIndex();
+                if (!setBefore) {
+                    Instant mEndInstant = new Instant();
+                    Duration stepDuration = new Duration(mStartInstant, mEndInstant);
+                    try {
+                        mTimeLearner.learnStep(currRecipe, step, stepDuration);
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
+                    mStartInstant = mEndInstant;
+                }
+
                 if (step != null) {
-                    setCurrentStep(step, mSchedule.getCurrentStepRecipe(), setBefore);
+                    setCurrentStep(step, currRecipe, setBefore);
                 } else  if (mActiveSimultaneousSteps != 0) {
                     // Explain to the user why they cannot advance
                     new AlertDialog.Builder(this)
