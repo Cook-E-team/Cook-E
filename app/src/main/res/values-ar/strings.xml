@@ -78,4 +78,6 @@
     <string name="mail_report">البريد التقرير</string>
     <string name="report_a_problem">الإبلاغ عن مشكلة</string>
     <string name="send">إرسال</string>
+    <string name="could_not_access_image">لا يمكن الوصول إلى صورة</string>
+    <string name="could_not_access_image_explanation">الرجاء التأكد من أن الصورة المحددة صالحة ويمكن الوصول إليها.</string>
 </resources>

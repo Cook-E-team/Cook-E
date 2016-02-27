@@ -22,6 +22,8 @@ package org.cook_e.data;
 import android.content.Context;
 
 
+import java.io.Closeable;
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -38,7 +40,7 @@ import java.util.Set;
  * the insert method changes the ID of the inserted object to match the ID of the entry in
  * the database.
  */
-public class StorageAccessor {
+public class StorageAccessor implements Closeable {
 
     /**
      * The local database accessor
@@ -241,5 +243,11 @@ public class StorageAccessor {
     }
     public Collection<LearningWeight> loadLearnerData(Recipe r) throws SQLException {
         return mLocal.loadLearnerData(r);
+    }
+
+    @Override
+    public void close() throws IOException {
+        mLocal.close();
+        mExternal.close();
     }
 }

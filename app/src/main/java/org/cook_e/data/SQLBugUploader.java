@@ -19,12 +19,16 @@
 
 package org.cook_e.data;
 
+import android.util.Log;
+
+import java.io.Closeable;
+import java.io.IOException;
 import java.sql.*;
 
 /**
- * Created by kylewoo on 2/26/16.
+ * Allows bugs to be uploaded to a database
  */
-public class SQLBugUploader implements AutoCloseable {
+public class SQLBugUploader implements Closeable {
     /**
      * The tag used for logging
      */
@@ -103,7 +107,11 @@ public class SQLBugUploader implements AutoCloseable {
 
 
     @Override
-    public void close() throws Exception {
-        mConnection.close();
+    public void close() throws IOException {
+        try {
+            mConnection.close();
+        } catch (SQLException e) {
+            throw new IOException(e);
+        }
     }
 }

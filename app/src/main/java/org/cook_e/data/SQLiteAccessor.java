@@ -25,6 +25,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import java.io.IOException;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -720,6 +721,12 @@ public class SQLiteAccessor implements SQLAccessor {
             recipe_cursor.close();
         }
     }
+
+    @Override
+    public void close() throws IOException {
+        mHelper.close();
+    }
+
     /**
      * Private helper class that has methods that allows for access to the underlying android sqlite database
      */

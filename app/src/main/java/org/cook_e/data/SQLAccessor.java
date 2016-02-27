@@ -19,15 +19,15 @@
 
 package org.cook_e.data;
 
+import java.io.Closeable;
 import java.sql.SQLException;
-import java.sql.Time;
 import java.util.Collection;
 import java.util.List;
 
 /**
  * An interface for classes that can access a database to store recipes and bunches
  */
-public interface SQLAccessor {
+public interface SQLAccessor extends Closeable {
     /**
      * Locates and returns a recipe with the requested title and author
      * @param title the recipe title (must not be null)

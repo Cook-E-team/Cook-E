@@ -24,6 +24,7 @@ import android.util.Log;
 
 import org.joda.time.field.UnsupportedDurationField;
 
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -403,6 +404,15 @@ public class SQLServerAccessor implements SQLAccessor {
             results.close();
         } finally {
             statement.close();
+        }
+    }
+
+    @Override
+    public void close() throws IOException {
+        try {
+            mConnection.close();
+        } catch (SQLException e) {
+            throw new IOException(e);
         }
     }
 }
