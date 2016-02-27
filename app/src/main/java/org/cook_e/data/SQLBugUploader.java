@@ -24,7 +24,7 @@ import java.sql.*;
 /**
  * Created by kylewoo on 2/26/16.
  */
-public class SQLBugUploader {
+public class SQLBugUploader implements AutoCloseable {
     /**
      * The tag used for logging
      */
@@ -76,13 +76,13 @@ public class SQLBugUploader {
         bug.setId(++mBugCounter);
         mInsertStatement.setLong(1, bug.getId());
         mInsertStatement.setString(2, bug.getDesc());
-        mInsertStatement.setDate(3, bug.getDate());
+        mInsertStatement.setDate(3, new java.sql.Date(bug.getDate().getMillis()));
         mInsertStatement.setString(4, bug.getMeta());
         mInsertStatement.execute();
     }
     /**
      * Initializes {@link #mBugCounter} to one greater than the
-     * greatest ID of any recipe in the database. If the recipes table is empty, sets mRecipeCounter
+     * greatest ID of any recipe in the database. If the recipes table is empty, sets mBugCounter
      * to 1.
      */
     private void setUpCounters() throws SQLException {
@@ -102,4 +102,8 @@ public class SQLBugUploader {
     }
 
 
+    @Override
+    public void close() throws Exception {
+        mConnection.close();
+    }
 }

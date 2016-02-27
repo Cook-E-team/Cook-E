@@ -1,4 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?><!--
+<?xml version="1.0" encoding="utf-8"?>
+<!--
   ~ Copyright 2016 the Cook-E development team
   ~
   ~ This file is part of Cook-E.
@@ -15,14 +16,14 @@
   ~
   ~ You should have received a copy of the GNU General Public License
   ~ along with Cook-E.  If not, see <http://www.gnu.org/licenses/>.
-  -->
+-->
 <manifest package="org.cook_e.cook_e"
           xmlns:android="http://schemas.android.com/apk/res/android">
 
     <!-- Reads external storage to get recipe images -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
     <!-- Internet access for remote database -->
-    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.INTERNET"/>
 
     <application
         android:name=".App"
@@ -36,16 +37,17 @@
             android:windowSoftInputMode="stateHidden">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
+
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
         <activity android:name=".MealViewActivity">
         </activity>
-        <activity
-            android:name=".MealRecipeAddActivity">
+        <activity android:name=".MealRecipeAddActivity">
         </activity>
         <!-- To work around destruction and recreation problems, lock CookActivity to portrait orientation -->
-        <activity android:name=".CookActivity"
+        <activity
+            android:name=".CookActivity"
             android:screenOrientation="portrait"/>
         <activity
             android:name=".CreateRecipe"
@@ -58,6 +60,9 @@
         <activity
             android:name=".CreateMealActivity"
             android:windowSoftInputMode="stateVisible"/>
+        <activity android:name=".BugReportActivity"
+            android:windowSoftInputMode="stateVisible">
+        </activity>
     </application>
 
 </manifest>

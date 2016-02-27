@@ -19,16 +19,10 @@
   -->
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+      xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        app:showAsAction="never"
-        android:title="@string/tutorial" />
-    <item
-        app:showAsAction="never"
-        android:title="@string/about"
-        android:id="@+id/menu_about"/>
-    <item
-        app:showAsAction="never"
-        android:title="@string/report_a_problem"
-        android:id="@+id/menu_report_problem" />
+        android:icon="@drawable/ic_send_black_36dp"
+        android:id="@+id/item_send_report"
+        android:title="@string/send"
+        app:showAsAction="ifRoom"/>
 </menu>

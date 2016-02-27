@@ -19,17 +19,17 @@
 
 package org.cook_e.data;
 
-import java.sql.Date;
+import org.joda.time.DateTime;
 
 /**
- * Created by kylewoo on 2/26/16.
+ * Stores a bug reported by the user
  */
 public class BugReport {
     private long id;
     private final String desc;
-    private final Date date;
+    private final DateTime date;
     private final String meta;
-    public BugReport(String desc, Date date, String meta) {
+    public BugReport(String desc, DateTime date, String meta) {
         this.desc = desc;
         this.date = date;
         this.meta = meta;
@@ -47,7 +47,7 @@ public class BugReport {
         return desc;
     }
 
-    public Date getDate() {
+    public DateTime getDate() {
         return date;
     }
 

@@ -148,6 +148,16 @@ public class HomeActivity extends AppCompatActivity {
             }
         });
 
+        final MenuItem reportProblemItem = menu.findItem(R.id.menu_report_problem);
+        reportProblemItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                final Intent intent = new Intent(HomeActivity.this, BugReportActivity.class);
+                startActivity(intent);
+                return true;
+            }
+        });
+
         return true;
     }
 }
