@@ -56,7 +56,7 @@ public class StorageParser {
                 for (int j = 0; j < ingredientsJson.length(); j++) {
                     ingredients.add(ingredientsJson.getString(j));
                 }
-                steps.add(new Step(ingredients, description, duration, simultaneous));
+                steps.add(new Step(ingredients, description, duration, simultaneous, i));
             }
 
             return steps;

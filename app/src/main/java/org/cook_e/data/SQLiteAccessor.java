@@ -64,7 +64,7 @@ public class SQLiteAccessor implements SQLAccessor {
     private static final String BUNCH_RECIPES_TABLE_NAME = "BunchRecipes";
     private static final String[] BUNCH_RECIPE_COLUMNS = {"bunch_id", "recipe_id"};
     private static final String LEARNER_TABLE_NAME = "LearnerData";
-    private static final String[] LEARNER_COLUMNS = {"recipe_id", "hash", "weighted_time", "learn_rate"};
+    private static final String[] LEARNER_COLUMNS = {"recipe_id", "index", "weighted_time", "learn_rate"};
     /**
      * Schema of the Recipes table: (id, name, author, description)
      */
@@ -98,7 +98,7 @@ public class SQLiteAccessor implements SQLAccessor {
                     LEARNER_COLUMNS[2] + " REAL NOT NULL DEFAULT 0.0, " +
                     LEARNER_COLUMNS[3] + " REAL NOT NULL DEFAULT 0.0," +
                     " PRIMARY KEY (" + LEARNER_COLUMNS[0] + ", " + LEARNER_COLUMNS[1] +
-                    ", " + LEARNER_COLUMNS[2] + ", " + LEARNER_COLUMNS[3] + "));";
+                   "));";
 
     /**
      * Constructor
@@ -602,22 +602,40 @@ public class SQLiteAccessor implements SQLAccessor {
         }
     }
     @Override
-    public Collection<LearningWeight> loadLearnerData(Recipe r) throws SQLException {
-        Collection<LearningWeight> results = new ArrayList<>();
+    public void updateLearnerData(Recipe r, LearningWeight lw) throws SQLException {
+        SQLiteDatabase db = mHelper.getWritableDatabase();
+
+        try {
+            db.beginTransaction();
+            ContentValues cv = createContentValues(r, lw);
+            String[] whereArgs = {String.valueOf(lw)};
+            db.insertWithOnConflict(LEARNER_TABLE_NAME, null, cv, SQLiteDatabase.CONFLICT_REPLACE);
+
+        } catch (Exception e) {
+            throw new SQLException(e);
+        } finally {
+            db.endTransaction();
+            db.close();
+        }
+    }
+
+    @Override
+    public List<LearningWeight> loadLearnerData(Recipe r) throws SQLException {
+        List<LearningWeight> results = new ArrayList<>();
         try {
             SQLiteDatabase db = mHelper.getWritableDatabase();
             db.beginTransaction();
             try {
                 String[] whereArgs = {String.valueOf(r.getObjectId())};
-                Cursor c = db.query(LEARNER_TABLE_NAME, LEARNER_COLUMNS, "recipe_id = ?", whereArgs, null, null, null, "hash");
+                Cursor c = db.query(LEARNER_TABLE_NAME, LEARNER_COLUMNS, "recipe_id = ?", whereArgs, null, null, null, null);
                 if (c != null) {
                     c.moveToFirst();
                     do {
-                        int hash = c.getInt(1);
+                        int index = c.getInt(1);
                         double weighted_time = c.getDouble(2);
                         double learn_rate = c.getDouble(3);
 
-                        LearningWeight weight = new LearningWeight(hash, weighted_time, learn_rate);
+                        LearningWeight weight = new LearningWeight(index, weighted_time, learn_rate);
                         results.add(weight);
                     } while (c.moveToNext());
                     c.close();
@@ -631,6 +649,16 @@ public class SQLiteAccessor implements SQLAccessor {
         }
 
         return results;
+    }
+    public void deleteLearnerData() throws SQLException {
+        SQLiteDatabase db = mHelper.getWritableDatabase();
+        try {
+            db.beginTransaction();
+            db.delete(LEARNER_TABLE_NAME, null, null);
+        } finally {
+            db.endTransaction();
+            db.close();
+        }
     }
     /**
      * Helper that creates a ContentValues object for the Recipes table
@@ -699,9 +727,9 @@ public class SQLiteAccessor implements SQLAccessor {
     private ContentValues createContentValues(Recipe r, LearningWeight weight) {
         ContentValues values = new ContentValues();
         values.put(LEARNER_COLUMNS[0], r.getObjectId());
-        values.put(LEARNER_COLUMNS[1], weight.hash);
-        values.put(LEARNER_COLUMNS[2], weight.timeWeight);
-        values.put(LEARNER_COLUMNS[3], weight.learnRate);
+        values.put(LEARNER_COLUMNS[1], weight.getIndex());
+        values.put(LEARNER_COLUMNS[2], weight.getTimeWeight());
+        values.put(LEARNER_COLUMNS[3], weight.getLearnRate());
         return values;
     }
 

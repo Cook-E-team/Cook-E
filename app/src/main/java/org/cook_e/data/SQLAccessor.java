@@ -130,6 +130,7 @@ public interface SQLAccessor extends Closeable {
 
     void storeLearnerData(Recipe r, Collection<LearningWeight> weights) throws SQLException;
 
-
-    Collection<LearningWeight> loadLearnerData(Recipe r) throws SQLException;
+    void updateLearnerData(Recipe r, LearningWeight weight) throws SQLException;
+    List<LearningWeight> loadLearnerData(Recipe r) throws SQLException;
+    void deleteLearnerData() throws SQLException;
 }
