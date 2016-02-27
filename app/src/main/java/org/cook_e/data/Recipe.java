@@ -60,6 +60,10 @@ public final class Recipe extends DatabaseObject implements Parcelable {
      */
     @Nullable
     private Bitmap mImage;
+
+    private String mImageLink;
+
+    private long mImageId;
     /**
      * Constructor
      *@param title the title of the recipe, must not be null
@@ -76,6 +80,7 @@ public final class Recipe extends DatabaseObject implements Parcelable {
         mTitle = title;
         mAuthor = author;
         mImage = null;
+        mImageId = NO_ID;
     }
 
     /**
@@ -126,6 +131,23 @@ public final class Recipe extends DatabaseObject implements Parcelable {
         Objects.requireNonNull(step, "step must not be null");
         mSteps.add(step);
     }
+    public void setImageLink(@NonNull String path) {
+        Objects.requireNonNull(path, "path must not be null");
+        mImageLink = path;
+    }
+
+    public long getImageId() {
+        return mImageId;
+    }
+
+    public void setImageId(long imageId) {
+        mImageId = imageId;
+    }
+
+    public String getImageLink() {
+        return mImageLink;
+    }
+
     /**
      * Returns the steps in this recipe
      * @return the steps
@@ -216,7 +238,9 @@ public final class Recipe extends DatabaseObject implements Parcelable {
         Objects.requireNonNull(author, "author must not be null");
         mAuthor = author;
     }
-
+    public boolean hasImageId() {
+        return mImageId != NO_ID;
+    }
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
