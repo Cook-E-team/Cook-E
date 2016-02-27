@@ -28,9 +28,11 @@ import java.util.*;
 public class CookingTimeEstimator {
     private CookingTimeEstimator(Schedule schedule) {}
 
+
     /**
      * Calculates and returns the estimated amount of time it would take to cook
-     * the given schedule.
+     * the given schedule. The given schedule should be brand new and will be
+     * modified by the function.
      *
      * @param schedule the schedule to measure the estimated time of
      * @return the estimated amount of time it would take to cook the given schedule

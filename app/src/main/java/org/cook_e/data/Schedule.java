@@ -21,7 +21,6 @@ package org.cook_e.data;
 
 import android.support.annotation.NonNull;
 import android.util.Log;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,9 +31,10 @@ public class Schedule {
     private final List<ScheduledStep> mScheduledStepList;
     private final List<UnscheduledRecipeSteps> mUnscheduledRecipeStepsList;
     private final int mTotalStepCount;
-    private final int mOriginalEstimatedTime;
-    private final int mOptimizedEstimatedTime;
     private int mCurrScheduledStepIndex = -1;
+
+    public final int mOriginalEstimatedTime;
+    public final int mOptimizedEstimatedTime;
 
 
     /**
@@ -42,7 +42,7 @@ public class Schedule {
      *
      * @param b the Bunch to schedule steps from
      */
-    public Schedule(Bunch b) {
+    public Schedule(@NonNull Bunch b) {
         this(b, true);
     }
 
@@ -55,7 +55,11 @@ public class Schedule {
      * @param b the Bunch to schedule steps from
      * @param calculateEstimatedTimes whether or not estimated times should be calculated
      */
-    private Schedule(Bunch b, boolean calculateEstimatedTimes) {
+    private Schedule(@NonNull Bunch b, boolean calculateEstimatedTimes) {
+        if (b == null) {
+            throw new NullPointerException("Schedule given null bunch.");
+        }
+
         if (calculateEstimatedTimes) {
             this.mOriginalEstimatedTime = CookingTimeEstimator.getOriginalTime(b);
             this.mOptimizedEstimatedTime = CookingTimeEstimator.getOptimizedTime(new Schedule(b, false));

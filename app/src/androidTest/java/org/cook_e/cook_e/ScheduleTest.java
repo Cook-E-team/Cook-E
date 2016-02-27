@@ -42,6 +42,12 @@ public class ScheduleTest {
     public final Step tenSimul = new Step(ingre, "t1", Duration.standardMinutes(10), true);
     public final Step sevenSimul = new Step(ingre, "t1", Duration.standardMinutes(7), true);
 
+
+    @Test(expected = NullPointerException.class)
+    public void testScheduleNull() {
+        new Schedule(null);
+    }
+
     @Test
     public void testSchedule1nonSimul() {
         List<Step> steps = new ArrayList<>();
