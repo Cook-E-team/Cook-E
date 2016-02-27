@@ -119,12 +119,12 @@ public class SQLiteAccessor implements SQLAccessor {
                     ", " + LEARNER_COLUMNS[2] + ", " + LEARNER_COLUMNS[3] + "));";
 
     private static final String RECIPE_IMAGE_JOIN_QUERY =
-            "SELECT Recipes.id, Recipes.name, Recipes.author, Recipes.description, RecipeImages.image_id, ImageMetaData.image_link FROM Recipes JOIN RecipeImages ON Recipes.id=RecipeImages.recipe_id " +
-                    "JOIN ImageMetaData ON RecipeImages.image_id=ImageMetaData.image_id " +
+            "SELECT Recipes.id, Recipes.name, Recipes.author, Recipes.description, RecipeImages.image_id, ImageMetaData.image_link FROM Recipes LEFT OUTER JOIN RecipeImages ON Recipes.id=RecipeImages.recipe_id " +
+                    "LEFT OUTER JOIN ImageMetaData ON RecipeImages.image_id=ImageMetaData.image_id " +
                     "WHERE Recipes.name=? AND Recipes.author=?";
     private static final String RECIPE_IMAGE_ID_JOIN_QUERY =
-            "SELECT Recipes.id, Recipes.name, Recipes.author, Recipes.description, RecipeImages.image_id, ImageMetaData.image_link FROM Recipes JOIN RecipeImages ON Recipes.id=RecipeImages.recipe_id " +
-                    "JOIN ImageMetaData ON RecipeImages.image_id=ImageMetaData.image_id " +
+            "SELECT Recipes.id, Recipes.name, Recipes.author, Recipes.description, RecipeImages.image_id, ImageMetaData.image_link FROM Recipes LEFT OUTER JOIN RecipeImages ON Recipes.id=RecipeImages.recipe_id " +
+                    "LEFT OUTER JOIN ImageMetaData ON RecipeImages.image_id=ImageMetaData.image_id " +
                     "WHERE Recipes.id=?";
     private static final String IMAGE_JOIN_QUERY =
             "SELECT ImageMetaData.image_id, ImageMetaData.image_link FROM ImageMetaData JOIN RecipeImages ON ImageMetaData.image_id=RecipeImages.image_id " +
