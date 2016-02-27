@@ -252,6 +252,8 @@ public final class Recipe extends DatabaseObject implements Parcelable {
         if (!mSteps.equals(recipe.mSteps)) return false;
         if (!mTitle.equals(recipe.mTitle)) return false;
         if (!mAuthor.equals(recipe.mAuthor)) return false;
+        if (getImageId() != recipe.getImageId()) return false;
+        if (!getImageLink().equals(recipe.getImageLink())) return false;
         return !(mImage != null ? !mImage.equals(recipe.mImage) : recipe.mImage != null);
     }
 
@@ -260,6 +262,7 @@ public final class Recipe extends DatabaseObject implements Parcelable {
         int result = mSteps.hashCode();
         result = 31 * result + mTitle.hashCode();
         result = 31 * result + mAuthor.hashCode();
+        result = 31 * result + mImageLink.hashCode();
         result = 31 * result + (mImage != null ? mImage.hashCode() : 0);
         return result;
     }
@@ -267,10 +270,13 @@ public final class Recipe extends DatabaseObject implements Parcelable {
     @Override
     public String toString() {
         return "Recipe{" +
-                "mSteps=" + mSteps +
+                "Id=" + getObjectId() + '\'' +
+                ", mSteps=" + mSteps + '\'' +
                 ", mTitle='" + mTitle + '\'' +
                 ", mAuthor='" + mAuthor + '\'' +
-                ", mImage=" + mImage +
+                ", mImage=" + mImage + '\'' +
+                ", mImageId=" + mImageId + '\'' +
+                ", mImageLink=" + mImageLink + '\'' +
                 '}';
     }
 
