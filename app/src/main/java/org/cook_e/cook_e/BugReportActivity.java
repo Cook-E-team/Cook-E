@@ -22,6 +22,7 @@ package org.cook_e.cook_e;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.support.v4.app.ShareCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -37,6 +38,7 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.sql.SQLException;
@@ -75,7 +77,7 @@ public class BugReportActivity extends AppCompatActivity {
 
     /**
      * Starts the process of sending an E-mail message with the report
-     * @param report
+     * @param report the report to send
      */
     private void mailReport(BugReport report) {
 
@@ -97,7 +99,7 @@ public class BugReportActivity extends AppCompatActivity {
                 .setText(message)
                 .setChooserTitle(R.string.mail_report)
                 .startChooser();
-
+        finish();
     }
 
     /**
@@ -124,7 +126,43 @@ public class BugReportActivity extends AppCompatActivity {
      * @return information about the system
      */
     private JSONObject getSystemInformation() {
-        return new JSONObject();
+        final JSONObject json = new JSONObject();
+
+        try {
+            final JSONObject build = new JSONObject();
+            build.put("version_name", BuildConfig.VERSION_NAME);
+            build.put("version_code", BuildConfig.VERSION_CODE);
+            build.put("build_type", BuildConfig.BUILD_TYPE);
+            build.put("debug", BuildConfig.DEBUG);
+
+            json.put("build", build);
+
+            final JSONObject device = new JSONObject();
+            device.put("board", Build.BOARD);
+            device.put("bootloader", Build.BOOTLOADER);
+            device.put("brand", Build.BRAND);
+            device.put("device", Build.DEVICE);
+            device.put("display", Build.DISPLAY);
+            device.put("fingerprint", Build.FINGERPRINT);
+            device.put("hardware", Build.HARDWARE);
+            device.put("host", Build.HOST);
+            device.put("id", Build.ID);
+            device.put("manufacturer", Build.MANUFACTURER);
+            device.put("model", Build.MODEL);
+            device.put("product", Build.PRODUCT);
+            device.put("radio", Build.getRadioVersion());
+            device.put("serial", Build.SERIAL);
+            device.put("tags", Build.TAGS);
+            device.put("time", Build.TIME);
+            device.put("type", Build.TYPE);
+            device.put("user", Build.USER);
+
+            json.put("device", device);
+        } catch (JSONException e) {
+            // Ignore
+        }
+
+        return json;
     }
 
     @Override
