@@ -61,6 +61,7 @@ public final class Recipe extends DatabaseObject implements Parcelable {
     @Nullable
     private Bitmap mImage;
 
+    @Nullable
     private String mImageLink;
 
     private long mImageId;
@@ -132,7 +133,6 @@ public final class Recipe extends DatabaseObject implements Parcelable {
         mSteps.add(step);
     }
     public void setImageLink(@NonNull String path) {
-        Objects.requireNonNull(path, "path must not be null");
         mImageLink = path;
     }
 
@@ -292,15 +292,12 @@ public final class Recipe extends DatabaseObject implements Parcelable {
                     source.readParcelableArray(Step.class.getClassLoader()), Step[].class);
             final String title = source.readString();
             final String author = source.readString();
-
-            final byte hasImage = source.readByte();
-            Bitmap image = null;
-            if (hasImage == 1) {
-                image = Bitmap.CREATOR.createFromParcel(source);
-            }
+            final long imageId = source.readLong();
+            final String imageLink = source.readString();
 
             final Recipe recipe = new Recipe(title, author, Arrays.asList(steps));
-            recipe.setImage(image);
+            recipe.setImageId(imageId);
+            recipe.setImageLink(imageLink);
             recipe.setObjectId(id);
             return recipe;
         }
@@ -322,11 +319,8 @@ public final class Recipe extends DatabaseObject implements Parcelable {
         dest.writeParcelableArray(mSteps.toArray(new Step[mSteps.size()]), flags);
         dest.writeString(mTitle);
         dest.writeString(mAuthor);
-        // Write has image: 0 (false) or 1 (true)
-        dest.writeByte(mImage != null ? (byte) 1 : (byte) 0);
-        if (mImage != null) {
-            mImage.writeToParcel(dest, 0);
-        }
+        dest.writeLong(mImageId);
+        dest.writeString(mImageLink);
     }
 
 }
