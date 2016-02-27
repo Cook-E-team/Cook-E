@@ -20,13 +20,18 @@
 package org.cook_e.data;
 
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 import org.joda.time.Duration;
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -39,6 +44,7 @@ import java.util.List;
  */
 public final class Recipe extends DatabaseObject implements Parcelable {
 
+    private static final String TAG = Recipe.class.getSimpleName();
     /**
      * The steps that this recipe contains
      */
@@ -212,7 +218,12 @@ public final class Recipe extends DatabaseObject implements Parcelable {
             return Bitmap.createBitmap(mImage);
         }
         else {
-            return null;
+            if (mImageLink != null) {
+                mImage = BitmapFactory.decodeFile(mImageLink);
+                return Bitmap.createBitmap(mImage);
+            } else {
+                return null;
+            }
         }
     }
 
@@ -223,6 +234,14 @@ public final class Recipe extends DatabaseObject implements Parcelable {
     public void setImage(@Nullable Bitmap image) {
         if (image != null) {
             mImage = Bitmap.createBitmap(image);
+            if (mImageLink != null) {
+                // Store the image
+                try {
+                    final OutputStream stream = new FileOutputStream(mImageLink);
+                } catch (FileNotFoundException e) {
+                    Log.w(TAG, "Failed to open image file", e);
+                }
+            }
         }
         else {
             mImage = null;
