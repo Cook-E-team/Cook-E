@@ -91,12 +91,12 @@ public class CookActivity extends AppCompatActivity implements TimerFragment.Ste
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_cook);
 
+        mBunch = getBunch();
         try {
             mTimeLearner = new TimeLearner(App.getAccessor(), mBunch);
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        mBunch = getBunch();
         mSchedule = new Schedule(mBunch, mTimeLearner);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -142,8 +142,9 @@ public class CookActivity extends AppCompatActivity implements TimerFragment.Ste
                 // User chose the "next" item,
                 step = mSchedule.getNextStep();
                 Recipe currRecipe = mSchedule.getCurrentStepRecipe();
+
                 boolean setBefore = mSchedule.getCurrStepIndex() != mSchedule.getMaxVisitedStepIndex();
-                if (!setBefore) {
+                if (!setBefore && currRecipe != null && step != null) {
                     Instant mEndInstant = new Instant();
                     Duration stepDuration = new Duration(mStartInstant, mEndInstant);
                     try {
