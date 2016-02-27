@@ -138,8 +138,7 @@ public class CreateRecipe extends AppCompatActivity {
         }
         // Create a recipe
         final Recipe recipe = new Recipe(title, author, Collections.<Step>emptyList());
-        // TODO: If the recipe image is set, starting the next activity will fail because of
-        // the large image (see issue #7). Once a solution is found, set the image.
+        recipe.setImage(mRecipeImage);
 
         // Store the recipe
         try {
