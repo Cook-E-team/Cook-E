@@ -157,6 +157,15 @@ public class Schedule {
     }
 
     /**
+     * Returns whether or not the schedule is at the final step.
+     *
+     * @return true if and only if the schedule is at the final step
+     */
+    public boolean isAtFinalStep() {
+        return getStepCount() == 0 || getCurrStepIndex() == getStepCount() - 1;
+    }
+
+    /**
      * Returns the total number of steps. This value includes both
      * scheduled and unscheduled steps.
      *
