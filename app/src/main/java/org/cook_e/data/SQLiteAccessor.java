@@ -63,9 +63,9 @@ public class SQLiteAccessor implements SQLAccessor {
     private static final String RECIPE_TABLE_NAME = "Recipes";
     private static final String[] RECIPE_COLUMNS = {"id", "name", "author", "description"}; // note the indexes are 0 based
     private static final String RECIPE_IMAGE_TABLE_NAME = "RecipeImages";
-    private static final String[] RECIPE_IMAGE_COLUMNS = {"recipe_id, image_id"};
+    private static final String[] RECIPE_IMAGE_COLUMNS = {"recipe_id", "image_id"};
     private static final String IMAGE_TABLE_NAME = "ImageMetaData";
-    private static final String[] IMAGE_COLUMNS = {"image_id, image_link"};
+    private static final String[] IMAGE_COLUMNS = {"image_id", "image_link"};
     private static final String BUNCH_TABLE_NAME = "Bunches";
     private static final String[] BUNCH_COLUMNS = {"id", "name"};
     private static final String BUNCH_RECIPES_TABLE_NAME = "BunchRecipes";
@@ -120,14 +120,14 @@ public class SQLiteAccessor implements SQLAccessor {
 
     private static final String RECIPE_IMAGE_JOIN_QUERY =
             "SELECT Recipes.id, Recipes.name, Recipes.author, Recipes.description, RecipeImages.image_id, ImageMetaData.image_link FROM Recipes JOIN RecipeImages ON Recipes.id=RecipeImages.recipe_id " +
-                    "JOIN ImageMetaData ON RecipeImages.recipe_id=ImageMetaData.recipe_id " +
+                    "JOIN ImageMetaData ON RecipeImages.image_id=ImageMetaData.image_id " +
                     "WHERE Recipes.name=? AND Recipes.author=?";
     private static final String RECIPE_IMAGE_ID_JOIN_QUERY =
             "SELECT Recipes.id, Recipes.name, Recipes.author, Recipes.description, RecipeImages.image_id, ImageMetaData.image_link FROM Recipes JOIN RecipeImages ON Recipes.id=RecipeImages.recipe_id " +
-                    "JOIN ImageMetaData ON RecipeImages.recipe_id=ImageMetaData.recipe_id " +
+                    "JOIN ImageMetaData ON RecipeImages.image_id=ImageMetaData.image_id " +
                     "WHERE Recipes.id=?";
     private static final String IMAGE_JOIN_QUERY =
-            "SELECT ImageMetaData.id, ImageMetaData.image_link FROM ImageMetaData JOIN RecipeImages ON ImageMetaData.id=RecipeImages.image_id " +
+            "SELECT ImageMetaData.image_id, ImageMetaData.image_link FROM ImageMetaData JOIN RecipeImages ON ImageMetaData.image_id=RecipeImages.image_id " +
                     "WHERE RecipeImages.recipe_id=?";
     /**
      * Constructor
