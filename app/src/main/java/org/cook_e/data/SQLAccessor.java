@@ -130,5 +130,6 @@ public interface SQLAccessor {
 
     void storeLearnerData(Recipe r, Collection<LearningWeight> weights) throws SQLException;
 
+
     Collection<LearningWeight> loadLearnerData(Recipe r) throws SQLException;
 }
