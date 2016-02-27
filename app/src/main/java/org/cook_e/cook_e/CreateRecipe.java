@@ -21,12 +21,8 @@ package org.cook_e.cook_e;
 
 import android.app.AlertDialog;
 import android.content.Intent;
-import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -38,6 +34,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 
+import org.cook_e.data.Bitmaps;
 import org.cook_e.data.Recipe;
 import org.cook_e.data.Step;
 
@@ -138,8 +135,7 @@ public class CreateRecipe extends AppCompatActivity {
         }
         // Create a recipe
         final Recipe recipe = new Recipe(title, author, Collections.<Step>emptyList());
-        // TODO: If the recipe image is set, starting the next activity will fail because of
-        // the large image (see issue #7). Once a solution is found, set the image.
+        recipe.setImage(mRecipeImage);
 
         // Store the recipe
         try {
@@ -213,9 +209,7 @@ public class CreateRecipe extends AppCompatActivity {
      * Starts an activity to ask the user to select an image
      */
     private void requestImageSelect() {
-        Intent intent = new Intent(
-                Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-        startActivityForResult(intent, RESULT_LOAD_IMAGE);
+        Bitmaps.requestImageSelection(this, RESULT_LOAD_IMAGE);
     }
 
     @Override
@@ -223,32 +217,18 @@ public class CreateRecipe extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         // Check for a received image
         if (requestCode == RESULT_LOAD_IMAGE && resultCode == RESULT_OK && data != null) {
-            Uri selectedImage = data.getData();
-            String[] filePathColumn = { MediaStore.Images.Media.DATA };
-
-            Cursor cursor = getContentResolver().query(selectedImage,
-                    filePathColumn, null, null, null);
-            if (cursor != null) {
-                cursor.moveToFirst();
-
-                final int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-                String picturePath = cursor.getString(columnIndex);
-                cursor.close();
-
-                final Bitmap loadedImage = BitmapFactory.decodeFile(picturePath);
-
-                if (loadedImage != null) {
-                    mImageView.setImageBitmap(loadedImage);
-                    mImageView.setVisibility(View.VISIBLE);
-                    mRecipeImage = loadedImage;
-                }
-                else {
-                    new AlertDialog.Builder(this)
-                            .setTitle("Could not access image")
-                            .setMessage("Please ensure that the selected image is valid and accessible.")
-                            .setPositiveButton(android.R.string.ok, null)
-                            .show();
-                }
+            final Bitmap loadedImage = Bitmaps.bitmapFromResult(this, data);
+            if (loadedImage != null) {
+                mImageView.setImageBitmap(loadedImage);
+                mImageView.setVisibility(View.VISIBLE);
+                mRecipeImage = loadedImage;
+            }
+            else {
+                new AlertDialog.Builder(this)
+                        .setTitle(R.string.could_not_access_image)
+                        .setMessage(R.string.could_not_access_image_explanation)
+                        .setPositiveButton(android.R.string.ok, null)
+                        .show();
             }
         }
     }

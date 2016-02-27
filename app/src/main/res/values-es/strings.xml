@@ -71,4 +71,6 @@
     <string name="mail_report">Enviar la informe</string>
     <string name="report_a_problem">Informar de un problema</string>
     <string name="send">Enviar</string>
+    <string name="could_not_access_image">No se pudo acceder a la imagen</string>
+    <string name="could_not_access_image_explanation">Por favor asegúrese de que la imagen seleccionada es válida y accesible.</string>
 </resources>
