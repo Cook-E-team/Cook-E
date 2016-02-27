@@ -25,16 +25,9 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 
 import org.cook_e.data.AsyncAccessor;
-import org.cook_e.data.Bunch;
-import org.cook_e.data.Recipe;
-import org.cook_e.data.Step;
 import org.cook_e.data.StorageAccessor;
-import org.joda.time.Duration;
 
 import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 
 /**
  * A class that stores application-wide state
@@ -60,11 +53,6 @@ public class App extends Application {
     public void onCreate() {
         super.onCreate();
         context = getApplicationContext();
-        try {
-            mAccessor = new StorageAccessor(context);
-        } catch (SQLException e) {
-            Log.e(TAG, "Failed to connect to database", e);
-        }
     }
 
     /**
@@ -85,7 +73,14 @@ public class App extends Application {
     @NonNull
     public static StorageAccessor getAccessor() {
         if (mAccessor == null) {
-            throw new IllegalStateException("Application not yet created");
+            if (context == null) {
+                throw new IllegalStateException("Application does not exist");
+            }
+            try {
+                mAccessor = new StorageAccessor(context);
+            } catch (SQLException e) {
+                Log.e(TAG, "Failed to connect to database", e);
+            }
         }
         return mAccessor;
     }

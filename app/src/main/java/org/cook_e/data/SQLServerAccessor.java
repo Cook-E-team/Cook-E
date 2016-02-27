@@ -20,6 +20,7 @@
 package org.cook_e.data;
 
 import android.os.StrictMode;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import org.joda.time.field.UnsupportedDurationField;
@@ -129,7 +130,8 @@ public class SQLServerAccessor implements SQLAccessor {
     /**
      * The database connection
      */
-    private final Connection mConnection;
+    @NonNull
+    private Connection mConnection;
 
     /**
      * Prepared statement for inserting a recipe
@@ -161,7 +163,18 @@ public class SQLServerAccessor implements SQLAccessor {
      */
     public SQLServerAccessor(StorageParser parser) throws SQLException {
         this.mParser = parser;
+        openConnection();
+        verifySchema();
+        // Set up prepared statements
+        mRecipeInsertStatement = mConnection.prepareStatement(RECIPE_INSERT);
+        mRecipeSelectStatement = mConnection.prepareStatement(RECIPE_SELECT_TITLE_AUTHOR);
+        mRecipeSelectLikeStatement = mConnection.prepareStatement(RECIPE_SELECT_LIKE);
+        mRecipeSelectAllStatement = mConnection.prepareStatement(RECIPE_SELECT_ALL);
+        // Set up ID counters
+        setUpCounters();
+    }
 
+    private void openConnection() throws SQLException {
         final Properties properties = new Properties();
         properties.put("user", USERNAME);
         properties.put("password", PASSWORD);
@@ -180,21 +193,12 @@ public class SQLServerAccessor implements SQLAccessor {
         new net.sourceforge.jtds.jdbc.Driver();
         mConnection = DriverManager.getConnection(dbUrl, properties);
         Log.d(TAG, "Successfully connected to remote database");
-
-        verifySchema();
-        // Set up prepared statements
-        mRecipeInsertStatement = mConnection.prepareStatement(RECIPE_INSERT);
-        mRecipeSelectStatement = mConnection.prepareStatement(RECIPE_SELECT_TITLE_AUTHOR);
-        mRecipeSelectLikeStatement = mConnection.prepareStatement(RECIPE_SELECT_LIKE);
-        mRecipeSelectAllStatement = mConnection.prepareStatement(RECIPE_SELECT_ALL);
-        // Set up ID counters
-        setUpCounters();
     }
 
 
     @Override
     public Recipe loadRecipe(String name, String author) throws SQLException {
-
+        checkConnectionOpen();
         // Allow network access on main thread (for testing only)
         // TODO: Remodel all database access to run on a separate thread (issue #26)
         StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder().permitAll().build());
@@ -218,6 +222,7 @@ public class SQLServerAccessor implements SQLAccessor {
 
     @Override
     public List<Recipe> findRecipesLike(String title) throws SQLException {
+        checkConnectionOpen();
 
         // Allow network access on main thread (for testing only)
         // TODO: Remodel all database access to run on a separate thread (issue #26)
@@ -286,6 +291,7 @@ public class SQLServerAccessor implements SQLAccessor {
 
     @Override
     public void storeRecipe(Recipe r) throws SQLException {
+        checkConnectionOpen();
 
         // Allow network access on main thread (for testing only)
         // TODO: Remodel all database access to run on a separate thread (issue #26)
@@ -308,6 +314,7 @@ public class SQLServerAccessor implements SQLAccessor {
 
     @Override
     public List<Recipe> loadAllRecipes() throws SQLException {
+        checkConnectionOpen();
 
         // Allow network access on main thread (for testing only)
         // TODO: Remodel all database access to run on a separate thread (issue #26)
@@ -376,6 +383,7 @@ public class SQLServerAccessor implements SQLAccessor {
      * Sets up the tables if they do not exist
      */
     private void verifySchema() throws SQLException {
+        checkConnectionOpen();
         final Statement statement = mConnection.createStatement();
         try {
             statement.executeUpdate(RECIPE_TABLE_CREATE);
@@ -413,6 +421,12 @@ public class SQLServerAccessor implements SQLAccessor {
             mConnection.close();
         } catch (SQLException e) {
             throw new IOException(e);
+        }
+    }
+
+    private void checkConnectionOpen() throws SQLException {
+        if (mConnection.isClosed()) {
+            openConnection();
         }
     }
 }

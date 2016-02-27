@@ -43,6 +43,15 @@ import java.util.Set;
 public class StorageAccessor implements Closeable {
 
     /**
+     * The context
+     */
+    private final Context mContext;
+    /**
+     * The storage parser
+     */
+    private final StorageParser mParser;
+
+    /**
      * The local database accessor
      */
     private SQLAccessor mLocal;
@@ -56,9 +65,17 @@ public class StorageAccessor implements Closeable {
      * @param c Context of the activity that wants to store/retrieve data
      */
     public StorageAccessor(Context c) throws SQLException {
-        final StorageParser parser = new StorageParser();
-        mLocal = new SQLiteAccessor(c, parser);
-        mExternal = new SQLServerAccessor(parser);
+        mParser = new StorageParser();
+        mContext = c;
+    }
+
+    private void checkConnectionsOpen() throws SQLException {
+        if (mLocal == null) {
+            mLocal = new SQLiteAccessor(mContext, mParser);
+        }
+        if (mExternal == null) {
+            mExternal = new SQLServerAccessor(mParser);
+        }
     }
 
     /**
@@ -68,6 +85,7 @@ public class StorageAccessor implements Closeable {
      * @throws IllegalArgumentException if the provided recipe already has an object ID
      */
     public void storeRecipe(Recipe r) throws SQLException {
+        checkConnectionsOpen();
         if (r.getObjectId() != DatabaseObject.NO_ID && mLocal.containsRecipe(r.getObjectId())) {
             throw new IllegalArgumentException("Recipe has already been stored");
         }
@@ -81,6 +99,7 @@ public class StorageAccessor implements Closeable {
      * @throws IllegalArgumentException if the provided bunch already has an object ID
      */
     public void storeBunch(Bunch b) throws SQLException {
+        checkConnectionsOpen();
         if (b.hasObjectId()) {
             throw new IllegalArgumentException("Bunch has already been stored");
         }
@@ -94,7 +113,8 @@ public class StorageAccessor implements Closeable {
      * @throws SQLException
      */
     public List<Recipe> loadRecipes(String keyword) throws SQLException {
-       return mExternal.findRecipesLike(keyword);
+        checkConnectionsOpen();
+        return mExternal.findRecipesLike(keyword);
     }
     /**
      * Retrieve a recipe from storage
@@ -107,6 +127,7 @@ public class StorageAccessor implements Closeable {
      * @return Recipe object or null if recipe could not be found
      */
     public Recipe loadRecipe(String title, String author) throws SQLException {
+        checkConnectionsOpen();
         final Recipe local = mLocal.loadRecipe(title, author);
         if (local == null) {
             return mExternal.loadRecipe(title, author);
@@ -122,6 +143,7 @@ public class StorageAccessor implements Closeable {
      * @return Bunch object or null if bunch could not be found
      */
     public Bunch loadBunch(String name) throws SQLException {
+        checkConnectionsOpen();
         return mLocal.loadBunch(name);
     }
 
@@ -134,6 +156,7 @@ public class StorageAccessor implements Closeable {
      * @return List of Recipe objects
      */
     public List<Recipe> loadAllRecipes() throws SQLException {
+        checkConnectionsOpen();
         final Set<Recipe> recipeSet = new HashSet<>();
         recipeSet.addAll(mLocal.loadAllRecipes());
         recipeSet.addAll(mExternal.loadAllRecipes());
@@ -145,6 +168,7 @@ public class StorageAccessor implements Closeable {
      * @return List of Bunch objects
      */
     public List<Bunch> loadAllBunches() throws SQLException {
+        checkConnectionsOpen();
         return mLocal.loadAllBunches();
     }
     /**
@@ -153,6 +177,7 @@ public class StorageAccessor implements Closeable {
      * @throws IllegalArgumentException if the recipe has not been stored in this database
      */
     public void editRecipe(Recipe r) throws SQLException {
+        checkConnectionsOpen();
         if (!r.hasObjectId()) {
             throw new IllegalArgumentException("Recipe has not been stored");
         }
@@ -168,6 +193,7 @@ public class StorageAccessor implements Closeable {
      * @throws SQLException if an error occurs
      */
     public void persistRecipe(Recipe r) throws SQLException {
+        checkConnectionsOpen();
         if (r.hasObjectId()) {
             editRecipe(r);
         } else {
@@ -181,6 +207,7 @@ public class StorageAccessor implements Closeable {
      * @throws IllegalArgumentException if the bunch has not been stored in this database
      */
     public void editBunch(Bunch b) throws SQLException {
+        checkConnectionsOpen();
         if (!b.hasObjectId()) {
             throw new IllegalArgumentException("Bunch has not been stored");
         }
@@ -196,6 +223,7 @@ public class StorageAccessor implements Closeable {
      * @throws SQLException if an error occurs
      */
     public void persistBunch(Bunch b) throws SQLException {
+        checkConnectionsOpen();
         if (b.hasObjectId()) {
             editBunch(b);
         } else {
@@ -210,6 +238,7 @@ public class StorageAccessor implements Closeable {
      * @throws IllegalArgumentException if the recipe has not been stored in this database
      */
     public void deleteRecipe(Recipe r) throws SQLException {
+        checkConnectionsOpen();
         if (!r.hasObjectId()) {
             throw new IllegalArgumentException("Recipe has not been stored");
         }
@@ -222,6 +251,7 @@ public class StorageAccessor implements Closeable {
      * @throws IllegalArgumentException if the bunch has not been stored in this database
      */
     public void deleteBunch(Bunch b) throws SQLException {
+        checkConnectionsOpen();
         if (!b.hasObjectId()) {
             throw new IllegalArgumentException("Bunch has not been stored");
         }
@@ -235,19 +265,26 @@ public class StorageAccessor implements Closeable {
      * @throws SQLException if an error occurs
      */
     public boolean containsLocalRecipe(long id) throws SQLException {
+        checkConnectionsOpen();
         return mLocal.containsRecipe(id);
     }
 
     public void storeLearnerData(Recipe r, Collection<LearningWeight> weights) throws SQLException {
+        checkConnectionsOpen();
         mLocal.storeLearnerData(r, weights);
     }
     public Collection<LearningWeight> loadLearnerData(Recipe r) throws SQLException {
+        checkConnectionsOpen();
         return mLocal.loadLearnerData(r);
     }
 
     @Override
     public void close() throws IOException {
-        mLocal.close();
-        mExternal.close();
+        if (mLocal != null) {
+            mLocal.close();
+        }
+        if (mExternal != null) {
+            mExternal.close();
+        }
     }
 }
