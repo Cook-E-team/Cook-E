@@ -276,4 +276,66 @@ public class ScheduleTest {
 
         assertEquals(3, sched.getStepCount());
     }
+
+    @Test
+    public void getCurrStepIndex() {
+        List<Step> steps1 = new ArrayList<>();
+        steps1.add(fiveNonSimul);
+        steps1.add(fiveSimul);
+        Recipe recipe1 = new Recipe("r1", "test", steps1);
+        List<Step> steps2 = new ArrayList<>();
+        steps2.add(fiveSimul);
+        Recipe recipe2 = new Recipe("r2", "test", steps2);
+        List<Recipe> recipies = new ArrayList<>();
+        recipies.add(recipe1);
+        recipies.add(recipe2);
+        Bunch bunch = new Bunch("test", recipies);
+        Schedule sched = new Schedule(bunch);
+
+        sched.getNextStep();
+        assertEquals(0, sched.getCurrStepIndex());
+        sched.getNextStep();
+        assertEquals(1, sched.getCurrStepIndex());
+        sched.getNextStep();
+        assertEquals(2, sched.getCurrStepIndex());
+        sched.getNextStep();
+        assertEquals(2, sched.getCurrStepIndex());
+        sched.getPrevStep();
+        assertEquals(1, sched.getCurrStepIndex());
+        sched.getPrevStep();
+        assertEquals(0, sched.getCurrStepIndex());
+        sched.getPrevStep();
+        assertEquals(0, sched.getCurrStepIndex());
+    }
+
+    @Test
+    public void getMaxVisitedStepIndex() {
+        List<Step> steps1 = new ArrayList<>();
+        steps1.add(fiveNonSimul);
+        steps1.add(fiveSimul);
+        Recipe recipe1 = new Recipe("r1", "test", steps1);
+        List<Step> steps2 = new ArrayList<>();
+        steps2.add(fiveSimul);
+        Recipe recipe2 = new Recipe("r2", "test", steps2);
+        List<Recipe> recipies = new ArrayList<>();
+        recipies.add(recipe1);
+        recipies.add(recipe2);
+        Bunch bunch = new Bunch("test", recipies);
+        Schedule sched = new Schedule(bunch);
+
+        sched.getNextStep();
+        assertEquals(0, sched.getMaxVisitedStepIndex());
+        sched.getNextStep();
+        assertEquals(1, sched.getMaxVisitedStepIndex());
+        sched.getNextStep();
+        assertEquals(2, sched.getMaxVisitedStepIndex());
+        sched.getNextStep();
+        assertEquals(2, sched.getMaxVisitedStepIndex());
+        sched.getPrevStep();
+        assertEquals(2, sched.getMaxVisitedStepIndex());
+        sched.getPrevStep();
+        assertEquals(2, sched.getMaxVisitedStepIndex());
+        sched.getPrevStep();
+        assertEquals(2, sched.getMaxVisitedStepIndex());
+    }
 }
