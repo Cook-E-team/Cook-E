@@ -16,6 +16,11 @@ import java.util.concurrent.Executors;
 public class AsyncAccessor {
 
     /**
+     * The maximum number of threads to use
+     */
+    public static final int THREAD_COUNT = 2;
+
+    /**
      * Interface for objects that can be notified when a result or error is available
      * @param <T> the result type
      */
@@ -61,7 +66,7 @@ public class AsyncAccessor {
         mAccessor = accessor;
         // Create a new Handler on the thread that called this method
         mHandler = new Handler();
-        mExecutorService = Executors.newSingleThreadExecutor();
+        mExecutorService = Executors.newFixedThreadPool(THREAD_COUNT);
     }
 
     /**

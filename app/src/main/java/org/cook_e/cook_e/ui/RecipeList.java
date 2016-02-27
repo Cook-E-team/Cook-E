@@ -25,7 +25,6 @@ import android.content.Intent;
 import android.databinding.ObservableArrayList;
 import android.databinding.ObservableList;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -37,9 +36,9 @@ import android.widget.TextView;
 import org.cook_e.cook_e.App;
 import org.cook_e.cook_e.CreateRecipe;
 import org.cook_e.cook_e.R;
+import org.cook_e.data.AsyncAccessor;
 import org.cook_e.data.Recipe;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -61,23 +60,44 @@ public class RecipeList extends Fragment {
      */
     private ObservableArrayList<Recipe> mVisibleRecipes;
     private SearchView mSearchView;
+    private ListEmptyViewManager mEmptyViewManager;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        try {
-            mRecipes = new ObservableArrayList<>();
-            mVisibleRecipes = new ObservableArrayList<>();
-            mRecipes.addAll(App.getAccessor().loadAllRecipes());
-            mVisibleRecipes.addAll(mRecipes);
+        mRecipes = new ObservableArrayList<>();
+        mVisibleRecipes = new ObservableArrayList<>();
+        loadRecipes();
+    }
 
-        } catch (SQLException e) {
-            new AlertDialog.Builder(getActivity())
-                    .setTitle("Failed to load recipes")
-                    .setMessage(e.getLocalizedMessage())
-                    .show();
-            Log.e(TAG, "Failed to load recipes", e);
+    /**
+     * Reloads the recipes from the database
+     */
+    private void loadRecipes() {
+        setLoadInProgress(true);
+        App.getAsyncAccessor().loadAllRecipes(new AsyncAccessor.ResultHandler<List<Recipe>>() {
+            @Override
+            public void onResult(List<Recipe> result) {
+                setLoadInProgress(false);
+                mRecipes.addAll(result);
+            }
+
+            @Override
+            public void onException(Exception e) {
+                setLoadInProgress(false);
+                new AlertDialog.Builder(getActivity())
+                        .setTitle("Failed to load recipes")
+                        .setMessage(e.getLocalizedMessage())
+                        .show();
+                Log.e(TAG, "Failed to load recipes", e);
+            }
+        });
+    }
+
+    private void setLoadInProgress(boolean inProgress) {
+        if (mEmptyViewManager != null) {
+            mEmptyViewManager.setInProgress(inProgress);
         }
     }
 
@@ -103,7 +123,9 @@ public class RecipeList extends Fragment {
         } else {
             emptyView.setVisibility(View.INVISIBLE);
         }
-        mVisibleRecipes.addOnListChangedCallback(new ListEmptyViewManager(emptyView));
+        final View progress = view.findViewById(R.id.progress_indicator);
+        mEmptyViewManager = new ListEmptyViewManager(emptyView, progress);
+        mVisibleRecipes.addOnListChangedCallback(mEmptyViewManager);
 
         // Update mVisibleRecipes when mRecipes changes
         mRecipes.addOnListChangedCallback(new VisibleRecipeUpdater<Recipe>());
@@ -156,15 +178,8 @@ public class RecipeList extends Fragment {
     public void reloadRecipes() {
         if (mRecipes != null) {
             mRecipes.clear();
-            try {
-                mRecipes.addAll(App.getAccessor().loadAllRecipes());
-            } catch (SQLException e) {
-                new AlertDialog.Builder(getActivity())
-                        .setTitle("Failed to load recipes")
-                        .setMessage(e.getLocalizedMessage())
-                        .show();
-                Log.e(TAG, "Failed to load recipes", e);
-            }
+            mVisibleRecipes.clear();
+            loadRecipes();
         }
     }
 

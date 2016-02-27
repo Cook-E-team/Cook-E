@@ -37,6 +37,7 @@ import android.widget.TextView;
 import org.cook_e.cook_e.App;
 import org.cook_e.cook_e.CreateMealActivity;
 import org.cook_e.cook_e.R;
+import org.cook_e.data.AsyncAccessor;
 import org.cook_e.data.Bunch;
 
 import java.sql.SQLException;
@@ -65,6 +66,7 @@ public class MealList extends Fragment {
      * The view used for searching
      */
     private SearchView mSearchView;
+    private ListEmptyViewManager mEmptyViewManager;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -72,16 +74,37 @@ public class MealList extends Fragment {
 
         mMeals = new ObservableArrayList<>();
         mVisibleMeals = new ObservableArrayList<>();
-        try {
-            mMeals.addAll(App.getAccessor().loadAllBunches());
-            mVisibleMeals.addAll(mMeals);
-        } catch (SQLException e) {
-            new AlertDialog.Builder(getActivity())
-                    .setTitle("Failed to load Meals")
-                    .setMessage(e.getLocalizedMessage())
-                    .show();
-            Log.e(TAG, "Failed to load Meals", e);
+        loadMeals();
+    }
+
+    private void setLoadInProgress(boolean inProgress) {
+        if (mEmptyViewManager != null) {
+            mEmptyViewManager.setInProgress(inProgress);
         }
+    }
+
+    /**
+     * Loads meals from the database
+     */
+    private void loadMeals() {
+        setLoadInProgress(true);
+        App.getAsyncAccessor().loadAllBunches(new AsyncAccessor.ResultHandler<List<Bunch>>() {
+            @Override
+            public void onResult(List<Bunch> result) {
+                setLoadInProgress(false);
+                mMeals.addAll(result);
+            }
+
+            @Override
+            public void onException(Exception e) {
+                setLoadInProgress(false);
+                new AlertDialog.Builder(getActivity())
+                        .setTitle("Failed to load Meals")
+                        .setMessage(e.getLocalizedMessage())
+                        .show();
+                Log.e(TAG, "Failed to load Meals", e);
+            }
+        });
     }
 
     @Override
@@ -106,7 +129,10 @@ public class MealList extends Fragment {
         } else {
             emptyView.setVisibility(View.INVISIBLE);
         }
-        mVisibleMeals.addOnListChangedCallback(new ListEmptyViewManager(emptyView));
+        // Progress indicator
+        final View progress = view.findViewById(R.id.progress_indicator);
+        mEmptyViewManager = new ListEmptyViewManager(emptyView, progress);
+        mVisibleMeals.addOnListChangedCallback(mEmptyViewManager);
 
         // Update visible meals when meals changes
         mMeals.addOnListChangedCallback(new VisibleMealUpdater<Bunch>());
@@ -155,16 +181,8 @@ public class MealList extends Fragment {
     public void reloadMeals() {
         if (mMeals != null) {
             mMeals.clear();
-            try {
-                mMeals.addAll(App.getAccessor().loadAllBunches());
-                updateVisibleMeals();
-            } catch (SQLException e) {
-                new AlertDialog.Builder(getActivity())
-                        .setTitle("Failed to load meals")
-                        .setMessage(e.getLocalizedMessage())
-                        .show();
-                Log.e(TAG, "Failed to load meals", e);
-            }
+            mVisibleMeals.clear();
+            loadMeals();
         }
     }
 

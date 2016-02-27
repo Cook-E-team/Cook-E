@@ -24,6 +24,7 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import org.cook_e.data.AsyncAccessor;
 import org.cook_e.data.Bunch;
 import org.cook_e.data.Recipe;
 import org.cook_e.data.Step;
@@ -49,6 +50,11 @@ public class App extends Application {
      * The storage accessor used to access data
      */
     private static StorageAccessor mAccessor;
+
+    /**
+     * The asynchronous accessor used to access data
+     */
+    private static AsyncAccessor mAsyncAccessor;
 
     @Override
     public void onCreate() {
@@ -82,5 +88,13 @@ public class App extends Application {
             throw new IllegalStateException("Application not yet created");
         }
         return mAccessor;
+    }
+
+    @NonNull
+    public static AsyncAccessor getAsyncAccessor() {
+        if (mAsyncAccessor == null) {
+            mAsyncAccessor = new AsyncAccessor(getAccessor());
+        }
+        return mAsyncAccessor;
     }
 }

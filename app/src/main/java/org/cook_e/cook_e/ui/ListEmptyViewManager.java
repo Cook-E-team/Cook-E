@@ -20,7 +20,6 @@
 package org.cook_e.cook_e.ui;
 
 import android.databinding.ObservableList;
-import android.util.Log;
 import android.view.View;
 
 /**
@@ -38,47 +37,90 @@ public class ListEmptyViewManager extends ObservableList.OnListChangedCallback<O
     /**
      * The view to display when the list is empty
      */
-    private final View mView;
+    private final View mEmptyView;
+
+    /**
+     * The view to display when an operation is in progress
+     */
+    private final View mProgressView;
+
+    /**
+     * If an operation is in progress
+     */
+    private boolean mInProgress;
+
+    /**
+     * If the list is empty
+     */
+    private boolean mListEmpty;
 
     /**
      * Creates a ListEmptyViewManager
-     * @param view the view to show or hide
+     * @param emptyView the view to show when the list is empty
+     * @param progressView the view to display when an operation is in progress
      */
-    public ListEmptyViewManager(View view) {
-        mView = view;
+    public ListEmptyViewManager(View emptyView, View progressView) {
+        mEmptyView = emptyView;
+        mProgressView = progressView;
+        mInProgress = false;
+        mListEmpty = true;
     }
 
-    private void checkVisibility(ObservableList<?> list) {
-        if (list.isEmpty()) {
-            mView.setVisibility(View.VISIBLE);
-        }
-        else {
-            mView.setVisibility(View.INVISIBLE);
+    /**
+     * Indicates that an operation is in progress or not.
+     *
+     * While an operation is in progress, the in-progress view will be shown if the list is empty.
+     * Otherwise, the empty view will be shown.
+     *
+     * @param inProgress if an operation is in progress
+     */
+    public void setInProgress(boolean inProgress) {
+        mInProgress = inProgress;
+        updateVisibility();
+    }
+
+    private void updateList(ObservableList<?> list) {
+        mListEmpty = list.isEmpty();
+        updateVisibility();
+    }
+
+    private void updateVisibility() {
+        if (mListEmpty) {
+            if (mInProgress) {
+                mProgressView.setVisibility(View.VISIBLE);
+                mEmptyView.setVisibility(View.INVISIBLE);
+            } else {
+                mProgressView.setVisibility(View.INVISIBLE);
+                mEmptyView.setVisibility(View.VISIBLE);
+            }
+        } else {
+            mEmptyView.setVisibility(View.INVISIBLE);
+            mProgressView.setVisibility(View.INVISIBLE);
         }
     }
 
     @Override
     public void onChanged(ObservableList<?> sender) {
-        checkVisibility(sender);
+        updateList(sender);
     }
 
     @Override
     public void onItemRangeChanged(ObservableList<?> sender, int positionStart, int itemCount) {
-        checkVisibility(sender);
+        updateList(sender);
     }
 
     @Override
     public void onItemRangeInserted(ObservableList<?> sender, int positionStart, int itemCount) {
-        checkVisibility(sender);
+        updateList(sender);
     }
 
     @Override
     public void onItemRangeMoved(ObservableList<?> sender, int fromPosition, int toPosition, int itemCount) {
-        checkVisibility(sender);
+        updateList(sender);
     }
 
     @Override
     public void onItemRangeRemoved(ObservableList<?> sender, int positionStart, int itemCount) {
-        checkVisibility(sender);
+        updateList(sender);
     }
 }
