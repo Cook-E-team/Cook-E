@@ -19,85 +19,92 @@
 
 package org.cook_e.cook_e;
 
+import org.cook_e.data.Bunch;
+import org.cook_e.data.Recipe;
 import org.cook_e.data.Step;
+import org.cook_e.data.StorageAccessor;
 import org.cook_e.data.TimeLearner;
 import org.joda.time.Duration;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class TimeLearnerTest {
-    private static final Step STEP_ONE = new Step(Collections.<String>emptyList(), "step 1", new Duration(10000), false);
-    private static final Step STEP_TWO = new Step(Collections.<String>emptyList(), "step 2", new Duration(20000), false);
-    private static final Step STEP_THREE = new Step(Collections.<String>emptyList(), "step 3", new Duration(10000), true);
+    private static final Step STEP_ONE = new Step(Collections.<String>emptyList(), "step 1", new Duration(10000), false, 0);
+    private static final Step STEP_TWO = new Step(Collections.<String>emptyList(), "step 2", new Duration(20000), false, 1);
+    private static final Step STEP_THREE = new Step(Collections.<String>emptyList(), "step 3", new Duration(10000), true, 2);
 
     private TimeLearner learner;
+    private StorageAccessor accessor = App.getAccessor();
+    private Recipe recipe;
 
     @Before
-    public void setUp() {
-        learner = new TimeLearner();
+    public void setUp() throws SQLException {
+        List<Step> steps = new ArrayList<Step>();
+        steps.add(STEP_ONE);
+        steps.add(STEP_TWO);
+        steps.add(STEP_THREE);
+        recipe = new Recipe("title", "author", steps);
+        Bunch bunch = new Bunch();
+        bunch.addRecipe(recipe);
+        learner = new TimeLearner(accessor, bunch);
     }
 
     @After
-    public void tearDown() {
+    public void tearDown() throws SQLException {
+        accessor.deleteLearnerData();
         learner = null;
     }
 
     @Test
     public void testOneStepNoLearn() {
-        assertEquals(10000, learner.getEstimatedTime(STEP_ONE).getMillis());
+        assertEquals(10000, learner.getEstimatedTime(recipe, STEP_ONE).getMillis());
     }
 
     @Test
-    public void testOneStepOneLearn() {
-        learner.learnStep(STEP_ONE, new Duration(8000));
-        assertEquals(8000, learner.getEstimatedTime(STEP_ONE).getMillis());
+    public void testOneStepOneLearn() throws SQLException {
+        learner.learnStep(recipe, STEP_ONE, new Duration(8000));
+        assertEquals(8000, learner.getEstimatedTime(recipe, STEP_ONE).getMillis());
     }
 
     @Test
-    public void testClear() {
-        learner.clearLearner();
-        assertEquals(10000, learner.getEstimatedTime(STEP_ONE).getMillis());
+    public void testOneStepOneLearnOverLimit() throws SQLException {
+        learner.learnStep(recipe, STEP_ONE, new Duration(3000));
+        assertEquals(5000, learner.getEstimatedTime(recipe, STEP_ONE).getMillis());
     }
 
     @Test
-    public void testOneStepOneLearnOverLimit() {
-        learner.learnStep(STEP_ONE, new Duration(3000));
-        assertEquals(5000, learner.getEstimatedTime(STEP_ONE).getMillis());
-        learner.clearLearner();
+    public void testOneStepMulLearn() throws SQLException {
+        learner.learnStep(recipe, STEP_ONE, new Duration(8000));
+        assertEquals(8000, learner.getEstimatedTime(recipe, STEP_ONE).getMillis());
+        learner.learnStep(recipe, STEP_ONE, new Duration(12000));
+        assertEquals(11000, learner.getEstimatedTime(recipe, STEP_ONE).getMillis());
+        learner.learnStep(recipe, STEP_ONE, new Duration(7000));
+        assertEquals(8750, learner.getEstimatedTime(recipe, STEP_ONE).getMillis());
     }
 
     @Test
-    public void testOneStepMulLearn() {
-        learner.learnStep(STEP_ONE, new Duration(8000));
-        assertEquals(8000, learner.getEstimatedTime(STEP_ONE).getMillis());
-        learner.learnStep(STEP_ONE, new Duration(12000));
-        assertEquals(11000, learner.getEstimatedTime(STEP_ONE).getMillis());
-        learner.learnStep(STEP_ONE, new Duration(7000));
-        assertEquals(8750, learner.getEstimatedTime(STEP_ONE).getMillis());
-        learner.clearLearner();
-    }
-
-    @Test
-    public void testMulStep() {
-        learner.learnStep(STEP_ONE, new Duration(8000));
-        assertEquals(8000, learner.getEstimatedTime(STEP_ONE).getMillis());
-        learner.learnStep(STEP_TWO, new Duration(30000));
-        assertEquals(8000, learner.getEstimatedTime(STEP_ONE).getMillis());
-        assertEquals(30000, learner.getEstimatedTime(STEP_TWO).getMillis());
-        learner.learnStep(STEP_THREE, new Duration(12000));
-        assertEquals(8000, learner.getEstimatedTime(STEP_ONE).getMillis());
-        assertEquals(30000, learner.getEstimatedTime(STEP_TWO).getMillis());
-        assertEquals(12000, learner.getEstimatedTime(STEP_THREE).getMillis());
-        learner.learnStep(STEP_ONE, new Duration(12000));
-        assertEquals(11000, learner.getEstimatedTime(STEP_ONE).getMillis());
-        assertEquals(30000, learner.getEstimatedTime(STEP_TWO).getMillis());
-        assertEquals(12000, learner.getEstimatedTime(STEP_THREE).getMillis());
-        learner.clearLearner();
+    public void testMulStep() throws SQLException {
+        learner.learnStep(recipe, STEP_ONE, new Duration(8000));
+        assertEquals(8000, learner.getEstimatedTime(recipe, STEP_ONE).getMillis());
+        learner.learnStep(recipe, STEP_TWO, new Duration(30000));
+        assertEquals(8000, learner.getEstimatedTime(recipe, STEP_ONE).getMillis());
+        assertEquals(30000, learner.getEstimatedTime(recipe, STEP_TWO).getMillis());
+        learner.learnStep(recipe, STEP_THREE, new Duration(12000));
+        assertEquals(8000, learner.getEstimatedTime(recipe, STEP_ONE).getMillis());
+        assertEquals(30000, learner.getEstimatedTime(recipe, STEP_TWO).getMillis());
+        assertEquals(12000, learner.getEstimatedTime(recipe, STEP_THREE).getMillis());
+        learner.learnStep(recipe, STEP_ONE, new Duration(12000));
+        assertEquals(11000, learner.getEstimatedTime(recipe, STEP_ONE).getMillis());
+        assertEquals(30000, learner.getEstimatedTime(recipe, STEP_TWO).getMillis());
+        assertEquals(12000, learner.getEstimatedTime(recipe, STEP_THREE).getMillis());
     }
 }

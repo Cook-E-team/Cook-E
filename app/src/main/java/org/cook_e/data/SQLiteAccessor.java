@@ -64,7 +64,7 @@ public class SQLiteAccessor implements SQLAccessor {
     private static final String BUNCH_RECIPES_TABLE_NAME = "BunchRecipes";
     private static final String[] BUNCH_RECIPE_COLUMNS = {"bunch_id", "recipe_id"};
     private static final String LEARNER_TABLE_NAME = "LearnerData";
-    private static final String[] LEARNER_COLUMNS = {"recipe_id", "index", "weighted_time", "learn_rate"};
+    private static final String[] LEARNER_COLUMNS = {"recipe_id", "step_index", "weighted_time", "learn_rate"};
     /**
      * Schema of the Recipes table: (id, name, author, description)
      */
@@ -635,7 +635,7 @@ public class SQLiteAccessor implements SQLAccessor {
             try {
                 String[] whereArgs = {String.valueOf(r.getObjectId())};
                 Cursor c = db.query(LEARNER_TABLE_NAME, LEARNER_COLUMNS, "recipe_id = ?", whereArgs, null, null, null, null);
-                if (c != null) {
+                if (c.getCount() > 0) {
                     c.moveToFirst();
                     do {
                         int index = c.getInt(1);

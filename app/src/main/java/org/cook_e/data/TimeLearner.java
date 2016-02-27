@@ -92,10 +92,14 @@ public class TimeLearner {
      * @param s
      * @return
      */
-    private LearningWeight accessOrCreateLearningWeight(Recipe r, Step s) {
+    public LearningWeight accessOrCreateLearningWeight(Recipe r, Step s) {
         List<LearningWeight> weights = mWeights.get(r.getObjectId());
-        if (weights == null) {
-            weights = new ArrayList<>();
+        if (weights == null || weights.size() == 0) {
+            int stepCount = r.getSteps().size();
+            weights = new ArrayList<>(stepCount);
+            for (int i = 0; i < stepCount; i++) {
+                weights.add(new LearningWeight(i));
+            }
             mWeights.put(r.getObjectId(), weights);
         }
 
