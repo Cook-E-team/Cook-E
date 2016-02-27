@@ -102,7 +102,6 @@ public class SQLiteAccessorTest {
         mAccessor.checkInvariants();
         result = mAccessor.loadRecipe("My Recipe", "Kyle Woo");
         mAccessor.checkInvariants();
-        result.setImageId(Recipe.NO_ID);
         assertEquals(edited_r, result);
     }
 

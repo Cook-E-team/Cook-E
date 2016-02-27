@@ -27,11 +27,15 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import org.cook_e.cook_e.App;
 import org.joda.time.Duration;
 
-import java.io.FileNotFoundException;
+import java.io.BufferedWriter;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileOutputStream;
-import java.io.OutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -44,7 +48,20 @@ import java.util.List;
  */
 public final class Recipe extends DatabaseObject implements Parcelable {
 
+    /**
+     * The tag used for logging
+     */
     private static final String TAG = Recipe.class.getSimpleName();
+    /**
+     * The format used for compression
+     */
+    private static final Bitmap.CompressFormat FORMAT = Bitmap.CompressFormat.PNG;
+
+    /**
+     * The compression quality level, 0-100 (ignored for PNG)
+     */
+    private static final int QUALITY = 100;
+
     /**
      * The steps that this recipe contains
      */
@@ -62,15 +79,20 @@ public final class Recipe extends DatabaseObject implements Parcelable {
     private String mAuthor;
 
     /**
-     * The image associated with this recipe, or null if the recipe has no image
+     * The image associated with this recipe
+     *
+     * This field is not used in hashCode or equals because it is loaded lazily from the path in
+     * {@link #mImageLink} when something requests it.
      */
     @Nullable
     private Bitmap mImage;
 
+    /**
+     * The path to the image on the file system, or null if this recipe has no image
+     */
     @Nullable
     private String mImageLink;
 
-    private long mImageId;
     /**
      * Constructor
      *@param title the title of the recipe, must not be null
@@ -87,7 +109,7 @@ public final class Recipe extends DatabaseObject implements Parcelable {
         mTitle = title;
         mAuthor = author;
         mImage = null;
-        mImageId = NO_ID;
+        mImageLink = null;
     }
 
     /**
@@ -99,7 +121,7 @@ public final class Recipe extends DatabaseObject implements Parcelable {
         // Step, and String are immutable, so they do not need to be copied.
         // The delegated constructor copies the list of steps.
         this(other.getTitle(), other.getAuthor(), other.getSteps());
-        setImage(other.getImage());
+        setImageLink(other.getImageLink());
         setObjectId(other.getObjectId());
     }
 
@@ -138,18 +160,16 @@ public final class Recipe extends DatabaseObject implements Parcelable {
         Objects.requireNonNull(step, "step must not be null");
         mSteps.add(step);
     }
-    public void setImageLink(@NonNull String path) {
+    public void setImageLink(@Nullable String path) {
+        if (Objects.equals(mImageLink, path)) {
+            // Delete the cached image
+            mImage = null;
+        }
         mImageLink = path;
     }
 
-    public long getImageId() {
-        return mImageId;
-    }
 
-    public void setImageId(long imageId) {
-        mImageId = imageId;
-    }
-
+    @Nullable
     public String getImageLink() {
         return mImageLink;
     }
@@ -236,15 +256,36 @@ public final class Recipe extends DatabaseObject implements Parcelable {
             mImage = Bitmap.createBitmap(image);
             if (mImageLink != null) {
                 // Store the image
-                try {
-                    final OutputStream stream = new FileOutputStream(mImageLink);
-                } catch (FileNotFoundException e) {
-                    Log.w(TAG, "Failed to open image file", e);
+                final ByteArrayOutputStream imageBytes = new ByteArrayOutputStream();
+                final CrcOutputStream crcStream = new CrcOutputStream(imageBytes);
+                final boolean compressResult = image.compress(FORMAT, QUALITY, crcStream);
+                if (!compressResult) {
+                    Log.w(TAG, "Failed to compress image");
+                    mImage = null;
+                }
+                final long crc = crcStream.getCrc();
+                final String fileName = Long.toHexString(crc) + ".png";
+                final File imageFile = new File(App.getAppContext().getFilesDir().getAbsolutePath() + "/" + fileName);
+                if (!imageFile.exists()) {
+                    // Write the file
+                    try {
+                        final FileOutputStream writer = new FileOutputStream(imageFile);
+                        try {
+                            writer.write(imageBytes.toByteArray());
+                            mImageLink = imageFile.getAbsolutePath();
+                        } finally {
+                            writer.close();
+                        }
+                    } catch (IOException e) {
+                        Log.w(TAG, "Failed to write image", e);
+                        mImage = null;
+                    }
                 }
             }
         }
         else {
             mImage = null;
+            mImageLink = null;
         }
     }
 
@@ -257,9 +298,6 @@ public final class Recipe extends DatabaseObject implements Parcelable {
         Objects.requireNonNull(author, "author must not be null");
         mAuthor = author;
     }
-    public boolean hasImageId() {
-        return mImageId != NO_ID;
-    }
 
     @Override
     public boolean equals(Object o) {
@@ -268,11 +306,9 @@ public final class Recipe extends DatabaseObject implements Parcelable {
 
         Recipe recipe = (Recipe) o;
 
-        if (mImageId != recipe.mImageId) return false;
         if (!mSteps.equals(recipe.mSteps)) return false;
         if (!mTitle.equals(recipe.mTitle)) return false;
         if (!mAuthor.equals(recipe.mAuthor)) return false;
-        if (mImage != null ? !mImage.sameAs(recipe.mImage) : recipe.mImage != null) return false;
         return !(mImageLink != null ? !mImageLink.equals(recipe.mImageLink) : recipe.mImageLink != null);
 
     }
@@ -282,22 +318,17 @@ public final class Recipe extends DatabaseObject implements Parcelable {
         int result = mSteps.hashCode();
         result = 31 * result + mTitle.hashCode();
         result = 31 * result + mAuthor.hashCode();
-        result = 31 * result + (mImage != null ? mImage.hashCode() : 0);
         result = 31 * result + (mImageLink != null ? mImageLink.hashCode() : 0);
-        result = 31 * result + (int) (mImageId ^ (mImageId >>> 32));
         return result;
     }
 
     @Override
     public String toString() {
         return "Recipe{" +
-                "Id=" + getObjectId() + '\'' +
-                ", mSteps=" + mSteps + '\'' +
+                "mSteps=" + mSteps +
                 ", mTitle='" + mTitle + '\'' +
                 ", mAuthor='" + mAuthor + '\'' +
-                ", mImage=" + mImage + '\'' +
-                ", mImageId=" + mImageId + '\'' +
-                ", mImageLink=" + mImageLink + '\'' +
+                ", mImageLink='" + mImageLink + '\'' +
                 '}';
     }
 
@@ -311,11 +342,9 @@ public final class Recipe extends DatabaseObject implements Parcelable {
                     source.readParcelableArray(Step.class.getClassLoader()), Step[].class);
             final String title = source.readString();
             final String author = source.readString();
-            final long imageId = source.readLong();
             final String imageLink = source.readString();
 
             final Recipe recipe = new Recipe(title, author, Arrays.asList(steps));
-            recipe.setImageId(imageId);
             recipe.setImageLink(imageLink);
             recipe.setObjectId(id);
             return recipe;
@@ -338,7 +367,6 @@ public final class Recipe extends DatabaseObject implements Parcelable {
         dest.writeParcelableArray(mSteps.toArray(new Step[mSteps.size()]), flags);
         dest.writeString(mTitle);
         dest.writeString(mAuthor);
-        dest.writeLong(mImageId);
         dest.writeString(mImageLink);
     }
 
