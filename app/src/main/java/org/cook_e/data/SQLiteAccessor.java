@@ -178,6 +178,8 @@ public class SQLiteAccessor implements SQLAccessor {
                 ContentValues values = createContentValues(r);
                 String[] whereArgs = {String.valueOf(r.getObjectId())};
                 db.update(RECIPE_TABLE_NAME, values, "id = ?", whereArgs);
+
+                db.delete(LEARNER_TABLE_NAME, "recipe_id=?", whereArgs);
             } finally {
                 db.close();
             }
@@ -201,10 +203,13 @@ public class SQLiteAccessor implements SQLAccessor {
                 String[] bunchArgs = {String.valueOf(b.getObjectId())};
                 db.update(BUNCH_TABLE_NAME, bunch_values, "id = ?", bunchArgs);
                 db.delete(BUNCH_RECIPES_TABLE_NAME, "bunch_id = ?", bunchArgs);
-                List<ContentValues> bunch_recipe_values = createContentValuesList(b);
-                for (ContentValues cv : bunch_recipe_values) {
+                for (Recipe r: b.getRecipes()) {
+                    ContentValues cv = createContentValues(b,r);
                     db.insert(BUNCH_RECIPES_TABLE_NAME, null, cv);
+                    String[] whereArgs = {String.valueOf(r.getObjectId())};
+                    db.delete(LEARNER_TABLE_NAME, "recipe_id=?", whereArgs);
                 }
+
                 db.setTransactionSuccessful();
             } finally {
                 db.endTransaction();
@@ -550,7 +555,9 @@ public class SQLiteAccessor implements SQLAccessor {
 
                 // Delete the recipe entry
                 db.delete(RECIPE_TABLE_NAME, "id = ?", whereArgs);
+                db.delete(LEARNER_TABLE_NAME, "recipe_id = ?", whereArgs);
                 db.setTransactionSuccessful();
+
             } finally {
                 db.endTransaction();
                 db.close();
@@ -835,6 +842,7 @@ public class SQLiteAccessor implements SQLAccessor {
                 db.delete(RECIPE_TABLE_NAME, null, null);
                 db.delete(BUNCH_TABLE_NAME, null, null);
                 db.delete(BUNCH_RECIPES_TABLE_NAME, null, null);
+                db.delete(LEARNER_TABLE_NAME, null, null);
                 db.setTransactionSuccessful();
             }
             finally {
