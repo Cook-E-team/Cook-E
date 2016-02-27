@@ -28,9 +28,7 @@ public class LearningWeight  {
     private int index;
 
     public LearningWeight(int index) {
-        this.timeWeight = 1;
-        this.learnRate = 1;
-        this.index = index;
+        this(index, 1, 1);
     }
     public LearningWeight(int index, double weighted_time, double learn_rate) {
         timeWeight = weighted_time;

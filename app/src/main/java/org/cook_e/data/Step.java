@@ -235,8 +235,9 @@ public final class Step implements Parcelable {
             final Duration duration = (Duration) source.readSerializable();
             final Boolean simultaneous = (Boolean) source.readSerializable();
             final List<String> ingredients = new ArrayList<>();
-            final int index = source.readInt();
             source.readStringList(ingredients);
+            final int index = source.readInt();
+
             return new Step(ingredients, description, duration, simultaneous, index);
         }
 
