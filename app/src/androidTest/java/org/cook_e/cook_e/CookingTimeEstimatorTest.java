@@ -22,6 +22,7 @@ package org.cook_e.cook_e;
 import org.cook_e.data.Bunch;
 import org.cook_e.data.CookingTimeEstimator;
 import org.cook_e.data.Recipe;
+import org.cook_e.data.Schedule;
 import org.cook_e.data.Step;
 import org.joda.time.Duration;
 import org.joda.time.ReadableDuration;
@@ -54,6 +55,7 @@ public class CookingTimeEstimatorTest {
     public void testOriginalNoSteps() {
         Recipe recipe = new Recipe("title", "author", new ArrayList<Step>());
         Bunch bunch = new Bunch();
+        bunch.addRecipe(recipe);
         int originalTime = CookingTimeEstimator.getOriginalTime(bunch);
         assertEquals(0, originalTime);
     }
@@ -99,13 +101,98 @@ public class CookingTimeEstimatorTest {
         steps1.add(new Step(sampleIngredients, sampleDescription, oneMinuteDuration, false));
         Recipe recipe1 = new Recipe("title", "author", steps1);
         List<Step> steps2 = new ArrayList<Step>();
-        steps2.add(new Step(sampleIngredients, sampleDescription, oneMinuteDuration, false));
-        Recipe recipe2 = new Recipe("title", "author", steps1);
+        steps2.add(new Step(sampleIngredients, sampleDescription, oneMinuteDuration, true));
+        Recipe recipe2 = new Recipe("title", "author", steps2);
         Bunch bunch = new Bunch();
         bunch.addRecipe(recipe1);
         bunch.addRecipe(recipe2);
         int originalTime = CookingTimeEstimator.getOriginalTime(bunch);
         assertEquals(2, originalTime);
+    }
+
+
+    @Test
+    public void testOptimizedNoRecipes() {
+        Bunch bunch = new Bunch();
+        int optimizedTime = CookingTimeEstimator.getOptimizedTime(new Schedule(bunch));
+        assertEquals(0, optimizedTime);
+    }
+
+    @Test
+    public void testOptimizedNoSteps() {
+        Recipe recipe = new Recipe("title", "author", new ArrayList<Step>());
+        Bunch bunch = new Bunch();
+        bunch.addRecipe(recipe);
+        int optimizedTime = CookingTimeEstimator.getOptimizedTime(new Schedule(bunch));
+        assertEquals(0, optimizedTime);
+    }
+
+    @Test
+    public void testOptimizedNonsimultaneousStep() {
+        List<Step> steps = new ArrayList<Step>();
+        steps.add(new Step(sampleIngredients, sampleDescription, oneMinuteDuration, false));
+        Recipe recipe = new Recipe("title", "author", steps);
+        Bunch bunch = new Bunch();
+        bunch.addRecipe(recipe);
+        int optimizedTime = CookingTimeEstimator.getOptimizedTime(new Schedule(bunch));
+        assertEquals(1, optimizedTime);
+    }
+
+    @Test
+    public void testOptimizedSimultaneousStep() {
+        List<Step> steps = new ArrayList<Step>();
+        steps.add(new Step(sampleIngredients, sampleDescription, oneMinuteDuration, true));
+        Recipe recipe = new Recipe("title", "author", steps);
+        Bunch bunch = new Bunch();
+        bunch.addRecipe(recipe);
+        int optimizedTime = CookingTimeEstimator.getOptimizedTime(new Schedule(bunch));
+        assertEquals(1, optimizedTime);
+    }
+
+    @Test
+    public void testOptimizedMultipleSteps() {
+        List<Step> steps = new ArrayList<Step>();
+        steps.add(new Step(sampleIngredients, sampleDescription, oneMinuteDuration, false));
+        steps.add(new Step(sampleIngredients, sampleDescription, oneMinuteDuration, true));
+        steps.add(new Step(sampleIngredients, sampleDescription, twoMinuteDuration, false));
+        Recipe recipe = new Recipe("title", "author", steps);
+        Bunch bunch = new Bunch();
+        bunch.addRecipe(recipe);
+        int optimizedTime = CookingTimeEstimator.getOptimizedTime(new Schedule(bunch));
+        assertEquals(4, optimizedTime);
+    }
+
+    @Test
+    public void testOptimizedMultipleRecipes() {
+        List<Step> steps1 = new ArrayList<Step>();
+        steps1.add(new Step(sampleIngredients, sampleDescription, oneMinuteDuration, false));
+        Recipe recipe1 = new Recipe("title", "author", steps1);
+        List<Step> steps2 = new ArrayList<Step>();
+        steps2.add(new Step(sampleIngredients, sampleDescription, oneMinuteDuration, true));
+        Recipe recipe2 = new Recipe("title", "author", steps2);
+        Bunch bunch = new Bunch();
+        bunch.addRecipe(recipe1);
+        bunch.addRecipe(recipe2);
+        int optimizedTime = CookingTimeEstimator.getOptimizedTime(new Schedule(bunch));
+        assertEquals(1, optimizedTime);
+    }
+
+    @Test
+    public void testOptimizedMultipleRecipesMultipleSteps() {
+        List<Step> steps1 = new ArrayList<Step>();
+        steps1.add(new Step(sampleIngredients, sampleDescription, oneMinuteDuration, false));
+        steps1.add(new Step(sampleIngredients, sampleDescription, oneMinuteDuration, true));
+        Recipe recipe1 = new Recipe("title", "author", steps1);
+        List<Step> steps2 = new ArrayList<Step>();
+        steps2.add(new Step(sampleIngredients, sampleDescription, oneMinuteDuration, true));
+        steps2.add(new Step(sampleIngredients, sampleDescription, oneMinuteDuration, false));
+        steps2.add(new Step(sampleIngredients, sampleDescription, oneMinuteDuration, false));
+        Recipe recipe2 = new Recipe("title", "author", steps1);
+        Bunch bunch = new Bunch();
+        bunch.addRecipe(recipe1);
+        bunch.addRecipe(recipe2);
+        int optimizedTime = CookingTimeEstimator.getOptimizedTime(new Schedule(bunch));
+        assertEquals(3, optimizedTime);
     }
 
 }

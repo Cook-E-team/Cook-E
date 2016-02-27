@@ -28,9 +28,11 @@ import java.util.*;
 public class CookingTimeEstimator {
     private CookingTimeEstimator(Schedule schedule) {}
 
+
     /**
      * Calculates and returns the estimated amount of time it would take to cook
-     * the given schedule.
+     * the given schedule. The given schedule should be brand new and will be
+     * modified by the function.
      *
      * @param schedule the schedule to measure the estimated time of
      * @return the estimated amount of time it would take to cook the given schedule
@@ -44,13 +46,11 @@ public class CookingTimeEstimator {
                 // handles case where all remaining recipes are blocked
                 int minBusyTime = Integer.MAX_VALUE;
                 for (Recipe recipe : busyTimes.keySet()) {
-                    int currBusyTime = busyTimes.get(recipe);
-                    if (currBusyTime < minBusyTime) {
-                        minBusyTime = currBusyTime;
-                    }
+                    minBusyTime = Math.min(minBusyTime, busyTimes.get(recipe));
                 }
                 updateBusyTimes(busyTimes, minBusyTime, schedule);
                 totalTime += minBusyTime;
+                i--;// retry the current step
             } else {
                 if (currStep.isSimultaneous()) {
                     // handles case where the next step is simultaneous
@@ -63,6 +63,13 @@ public class CookingTimeEstimator {
                 }
             }
         }
+
+        // adds the maximum remaining busy time into the total time
+        int maxRemainingBusyTime = 0;
+        for (Recipe recipe : busyTimes.keySet()) {
+            maxRemainingBusyTime = Math.max(maxRemainingBusyTime, busyTimes.get(recipe));
+        }
+        totalTime += maxRemainingBusyTime;
 
         return totalTime;
     }

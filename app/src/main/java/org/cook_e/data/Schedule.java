@@ -21,7 +21,6 @@ package org.cook_e.data;
 
 import android.support.annotation.NonNull;
 import android.util.Log;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,9 +31,10 @@ public class Schedule {
     private final List<ScheduledStep> mScheduledStepList;
     private final List<UnscheduledRecipeSteps> mUnscheduledRecipeStepsList;
     private final int mTotalStepCount;
-    private final int mOriginalEstimatedTime;
-    private final int mOptimizedEstimatedTime;
     private int mCurrScheduledStepIndex = -1;
+
+    public final int mOriginalEstimatedTime;
+    public final int mOptimizedEstimatedTime;
 
 
     /**
@@ -42,7 +42,7 @@ public class Schedule {
      *
      * @param b the Bunch to schedule steps from
      */
-    public Schedule(Bunch b) {
+    public Schedule(@NonNull Bunch b) {
         this(b, true);
     }
 
@@ -55,7 +55,11 @@ public class Schedule {
      * @param b the Bunch to schedule steps from
      * @param calculateEstimatedTimes whether or not estimated times should be calculated
      */
-    private Schedule(Bunch b, boolean calculateEstimatedTimes) {
+    private Schedule(@NonNull Bunch b, boolean calculateEstimatedTimes) {
+        if (b == null) {
+            throw new NullPointerException("Schedule given null bunch.");
+        }
+
         if (calculateEstimatedTimes) {
             this.mOriginalEstimatedTime = CookingTimeEstimator.getOriginalTime(b);
             this.mOptimizedEstimatedTime = CookingTimeEstimator.getOptimizedTime(new Schedule(b, false));
@@ -153,6 +157,15 @@ public class Schedule {
     }
 
     /**
+     * Returns whether or not the schedule is at the final step.
+     *
+     * @return true if and only if the schedule is at the final step
+     */
+    public boolean isAtFinalStep() {
+        return getStepCount() == 0 || getCurrStepIndex() == getStepCount() - 1;
+    }
+
+    /**
      * Returns the total number of steps. This value includes both
      * scheduled and unscheduled steps.
      *
@@ -160,6 +173,26 @@ public class Schedule {
      */
     public int getStepCount() {
         return this.mTotalStepCount;
+    }
+
+    /**
+     * Returns the index of the current step. If no step
+     * has been visited, then the behavior is undefined.
+     *
+     * @return the index of the current step
+     */
+    public int getCurrStepIndex() {
+        return mCurrScheduledStepIndex;
+    }
+
+    /**
+     * Returns the largest index that has been visited. If
+     * no step has been visited, then the behavior is undefined.
+     *
+     * @return the largest index that has been visited
+     */
+    public int getMaxVisitedStepIndex() {
+        return mScheduledStepList.size() - 1;
     }
 
     /*

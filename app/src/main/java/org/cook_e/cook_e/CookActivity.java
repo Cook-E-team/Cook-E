@@ -88,7 +88,7 @@ public class CookActivity extends AppCompatActivity implements TimerFragment.Ste
         if (firstStep == null) {
             throw new IllegalStateException("No steps");
         }
-        setCurrentStep(firstStep, mSchedule.getCurrentStepRecipe());
+        setCurrentStep(firstStep, mSchedule.getCurrentStepRecipe(), false);
 
         setUpActionBar();
     }
@@ -114,15 +114,16 @@ public class CookActivity extends AppCompatActivity implements TimerFragment.Ste
                 // User chose the "previous" item,
                 step = mSchedule.getPrevStep();
                 if (step != null) {
-                    setCurrentStep(step, mSchedule.getCurrentStepRecipe());
+                    setCurrentStep(step, mSchedule.getCurrentStepRecipe(), true);
                 }
                 return true;
 
             case R.id.next:
                 // User chose the "next" item,
+                boolean setBefore = mSchedule.getCurrStepIndex() != mSchedule.getMaxVisitedStepIndex();
                 step = mSchedule.getNextStep();
                 if (step != null) {
-                    setCurrentStep(step, mSchedule.getCurrentStepRecipe());
+                    setCurrentStep(step, mSchedule.getCurrentStepRecipe(), setBefore);
                 } else  if (mActiveSimultaneousSteps != 0) {
                     // Explain to the user why they cannot advance
                     new AlertDialog.Builder(this)
@@ -143,10 +144,11 @@ public class CookActivity extends AppCompatActivity implements TimerFragment.Ste
      * Updates the activity to display a step from a recipe
      * @param step the step to display
      * @param recipe the recipe that contains the step
+     * @param setBefore whether or not the given step has been set before
      */
-    private void setCurrentStep(Step step, Recipe recipe) {
+    private void setCurrentStep(Step step, Recipe recipe, boolean setBefore) {
         mCookStep.setStep(step, recipe.getTitle());
-        if (step.isSimultaneous()) {
+        if (step.isSimultaneous() && !setBefore) {
             // Add a timer fragment for the step
             final TimerFragment timerFragment = TimerFragment.newInstance(recipe, step);
             final FragmentTransaction transaction = getFragmentManager().beginTransaction();
