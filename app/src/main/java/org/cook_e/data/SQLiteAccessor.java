@@ -63,9 +63,9 @@ public class SQLiteAccessor implements SQLAccessor {
     private static final String RECIPE_TABLE_NAME = "Recipes";
     private static final String[] RECIPE_COLUMNS = {"id", "name", "author", "description"}; // note the indexes are 0 based
     private static final String RECIPE_IMAGE_TABLE_NAME = "RecipeImages";
-    private static final String[] RECIPE_IMAGE_COLUMNS = {"recipe_id, image_id"};
+    private static final String[] RECIPE_IMAGE_COLUMNS = {"recipe_id", "image_id"};
     private static final String IMAGE_TABLE_NAME = "ImageMetaData";
-    private static final String[] IMAGE_COLUMNS = {"image_id, image_link"};
+    private static final String[] IMAGE_COLUMNS = {"image_id", "image_link"};
     private static final String BUNCH_TABLE_NAME = "Bunches";
     private static final String[] BUNCH_COLUMNS = {"id", "name"};
     private static final String BUNCH_RECIPES_TABLE_NAME = "BunchRecipes";
