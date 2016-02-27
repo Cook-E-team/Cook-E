@@ -241,20 +241,21 @@ public final class Recipe extends DatabaseObject implements Parcelable {
     public boolean hasImageId() {
         return mImageId != NO_ID;
     }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        final Recipe recipe = (Recipe) o;
+        Recipe recipe = (Recipe) o;
 
-        if (getObjectId() != recipe.getObjectId()) return false;
+        if (mImageId != recipe.mImageId) return false;
         if (!mSteps.equals(recipe.mSteps)) return false;
         if (!mTitle.equals(recipe.mTitle)) return false;
         if (!mAuthor.equals(recipe.mAuthor)) return false;
-        if (getImageId() != recipe.getImageId()) return false;
-        if (!getImageLink().equals(recipe.getImageLink())) return false;
-        return !(mImage != null ? !mImage.equals(recipe.mImage) : recipe.mImage != null);
+        if (mImage != null ? !mImage.sameAs(recipe.mImage) : recipe.mImage != null) return false;
+        return !(mImageLink != null ? !mImageLink.equals(recipe.mImageLink) : recipe.mImageLink != null);
+
     }
 
     @Override
@@ -262,8 +263,9 @@ public final class Recipe extends DatabaseObject implements Parcelable {
         int result = mSteps.hashCode();
         result = 31 * result + mTitle.hashCode();
         result = 31 * result + mAuthor.hashCode();
-        result = 31 * result + mImageLink.hashCode();
         result = 31 * result + (mImage != null ? mImage.hashCode() : 0);
+        result = 31 * result + (mImageLink != null ? mImageLink.hashCode() : 0);
+        result = 31 * result + (int) (mImageId ^ (mImageId >>> 32));
         return result;
     }
 
