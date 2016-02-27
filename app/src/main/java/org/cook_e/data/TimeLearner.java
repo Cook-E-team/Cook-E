@@ -48,10 +48,8 @@ public class TimeLearner {
 
     private StorageAccessor mStorageAccessor;
 
-    private Bunch mBunch;
     public TimeLearner(StorageAccessor sA, Bunch b) throws SQLException {
         mStorageAccessor = sA;
-        mBunch = b;
         mWeights = mStorageAccessor.loadLearnerData(b);
 
     }
