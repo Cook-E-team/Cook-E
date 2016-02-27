@@ -144,22 +144,6 @@ public final class Recipe extends DatabaseObject implements Parcelable {
         mSteps = new ArrayList<>(steps);
     }
 
-    /**
-     * Set the ith step in this recipe
-     * The original step will be replaced by the new one
-     * Do nothing if index is less than 0 or greeter than the max index
-     *
-     * @param step the step to set
-     * @param i    the target index of new step, index start from 0
-     * @throws NullPointerException if step is null
-     */
-    public void setStep(@NonNull Step step, int i) {
-        Objects.requireNonNull(step, "step must not be null");
-        if (i >= 0 && i < mSteps.size()) {
-            mSteps.set(i, step);
-        }
-    }
-
     public Step getStep(int i) {
         if (i >= 0 && i < mSteps.size()) {
             return mSteps.get(i);
