@@ -358,7 +358,17 @@ public class SQLServerAccessor implements SQLAccessor {
     }
 
     @Override
-    public Collection<LearningWeight> loadLearnerData(Recipe r) throws SQLException {
+    public void updateLearnerData(Recipe r, LearningWeight weight) throws SQLException {
+        throw new UnsupportedOperationException("Not implemented");
+    }
+
+    @Override
+    public List<LearningWeight> loadLearnerData(Recipe r) throws SQLException {
+        throw new UnsupportedOperationException("Not implemented");
+    }
+
+    @Override
+    public void deleteLearnerData() throws SQLException {
         throw new UnsupportedOperationException("Not implemented");
     }
 
