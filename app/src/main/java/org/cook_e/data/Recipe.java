@@ -122,6 +122,12 @@ public final class Recipe extends DatabaseObject implements Parcelable {
         }
     }
 
+    public Step getStep(int i) {
+        if (i >= 0 && i < mSteps.size()) {
+            return mSteps.get(i);
+        }
+        return null;
+    }
     /**
      * Add step to end of the list of steps
      * @param step the step to add

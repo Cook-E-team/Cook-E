@@ -22,28 +22,43 @@ package org.cook_e.data;
 /**
  * Created by kylewoo on 2/25/16.
  */
-public class LearningWeight implements Comparable<LearningWeight> {
-    public int hash; // the hash code of the step
-    public double timeWeight; // learned weight for estimated time of this step
-    public double learnRate; // learning rate of this step
+public class LearningWeight  {
+    private double timeWeight; // learned weight for estimated time of this step
+    private double learnRate; // learning rate of this step
+    private int index;
 
-    /**
-     * Construct a new object for step with hash code hash
-     * @param hash hash code of that step
-     */
-    public LearningWeight(int hash) {
-        this.hash = hash;
+    public LearningWeight(int index) {
         this.timeWeight = 1;
         this.learnRate = 1;
+        this.index = index;
     }
-    public LearningWeight(int hash, double weighted_time, double learn_rate) {
-        this.hash = hash;
+    public LearningWeight(int index, double weighted_time, double learn_rate) {
         timeWeight = weighted_time;
         learnRate = learn_rate;
+        this.index = index;
     }
 
-    @Override
-    public int compareTo(LearningWeight lw) {
-        return this.hash - lw.hash;
+    public int getIndex() {
+        return index;
+    }
+
+    public void setIndex(int index) {
+        this.index = index;
+    }
+
+    public double getLearnRate() {
+        return learnRate;
+    }
+
+    public void setLearnRate(double learnRate) {
+        this.learnRate = learnRate;
+    }
+
+    public double getTimeWeight() {
+        return timeWeight;
+    }
+
+    public void setTimeWeight(double timeWeight) {
+        this.timeWeight = timeWeight;
     }
 }

@@ -25,8 +25,10 @@ import android.content.Context;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -239,7 +241,20 @@ public class StorageAccessor {
     public void storeLearnerData(Recipe r, Collection<LearningWeight> weights) throws SQLException {
         mLocal.storeLearnerData(r, weights);
     }
-    public Collection<LearningWeight> loadLearnerData(Recipe r) throws SQLException {
+    public List<LearningWeight> loadLearnerData(Recipe r) throws SQLException {
         return mLocal.loadLearnerData(r);
+    }
+    public void updateLearnerData(Recipe r, LearningWeight weight) throws SQLException {
+        mLocal.updateLearnerData(r, weight);
+    }
+    public void deleteLearnerData() throws SQLException {
+        mLocal.deleteLearnerData();
+    }
+    public Map<Long, List<LearningWeight>> loadLearnerData(Bunch b) throws SQLException {
+        Map<Long, List<LearningWeight>> result = new HashMap<>();
+        for (Recipe r: b.getRecipes()) {
+            result.put(r.getObjectId(), loadLearnerData(r));
+        }
+        return result;
     }
 }
