@@ -154,7 +154,7 @@ public class SQLiteAccessor implements SQLAccessor {
                 if (!r.hasObjectId()) {
                     r.setObjectId(mRecipeCounter++);
                 }
-                if (!r.hasImageId()) {
+                if (r.getImage() != null && r.getImageLink() != null && !r.hasImageId()) {
                     r.setImageId(mImageCounter++);
                 }
                 ContentValues values = createContentValues(r);
