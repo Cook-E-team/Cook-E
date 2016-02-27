@@ -67,10 +67,10 @@ public class AsyncAccessor {
     /**
      * Inserts a recipe into the database
      * @param recipe the recipe to insert
-     * @param handler a handler to be notified if an error occurs (on success, the handler will be
-     *                passed a null reference)
+     * @param handler a handler to be notified. On success, the handler will be given a copy
+     *                of the recipe with a new ID.
      */
-    public void insertRecipe(Recipe recipe, final ResultHandler<?> handler) {
+    public void storeRecipe(Recipe recipe, final ResultHandler<Recipe> handler) {
         final Recipe copy = new Recipe(recipe);
         mExecutorService.submit(new Runnable() {
             @Override
@@ -79,6 +79,7 @@ public class AsyncAccessor {
                     synchronized (mAccessor) {
                         mAccessor.storeRecipe(copy);
                     }
+                    postResult(handler, copy);
                 } catch (SQLException e) {
                     postException(handler, e);
                 }
@@ -107,7 +108,7 @@ public class AsyncAccessor {
         });
     }
 
-    public void updateRecipe(final Recipe r, final ResultHandler<?> handler) {
+    public void editRecipe(final Recipe r, final ResultHandler<?> handler) {
         final Recipe copy = new Recipe(r);
         mExecutorService.submit(new Runnable() {
             @Override
@@ -124,7 +125,7 @@ public class AsyncAccessor {
         });
     }
 
-    public void insertBunch(Bunch b, final ResultHandler<?> handler) {
+    public void storeBunch(Bunch b, final ResultHandler<Bunch> handler) {
         final Bunch copy = new Bunch(b.getTitle(), b.getRecipes());
         mExecutorService.submit(new Runnable() {
             @Override
@@ -133,7 +134,7 @@ public class AsyncAccessor {
                     synchronized (mAccessor) {
                         mAccessor.storeBunch(copy);
                     }
-                    postResult(handler, null);
+                    postResult(handler, copy);
                 } catch (SQLException e) {
                     postException(handler, e);
                 }
@@ -151,6 +152,23 @@ public class AsyncAccessor {
                         result = mAccessor.loadAllBunches();
                     }
                     postResult(handler, result);
+                } catch (SQLException e) {
+                    postException(handler, e);
+                }
+            }
+        });
+    }
+
+    public void editBunch(Bunch b, final ResultHandler<?> handler) {
+        final Bunch copy = new Bunch(b.getTitle(), b.getRecipes());
+        mExecutorService.submit(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    synchronized (mAccessor) {
+                        mAccessor.editBunch(copy);
+                    }
+                    postResult(handler, null);
                 } catch (SQLException e) {
                     postException(handler, e);
                 }
