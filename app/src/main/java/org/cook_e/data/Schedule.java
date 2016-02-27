@@ -32,6 +32,7 @@ public class Schedule {
     private final List<UnscheduledRecipeSteps> mUnscheduledRecipeStepsList;
     private final int mTotalStepCount;
     private int mCurrScheduledStepIndex = -1;
+    private TimeLearnerInterface timeLearner;
 
     public final int mOriginalEstimatedTime;
     public final int mOptimizedEstimatedTime;
@@ -42,8 +43,8 @@ public class Schedule {
      *
      * @param b the Bunch to schedule steps from
      */
-    public Schedule(@NonNull Bunch b) {
-        this(b, true);
+    public Schedule(@NonNull Bunch b, @NonNull TimeLearnerInterface timeLearner) {
+        this(b, timeLearner, true);
     }
 
     /**
@@ -55,19 +56,23 @@ public class Schedule {
      * @param b the Bunch to schedule steps from
      * @param calculateEstimatedTimes whether or not estimated times should be calculated
      */
-    private Schedule(@NonNull Bunch b, boolean calculateEstimatedTimes) {
+    private Schedule(@NonNull Bunch b, @NonNull TimeLearnerInterface timeLearner, boolean calculateEstimatedTimes) {
         if (b == null) {
             throw new NullPointerException("Schedule given null bunch.");
+        }
+        if (timeLearner == null) {
+            throw new NullPointerException("Schedule given null timeLearner.");
         }
 
         if (calculateEstimatedTimes) {
             this.mOriginalEstimatedTime = CookingTimeEstimator.getOriginalTime(b);
-            this.mOptimizedEstimatedTime = CookingTimeEstimator.getOptimizedTime(new Schedule(b, false));
+            this.mOptimizedEstimatedTime = CookingTimeEstimator.getOptimizedTime(new Schedule(b, timeLearner, false));
         } else {
             this.mOriginalEstimatedTime = -1;
             this.mOptimizedEstimatedTime = -1;
         }
 
+        this.timeLearner = timeLearner;
         this.mScheduledStepList = new ArrayList<>();
 
         int totalStepCount = 0;
@@ -149,7 +154,7 @@ public class Schedule {
     public void finishSimultaneousStepFromRecipe(Recipe recipe) {
         UnscheduledRecipeSteps matchingRecipeSteps = null;
         for (UnscheduledRecipeSteps currUnscheduledRecipeSteps : mUnscheduledRecipeStepsList) {
-            if (currUnscheduledRecipeSteps.motherReceipe.equals(recipe)) {
+            if (currUnscheduledRecipeSteps.motherRecipe.equals(recipe)) {
                 currUnscheduledRecipeSteps.setReady();
                 return;
             }
@@ -227,7 +232,7 @@ public class Schedule {
         if (chosenIndex != -1) {
             // Handles case where one or more recipes were ready by removing and
             // returning the chosen step.
-            motherRecipe = unscheduledRecipeStepsList.get(chosenIndex).motherReceipe;
+            motherRecipe = unscheduledRecipeStepsList.get(chosenIndex).motherRecipe;
             nextScheduledStep = unscheduledRecipeStepsList.get(chosenIndex).removeNextStep();
 
             Log.d("Schedule", "chosenIndex = " + chosenIndex + ", unscheduled steps = " + unscheduledRecipeStepsList);
@@ -252,7 +257,7 @@ public class Schedule {
         // ready if a simultaneous step is in progress.
         private boolean isReady;
 
-        public final Recipe motherReceipe;
+        public final Recipe motherRecipe;
 
 
         /**
@@ -263,17 +268,17 @@ public class Schedule {
         public UnscheduledRecipeSteps(Recipe r) {
             this.steps = r.getSteps();
             this.isReady = true;
-            this.motherReceipe = r;
+            this.motherRecipe = r;
 
             // initializes simultaneousToEndTime
             this.simultaneousToEndTime = 0;
             boolean simultaneousSeen = false;
             for (Step currStep : this.steps) {
                 if (simultaneousSeen) {
-                    this.simultaneousToEndTime += currStep.getDurationMinutes();
+                    this.simultaneousToEndTime += timeLearner.getEstimatedTime(this.motherRecipe, currStep).getStandardSeconds();
                 } else if (currStep.isSimultaneous()) {
                     simultaneousSeen = true;
-                    this.simultaneousToEndTime = currStep.getDurationMinutes();
+                    this.simultaneousToEndTime = (int)timeLearner.getEstimatedTime(this.motherRecipe, currStep).getStandardSeconds();
                 }
             }
         }

@@ -24,10 +24,14 @@ import org.cook_e.data.CookingTimeEstimator;
 import org.cook_e.data.Recipe;
 import org.cook_e.data.Schedule;
 import org.cook_e.data.Step;
+import org.cook_e.data.StorageAccessor;
+import org.cook_e.data.TimeLearner;
 import org.joda.time.Duration;
 import org.joda.time.ReadableDuration;
 import org.junit.Test;
 
+import java.sql.SQLClientInfoException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,8 +45,7 @@ public class CookingTimeEstimatorTest {
     private String sampleDescription = "";
     private ReadableDuration oneMinuteDuration =  Duration.standardMinutes(1);
     private ReadableDuration twoMinuteDuration =  Duration.standardMinutes(2);
-
-
+    private StorageAccessor sA = App.getAccessor();
 
     @Test
     public void testOriginalNoRecipes() {
@@ -63,7 +66,7 @@ public class CookingTimeEstimatorTest {
     @Test
     public void testOriginalNonsimultaneousStep() {
         List<Step> steps = new ArrayList<Step>();
-        steps.add(new Step(sampleIngredients, sampleDescription, oneMinuteDuration, false));
+        steps.add(new Step(sampleIngredients, sampleDescription, oneMinuteDuration, false, 0));
         Recipe recipe = new Recipe("title", "author", steps);
         Bunch bunch = new Bunch();
         bunch.addRecipe(recipe);
@@ -74,7 +77,7 @@ public class CookingTimeEstimatorTest {
     @Test
     public void testOriginalSimultaneousStep() {
         List<Step> steps = new ArrayList<Step>();
-        steps.add(new Step(sampleIngredients, sampleDescription, oneMinuteDuration, true));
+        steps.add(new Step(sampleIngredients, sampleDescription, oneMinuteDuration, true, 0));
         Recipe recipe = new Recipe("title", "author", steps);
         Bunch bunch = new Bunch();
         bunch.addRecipe(recipe);
@@ -85,9 +88,9 @@ public class CookingTimeEstimatorTest {
     @Test
     public void testOriginalMultipleSteps() {
         List<Step> steps = new ArrayList<Step>();
-        steps.add(new Step(sampleIngredients, sampleDescription, oneMinuteDuration, false));
-        steps.add(new Step(sampleIngredients, sampleDescription, oneMinuteDuration, true));
-        steps.add(new Step(sampleIngredients, sampleDescription, twoMinuteDuration, false));
+        steps.add(new Step(sampleIngredients, sampleDescription, oneMinuteDuration, false, 0));
+        steps.add(new Step(sampleIngredients, sampleDescription, oneMinuteDuration, true, 1));
+        steps.add(new Step(sampleIngredients, sampleDescription, twoMinuteDuration, false, 2));
         Recipe recipe = new Recipe("title", "author", steps);
         Bunch bunch = new Bunch();
         bunch.addRecipe(recipe);
@@ -98,10 +101,10 @@ public class CookingTimeEstimatorTest {
     @Test
     public void testOriginalMultipleRecipes() {
         List<Step> steps1 = new ArrayList<Step>();
-        steps1.add(new Step(sampleIngredients, sampleDescription, oneMinuteDuration, false));
+        steps1.add(new Step(sampleIngredients, sampleDescription, oneMinuteDuration, false, 0));
         Recipe recipe1 = new Recipe("title", "author", steps1);
         List<Step> steps2 = new ArrayList<Step>();
-        steps2.add(new Step(sampleIngredients, sampleDescription, oneMinuteDuration, true));
+        steps2.add(new Step(sampleIngredients, sampleDescription, oneMinuteDuration, true, 1));
         Recipe recipe2 = new Recipe("title", "author", steps2);
         Bunch bunch = new Bunch();
         bunch.addRecipe(recipe1);
@@ -112,86 +115,86 @@ public class CookingTimeEstimatorTest {
 
 
     @Test
-    public void testOptimizedNoRecipes() {
+    public void testOptimizedNoRecipes() throws SQLException {
         Bunch bunch = new Bunch();
-        int optimizedTime = CookingTimeEstimator.getOptimizedTime(new Schedule(bunch));
+        int optimizedTime = CookingTimeEstimator.getOptimizedTime(new Schedule(bunch, new TimeLearner(sA, bunch)));
         assertEquals(0, optimizedTime);
     }
 
     @Test
-    public void testOptimizedNoSteps() {
+    public void testOptimizedNoSteps() throws SQLException {
         Recipe recipe = new Recipe("title", "author", new ArrayList<Step>());
         Bunch bunch = new Bunch();
         bunch.addRecipe(recipe);
-        int optimizedTime = CookingTimeEstimator.getOptimizedTime(new Schedule(bunch));
+        int optimizedTime = CookingTimeEstimator.getOptimizedTime(new Schedule(bunch, new TimeLearner(sA, bunch)));
         assertEquals(0, optimizedTime);
     }
 
     @Test
-    public void testOptimizedNonsimultaneousStep() {
+    public void testOptimizedNonsimultaneousStep() throws SQLException {
         List<Step> steps = new ArrayList<Step>();
-        steps.add(new Step(sampleIngredients, sampleDescription, oneMinuteDuration, false));
+        steps.add(new Step(sampleIngredients, sampleDescription, oneMinuteDuration, false, 0));
         Recipe recipe = new Recipe("title", "author", steps);
         Bunch bunch = new Bunch();
         bunch.addRecipe(recipe);
-        int optimizedTime = CookingTimeEstimator.getOptimizedTime(new Schedule(bunch));
+        int optimizedTime = CookingTimeEstimator.getOptimizedTime(new Schedule(bunch, new TimeLearner(sA, bunch)));
         assertEquals(1, optimizedTime);
     }
 
     @Test
-    public void testOptimizedSimultaneousStep() {
+    public void testOptimizedSimultaneousStep() throws SQLException {
         List<Step> steps = new ArrayList<Step>();
-        steps.add(new Step(sampleIngredients, sampleDescription, oneMinuteDuration, true));
+        steps.add(new Step(sampleIngredients, sampleDescription, oneMinuteDuration, true, 0));
         Recipe recipe = new Recipe("title", "author", steps);
         Bunch bunch = new Bunch();
         bunch.addRecipe(recipe);
-        int optimizedTime = CookingTimeEstimator.getOptimizedTime(new Schedule(bunch));
+        int optimizedTime = CookingTimeEstimator.getOptimizedTime(new Schedule(bunch, new TimeLearner(sA, bunch)));
         assertEquals(1, optimizedTime);
     }
 
     @Test
-    public void testOptimizedMultipleSteps() {
+    public void testOptimizedMultipleSteps() throws SQLException {
         List<Step> steps = new ArrayList<Step>();
-        steps.add(new Step(sampleIngredients, sampleDescription, oneMinuteDuration, false));
-        steps.add(new Step(sampleIngredients, sampleDescription, oneMinuteDuration, true));
-        steps.add(new Step(sampleIngredients, sampleDescription, twoMinuteDuration, false));
+        steps.add(new Step(sampleIngredients, sampleDescription, oneMinuteDuration, false, 0));
+        steps.add(new Step(sampleIngredients, sampleDescription, oneMinuteDuration, true, 1));
+        steps.add(new Step(sampleIngredients, sampleDescription, twoMinuteDuration, false, 2));
         Recipe recipe = new Recipe("title", "author", steps);
         Bunch bunch = new Bunch();
         bunch.addRecipe(recipe);
-        int optimizedTime = CookingTimeEstimator.getOptimizedTime(new Schedule(bunch));
+        int optimizedTime = CookingTimeEstimator.getOptimizedTime(new Schedule(bunch, new TimeLearner(sA, bunch)));
         assertEquals(4, optimizedTime);
     }
 
     @Test
-    public void testOptimizedMultipleRecipes() {
+    public void testOptimizedMultipleRecipes() throws SQLException {
         List<Step> steps1 = new ArrayList<Step>();
-        steps1.add(new Step(sampleIngredients, sampleDescription, oneMinuteDuration, false));
+        steps1.add(new Step(sampleIngredients, sampleDescription, oneMinuteDuration, false, 0));
         Recipe recipe1 = new Recipe("title", "author", steps1);
         List<Step> steps2 = new ArrayList<Step>();
-        steps2.add(new Step(sampleIngredients, sampleDescription, oneMinuteDuration, true));
+        steps2.add(new Step(sampleIngredients, sampleDescription, oneMinuteDuration, true, 0));
         Recipe recipe2 = new Recipe("title", "author", steps2);
         Bunch bunch = new Bunch();
         bunch.addRecipe(recipe1);
         bunch.addRecipe(recipe2);
-        int optimizedTime = CookingTimeEstimator.getOptimizedTime(new Schedule(bunch));
+        int optimizedTime = CookingTimeEstimator.getOptimizedTime(new Schedule(bunch, new TimeLearner(sA, bunch)));
         assertEquals(1, optimizedTime);
     }
 
     @Test
-    public void testOptimizedMultipleRecipesMultipleSteps() {
+    public void testOptimizedMultipleRecipesMultipleSteps() throws SQLException  {
         List<Step> steps1 = new ArrayList<Step>();
-        steps1.add(new Step(sampleIngredients, sampleDescription, oneMinuteDuration, false));
-        steps1.add(new Step(sampleIngredients, sampleDescription, oneMinuteDuration, true));
+        steps1.add(new Step(sampleIngredients, sampleDescription, oneMinuteDuration, false, 0));
+        steps1.add(new Step(sampleIngredients, sampleDescription, oneMinuteDuration, true, 1));
         Recipe recipe1 = new Recipe("title", "author", steps1);
         List<Step> steps2 = new ArrayList<Step>();
-        steps2.add(new Step(sampleIngredients, sampleDescription, oneMinuteDuration, true));
-        steps2.add(new Step(sampleIngredients, sampleDescription, oneMinuteDuration, false));
-        steps2.add(new Step(sampleIngredients, sampleDescription, oneMinuteDuration, false));
+        steps2.add(new Step(sampleIngredients, sampleDescription, oneMinuteDuration, true, 2));
+        steps2.add(new Step(sampleIngredients, sampleDescription, oneMinuteDuration, false, 3));
+        steps2.add(new Step(sampleIngredients, sampleDescription, oneMinuteDuration, false, 4));
         Recipe recipe2 = new Recipe("title", "author", steps1);
         Bunch bunch = new Bunch();
         bunch.addRecipe(recipe1);
         bunch.addRecipe(recipe2);
-        int optimizedTime = CookingTimeEstimator.getOptimizedTime(new Schedule(bunch));
+        int optimizedTime = CookingTimeEstimator.getOptimizedTime(new Schedule(bunch, new TimeLearner(sA,bunch)));
         assertEquals(3, optimizedTime);
     }
 

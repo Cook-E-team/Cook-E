@@ -57,7 +57,7 @@ public class StepUnitTest {
 
         String description = UnitTestSharedData.generateDescription(ing, action);
         Duration duration = Duration.standardMinutes(1);
-        Step s = new Step(ings, description, duration, false);
+        Step s = new Step(ings, description, duration, false, 0);
 
         assertEquals(ings, s.getIngredients());
         assertEquals(description, s.getDescription());

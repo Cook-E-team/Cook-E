@@ -91,13 +91,13 @@ public class CookActivity extends AppCompatActivity implements TimerFragment.Ste
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_cook);
 
-        mBunch = getBunch();
-        mSchedule = new Schedule(mBunch);
         try {
             mTimeLearner = new TimeLearner(App.getAccessor(), mBunch);
         } catch (SQLException e) {
             e.printStackTrace();
         }
+        mBunch = getBunch();
+        mSchedule = new Schedule(mBunch, mTimeLearner);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);

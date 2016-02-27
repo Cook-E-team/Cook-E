@@ -97,18 +97,6 @@ public final class Step implements Parcelable {
         this.mSimultaneous = isSimultaneous;
         mIndex = index;
     }
-    /**
-     * Creates a Step
-     * @param ingredients the ingredients required for this step
-     * @param description a human-readable description of this step
-     * @param duration an estimate of the time required to complete this step
-     * @param isSimultaneous if this step can be done simultaneously
-     * @throws NullPointerException if any parameter is null
-     */
-    public Step(@NonNull List<String> ingredients, @NonNull String description,
-                @NonNull ReadableDuration duration, boolean isSimultaneous) {
-        this(ingredients, description, duration, isSimultaneous, -1);
-    }
 
     /**
      * Creates a Step without knowing if step can be done simultaneously
