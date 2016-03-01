@@ -74,19 +74,19 @@ public class SQLFileCreator {
         List<Step> steps = new ArrayList<>();
         List<String> first_ings = new ArrayList<>();
         first_ings.add("4 cups rice");
-        Step first = new Step(first_ings, "Cook rice", Duration.standardMinutes(30), true);
+        Step first = new Step(first_ings, "Cook rice", Duration.standardMinutes(30), true, 0);
         steps.add(first);
         List<String> second_ings = new ArrayList<>();
         first_ings.add("1 carrot");
-        Step second = new Step(first_ings, "Shred carrot", Duration.standardMinutes(1), false);
+        Step second = new Step(second_ings, "Shred carrot", Duration.standardMinutes(1), false, 1);
         steps.add(second);
         List<String> third_ings = new ArrayList<>();
         third_ings.add("2 beaten eggs");
-        Step third = new Step(third_ings, "Heat a large skillet on medium-high heat. Spray skillet with cooking spray. Scramble eggs in skillet. Remove from pan and keep warm", Duration.standardSeconds(60), false);
+        Step third = new Step(third_ings, "Heat a large skillet on medium-high heat. Spray skillet with cooking spray. Scramble eggs in skillet. Remove from pan and keep warm", Duration.standardSeconds(60), false, 2);
         steps.add(third);
         List<String> fourth_ings = new ArrayList<>();
         fourth_ings.add("3-4 slices chopped cooked ham");
-        Step fourth = new Step(fourth_ings, "Heat chopped ham in skillet until slightly brown. Remove from the pan and keep warm.", Duration.standardMinutes(2), false);
+        Step fourth = new Step(fourth_ings, "Heat chopped ham in skillet until slightly brown. Remove from the pan and keep warm.", Duration.standardMinutes(2), false, 3);
         steps.add(fourth);
         List<String> fifth_ings = new ArrayList<>();
         fifth_ings.add("1 cup frozen peas");
@@ -95,7 +95,7 @@ public class SQLFileCreator {
         fifth_ings.add("ham");
         fifth_ings.add("salt");
         fifth_ings.add("pepper");
-        Step fifth = new Step(fifth_ings, "Add peas and carrots to skillet and cook until they are tender. Add rice, cooked eggs and ham to the skillet and mix well", Duration.standardMinutes(5), false);
+        Step fifth = new Step(fifth_ings, "Add peas and carrots to skillet and cook until they are tender. Add rice, cooked eggs and ham to the skillet and mix well", Duration.standardMinutes(5), false, 4);
         steps.add(fifth);
         return new Recipe("Fried Rice", "ventra", steps);
 
