@@ -161,6 +161,23 @@ public class ScheduleTest {
     }
 
     @Test
+    public void testScheduleSimulBlock() throws SQLException  {
+        List<Step> steps = new ArrayList<>();
+        steps.add(tenSimul);
+        steps.add(tenNonSimul);
+        Recipe recipe10N10 = new Recipe("10N10", "test", steps);
+        List<Recipe> recipies = new ArrayList<>();
+        recipies.add(recipe10N10);
+        Bunch bunch = new Bunch("test", recipies);
+        Schedule sched = new Schedule(bunch, new TimeLearner(sA, bunch));
+        assertEquals(2, sched.getStepCount());
+
+        assertEquals(tenSimul, sched.getNextStep());
+        assertEquals(null, sched.getNextStep());
+        assertEquals(0, sched.getCurrStepIndex());
+    }
+
+    @Test
     public void testGetCurrStepIndex() throws SQLException  {
         List<Step> steps = new ArrayList<>();
         steps.add(fiveNonSimul);

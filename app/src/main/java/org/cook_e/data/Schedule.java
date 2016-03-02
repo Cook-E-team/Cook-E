@@ -124,10 +124,12 @@ public class Schedule {
                 this.mUnscheduledRecipeStepsList.size() > 0) {
             // handles the case where the next step hasn't been
             // scheduled yet
-            this.mCurrScheduledStepIndex++;
             ScheduledStep nextScheduledStep = getNextScheduledStep(this.mUnscheduledRecipeStepsList);
-            this.mScheduledStepList.add(nextScheduledStep);
-            nextStep = nextScheduledStep.step;
+            if (nextScheduledStep != null) {
+                this.mCurrScheduledStepIndex++;
+                this.mScheduledStepList.add(nextScheduledStep);
+                nextStep = nextScheduledStep.step;
+            }
         }
         return nextStep;
     }
@@ -220,11 +222,10 @@ public class Schedule {
 
     /**
      * Removes and returns the step to schedule for shortest cooking time.
-     * The given finalSteps is also modified such that each element in the list
-     * has its busy time shifted properly.
-     *
-     * @param unscheduledRecipeStepsList the unscheduled step lists to pick a next step from
-     * @return the next Scheduledstep to schedule for shortest cooking time
+     * If no step is ready, then null is returned.
+
+     * @param unscheduledRecipeStepsList the unscheduled recipe steps to pick a next step from
+     * @return the next step to schedule for shortest cooking time
      */
     private ScheduledStep getNextScheduledStep(List<UnscheduledRecipeSteps> unscheduledRecipeStepsList) {
 
@@ -245,21 +246,21 @@ public class Schedule {
             }
         }
 
-        Step nextScheduledStep = null;
-        Recipe motherRecipe = null;
+        ScheduledStep nextScheduledStep = null;
         if (chosenIndex != -1) {
             // Handles case where one or more recipes were ready by removing and
             // returning the chosen step.
-            motherRecipe = unscheduledRecipeStepsList.get(chosenIndex).motherRecipe;
-            nextScheduledStep = unscheduledRecipeStepsList.get(chosenIndex).removeNextStep();
-            Log.d("Schedule", "chosenIndex = " + chosenIndex + ", unscheduled steps = " + unscheduledRecipeStepsList);
+            Step nextStep = unscheduledRecipeStepsList.get(chosenIndex).removeNextStep();
+            Recipe motherRecipe = unscheduledRecipeStepsList.get(chosenIndex).motherRecipe;
+            nextScheduledStep = new ScheduledStep(nextStep, motherRecipe);
 
+            Log.d("Schedule", "chosenIndex = " + chosenIndex + ", unscheduled steps = " + unscheduledRecipeStepsList);
             if (unscheduledRecipeStepsList.get(chosenIndex).isEmpty()) {
                 Log.d("Schedule", "chosenIndex = " + chosenIndex + ", unscheduled steps = " + unscheduledRecipeStepsList);
                 unscheduledRecipeStepsList.remove(chosenIndex);
             }
         }
-        return new ScheduledStep(nextScheduledStep, motherRecipe);
+        return nextScheduledStep;
     }
 
     /**
