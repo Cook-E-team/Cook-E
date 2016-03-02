@@ -107,7 +107,7 @@ public class CookActivity extends AppCompatActivity implements TimerFragment.Ste
         if (firstStep == null) {
             throw new IllegalStateException("No steps");
         }
-        setCurrentStep(firstStep, mSchedule.getCurrentStepRecipe(), false);
+        setCurrentStep(firstStep, mSchedule.getCurrentStepRecipe(), true);
         mStartInstant = new Instant();
 
         setUpActionBar();
@@ -134,29 +134,32 @@ public class CookActivity extends AppCompatActivity implements TimerFragment.Ste
                 // User chose the "previous" item,
                 step = mSchedule.getPrevStep();
                 if (step != null) {
-                    setCurrentStep(step, mSchedule.getCurrentStepRecipe(), true);
+                    setCurrentStep(step, mSchedule.getCurrentStepRecipe(), false);
                 }
                 return true;
 
             case R.id.next:
                 // User chose the "next" item,
+                boolean nextIsNew = mSchedule.getCurrStepIndex() == mSchedule.getMaxVisitedStepIndex();
+                Step originalStep = mSchedule.getCurrStep();
+                Recipe originalRecipe = mSchedule.getCurrentStepRecipe();
                 step = mSchedule.getNextStep();
-                Recipe currRecipe = mSchedule.getCurrentStepRecipe();
+                Recipe recipe = mSchedule.getCurrentStepRecipe();
 
-                boolean setBefore = mSchedule.getCurrStepIndex() != mSchedule.getMaxVisitedStepIndex();
-                if (!setBefore && currRecipe != null && step != null) {
+                if (nextIsNew) {
+                    // updates learner
                     Instant mEndInstant = new Instant();
                     Duration stepDuration = new Duration(mStartInstant, mEndInstant);
+                    mStartInstant = mEndInstant;
                     try {
-                        mTimeLearner.learnStep(currRecipe, step, stepDuration);
+                        mTimeLearner.learnStep(originalRecipe, originalStep, stepDuration);
                     } catch (SQLException e) {
                         e.printStackTrace();
                     }
-                    mStartInstant = mEndInstant;
                 }
 
                 if (step != null) {
-                    setCurrentStep(step, currRecipe, setBefore);
+                    setCurrentStep(step, recipe, nextIsNew);
                 } else  if (mActiveSimultaneousSteps != 0) {
                     // Explain to the user why they cannot advance
                     new AlertDialog.Builder(this)
@@ -177,11 +180,11 @@ public class CookActivity extends AppCompatActivity implements TimerFragment.Ste
      * Updates the activity to display a step from a recipe
      * @param step the step to display
      * @param recipe the recipe that contains the step
-     * @param setBefore whether or not the given step has been set before
+     * @param isNew whether or not the given step is new/hasn't been seen before
      */
-    private void setCurrentStep(Step step, Recipe recipe, boolean setBefore) {
+    private void setCurrentStep(Step step, Recipe recipe, boolean isNew) {
         mCookStep.setStep(step, recipe.getTitle());
-        if (step.isSimultaneous() && !setBefore) {
+        if (step.isSimultaneous() && isNew) {
             // Add a timer fragment for the step
             final TimerFragment timerFragment = TimerFragment.newInstance(recipe, step);
             final FragmentTransaction transaction = getFragmentManager().beginTransaction();
