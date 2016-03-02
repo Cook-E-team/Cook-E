@@ -218,13 +218,13 @@ public class Schedule {
         return mScheduledStepList.size() - 1;
     }
 
-    /*
+    /**
      * Removes and returns the step to schedule for shortest cooking time.
      * The given finalSteps is also modified such that each element in the list
      * has its busy time shifted properly.
      *
-     * @param finalSteps the unscheduled finalSteps to pick a next step from
-     * @return the next step to schedule for shortest cooking time
+     * @param unscheduledRecipeStepsList the unscheduled step lists to pick a next step from
+     * @return the next Scheduledstep to schedule for shortest cooking time
      */
     private ScheduledStep getNextScheduledStep(List<UnscheduledRecipeSteps> unscheduledRecipeStepsList) {
 
@@ -252,8 +252,8 @@ public class Schedule {
             // returning the chosen step.
             motherRecipe = unscheduledRecipeStepsList.get(chosenIndex).motherRecipe;
             nextScheduledStep = unscheduledRecipeStepsList.get(chosenIndex).removeNextStep();
-
             Log.d("Schedule", "chosenIndex = " + chosenIndex + ", unscheduled steps = " + unscheduledRecipeStepsList);
+
             if (unscheduledRecipeStepsList.get(chosenIndex).isEmpty()) {
                 Log.d("Schedule", "chosenIndex = " + chosenIndex + ", unscheduled steps = " + unscheduledRecipeStepsList);
                 unscheduledRecipeStepsList.remove(chosenIndex);
