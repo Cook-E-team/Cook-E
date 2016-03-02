@@ -91,11 +91,16 @@ public class Schedule {
     }
 
     /**
-     * Returns the recipe that contains the current step
-     * @return the recipe current step belongs to
+     * Returns the recipe that contains the current step. If no step has been
+     * visited yet, then null is returned.
+     *
+     * @return the recipe the current step belongs to
      */
     public Recipe getCurrentStepRecipe() {
-        return this.mScheduledStepList.get(this.mCurrScheduledStepIndex).motherRecipe;
+        Recipe currRecipe = null;
+        if (mCurrScheduledStepIndex >= 0 && mCurrScheduledStepIndex < mScheduledStepList.size())
+            currRecipe = this.mScheduledStepList.get(this.mCurrScheduledStepIndex).motherRecipe;
+        return currRecipe;
     }
 
 
@@ -125,6 +130,19 @@ public class Schedule {
             nextStep = nextScheduledStep.step;
         }
         return nextStep;
+    }
+
+    /**
+     * This function returns the current step. If no step has been
+     * visited yet, then null is returned.
+     *
+     * @return the current step
+     */
+    public Step getCurrStep() {
+        Step currStep = null;
+        if (mCurrScheduledStepIndex >= 0 && mCurrScheduledStepIndex < mScheduledStepList.size())
+            currStep = mScheduledStepList.get(mCurrScheduledStepIndex).step;
+        return currStep;
     }
 
     /**

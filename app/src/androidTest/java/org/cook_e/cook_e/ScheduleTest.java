@@ -206,6 +206,28 @@ public class ScheduleTest {
         assertEquals(1, sched.getMaxVisitedStepIndex());
     }
 
+
+    @Test
+    public void testGetCurrentStep() throws SQLException  {
+        List<Step> steps1 = new ArrayList<>();
+        steps1.add(fiveNonSimul);
+        Recipe recipe1 = new Recipe("r1", "test", steps1);
+        List<Step> steps2 = new ArrayList<>();
+        steps2.add(fiveSimul);
+        Recipe recipe2 = new Recipe("r2", "test", steps2);
+        List<Recipe> recipies = new ArrayList<>();
+        recipies.add(recipe1);
+        recipies.add(recipe2);
+        Bunch bunch = new Bunch("test", recipies);
+        Schedule sched = new Schedule(bunch, new TimeLearner(sA, bunch));
+
+        assertEquals(null, sched.getCurrStep());
+        sched.getNextStep();
+        assertEquals(fiveSimul, sched.getCurrStep());
+        sched.getNextStep();
+        assertEquals(fiveNonSimul, sched.getCurrStep());
+    }
+
     @Test
     public void testGetCurrentStepRecipe() throws SQLException  {
         List<Step> steps1 = new ArrayList<>();
@@ -220,6 +242,7 @@ public class ScheduleTest {
         Bunch bunch = new Bunch("test", recipies);
         Schedule sched = new Schedule(bunch, new TimeLearner(sA, bunch));
 
+        assertEquals(null, sched.getCurrentStepRecipe());
         sched.getNextStep();
         assertEquals(recipe2, sched.getCurrentStepRecipe());
         sched.getNextStep();
