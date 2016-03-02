@@ -137,6 +137,16 @@ public class HomeActivity extends AppCompatActivity {
 
         getMenuInflater().inflate(R.menu.topright_menu, menu);
 
+        final MenuItem tutorialItem = menu.findItem(R.id.menu_about);
+        tutorialItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                final Intent intent = new Intent(HomeActivity.this, TutorialActivity.class);
+                startActivity(intent);
+                return true;
+            }
+        });
+
         final MenuItem aboutItem = menu.findItem(R.id.menu_about);
         aboutItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
