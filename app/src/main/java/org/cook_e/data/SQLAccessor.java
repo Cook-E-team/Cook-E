@@ -128,9 +128,32 @@ public interface SQLAccessor extends Closeable {
      */
     boolean containsRecipe(long id) throws SQLException;
 
+    /**
+     * Store the leanrner data into the local dataabase
+     * @param r Recipe related to the learner
+     * @param weights Learning weights
+     * @throws SQLException
+     */
     void storeLearnerData(Recipe r, Collection<LearningWeight> weights) throws SQLException;
 
+    /**
+     * Update the leaner data
+     * @param r Recipe
+     * @param weight Learning weight
+     * @throws SQLException
+     */
     void updateLearnerData(Recipe r, LearningWeight weight) throws SQLException;
+    /**
+     * Load learner data for a specific recipe.
+     * @param r the recipe of concern
+     * @return the loaded learner data for the recipe passed in
+     * @throws SQLException
+     */
     List<LearningWeight> loadLearnerData(Recipe r) throws SQLException;
+
+    /**
+     * Delete the whole learner data
+     * @throws SQLException
+     */
     void deleteLearnerData() throws SQLException;
 }
