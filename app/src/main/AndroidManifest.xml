@@ -60,8 +60,11 @@
         <activity
             android:name=".CreateMealActivity"
             android:windowSoftInputMode="stateVisible"/>
-        <activity android:name=".BugReportActivity"
+        <activity
+            android:name=".BugReportActivity"
             android:windowSoftInputMode="stateVisible">
+        </activity>
+        <activity android:name=".SettingsActivity">
         </activity>
     </application>
 
