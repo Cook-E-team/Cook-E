@@ -152,10 +152,12 @@ public class CookActivity extends AppCompatActivity implements TimerFragment.Ste
                     Instant mEndInstant = new Instant();
                     Duration stepDuration = new Duration(mStartInstant, mEndInstant);
                     mStartInstant = mEndInstant;
-                    try {
-                        mTimeLearner.learnStep(originalRecipe, originalStep, stepDuration);
-                    } catch (SQLException e) {
-                        e.printStackTrace();
+                    if (!originalStep.isSimultaneous()) {
+                        try {
+                            mTimeLearner.learnStep(originalRecipe, originalStep, stepDuration);
+                        } catch (SQLException e) {
+                            e.printStackTrace();
+                        }
                     }
                 }
 
