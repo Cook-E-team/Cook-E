@@ -250,15 +250,42 @@ public class StorageAccessor implements Closeable {
     public void storeLearnerData(Recipe r, Collection<LearningWeight> weights) throws SQLException {
         mLocal.storeLearnerData(r, weights);
     }
+
+    /**
+     * Load learner data for a specific recipe.
+     * @param r the recipe of concern
+     * @return the loaded learner data for the recipe passed in
+     * @throws SQLException
+     */
     public List<LearningWeight> loadLearnerData(Recipe r) throws SQLException {
         return mLocal.loadLearnerData(r);
     }
+
+    /**
+     * Update the leaner data
+     * @param r Recipe
+     * @param weight Learning weight
+     * @throws SQLException
+     */
     public void updateLearnerData(Recipe r, LearningWeight weight) throws SQLException {
         mLocal.updateLearnerData(r, weight);
     }
+
+    /**
+     * Delete the whole learner data
+     * @throws SQLException
+     */
     public void deleteLearnerData() throws SQLException {
         mLocal.deleteLearnerData();
     }
+
+    /**
+     * load learner data from a bunch
+     *
+     * @param b the bunch of recipes
+     * @return the recipe to leaninng weight
+     * @throws SQLException
+     */
     public Map<Long, List<LearningWeight>> loadLearnerData(Bunch b) throws SQLException {
         Map<Long, List<LearningWeight>> result = new HashMap<>();
         for (Recipe r : b.getRecipes()) {
