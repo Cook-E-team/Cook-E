@@ -177,8 +177,6 @@ public class MealRecipeAddActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        // Save the recipes that have been added
-        // TODO
     }
 
     /*
