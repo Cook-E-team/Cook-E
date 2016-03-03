@@ -21,6 +21,7 @@ package org.cook_e.cook_e;
 
 import android.app.AlertDialog;
 import android.app.FragmentTransaction;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
@@ -166,6 +167,12 @@ public class CookActivity extends AppCompatActivity implements TimerFragment.Ste
                             .setTitle(R.string.dialog_title_waiting_for_step)
                             .setMessage(R.string.dialog_waiting_for_step)
                             .show();
+                } else {
+                    // The final step has been completed!
+                    Context context = getApplicationContext();
+                    Intent intent = new Intent(context, HomeActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    context.startActivity(intent);
                 }
                 return true;
 
