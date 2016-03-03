@@ -39,12 +39,12 @@ import static org.junit.Assert.assertEquals;
 public class ScheduleTest {
     public List<String> ingre = new ArrayList<>();
     public final Step fiveNonSimul = new Step(ingre, "t1", Duration.standardMinutes(5), false, 0);
-    public final Step tenNonSimul = new Step(ingre, "t1", Duration.standardMinutes(10), false, 1);
-    public final Step sevenNonSimul = new Step(ingre, "t1", Duration.standardMinutes(7), false, 2);
+    public final Step tenNonSimul = new Step(ingre, "t2", Duration.standardMinutes(10), false, 1);
+    public final Step sevenNonSimul = new Step(ingre, "t3", Duration.standardMinutes(7), false, 2);
 
-    public final Step fiveSimul = new Step(ingre, "t1", Duration.standardMinutes(5), true, 0);
-    public final Step tenSimul = new Step(ingre, "t1", Duration.standardMinutes(10), true, 1);
-    public final Step sevenSimul = new Step(ingre, "t1", Duration.standardMinutes(7), true, 2);
+    public final Step fiveSimul = new Step(ingre, "t4", Duration.standardMinutes(5), true, 0);
+    public final Step tenSimul = new Step(ingre, "t5", Duration.standardMinutes(10), true, 1);
+    public final Step sevenSimul = new Step(ingre, "t6", Duration.standardMinutes(7), true, 2);
     private StorageAccessor sA = App.getAccessor();
 
     @Test(expected = NullPointerException.class)
@@ -150,7 +150,7 @@ public class ScheduleTest {
         steps.add(tenNonSimul);
         steps.add(tenNonSimul);
         for(int i = 0; i < sched.getStepCount(); i++) {
-            if (i == 4)
+            if (i == 1)
                 sched.finishSimultaneousStepFromRecipe(recipe10N10);
             else if (i == 5)
                 sched.finishSimultaneousStepFromRecipe(recipeN5Y10);

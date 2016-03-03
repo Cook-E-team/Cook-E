@@ -325,12 +325,12 @@ public class Schedule {
             Step nextStep = this.steps.remove(0);
             if (nextStep.isSimultaneous()) {
                 this.isReady = false;
-                this.simultaneousToEndTime -= nextStep.getDurationMinutes();
+                this.simultaneousToEndTime -= timeLearner.getEstimatedTime(this.motherRecipe, nextStep).getStandardSeconds();
                 for (Step currStep : this.steps) {
                     if (currStep.isSimultaneous()) {
                         break;
                     }
-                    this.simultaneousToEndTime -= currStep.getDurationMinutes();
+                    this.simultaneousToEndTime -= timeLearner.getEstimatedTime(this.motherRecipe, currStep).getStandardSeconds();
                 }
             }
             return nextStep;
