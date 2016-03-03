@@ -73,7 +73,7 @@ public class MealList extends Fragment {
         mMeals = new ObservableArrayList<>();
         mVisibleMeals = new ObservableArrayList<>();
         try {
-            mMeals.addAll(App.getAccessor().loadAllBunches());
+            mMeals.addAll(App.getAccessor().loadAllBunches(App.getDisplayLimit()));
             mVisibleMeals.addAll(mMeals);
         } catch (SQLException e) {
             new AlertDialog.Builder(getActivity())
@@ -156,7 +156,7 @@ public class MealList extends Fragment {
         if (mMeals != null) {
             mMeals.clear();
             try {
-                mMeals.addAll(App.getAccessor().loadAllBunches());
+                mMeals.addAll(App.getAccessor().loadAllBunches(App.getDisplayLimit()));
                 updateVisibleMeals();
             } catch (SQLException e) {
                 new AlertDialog.Builder(getActivity())

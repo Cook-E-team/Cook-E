@@ -55,7 +55,6 @@ public class MealViewActivity extends AppCompatActivity {
      */
     public static final String EXTRA_MEAL = MealViewActivity.class.getName() + ".EXTRA_MEAL";
 
-    private static final int DISPLAY_LIMIT = 10;
 
     /**
      * The recipes in the meal being displayed
@@ -100,7 +99,7 @@ public class MealViewActivity extends AppCompatActivity {
                 final Intent intent = new Intent(MealViewActivity.this, MealRecipeAddActivity.class);
 
                 try {
-                    final List<Recipe> availableRecipes = mAccessor.loadAllRecipes(DISPLAY_LIMIT);
+                    final List<Recipe> availableRecipes = mAccessor.loadAllRecipes(App.getDisplayLimit());
                     intent.putExtra(MealRecipeAddActivity.EXIST_RECIPES,
                             mRecipes.toArray(new Recipe[mRecipes.size()]));
                     intent.putExtra(MealRecipeAddActivity.EXTRA_RECIPES,

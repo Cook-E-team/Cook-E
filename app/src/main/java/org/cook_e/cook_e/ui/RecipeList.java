@@ -69,7 +69,7 @@ public class RecipeList extends Fragment {
         try {
             mRecipes = new ObservableArrayList<>();
             mVisibleRecipes = new ObservableArrayList<>();
-            mRecipes.addAll(App.getAccessor().loadAllRecipes());
+            mRecipes.addAll(App.getAccessor().loadAllRecipes(App.getDisplayLimit()));
             mVisibleRecipes.addAll(mRecipes);
 
         } catch (SQLException e) {
@@ -157,7 +157,7 @@ public class RecipeList extends Fragment {
         if (mRecipes != null) {
             mRecipes.clear();
             try {
-                mRecipes.addAll(App.getAccessor().loadAllRecipes());
+                mRecipes.addAll(App.getAccessor().loadAllRecipes(App.getDisplayLimit()));
             } catch (SQLException e) {
                 new AlertDialog.Builder(getActivity())
                         .setTitle("Failed to load recipes")
