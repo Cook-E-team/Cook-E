@@ -56,11 +56,17 @@
             android:name=".EditRecipeActivity"
             android:label="recipe_name"
             android:windowSoftInputMode="adjustPan"/>
-        <activity android:name=".AboutActivity"/>
+        <activity
+            android:name=".AboutActivity"/>
         <activity
             android:name=".CreateMealActivity"
             android:windowSoftInputMode="stateVisible"/>
-        <activity android:name=".BugReportActivity"
+        <activity
+            android:name=".BugReportActivity"
+            android:windowSoftInputMode="stateVisible">
+        </activity>
+        <activity
+            android:name=".TutorialActivity"
             android:windowSoftInputMode="stateVisible">
         </activity>
     </application>

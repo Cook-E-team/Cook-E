@@ -137,7 +137,7 @@ public class HomeActivity extends AppCompatActivity {
 
         getMenuInflater().inflate(R.menu.topright_menu, menu);
 
-        final MenuItem tutorialItem = menu.findItem(R.id.menu_about);
+        final MenuItem tutorialItem = menu.findItem(R.id.menu_tutorial);
         tutorialItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
