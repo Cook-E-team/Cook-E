@@ -280,13 +280,19 @@ public class SQLiteAccessor implements SQLAccessor {
      * @return List of Recipes
      */
     @Override
-    public List<Recipe> loadAllRecipes() throws SQLException {
+    public List<Recipe> loadAllRecipes(int limit) throws SQLException {
         List<Recipe> recipes = new ArrayList<>();
         try {
             SQLiteDatabase db = mHelper.getReadableDatabase();
             try {
-                Cursor c = db.query(RECIPE_TABLE_NAME, RECIPE_COLUMNS, null, null, null, null,
-                        "name");
+                Cursor c = null;
+                if (limit == -1) {
+                    c = db.query(RECIPE_TABLE_NAME, RECIPE_COLUMNS, null, null, null, null,
+                            "name");
+                } else {
+                    c  = db.query(RECIPE_TABLE_NAME, RECIPE_COLUMNS, null, null, null, null,
+                            "name", String.valueOf(limit));
+                }
                 try {
                     while (c.moveToNext()) {
                         recipes.add(recipeFromResult(c));
@@ -434,13 +440,19 @@ public class SQLiteAccessor implements SQLAccessor {
      * @return List of bunches
      */
     @Override
-    public List<Bunch> loadAllBunches() throws SQLException {
+    public List<Bunch> loadAllBunches(int limit) throws SQLException {
         List<Bunch> bunches = new ArrayList<>();
         try {
             SQLiteDatabase db = mHelper.getReadableDatabase();
             try {
-                Cursor c = db.query(BUNCH_TABLE_NAME, BUNCH_COLUMNS, null, null, null, null,
-                        "name");
+                Cursor c = null;
+                if (limit == -1) {
+                    c = db.query(BUNCH_TABLE_NAME, BUNCH_COLUMNS, null, null, null, null,
+                            "name");
+                } else {
+                    c = db.query(BUNCH_TABLE_NAME, BUNCH_COLUMNS, null, null, null, null,
+                            "name", String.valueOf(limit));
+                }
                 if (c.getCount() > 0) {
                     c.moveToFirst();
                     do {
