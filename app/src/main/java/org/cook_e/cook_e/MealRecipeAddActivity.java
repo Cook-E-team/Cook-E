@@ -213,6 +213,10 @@ public class MealRecipeAddActivity extends AppCompatActivity {
         return recipes;
     }
 
+    /**
+     * Unpacks the recipes existing in the meal from the intent that started this activity and returns a List of those recipes
+     * @return list of recipes
+     */
     private List<Recipe> existRecipes() {
         final Parcelable[] parcelables = getIntent().getParcelableArrayExtra(MealRecipeAddActivity.EXIST_RECIPES);
         Objects.requireNonNull(parcelables,
@@ -240,6 +244,10 @@ public class MealRecipeAddActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Update the meals shown on screen.
+     * Shows filtered meals if the user types in the search bar or shows all the meals if nothing is entered
+     */
     private void updateVisibleMeals() {
         final String query = mSearchView.getQuery().toString();
         // Make all meals visible

@@ -228,6 +228,10 @@ public class CookActivity extends AppCompatActivity implements TimerFragment.Ste
         return true;
     }
 
+    /**
+     * Gets the meal the user wants to cook
+     * @return Bunch object that is the meal the user wants to cook
+     */
     private Bunch getBunch() {
         final Intent intent = getIntent();
         final Bunch meal = intent.getParcelableExtra(EXTRA_BUNCH);
