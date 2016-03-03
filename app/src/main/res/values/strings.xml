@@ -114,4 +114,7 @@ jTDS (http://jtds.sourceforge.net/ ) is distributed in accordance with the GNU L
     <string name="mail_report">Mail report</string>
     <string name="could_not_access_image">Could not access image</string>
     <string name="could_not_access_image_explanation">Please ensure that the selected image is valid and accessible.</string>
+    <string name="exit">Exit</string>
+
+
 </resources>

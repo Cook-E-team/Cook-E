@@ -22,6 +22,7 @@ package org.cook_e.cook_e;
 import android.app.AlertDialog;
 import android.app.FragmentTransaction;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
@@ -73,6 +74,10 @@ public class CookActivity extends AppCompatActivity implements TimerFragment.Ste
      */
     private TimeLearner mTimeLearner;
     /**
+     * The very first instant of this cooking process.
+     */
+    private Instant mFirstInstant;
+    /**
      * The start instant of the current step.
      */
     private Instant mStartInstant;
@@ -109,7 +114,8 @@ public class CookActivity extends AppCompatActivity implements TimerFragment.Ste
             throw new IllegalStateException("No steps");
         }
         setCurrentStep(firstStep, mSchedule.getCurrentStepRecipe(), true);
-        mStartInstant = new Instant();
+        mFirstInstant = new Instant();
+        mStartInstant = mFirstInstant;
 
         setUpActionBar();
     }
@@ -171,7 +177,22 @@ public class CookActivity extends AppCompatActivity implements TimerFragment.Ste
                             .show();
                 } else {
                     // The final step has been completed!
-                    finish();
+                    Instant mLastInstant = new Instant();
+                    Duration cookDuration = new Duration(mFirstInstant, mLastInstant);
+                    String exitMessage = "Unoptimized: " + mSchedule.mOriginalEstimatedTime + " min." +
+                            "\nOptimized: " + mSchedule.mOptimizedEstimatedTime + " min." +
+                            "\n\nActual: " + cookDuration.getStandardMinutes() + " min.";
+                    new AlertDialog.Builder(this)
+                            .setTitle(R.string.done)
+                            .setMessage(exitMessage)
+                            .setCancelable(false)
+                            .setNeutralButton(R.string.exit, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    finish();
+                                }
+                            })
+                            .show();
                 }
                 return true;
 
