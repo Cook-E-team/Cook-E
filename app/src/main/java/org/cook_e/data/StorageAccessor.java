@@ -240,6 +240,12 @@ public class StorageAccessor implements Closeable {
         return mLocal.containsRecipe(id);
     }
 
+    /**
+     * Store the leanrner data into the local dataabase
+     * @param r Recipe related to the learner
+     * @param weights Learning weights
+     * @throws SQLException
+     */
     public void storeLearnerData(Recipe r, Collection<LearningWeight> weights) throws SQLException {
         mLocal.storeLearnerData(r, weights);
     }
