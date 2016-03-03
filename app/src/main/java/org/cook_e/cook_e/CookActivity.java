@@ -169,10 +169,7 @@ public class CookActivity extends AppCompatActivity implements TimerFragment.Ste
                             .show();
                 } else {
                     // The final step has been completed!
-                    Context context = getApplicationContext();
-                    Intent intent = new Intent(context, HomeActivity.class);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    context.startActivity(intent);
+                    finish();
                 }
                 return true;
 
