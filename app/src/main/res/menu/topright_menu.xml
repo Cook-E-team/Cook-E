@@ -29,6 +29,10 @@
         android:id="@+id/menu_about"/>
     <item
         app:showAsAction="never"
+        android:title="@string/settings"
+        android:id="@+id/menu_settings" />
+    <item
+        app:showAsAction="never"
         android:title="@string/report_a_problem"
         android:id="@+id/menu_report_problem" />
 </menu>

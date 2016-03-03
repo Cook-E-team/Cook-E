@@ -160,6 +160,15 @@ public class HomeActivity extends AppCompatActivity {
             }
         });
 
+        final MenuItem settingsItem = menu.findItem(R.id.menu_settings);
+        settingsItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                startActivity(new Intent(HomeActivity.this, SettingsActivity.class));
+                return true;
+            }
+        });
+
         return true;
     }
 }
