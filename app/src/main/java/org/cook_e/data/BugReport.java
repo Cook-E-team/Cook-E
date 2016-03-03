@@ -35,22 +35,42 @@ public class BugReport {
         this.meta = meta;
     }
 
+    /**
+     * Set the ID for the bug report
+     * @param id id for the bug report
+     */
     public void setId(long id) {
         this.id = id;
     }
 
+    /**
+     * get the id of the current bug report
+     * @return the id for the current bug report
+     */
     public long getId() {
         return id;
     }
 
+    /**
+     * Description of the bug report
+     * @return the description of the bug report
+     */
     public String getDesc() {
         return desc;
     }
 
+    /**
+     * Date of the report
+     * @return date of the report submitted
+     */
     public DateTime getDate() {
         return date;
     }
 
+    /**
+     * Get meta data from the report
+     * @return the meta data of the report
+     */
     public String getMeta() {
         return meta;
     }
