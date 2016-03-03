@@ -123,7 +123,9 @@ public class HomeActivity extends AppCompatActivity {
         mPageAdapter.getRecipeList().reloadRecipes();
         mPageAdapter.getMealList().reloadMeals();
     }
-
+    /*
+     * Sets up the action bar
+     */
     private void setUpActionBar() {
         final ActionBar bar = getSupportActionBar();
         assert bar != null;
