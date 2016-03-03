@@ -126,7 +126,7 @@ public class SQLiteAccessor implements SQLAccessor {
                     r.setObjectId(mRecipeCounter++);
                 }
                 ContentValues values = createContentValues(r);
-                db.insert(RECIPE_TABLE_NAME, null, values);
+                db.insertWithOnConflict(RECIPE_TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_REPLACE);
             } finally {
                 db.close();
             }

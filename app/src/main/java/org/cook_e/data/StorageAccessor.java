@@ -58,12 +58,14 @@ public class StorageAccessor implements Closeable {
      * Map used to cache recipes
      * maps id to recipe
      */
-    private Map<Long, Recipe> mRecipeBuffer;
+    private Map<String, Recipe> mRecipeBuffer;
+
+
     /**
      * Map used to cache bunches
      * maps id to bunch
      */
-    private Map<Long, Bunch> mBunchBuffer;
+    private Map<String, Bunch> mBunchBuffer;
 
     /**
      * constant size limit for the buffers
@@ -115,7 +117,14 @@ public class StorageAccessor implements Closeable {
      * @throws SQLException
      */
     public List<Recipe> loadRecipes(String keyword) throws SQLException {
-       return mExternal.findRecipesLike(keyword);
+        List<Recipe> recipes = mExternal.findRecipesLike(keyword);
+        for (Recipe r: recipes) {
+            mLocal.storeRecipe(r);
+            mRecipeBuffer.put(r.getTitle(), r);
+        }
+
+
+        return recipes;
     }
     /**
      * Retrieve a recipe from storage
