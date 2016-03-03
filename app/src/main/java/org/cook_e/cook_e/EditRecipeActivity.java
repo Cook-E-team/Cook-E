@@ -371,6 +371,7 @@ public class EditRecipeActivity extends AppCompatActivity
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        //load image of the recipe
         if (requestCode == REQUEST_LOAD_IMAGE && resultCode == RESULT_OK && data != null) {
             final Bitmap loadedImage = Bitmaps.bitmapFromResult(this, data);
             if (loadedImage != null) {
