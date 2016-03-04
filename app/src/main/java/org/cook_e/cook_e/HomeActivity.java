@@ -101,7 +101,7 @@ public class HomeActivity extends AppCompatActivity {
         mPageAdapter = new HomePageAdapter(getFragmentManager());
         mViewPager.setAdapter(mPageAdapter);
 
-        // Set up add button for recipes/meals
+        // Set up add nextButton for recipes/meals
         final FloatingActionButton addButton = (FloatingActionButton) findViewById(R.id.add_button);
         addButton.setOnClickListener(new View.OnClickListener() {
             @Override

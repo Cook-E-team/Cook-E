@@ -95,7 +95,7 @@ public class CreateRecipe extends AppCompatActivity {
         mTitleField = (EditText) findViewById(R.id.title_field);
         mAuthorField = (EditText) findViewById(R.id.author_field);
 
-        // Continue button
+        // Continue nextButton
         final Button continueButton = (Button) findViewById(R.id.continue_button);
         continueButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -166,9 +166,9 @@ public class CreateRecipe extends AppCompatActivity {
     /*
      * This is a workaround for inconsistent behavior.
      *
-     * Pressing the system back button or calling finish() returns a result to the parent activity,
-     * as expected. However, the default action when the up button is pressed does not send a result
-     * to the parent. This override ensures that a result is sent when the action bar up button is
+     * Pressing the system back nextButton or calling finish() returns a result to the parent activity,
+     * as expected. However, the default action when the up nextButton is pressed does not send a result
+     * to the parent. This override ensures that a result is sent when the action bar up nextButton is
      * pressed.
      */
     @Override

@@ -89,7 +89,7 @@ public class MealViewActivity extends AppCompatActivity {
         final ListView recipeList = (ListView) findViewById(R.id.recipe_list);
         recipeList.setAdapter(new MealRecipeListAdapter(this, mRecipes));
 
-        // Set up floating action button
+        // Set up floating action nextButton
         final FloatingActionButton floatingButton = (FloatingActionButton) findViewById(R.id.add_button);
         floatingButton.setOnClickListener(new OnClickListener() {
             @Override
