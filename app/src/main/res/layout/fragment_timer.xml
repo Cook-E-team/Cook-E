@@ -35,7 +35,7 @@
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:text="Medium Text"
         android:id="@+id/description_view"
-        android:textSize="21sp"
+        android:textSize="20sp"
         android:layout_weight="0.5"
         android:layout_gravity="center_vertical|start"/>
 
