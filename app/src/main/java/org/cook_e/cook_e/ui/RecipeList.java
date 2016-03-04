@@ -201,12 +201,13 @@ public class RecipeList extends Fragment {
         public boolean onQueryTextSubmit(String query) {
             // Do nothing more
             searchRecipes();
+            updateVisibleRecipes();
+
             return true;
         }
 
         @Override
         public boolean onQueryTextChange(String newText) {
-            updateVisibleRecipes();
 
             return true;
         }
