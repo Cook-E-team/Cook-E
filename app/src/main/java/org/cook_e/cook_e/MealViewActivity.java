@@ -37,7 +37,6 @@ import android.view.View.OnClickListener;
 import android.widget.ListView;
 
 import org.cook_e.data.Bunch;
-import org.cook_e.data.DatabaseObject;
 import org.cook_e.data.Objects;
 import org.cook_e.data.Recipe;
 import org.cook_e.data.StorageAccessor;
@@ -45,6 +44,7 @@ import org.cook_e.data.StorageAccessor;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+
 
 public class MealViewActivity extends AppCompatActivity {
     @SuppressWarnings("unused")
@@ -172,6 +172,27 @@ public class MealViewActivity extends AppCompatActivity {
         catch (Exception e) {
             new AlertDialog.Builder(MealViewActivity.this)
                     .setTitle("Failed to save meal")
+                    .setMessage(e.getLocalizedMessage())
+                    .show();
+        }
+    }
+
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // May be returning from another activity that modified recipes.
+        // So, reload them.
+        try {
+            // This code must be careful since the recipe list detects changes
+            // and propagates them to the database automatically.
+            Bunch freshMeal = mAccessor.loadBunch(mMeal.getTitle());
+            mRecipes.clear();
+            mRecipes.addAll(freshMeal.getRecipes());
+        } catch (SQLException e) {
+            e.printStackTrace();
+            new AlertDialog.Builder(this)
+                    .setTitle("Failed to reload meal recipes MealViewActivity.onResume()")
                     .setMessage(e.getLocalizedMessage())
                     .show();
         }
