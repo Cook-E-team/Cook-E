@@ -89,17 +89,19 @@ public interface SQLAccessor extends Closeable {
 
     /**
      * Selects and returns all recipes in the database
+     * @param limit int limit of number of recipes to load (loads all if -1)
      * @return a list of recipes
      * @throws SQLException if an error occurs
      */
-    List<Recipe> loadAllRecipes() throws SQLException;
+    List<Recipe> loadAllRecipes(int limit) throws SQLException;
 
     /**
      * Selects and returns all bunches in the database
+     * @param limit int limit of number of bunches to load (loads all if -1)
      * @return a list of bunches
      * @throws SQLException if an error occurs
      */
-    List<Bunch> loadAllBunches() throws SQLException;
+    List<Bunch> loadAllBunches(int limit) throws SQLException;
 
     /**
      * Searches for and returns recipes that contain the provides string in their titles

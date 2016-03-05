@@ -118,7 +118,7 @@ public class SQLServerAccessor implements SQLAccessor {
     /**
      * Statement for selecting all recipes
      */
-    private static final String RECIPE_SELECT_ALL = "SELECT id, name, author, description FROM "
+    private static final String RECIPE_SELECT_ALL = "SELECT TOP (?) id, name, author, description FROM "
             + RECIPE_TABLE_NAME;
 
     /**
@@ -307,12 +307,13 @@ public class SQLServerAccessor implements SQLAccessor {
     }
 
     @Override
-    public List<Recipe> loadAllRecipes() throws SQLException {
+    public List<Recipe> loadAllRecipes(int limit) throws SQLException {
 
         // Allow network access on main thread (for testing only)
         // TODO: Remodel all database access to run on a separate thread (issue #26)
         StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder().permitAll().build());
-
+        mRecipeSelectAllStatement.clearParameters();
+        mRecipeSelectAllStatement.setInt(1, limit);
         mRecipeSelectAllStatement.execute();
         final ResultSet results = mRecipeSelectAllStatement.getResultSet();
         try {
@@ -343,7 +344,7 @@ public class SQLServerAccessor implements SQLAccessor {
     }
 
     @Override
-    public List<Bunch> loadAllBunches() throws SQLException {
+    public List<Bunch> loadAllBunches(int limit) throws SQLException {
         throw new UnsupportedOperationException("Not implemented");
     }
 

@@ -2,6 +2,8 @@ package org.cook_e.data;
 
 import android.os.Handler;
 
+import org.cook_e.cook_e.App;
+
 import java.sql.SQLException;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -95,7 +97,7 @@ public class AsyncAccessor {
                 try {
                     List<Recipe> recipes;
                     synchronized (mAccessor) {
-                        recipes = mAccessor.loadAllRecipes();
+                        recipes = mAccessor.loadAllRecipes(App.getDisplayLimit());
                     }
                     postResult(handler, recipes);
                 } catch (SQLException e) {
