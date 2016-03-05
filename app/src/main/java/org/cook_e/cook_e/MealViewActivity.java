@@ -37,7 +37,6 @@ import android.view.View.OnClickListener;
 import android.widget.ListView;
 
 import org.cook_e.data.Bunch;
-import org.cook_e.data.DatabaseObject;
 import org.cook_e.data.Objects;
 import org.cook_e.data.Recipe;
 import org.cook_e.data.StorageAccessor;
@@ -45,6 +44,7 @@ import org.cook_e.data.StorageAccessor;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+
 
 public class MealViewActivity extends AppCompatActivity {
     @SuppressWarnings("unused")
@@ -54,6 +54,7 @@ public class MealViewActivity extends AppCompatActivity {
      * The extra key used when sending a meal to display in an Intent
      */
     public static final String EXTRA_MEAL = MealViewActivity.class.getName() + ".EXTRA_MEAL";
+
 
     /**
      * The recipes in the meal being displayed
@@ -98,7 +99,7 @@ public class MealViewActivity extends AppCompatActivity {
                 final Intent intent = new Intent(MealViewActivity.this, MealRecipeAddActivity.class);
 
                 try {
-                    final List<Recipe> availableRecipes = mAccessor.loadAllRecipes();
+                    final List<Recipe> availableRecipes = mAccessor.loadAllRecipes(App.getDisplayLimit());
                     intent.putExtra(MealRecipeAddActivity.EXIST_RECIPES,
                             mRecipes.toArray(new Recipe[mRecipes.size()]));
                     intent.putExtra(MealRecipeAddActivity.EXTRA_RECIPES,
@@ -172,6 +173,27 @@ public class MealViewActivity extends AppCompatActivity {
         catch (Exception e) {
             new AlertDialog.Builder(MealViewActivity.this)
                     .setTitle("Failed to save meal")
+                    .setMessage(e.getLocalizedMessage())
+                    .show();
+        }
+    }
+
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // May be returning from another activity that modified recipes.
+        // So, reload them.
+        try {
+            // This code must be careful since the recipe list detects changes
+            // and propagates them to the database automatically.
+            Bunch freshMeal = mAccessor.loadBunch(mMeal.getTitle());
+            mRecipes.clear();
+            mRecipes.addAll(freshMeal.getRecipes());
+        } catch (SQLException e) {
+            e.printStackTrace();
+            new AlertDialog.Builder(this)
+                    .setTitle("Failed to reload meal recipes MealViewActivity.onResume()")
                     .setMessage(e.getLocalizedMessage())
                     .show();
         }

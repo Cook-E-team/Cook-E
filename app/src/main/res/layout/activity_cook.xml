@@ -62,9 +62,9 @@
         <ScrollView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/scrollView2"
             android:layout_alignParentBottom="true"
-            android:id="@+id/scrollView3">
+            android:id="@+id/scrollView3"
+            android:layout_alignBottom="@+id/scrollView2">
 
             <LinearLayout
                 android:orientation="vertical"

@@ -21,6 +21,8 @@ package org.cook_e.cook_e;
 
 import android.app.AlertDialog;
 import android.app.FragmentTransaction;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
@@ -72,6 +74,10 @@ public class CookActivity extends AppCompatActivity implements TimerFragment.Ste
      */
     private TimeLearner mTimeLearner;
     /**
+     * The very first instant of this cooking process.
+     */
+    private Instant mFirstInstant;
+    /**
      * The start instant of the current step.
      */
     private Instant mStartInstant;
@@ -107,8 +113,9 @@ public class CookActivity extends AppCompatActivity implements TimerFragment.Ste
         if (firstStep == null) {
             throw new IllegalStateException("No steps");
         }
-        setCurrentStep(firstStep, mSchedule.getCurrentStepRecipe(), false);
-        mStartInstant = new Instant();
+        setCurrentStep(firstStep, mSchedule.getCurrentStepRecipe(), true);
+        mFirstInstant = new Instant();
+        mStartInstant = mFirstInstant;
 
         setUpActionBar();
     }
@@ -134,34 +141,57 @@ public class CookActivity extends AppCompatActivity implements TimerFragment.Ste
                 // User chose the "previous" item,
                 step = mSchedule.getPrevStep();
                 if (step != null) {
-                    setCurrentStep(step, mSchedule.getCurrentStepRecipe(), true);
+                    setCurrentStep(step, mSchedule.getCurrentStepRecipe(), false);
                 }
                 return true;
 
             case R.id.next:
                 // User chose the "next" item,
+                boolean nextIsNew = mSchedule.getCurrStepIndex() == mSchedule.getMaxVisitedStepIndex();
+                Step originalStep = mSchedule.getCurrStep();
+                Recipe originalRecipe = mSchedule.getCurrentStepRecipe();
                 step = mSchedule.getNextStep();
-                Recipe currRecipe = mSchedule.getCurrentStepRecipe();
+                Recipe recipe = mSchedule.getCurrentStepRecipe();
 
-                boolean setBefore = mSchedule.getCurrStepIndex() != mSchedule.getMaxVisitedStepIndex();
-                if (!setBefore && currRecipe != null && step != null) {
+                if (nextIsNew) {
+                    // updates learner
                     Instant mEndInstant = new Instant();
                     Duration stepDuration = new Duration(mStartInstant, mEndInstant);
-                    try {
-                        mTimeLearner.learnStep(currRecipe, step, stepDuration);
-                    } catch (SQLException e) {
-                        e.printStackTrace();
-                    }
                     mStartInstant = mEndInstant;
+                    if (!originalStep.isSimultaneous()) {
+                        try {
+                            mTimeLearner.learnStep(originalRecipe, originalStep, stepDuration);
+                        } catch (SQLException e) {
+                            e.printStackTrace();
+                        }
+                    }
                 }
 
                 if (step != null) {
-                    setCurrentStep(step, currRecipe, setBefore);
+                    setCurrentStep(step, recipe, nextIsNew);
                 } else  if (mActiveSimultaneousSteps != 0) {
                     // Explain to the user why they cannot advance
                     new AlertDialog.Builder(this)
                             .setTitle(R.string.dialog_title_waiting_for_step)
                             .setMessage(R.string.dialog_waiting_for_step)
+                            .show();
+                } else {
+                    // The final step has been completed!
+                    Instant mLastInstant = new Instant();
+                    Duration cookDuration = new Duration(mFirstInstant, mLastInstant);
+                    String exitMessage = "Unoptimized: " + mSchedule.mOriginalEstimatedTime + " min." +
+                            "\nOptimized: " + mSchedule.mOptimizedEstimatedTime + " min." +
+                            "\n\nActual: " + cookDuration.getStandardMinutes() + " min.";
+                    new AlertDialog.Builder(this)
+                            .setTitle(R.string.meal_completed)
+                            .setMessage(exitMessage)
+                            .setCancelable(false)
+                            .setNeutralButton(R.string.ok, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    finish();
+                                }
+                            })
                             .show();
                 }
                 return true;
@@ -177,11 +207,11 @@ public class CookActivity extends AppCompatActivity implements TimerFragment.Ste
      * Updates the activity to display a step from a recipe
      * @param step the step to display
      * @param recipe the recipe that contains the step
-     * @param setBefore whether or not the given step has been set before
+     * @param isNew whether or not the given step is new/hasn't been seen before
      */
-    private void setCurrentStep(Step step, Recipe recipe, boolean setBefore) {
+    private void setCurrentStep(Step step, Recipe recipe, boolean isNew) {
         mCookStep.setStep(step, recipe.getTitle());
-        if (step.isSimultaneous() && !setBefore) {
+        if (step.isSimultaneous() && isNew) {
             // Add a timer fragment for the step
             final TimerFragment timerFragment = TimerFragment.newInstance(recipe, step);
             final FragmentTransaction transaction = getFragmentManager().beginTransaction();
@@ -198,6 +228,10 @@ public class CookActivity extends AppCompatActivity implements TimerFragment.Ste
         return true;
     }
 
+    /**
+     * Gets the meal the user wants to cook
+     * @return Bunch object that is the meal the user wants to cook
+     */
     private Bunch getBunch() {
         final Intent intent = getIntent();
         final Bunch meal = intent.getParcelableExtra(EXTRA_BUNCH);

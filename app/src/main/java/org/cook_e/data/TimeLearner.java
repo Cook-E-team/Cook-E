@@ -23,9 +23,6 @@ import android.support.annotation.NonNull;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 
@@ -48,14 +45,21 @@ public class TimeLearner implements TimeLearnerInterface {
 
     private StorageAccessor mStorageAccessor;
 
+    /**
+     * The constructor for TimeLearner
+     *
+     * @param sA the StorageAccessor for this TimeLearner
+     * @param b the Bunch users want to cook
+     * @throws SQLException
+     */
     public TimeLearner(StorageAccessor sA, Bunch b) throws SQLException {
         mStorageAccessor = sA;
         mWeights = mStorageAccessor.loadLearnerData(b);
-
     }
 
     /**
      * Learns the actual time of a step.
+     *
      * @param r the recipe you want to record the time for
      * @param time the actual time user took to finish this step (in milliseconds)
      * @throws IllegalArgumentException when actual time is negative
@@ -87,12 +91,15 @@ public class TimeLearner implements TimeLearnerInterface {
 
     /**
      * Helper that finds a learning weight associated with the recipe and step or creates it if it does not exist
-     * @param r
-     * @param s
-     * @return
+     *
+     * @param r the recipe you want to record the time for
+     * @param s the particular step you want to record the time for
+     * @return the LearningWeight of this step
      */
     private LearningWeight accessOrCreateLearningWeight(Recipe r, Step s) {
         List<LearningWeight> weights = mWeights.get(r.getObjectId());
+
+        // mWeights does not contain the learningWeight for this recipe does not exist, so create one
         if (weights == null || weights.size() == 0) {
             int stepCount = r.getSteps().size();
             weights = new ArrayList<>(stepCount);
@@ -103,16 +110,18 @@ public class TimeLearner implements TimeLearnerInterface {
         }
 
         LearningWeight lw = weights.get(s.getIndex());
+
+        // The learningWeight for this step does not exits
         if (lw == null) {
             lw = new LearningWeight(s.getIndex());
             weights.add(s.getIndex(), lw);
-
         }
         return lw;
     }
     /**
      * Returns the estimated time for a step based on learning result.
      * If step is not learned before, returns the estimate time of that step.
+     *
      * @param s the step you need to estimate the time for
      * @return the estimated time (in milliseconds) for that specific step
      */

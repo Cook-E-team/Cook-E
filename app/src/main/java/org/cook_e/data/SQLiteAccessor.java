@@ -126,7 +126,7 @@ public class SQLiteAccessor implements SQLAccessor {
                     r.setObjectId(mRecipeCounter++);
                 }
                 ContentValues values = createContentValues(r);
-                db.insert(RECIPE_TABLE_NAME, null, values);
+                db.insertWithOnConflict(RECIPE_TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_REPLACE);
             } finally {
                 db.close();
             }
@@ -178,6 +178,8 @@ public class SQLiteAccessor implements SQLAccessor {
                 ContentValues values = createContentValues(r);
                 String[] whereArgs = {String.valueOf(r.getObjectId())};
                 db.update(RECIPE_TABLE_NAME, values, "id = ?", whereArgs);
+
+                db.delete(LEARNER_TABLE_NAME, "recipe_id=?", whereArgs);
             } finally {
                 db.close();
             }
@@ -201,10 +203,13 @@ public class SQLiteAccessor implements SQLAccessor {
                 String[] bunchArgs = {String.valueOf(b.getObjectId())};
                 db.update(BUNCH_TABLE_NAME, bunch_values, "id = ?", bunchArgs);
                 db.delete(BUNCH_RECIPES_TABLE_NAME, "bunch_id = ?", bunchArgs);
-                List<ContentValues> bunch_recipe_values = createContentValuesList(b);
-                for (ContentValues cv : bunch_recipe_values) {
+                for (Recipe r: b.getRecipes()) {
+                    ContentValues cv = createContentValues(b,r);
                     db.insert(BUNCH_RECIPES_TABLE_NAME, null, cv);
+                    String[] whereArgs = {String.valueOf(r.getObjectId())};
+                    db.delete(LEARNER_TABLE_NAME, "recipe_id=?", whereArgs);
                 }
+
                 db.setTransactionSuccessful();
             } finally {
                 db.endTransaction();
@@ -275,13 +280,19 @@ public class SQLiteAccessor implements SQLAccessor {
      * @return List of Recipes
      */
     @Override
-    public List<Recipe> loadAllRecipes() throws SQLException {
+    public List<Recipe> loadAllRecipes(int limit) throws SQLException {
         List<Recipe> recipes = new ArrayList<>();
         try {
             SQLiteDatabase db = mHelper.getReadableDatabase();
             try {
-                Cursor c = db.query(RECIPE_TABLE_NAME, RECIPE_COLUMNS, null, null, null, null,
-                        "name");
+                Cursor c = null;
+                if (limit == -1) {
+                    c = db.query(RECIPE_TABLE_NAME, RECIPE_COLUMNS, null, null, null, null,
+                            "name");
+                } else {
+                    c  = db.query(RECIPE_TABLE_NAME, RECIPE_COLUMNS, null, null, null, null,
+                            "name", String.valueOf(limit));
+                }
                 try {
                     while (c.moveToNext()) {
                         recipes.add(recipeFromResult(c));
@@ -429,13 +440,19 @@ public class SQLiteAccessor implements SQLAccessor {
      * @return List of bunches
      */
     @Override
-    public List<Bunch> loadAllBunches() throws SQLException {
+    public List<Bunch> loadAllBunches(int limit) throws SQLException {
         List<Bunch> bunches = new ArrayList<>();
         try {
             SQLiteDatabase db = mHelper.getReadableDatabase();
             try {
-                Cursor c = db.query(BUNCH_TABLE_NAME, BUNCH_COLUMNS, null, null, null, null,
-                        "name");
+                Cursor c = null;
+                if (limit == -1) {
+                    c = db.query(BUNCH_TABLE_NAME, BUNCH_COLUMNS, null, null, null, null,
+                            "name");
+                } else {
+                    c = db.query(BUNCH_TABLE_NAME, BUNCH_COLUMNS, null, null, null, null,
+                            "name", String.valueOf(limit));
+                }
                 if (c.getCount() > 0) {
                     c.moveToFirst();
                     do {
@@ -550,7 +567,9 @@ public class SQLiteAccessor implements SQLAccessor {
 
                 // Delete the recipe entry
                 db.delete(RECIPE_TABLE_NAME, "id = ?", whereArgs);
+                db.delete(LEARNER_TABLE_NAME, "recipe_id = ?", whereArgs);
                 db.setTransactionSuccessful();
+
             } finally {
                 db.endTransaction();
                 db.close();

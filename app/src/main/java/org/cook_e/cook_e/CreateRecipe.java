@@ -53,22 +53,6 @@ public class CreateRecipe extends AppCompatActivity {
     private static final String KEY_RECIPE_IMAGE = CreateRecipe.class.getName() + ".RECIPE_IMAGE";
 
     /**
-     * Result code used when requesting images
-     */
-    private static int RESULT_LOAD_IMAGE = 42;
-
-    /**
-     * The image view that displays the recipe image
-     */
-    private ImageView mImageView;
-
-    /**
-     * The user-selected image for the new recipe, or null if none has been selected
-     */
-    @Nullable
-    private Bitmap mRecipeImage = null;
-
-    /**
      * Text field for title
      */
     private EditText mTitleField;
@@ -87,11 +71,6 @@ public class CreateRecipe extends AppCompatActivity {
 
         setUpActionBar();
 
-        // Image view
-        mImageView = (ImageView) findViewById(R.id.recipe_image_view);
-        // Hide by default, until an image is selected
-        mImageView.setVisibility(View.GONE);
-
         mTitleField = (EditText) findViewById(R.id.title_field);
         mAuthorField = (EditText) findViewById(R.id.author_field);
 
@@ -103,23 +82,6 @@ public class CreateRecipe extends AppCompatActivity {
                 continueCreatingRecipe();
             }
         });
-
-        // Check for restored state
-        if (savedInstanceState != null && savedInstanceState.containsKey(KEY_RECIPE_IMAGE)) {
-            final Bitmap restoredImage = savedInstanceState.getParcelable(KEY_RECIPE_IMAGE);
-            if (restoredImage != null) {
-                mImageView.setImageBitmap(restoredImage);
-                mImageView.setVisibility(View.VISIBLE);
-                mRecipeImage = restoredImage;
-            }
-        }
-    }
-
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        // Write the selected image
-        outState.putParcelable(KEY_RECIPE_IMAGE, mRecipeImage);
     }
 
     private void continueCreatingRecipe() {
@@ -135,7 +97,6 @@ public class CreateRecipe extends AppCompatActivity {
         }
         // Create a recipe
         final Recipe recipe = new Recipe(title, author, Collections.<Step>emptyList());
-        recipe.setImage(mRecipeImage);
 
         // Store the recipe
         try {
@@ -181,55 +142,6 @@ public class CreateRecipe extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
         getMenuInflater().inflate(R.menu.create_recipe, menu);
-
-        final MenuItem addImageItem = menu.findItem(R.id.item_add_image);
-        addImageItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                requestImageSelect();
-                return true;
-            }
-        });
-
-        final MenuItem removeImageItem = menu.findItem(R.id.item_remove_image);
-        removeImageItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                mRecipeImage = null;
-                mImageView.setImageDrawable(null);
-                mImageView.setVisibility(View.GONE);
-                return true;
-            }
-        });
-
         return true;
-    }
-
-    /**
-     * Starts an activity to ask the user to select an image
-     */
-    private void requestImageSelect() {
-        Bitmaps.requestImageSelection(this, RESULT_LOAD_IMAGE);
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        // Check for a received image
-        if (requestCode == RESULT_LOAD_IMAGE && resultCode == RESULT_OK && data != null) {
-            final Bitmap loadedImage = Bitmaps.bitmapFromResult(this, data);
-            if (loadedImage != null) {
-                mImageView.setImageBitmap(loadedImage);
-                mImageView.setVisibility(View.VISIBLE);
-                mRecipeImage = loadedImage;
-            }
-            else {
-                new AlertDialog.Builder(this)
-                        .setTitle(R.string.could_not_access_image)
-                        .setMessage(R.string.could_not_access_image_explanation)
-                        .setPositiveButton(android.R.string.ok, null)
-                        .show();
-            }
-        }
     }
 }

@@ -44,7 +44,7 @@ public class App extends Application {
      * The application context
      */
     private static Context context;
-
+    private static final int DISPLAY_LIMIT = 10;
     /**
      * The storage accessor used to access data
      */
@@ -82,5 +82,8 @@ public class App extends Application {
             throw new IllegalStateException("Application not yet created");
         }
         return mAccessor;
+    }
+    public static int getDisplayLimit() {
+        return DISPLAY_LIMIT;
     }
 }

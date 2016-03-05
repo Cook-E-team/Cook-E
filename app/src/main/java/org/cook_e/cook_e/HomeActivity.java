@@ -123,7 +123,9 @@ public class HomeActivity extends AppCompatActivity {
         mPageAdapter.getRecipeList().reloadRecipes();
         mPageAdapter.getMealList().reloadMeals();
     }
-
+    /*
+     * Sets up the action bar
+     */
     private void setUpActionBar() {
         final ActionBar bar = getSupportActionBar();
         assert bar != null;
@@ -164,6 +166,15 @@ public class HomeActivity extends AppCompatActivity {
             public boolean onMenuItemClick(MenuItem item) {
                 final Intent intent = new Intent(HomeActivity.this, BugReportActivity.class);
                 startActivity(intent);
+                return true;
+            }
+        });
+
+        final MenuItem settingsItem = menu.findItem(R.id.menu_settings);
+        settingsItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                startActivity(new Intent(HomeActivity.this, SettingsActivity.class));
                 return true;
             }
         });

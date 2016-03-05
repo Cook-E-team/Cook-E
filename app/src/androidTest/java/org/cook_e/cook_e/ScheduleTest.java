@@ -39,12 +39,12 @@ import static org.junit.Assert.assertEquals;
 public class ScheduleTest {
     public List<String> ingre = new ArrayList<>();
     public final Step fiveNonSimul = new Step(ingre, "t1", Duration.standardMinutes(5), false, 0);
-    public final Step tenNonSimul = new Step(ingre, "t1", Duration.standardMinutes(10), false, 1);
-    public final Step sevenNonSimul = new Step(ingre, "t1", Duration.standardMinutes(7), false, 2);
+    public final Step tenNonSimul = new Step(ingre, "t2", Duration.standardMinutes(10), false, 1);
+    public final Step sevenNonSimul = new Step(ingre, "t3", Duration.standardMinutes(7), false, 2);
 
-    public final Step fiveSimul = new Step(ingre, "t1", Duration.standardMinutes(5), true, 0);
-    public final Step tenSimul = new Step(ingre, "t1", Duration.standardMinutes(10), true, 1);
-    public final Step sevenSimul = new Step(ingre, "t1", Duration.standardMinutes(7), true, 2);
+    public final Step fiveSimul = new Step(ingre, "t4", Duration.standardMinutes(5), true, 0);
+    public final Step tenSimul = new Step(ingre, "t5", Duration.standardMinutes(10), true, 1);
+    public final Step sevenSimul = new Step(ingre, "t6", Duration.standardMinutes(7), true, 2);
     private StorageAccessor sA = App.getAccessor();
 
     @Test(expected = NullPointerException.class)
@@ -150,7 +150,7 @@ public class ScheduleTest {
         steps.add(tenNonSimul);
         steps.add(tenNonSimul);
         for(int i = 0; i < sched.getStepCount(); i++) {
-            if (i == 4)
+            if (i == 1)
                 sched.finishSimultaneousStepFromRecipe(recipe10N10);
             else if (i == 5)
                 sched.finishSimultaneousStepFromRecipe(recipeN5Y10);
@@ -158,6 +158,23 @@ public class ScheduleTest {
             assertEquals(steps.get(i),
                     sched.getNextStep());
         }
+    }
+
+    @Test
+    public void testScheduleSimulBlock() throws SQLException  {
+        List<Step> steps = new ArrayList<>();
+        steps.add(tenSimul);
+        steps.add(tenNonSimul);
+        Recipe recipe10N10 = new Recipe("10N10", "test", steps);
+        List<Recipe> recipies = new ArrayList<>();
+        recipies.add(recipe10N10);
+        Bunch bunch = new Bunch("test", recipies);
+        Schedule sched = new Schedule(bunch, new TimeLearner(sA, bunch));
+        assertEquals(2, sched.getStepCount());
+
+        assertEquals(tenSimul, sched.getNextStep());
+        assertEquals(null, sched.getNextStep());
+        assertEquals(0, sched.getCurrStepIndex());
     }
 
     @Test
@@ -206,6 +223,28 @@ public class ScheduleTest {
         assertEquals(1, sched.getMaxVisitedStepIndex());
     }
 
+
+    @Test
+    public void testGetCurrentStep() throws SQLException  {
+        List<Step> steps1 = new ArrayList<>();
+        steps1.add(fiveNonSimul);
+        Recipe recipe1 = new Recipe("r1", "test", steps1);
+        List<Step> steps2 = new ArrayList<>();
+        steps2.add(fiveSimul);
+        Recipe recipe2 = new Recipe("r2", "test", steps2);
+        List<Recipe> recipies = new ArrayList<>();
+        recipies.add(recipe1);
+        recipies.add(recipe2);
+        Bunch bunch = new Bunch("test", recipies);
+        Schedule sched = new Schedule(bunch, new TimeLearner(sA, bunch));
+
+        assertEquals(null, sched.getCurrStep());
+        sched.getNextStep();
+        assertEquals(fiveSimul, sched.getCurrStep());
+        sched.getNextStep();
+        assertEquals(fiveNonSimul, sched.getCurrStep());
+    }
+
     @Test
     public void testGetCurrentStepRecipe() throws SQLException  {
         List<Step> steps1 = new ArrayList<>();
@@ -220,6 +259,7 @@ public class ScheduleTest {
         Bunch bunch = new Bunch("test", recipies);
         Schedule sched = new Schedule(bunch, new TimeLearner(sA, bunch));
 
+        assertEquals(null, sched.getCurrentStepRecipe());
         sched.getNextStep();
         assertEquals(recipe2, sched.getCurrentStepRecipe());
         sched.getNextStep();

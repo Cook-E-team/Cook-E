@@ -20,6 +20,7 @@
 package org.cook_e.data;
 
 import android.content.Context;
+import android.util.Pair;
 
 
 import java.io.Closeable;
@@ -54,6 +55,23 @@ public class StorageAccessor implements Closeable {
     private SQLAccessor mExternal;
 
     /**
+     * Map used to cache recipes
+     * maps id to recipe
+     */
+    private Map<String, Recipe> mRecipeBuffer;
+
+
+    /**
+     * Map used to cache bunches
+     * maps id to bunch
+     */
+    private Map<String, Bunch> mBunchBuffer;
+
+    /**
+     * constant size limit for the buffers
+     */
+    private static final int BUFFER_LIMIT = 10;
+    /**
      * Constructor
      * @param c Context of the activity that wants to store/retrieve data
      */
@@ -61,6 +79,8 @@ public class StorageAccessor implements Closeable {
         final StorageParser parser = new StorageParser();
         mLocal = new SQLiteAccessor(c, parser);
         mExternal = new SQLServerAccessor(parser);
+        mRecipeBuffer = new HashMap<>();
+        mBunchBuffer = new HashMap<>();
     }
 
     /**
@@ -74,6 +94,7 @@ public class StorageAccessor implements Closeable {
             throw new IllegalArgumentException("Recipe has already been stored");
         }
         mLocal.storeRecipe(r);
+        updateRecipeBuffer(r);
     }
 
     /**
@@ -96,7 +117,11 @@ public class StorageAccessor implements Closeable {
      * @throws SQLException
      */
     public List<Recipe> loadRecipes(String keyword) throws SQLException {
-       return mExternal.findRecipesLike(keyword);
+        List<Recipe> recipes = mExternal.findRecipesLike(keyword);
+
+
+
+        return recipes;
     }
     /**
      * Retrieve a recipe from storage
@@ -130,15 +155,12 @@ public class StorageAccessor implements Closeable {
     /**
      * Retrieve all recipes from storage
      *
-     * If a recipe appears in both the local database and remote database, only one of the two
-     * recipes will be returned.
-     *
      * @return List of Recipe objects
      */
-    public List<Recipe> loadAllRecipes() throws SQLException {
+    public List<Recipe> loadAllRecipes(int limit) throws SQLException {
         final Set<Recipe> recipeSet = new HashSet<>();
-        recipeSet.addAll(mLocal.loadAllRecipes());
-        recipeSet.addAll(mExternal.loadAllRecipes());
+        recipeSet.addAll(mLocal.loadAllRecipes(limit));
+        //recipeSet.addAll(mExternal.loadAllRecipes());
         return new ArrayList<>(recipeSet);
     }
 
@@ -146,8 +168,8 @@ public class StorageAccessor implements Closeable {
      * Retrieve all bunches from storage
      * @return List of Bunch objects
      */
-    public List<Bunch> loadAllBunches() throws SQLException {
-        return mLocal.loadAllBunches();
+    public List<Bunch> loadAllBunches(int limit) throws SQLException {
+        return mLocal.loadAllBunches(limit);
     }
     /**
      * Update a recipe on the local database
@@ -240,24 +262,64 @@ public class StorageAccessor implements Closeable {
         return mLocal.containsRecipe(id);
     }
 
+    /**
+     * Store the leanrner data into the local dataabase
+     * @param r Recipe related to the learner
+     * @param weights Learning weights
+     * @throws SQLException
+     */
     public void storeLearnerData(Recipe r, Collection<LearningWeight> weights) throws SQLException {
         mLocal.storeLearnerData(r, weights);
     }
+
+    /**
+     * Load learner data for a specific recipe.
+     * @param r the recipe of concern
+     * @return the loaded learner data for the recipe passed in
+     * @throws SQLException
+     */
     public List<LearningWeight> loadLearnerData(Recipe r) throws SQLException {
         return mLocal.loadLearnerData(r);
     }
+
+    /**
+     * Update learner data for a recipe
+     * @param r Recipe to update learner data for
+     * @param weight LearningWeight that is the updated data
+     * @throws SQLException if an error occurs
+     */
     public void updateLearnerData(Recipe r, LearningWeight weight) throws SQLException {
         mLocal.updateLearnerData(r, weight);
     }
+
+    /**
+     * Warning, this deletes all learner data from the database
+     * @throws SQLException if an error occurs
+     */
     public void deleteLearnerData() throws SQLException {
         mLocal.deleteLearnerData();
     }
+
+    /**
+     * Loads learner data for a bunch
+     * @param b Bunch to load learner data for
+     * @return Map of recipe ids to LearningWeights
+     * @throws SQLException
+     */
     public Map<Long, List<LearningWeight>> loadLearnerData(Bunch b) throws SQLException {
         Map<Long, List<LearningWeight>> result = new HashMap<>();
         for (Recipe r : b.getRecipes()) {
             result.put(r.getObjectId(), loadLearnerData(r));
         }
         return result;
+    }
+
+    /**
+     * Helper that updates the recipe buffer, adhering to size constraints
+     * @param r
+     */
+    private void updateRecipeBuffer(Recipe r) {
+
     }
     @Override
     public void close() throws IOException {

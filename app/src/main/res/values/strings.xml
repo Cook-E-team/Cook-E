@@ -114,4 +114,14 @@ jTDS (http://jtds.sourceforge.net/ ) is distributed in accordance with the GNU L
     <string name="mail_report">Mail report</string>
     <string name="could_not_access_image">Could not access image</string>
     <string name="could_not_access_image_explanation">Please ensure that the selected image is valid and accessible.</string>
+    <string name="ok">OK</string>
+    <string name="meal_completed">Meal Completed</string>
+    <string name="reset">Reset</string>
+    <string name="reset_durations">Reset durations</string>
+    <string name="success_durations_reset">Durations reset</string>
+    <string name="question_reset_durations">Reset durations?</string>
+    <string name="failed_to_reset_durations">Failed to reset durations</string>
+    <string name="explanation_reset_durations">Resetting durations will delete what Cook-E has learned about how long you take to cook.</string>
+
+
 </resources>
