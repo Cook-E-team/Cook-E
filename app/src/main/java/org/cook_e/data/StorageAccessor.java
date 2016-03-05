@@ -118,10 +118,7 @@ public class StorageAccessor implements Closeable {
      */
     public List<Recipe> loadRecipes(String keyword) throws SQLException {
         List<Recipe> recipes = mExternal.findRecipesLike(keyword);
-        for (Recipe r: recipes) {
-            mLocal.storeRecipe(r);
-            mRecipeBuffer.put(r.getTitle(), r);
-        }
+
 
 
         return recipes;

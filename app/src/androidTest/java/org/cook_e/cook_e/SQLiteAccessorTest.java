@@ -237,7 +237,7 @@ public class SQLiteAccessorTest {
         mAccessor.checkInvariants();
         mAccessor.storeRecipe(r2);
         mAccessor.checkInvariants();
-        List<Recipe> result = mAccessor.loadAllRecipes();
+        List<Recipe> result = mAccessor.loadAllRecipes(2);
         mAccessor.checkInvariants();
         assertEquals(expected, result);
     }
@@ -265,7 +265,7 @@ public class SQLiteAccessorTest {
         mAccessor.checkInvariants();
         mAccessor.storeBunch(b2);
         mAccessor.checkInvariants();
-        List<Bunch> result = mAccessor.loadAllBunches();
+        List<Bunch> result = mAccessor.loadAllBunches(2);
         mAccessor.checkInvariants();
         assertEquals(expected, result);
     }

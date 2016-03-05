@@ -20,6 +20,7 @@
 package org.cook_e.cook_e;
 
 
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.databinding.ObservableArrayList;
 import android.os.Bundle;
@@ -36,9 +37,12 @@ import org.cook_e.data.Bunch;
 import org.cook_e.data.Objects;
 import org.cook_e.data.Recipe;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 /**
  * An activity that displays a list of recipes and allows the user to add one or more of them
@@ -124,23 +128,21 @@ public class MealRecipeAddActivity extends AppCompatActivity {
         adapter.setAddListener(new RecipeAddListAdapter.RecipeAddListener() {
             @Override
             public void recipeAddRequested(Recipe recipe) {
-                // Verify that the added recipe is actually in the recipe list
-                if (BuildConfig.DEBUG) {
-                    boolean found = false;
-                    for (Recipe existingRecipe : mRecipes) {
-                        if (existingRecipe.equals(recipe)) {
-                            found = true;
-                        }
-                    }
-                    if (!found) {
-                        throw new IllegalArgumentException(
-                                "The recipe added by the user is not in the recipe list");
-                    }
-                }
+
                 Log.d(TAG, "Added recipe " + recipe);
                 // Add to list of recipes to add
                 if (!mSelectedRecipes.contains(recipe)) {
                     mSelectedRecipes.add(recipe);
+                    try {
+                        if (!App.getAccessor().containsLocalRecipe(recipe.getObjectId())) {
+                            App.getAccessor().storeRecipe(recipe);
+                        }
+                    } catch (SQLException e) {
+                        new AlertDialog.Builder(MealRecipeAddActivity.this)
+                                .setTitle("Failed to process recipe")
+                                .setMessage(e.getLocalizedMessage())
+                                .show();
+                    }
                 }
                 updateResult();
             }
@@ -232,17 +234,32 @@ public class MealRecipeAddActivity extends AppCompatActivity {
         @Override
         public boolean onQueryTextSubmit(String query) {
             // Do nothing more
+            searchRecipes();
+            updateVisibleMeals();
 
             return true;
         }
 
         @Override
         public boolean onQueryTextChange(String newText) {
-            updateVisibleMeals();
             return true;
         }
     }
+    private void searchRecipes() {
+        final String query = mSearchView.getQuery().toString();
+        Set<Recipe> recipeSet = new HashSet<>();
+        recipeSet.addAll(mRecipes);
+        List<Recipe> recipes = null;
 
+        try {
+            recipes = App.getAccessor().loadRecipes(query);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        recipeSet.addAll(recipes);
+        mRecipes.clear();
+        mRecipes.addAll(recipeSet);
+    }
     /**
      * Update the meals shown on screen.
      * Shows filtered meals if the user types in the search bar or shows all the meals if nothing is entered

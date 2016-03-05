@@ -276,9 +276,12 @@ public class EditRecipeActivity extends AppCompatActivity
     private void deleteRecipe() {
         try {
             App.getAccessor().deleteRecipe(mRecipe);
+
             String imageLink = mRecipe.getImageLink();
-            File imageFile = new File(imageLink);
-            imageFile.delete();
+            if (imageLink != null) {
+                File imageFile = new File(imageLink);
+                imageFile.delete();
+            }
             finish();
         } catch (SQLException e) {
             new AlertDialog.Builder(this)
