@@ -46,6 +46,7 @@ import org.cook_e.data.Bitmaps;
 import org.cook_e.data.Recipe;
 import org.cook_e.data.Step;
 
+import java.io.File;
 import java.sql.SQLException;
 
 /**
@@ -275,6 +276,9 @@ public class EditRecipeActivity extends AppCompatActivity
     private void deleteRecipe() {
         try {
             App.getAccessor().deleteRecipe(mRecipe);
+            String imageLink = mRecipe.getImageLink();
+            File imageFile = new File(imageLink);
+            imageFile.delete();
             finish();
         } catch (SQLException e) {
             new AlertDialog.Builder(this)

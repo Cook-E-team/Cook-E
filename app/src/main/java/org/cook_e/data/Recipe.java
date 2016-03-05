@@ -275,23 +275,27 @@ public final class Recipe extends DatabaseObject implements Parcelable {
                 Log.w(TAG, "Failed to compress image");
                 mImage = null;
             }
-            final long crc = crcStream.getCrc();
-            final String fileName = Long.toHexString(crc) + ".png";
+            //final long crc = crcStream.getCrc();
+            //final String fileName = Long.toHexString(crc) + ".png";
+            final String fileName = getObjectId() + ".png";
             final File imageFile = new File(App.getAppContext().getFilesDir().getAbsolutePath() + "/" + fileName);
-            if (!imageFile.exists()) {
-                // Write the file
+
+            if (imageFile.exists()) {
+                imageFile.delete();
+            }
+
+            // Write the file
+            try {
+                final FileOutputStream writer = new FileOutputStream(imageFile);
                 try {
-                    final FileOutputStream writer = new FileOutputStream(imageFile);
-                    try {
-                        writer.write(imageBytes.toByteArray());
-                        mImageLink = imageFile.getAbsolutePath();
-                    } finally {
-                        writer.close();
-                    }
-                } catch (IOException e) {
-                    Log.w(TAG, "Failed to write image", e);
-                    mImage = null;
+                    writer.write(imageBytes.toByteArray());
+                    mImageLink = imageFile.getAbsolutePath();
+                } finally {
+                    writer.close();
                 }
+            } catch (IOException e) {
+                Log.w(TAG, "Failed to write image", e);
+                mImage = null;
             }
         } else {
             mImage = null;
