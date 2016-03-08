@@ -52,6 +52,7 @@ android {
         // application does not appear to actually use those classes, so the
         // error is suppressed here.
         disable 'InvalidPackage'
+        disable 'GoogleAppIndexingWarning'
     }
     productFlavors {
     }
