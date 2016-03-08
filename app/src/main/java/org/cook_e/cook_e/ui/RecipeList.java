@@ -23,9 +23,7 @@ import android.app.AlertDialog;
 import android.app.Fragment;
 import android.content.Intent;
 import android.databinding.ObservableArrayList;
-import android.databinding.ObservableList;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -40,10 +38,8 @@ import org.cook_e.cook_e.R;
 import org.cook_e.data.Recipe;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Set;
 
 /**
@@ -58,10 +54,8 @@ public class RecipeList extends Fragment {
     private ObservableArrayList<Recipe> mRecipes;
 
     /**
-     * The recipes visible in the list
-     * (may be a subset of {@link #mRecipes} if the user has entered a search query
+     * The search view in which the user enters queries
      */
-    private ObservableArrayList<Recipe> mVisibleRecipes;
     private SearchView mSearchView;
 
     @Override
@@ -70,13 +64,11 @@ public class RecipeList extends Fragment {
 
         try {
             mRecipes = new ObservableArrayList<>();
-            mVisibleRecipes = new ObservableArrayList<>();
             mRecipes.addAll(App.getAccessor().loadAllRecipes(App.getDisplayLimit()));
-            mVisibleRecipes.addAll(mRecipes);
 
         } catch (SQLException e) {
             new AlertDialog.Builder(getActivity())
-                    .setTitle("Failed to load recipes")
+                    .setTitle(R.string.message_failed_to_load)
                     .setMessage(e.getLocalizedMessage())
                     .show();
             Log.e(TAG, "Failed to load recipes", e);
@@ -89,7 +81,7 @@ public class RecipeList extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_home_list, container, false);
         final ListView recipeList = (ListView) view.findViewById(R.id.list_view);
-        recipeList.setAdapter(new RecipeListAdapter(getActivity(), mVisibleRecipes));
+        recipeList.setAdapter(new RecipeListAdapter(getActivity(), mRecipes));
         // Configure list for testing
         recipeList.setTag(R.id.test_tag_recipe_list, "Recipe List");
         
@@ -100,15 +92,12 @@ public class RecipeList extends Fragment {
         // Empty view, shown when list is empty
         final TextView emptyView = (TextView) view.findViewById(R.id.empty_list_view);
         emptyView.setText(R.string.no_recipes);
-        if (mVisibleRecipes.isEmpty()) {
+        if (mRecipes.isEmpty()) {
             emptyView.setVisibility(View.VISIBLE);
         } else {
             emptyView.setVisibility(View.INVISIBLE);
         }
-        mVisibleRecipes.addOnListChangedCallback(new ListEmptyViewManager(emptyView));
-
-        // Update mVisibleRecipes when mRecipes changes
-        mRecipes.addOnListChangedCallback(new VisibleRecipeUpdater<Recipe>());
+        mRecipes.addOnListChangedCallback(new ListEmptyViewManager(emptyView));
 
         return view;
     }
@@ -129,48 +118,20 @@ public class RecipeList extends Fragment {
      * Calls accessor to search for recipes based on query
      */
     private void searchRecipes() {
-        final String query = mSearchView.getQuery().toString();
-        Set<Recipe> recipeSet = new HashSet<>();
-        recipeSet.addAll(mRecipes);
-        List<Recipe> recipes = null;
-
         try {
-            recipes = App.getAccessor().loadRecipes(query);
+            final String query = mSearchView.getQuery().toString();
+            Set<Recipe> recipeSet = new HashSet<>();
+            recipeSet.addAll(mRecipes);
+            List<Recipe> recipes = App.getAccessor().loadRecipes(query);
+            recipeSet.addAll(recipes);
+            mRecipes.clear();
+            mRecipes.addAll(recipeSet);
         } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        recipeSet.addAll(recipes);
-        mRecipes.clear();
-        mRecipes.addAll(recipeSet);
-    }
-    /**
-     * Updates mVisibleRecipes with recipes from mRecipes based on the current search query
-     */
-    private void updateVisibleRecipes() {
-        final String query = mSearchView.getQuery().toString();
-        // Make all recipes visible
-
-        mVisibleRecipes.clear();
-        if (!query.isEmpty()) {
-            final List<Recipe> filteredRecipes = new ArrayList<>();
-            // Limit mVisibleRecipes to the meals whose titles contain the query
-            // Case insensitive
-            final String lowerQuery = query.toLowerCase(Locale.getDefault());
-
-            for (Recipe recipe : mRecipes) {
-                final String lowerTitle = recipe.getTitle().toLowerCase(Locale.getDefault());
-                if (lowerTitle.contains(lowerQuery)) {
-                    filteredRecipes.add(recipe);
-                }
-            }
-            Set<Recipe> recipeSet = new HashSet<>(filteredRecipes);
-
-
-            mVisibleRecipes.addAll(recipeSet);
-        } else {
-            // Empty query
-            mVisibleRecipes.clear();
-            mVisibleRecipes.addAll(mRecipes);
+            new AlertDialog.Builder(getActivity())
+                    .setTitle(R.string.message_failed_to_load)
+                    .setMessage(e.getLocalizedMessage())
+                    .show();
+            Log.e(TAG, "Failed to load recipes", e);
         }
     }
 
@@ -201,47 +162,12 @@ public class RecipeList extends Fragment {
         public boolean onQueryTextSubmit(String query) {
             // Do nothing more
             searchRecipes();
-            updateVisibleRecipes();
-
             return true;
         }
 
         @Override
         public boolean onQueryTextChange(String newText) {
-
             return true;
-        }
-    }
-
-    /**
-     * Calls {@link #updateVisibleRecipes()} when the associated list changes
-     * @param <T> the value type
-     */
-    private class VisibleRecipeUpdater<T> extends ObservableList.OnListChangedCallback<ObservableList<T>> {
-
-        @Override
-        public void onChanged(ObservableList<T> sender) {
-            updateVisibleRecipes();
-        }
-
-        @Override
-        public void onItemRangeChanged(ObservableList<T> sender, int positionStart, int itemCount) {
-            updateVisibleRecipes();
-        }
-
-        @Override
-        public void onItemRangeInserted(ObservableList<T> sender, int positionStart, int itemCount) {
-            updateVisibleRecipes();
-        }
-
-        @Override
-        public void onItemRangeMoved(ObservableList<T> sender, int fromPosition, int toPosition, int itemCount) {
-            updateVisibleRecipes();
-        }
-
-        @Override
-        public void onItemRangeRemoved(ObservableList<T> sender, int positionStart, int itemCount) {
-            updateVisibleRecipes();
         }
     }
 }

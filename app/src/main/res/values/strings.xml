@@ -114,4 +114,5 @@ jTDS (http://jtds.sourceforge.net/ ) is distributed in accordance with the GNU L
     <string name="format_ingredients">Ingredients: %s</string>
     <string name="format_description">Description: %s</string>
     <string name="placeholder_step_title">Step Title</string>
+    <string name="message_failed_to_load">Failed to load</string>
 </resources>
