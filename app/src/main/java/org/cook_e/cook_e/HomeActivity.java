@@ -101,7 +101,7 @@ public class HomeActivity extends AppCompatActivity {
         mPageAdapter = new HomePageAdapter(getFragmentManager());
         mViewPager.setAdapter(mPageAdapter);
 
-        // Set up add button for recipes/meals
+        // Set up add nextButton for recipes/meals
         final FloatingActionButton addButton = (FloatingActionButton) findViewById(R.id.add_button);
         addButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -138,6 +138,16 @@ public class HomeActivity extends AppCompatActivity {
         super.onCreateOptionsMenu(menu);
 
         getMenuInflater().inflate(R.menu.topright_menu, menu);
+
+        final MenuItem tutorialItem = menu.findItem(R.id.menu_tutorial);
+        tutorialItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                final Intent intent = new Intent(HomeActivity.this, TutorialActivity.class);
+                startActivity(intent);
+                return true;
+            }
+        });
 
         final MenuItem aboutItem = menu.findItem(R.id.menu_about);
         aboutItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {

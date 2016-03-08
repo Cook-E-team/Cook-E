@@ -41,8 +41,10 @@ import org.cook_e.data.Recipe;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 /**
  * A fragment that displays a list of recipes
@@ -69,7 +71,7 @@ public class RecipeList extends Fragment {
         try {
             mRecipes = new ObservableArrayList<>();
             mVisibleRecipes = new ObservableArrayList<>();
-            mRecipes.addAll(App.getAccessor().loadAllRecipes());
+            mRecipes.addAll(App.getAccessor().loadAllRecipes(App.getDisplayLimit()));
             mVisibleRecipes.addAll(mRecipes);
 
         } catch (SQLException e) {
@@ -123,11 +125,31 @@ public class RecipeList extends Fragment {
     }
 
     /**
+     * Called from search handler when user submits query
+     * Calls accessor to search for recipes based on query
+     */
+    private void searchRecipes() {
+        final String query = mSearchView.getQuery().toString();
+        Set<Recipe> recipeSet = new HashSet<>();
+        recipeSet.addAll(mRecipes);
+        List<Recipe> recipes = null;
+
+        try {
+            recipes = App.getAccessor().loadRecipes(query);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        recipeSet.addAll(recipes);
+        mRecipes.clear();
+        mRecipes.addAll(recipeSet);
+    }
+    /**
      * Updates mVisibleRecipes with recipes from mRecipes based on the current search query
      */
     private void updateVisibleRecipes() {
         final String query = mSearchView.getQuery().toString();
         // Make all recipes visible
+
         mVisibleRecipes.clear();
         if (!query.isEmpty()) {
             final List<Recipe> filteredRecipes = new ArrayList<>();
@@ -141,9 +163,13 @@ public class RecipeList extends Fragment {
                     filteredRecipes.add(recipe);
                 }
             }
-            mVisibleRecipes.addAll(filteredRecipes);
+            Set<Recipe> recipeSet = new HashSet<>(filteredRecipes);
+
+
+            mVisibleRecipes.addAll(recipeSet);
         } else {
             // Empty query
+            mVisibleRecipes.clear();
             mVisibleRecipes.addAll(mRecipes);
         }
     }
@@ -157,7 +183,7 @@ public class RecipeList extends Fragment {
         if (mRecipes != null) {
             mRecipes.clear();
             try {
-                mRecipes.addAll(App.getAccessor().loadAllRecipes());
+                mRecipes.addAll(App.getAccessor().loadAllRecipes(App.getDisplayLimit()));
             } catch (SQLException e) {
                 new AlertDialog.Builder(getActivity())
                         .setTitle("Failed to load recipes")
@@ -174,12 +200,15 @@ public class RecipeList extends Fragment {
         @Override
         public boolean onQueryTextSubmit(String query) {
             // Do nothing more
+            searchRecipes();
+            updateVisibleRecipes();
+
             return true;
         }
 
         @Override
         public boolean onQueryTextChange(String newText) {
-            updateVisibleRecipes();
+
             return true;
         }
     }

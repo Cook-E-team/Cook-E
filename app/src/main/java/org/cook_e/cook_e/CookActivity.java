@@ -183,10 +183,10 @@ public class CookActivity extends AppCompatActivity implements TimerFragment.Ste
                             "\nOptimized: " + mSchedule.mOptimizedEstimatedTime + " min." +
                             "\n\nActual: " + cookDuration.getStandardMinutes() + " min.";
                     new AlertDialog.Builder(this)
-                            .setTitle(R.string.done)
+                            .setTitle(R.string.meal_completed)
                             .setMessage(exitMessage)
                             .setCancelable(false)
-                            .setNeutralButton(R.string.exit, new DialogInterface.OnClickListener() {
+                            .setNeutralButton(R.string.ok, new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
                                     finish();

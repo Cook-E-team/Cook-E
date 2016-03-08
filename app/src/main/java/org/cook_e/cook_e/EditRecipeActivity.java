@@ -46,6 +46,7 @@ import org.cook_e.data.Bitmaps;
 import org.cook_e.data.Recipe;
 import org.cook_e.data.Step;
 
+import java.io.File;
 import java.sql.SQLException;
 
 /**
@@ -98,7 +99,7 @@ public class EditRecipeActivity extends AppCompatActivity
     private TextView mAuthorView;
 
     /**
-     * Image button that displays the recipe image
+     * Image nextButton that displays the recipe image
      */
     private ImageButton mImageButton;
 
@@ -275,6 +276,12 @@ public class EditRecipeActivity extends AppCompatActivity
     private void deleteRecipe() {
         try {
             App.getAccessor().deleteRecipe(mRecipe);
+
+            String imageLink = mRecipe.getImageLink();
+            if (imageLink != null) {
+                File imageFile = new File(imageLink);
+                imageFile.delete();
+            }
             finish();
         } catch (SQLException e) {
             new AlertDialog.Builder(this)
@@ -310,9 +317,9 @@ public class EditRecipeActivity extends AppCompatActivity
     /*
      * This is a workaround for inconsistent behavior.
      *
-     * Pressing the system back button or calling finish() returns a result to the parent activity,
-     * as expected. However, the default action when the up button is pressed does not send a result
-     * to the parent. This override ensures that a result is sent when the action bar up button is
+     * Pressing the system back nextButton or calling finish() returns a result to the parent activity,
+     * as expected. However, the default action when the up nextButton is pressed does not send a result
+     * to the parent. This override ensures that a result is sent when the action bar up nextButton is
      * pressed.
      */
     @Override

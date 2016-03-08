@@ -71,7 +71,7 @@ public class HomeActivityTest extends ActivityInstrumentationTestCase2<HomeActiv
         super.setUp();
 
         // Ensure a meal is in the database
-        if (App.getAccessor().loadAllBunches().isEmpty()) {
+        if (App.getAccessor().loadAllBunches(2).isEmpty()) {
             App.getAccessor().storeBunch(
                     new Bunch("Meal name", Collections.<Recipe>emptyList()));
         }
