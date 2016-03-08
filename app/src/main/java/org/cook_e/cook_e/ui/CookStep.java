@@ -49,8 +49,8 @@ public class CookStep extends Fragment {
         View view = getView();
         ((TextView) view.findViewById(R.id.textView2)).setText(name);
         String ingredients = step.getIngredients().toString();
-        ((TextView) view.findViewById(R.id.textView3)).setText("Ingredients: " + ingredients.substring(1, ingredients.length() - 1));
-        ((TextView) view.findViewById(R.id.textView4)).setText("Description: " + step.getDescription());
+        ((TextView) view.findViewById(R.id.textView4)).setText(String.format(getResources().getString(R.string.format_description), step.getDescription()));
+        ((TextView) view.findViewById(R.id.textView3)).setText(String.format(getResources().getString(R.string.format_ingredients), ingredients.substring(1, ingredients.length() - 1)));
     }
 
 }

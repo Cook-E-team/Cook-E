@@ -122,6 +122,6 @@ jTDS (http://jtds.sourceforge.net/ ) is distributed in accordance with the GNU L
     <string name="question_reset_durations">Reset durations?</string>
     <string name="failed_to_reset_durations">Failed to reset durations</string>
     <string name="explanation_reset_durations">Resetting durations will delete what Cook-E has learned about how long you take to cook.</string>
-
-
+    <string name="format_ingredients">Ingredients: %s</string>
+    <string name="format_description">Description: %s</string>
 </resources>
