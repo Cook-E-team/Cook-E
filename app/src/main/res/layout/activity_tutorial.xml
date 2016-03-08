@@ -23,7 +23,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context="org.cook_e.cook_e.AboutActivity">
+    tools:context=".TutorialActivity">
 
     <android.support.v7.widget.Toolbar
         android:id="@+id/toolbar"
@@ -52,13 +52,15 @@
     android:layout_height="wrap_content"
     android:layout_alignParentBottom="true"
     android:orientation="horizontal"
+    style="?android:attr/buttonBarStyle"
     android:id="@+id/buttonWrapper">
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="--------"
+        android:text="@string/previous"
         android:id="@+id/previous"
+        style="@style/Widget.AppCompat.Button.Borderless"
         android:layout_weight="0.5">
 
     </Button>
@@ -67,6 +69,7 @@
         android:layout_height="wrap_content"
         android:text="@string/next"
         android:id="@+id/button"
+        style="@style/Widget.AppCompat.Button.Borderless"
         android:layout_weight="0.5"/>
 
 

@@ -42,8 +42,8 @@ public class TutorialActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 currIndex = Math.max(currIndex - 1, 0);
-                prevButton.setText((currIndex == 0) ? "--------" : "PREVIOUS");
-                nextButton.setText((currIndex == imageIds.length - 1) ? "----" : "NEXT");
+                prevButton.setEnabled(currIndex != 0);
+                nextButton.setEnabled(currIndex != imageIds.length - 1);
                 image.setImageResource(imageIds[currIndex]);
             }
         });
@@ -54,8 +54,8 @@ public class TutorialActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 currIndex = Math.min(currIndex + 1, imageIds.length - 1);
-                prevButton.setText((currIndex == 0) ? "--------" : "PREVIOUS");
-                nextButton.setText((currIndex == imageIds.length - 1) ? "----" : "NEXT");
+                prevButton.setEnabled(currIndex != 0);
+                nextButton.setEnabled(currIndex != imageIds.length - 1);
                 image.setImageResource(imageIds[currIndex]);
             }
         });
