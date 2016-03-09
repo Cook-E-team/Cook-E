@@ -10,5 +10,6 @@
     <inspection_tool class="SystemOutErr" enabled="true" level="ERROR" enabled_by_default="true" />
     <inspection_tool class="ThrowablePrintStackTrace" enabled="true" level="ERROR" enabled_by_default="true" />
     <inspection_tool class="ThrowablePrintedToSystemOut" enabled="true" level="ERROR" enabled_by_default="true" />
+    <inspection_tool class="TryFinallyCanBeTryWithResources" enabled="false" level="WARNING" enabled_by_default="false" />
   </profile>
 </component>

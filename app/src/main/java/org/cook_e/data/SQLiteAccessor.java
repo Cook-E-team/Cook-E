@@ -612,6 +612,7 @@ public class SQLiteAccessor implements SQLAccessor {
                 for (ContentValues cv : learner_cvs) {
                     db.insert(LEARNER_TABLE_NAME, null, cv);
                 }
+                db.setTransactionSuccessful();
             } finally {
                 db.endTransaction();
                 db.close();
@@ -625,7 +626,6 @@ public class SQLiteAccessor implements SQLAccessor {
         SQLiteDatabase db = mHelper.getWritableDatabase();
 
         try {
-            db.beginTransaction();
             ContentValues cv = createContentValues(r, lw);
             String[] whereArgs = {String.valueOf(lw)};
             db.insertWithOnConflict(LEARNER_TABLE_NAME, null, cv, SQLiteDatabase.CONFLICT_REPLACE);
@@ -633,7 +633,6 @@ public class SQLiteAccessor implements SQLAccessor {
         } catch (Exception e) {
             throw new SQLException(e);
         } finally {
-            db.endTransaction();
             db.close();
         }
     }
@@ -643,7 +642,6 @@ public class SQLiteAccessor implements SQLAccessor {
         List<LearningWeight> results = new ArrayList<>();
         try {
             SQLiteDatabase db = mHelper.getWritableDatabase();
-            db.beginTransaction();
             try {
                 String[] whereArgs = {String.valueOf(r.getObjectId())};
                 Cursor c = db.query(LEARNER_TABLE_NAME, LEARNER_COLUMNS, "recipe_id = ?", whereArgs, null, null, null, null);
@@ -660,7 +658,6 @@ public class SQLiteAccessor implements SQLAccessor {
                     c.close();
                 }
             } finally {
-                db.endTransaction();
                 db.close();
             }
         } catch (Exception e) {
@@ -672,7 +669,6 @@ public class SQLiteAccessor implements SQLAccessor {
     public void deleteLearnerData() throws SQLException {
         SQLiteDatabase db = mHelper.getWritableDatabase();
         try {
-            db.beginTransaction();
             db.delete(LEARNER_TABLE_NAME, null, null);
         } finally {
             db.endTransaction();
