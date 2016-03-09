@@ -20,8 +20,8 @@
 package org.cook_e.cook_e;
 
 import android.app.AlertDialog;
+import android.app.AlertDialog.Builder;
 import android.app.FragmentTransaction;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -101,7 +101,10 @@ public class CookActivity extends AppCompatActivity implements TimerFragment.Ste
         try {
             mTimeLearner = new TimeLearner(App.getAccessor(), mBunch);
         } catch (SQLException e) {
-            e.printStackTrace();
+            new AlertDialog.Builder(this)
+                    .setTitle(R.string.message_failed_to_load)
+                    .setMessage(e.getLocalizedMessage())
+                    .show();
         }
         mSchedule = new Schedule(mBunch, mTimeLearner);
 
@@ -162,7 +165,10 @@ public class CookActivity extends AppCompatActivity implements TimerFragment.Ste
                         try {
                             mTimeLearner.learnStep(originalRecipe, originalStep, stepDuration);
                         } catch (SQLException e) {
-                            e.printStackTrace();
+                            new Builder(this)
+                                    .setTitle(R.string.failed_to_learn_time)
+                                    .setMessage(e.getLocalizedMessage())
+                                    .show();
                         }
                     }
                 }
