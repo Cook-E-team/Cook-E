@@ -84,14 +84,14 @@ public class CookingTimeEstimator {
      * @param bunch the group of recipes estimate the cook time of
      * @return the estimated cooking time of cooking one recipe after another
      */
-    public static int getOriginalTime(Bunch bunch) {
+    public static int getOriginalTime(Bunch bunch, TimeLearnerInterface timeLearner) {
         int totalTime = 0;
 
         List<Recipe> recipes = bunch.getRecipes();
         for (Recipe recipe : recipes) {
             List<Step> steps = recipe.getSteps();
             for (Step step : steps) {
-                totalTime += step.getDurationMinutes();
+                totalTime += timeLearner.getEstimatedTime(recipe, step).getStandardMinutes();
             }
         }
 

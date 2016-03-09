@@ -48,45 +48,49 @@ public class CookingTimeEstimatorTest {
     private StorageAccessor sA = App.getAccessor();
 
     @Test
-    public void testOriginalNoRecipes() {
+    public void testOriginalNoRecipes() throws SQLException {
         Bunch bunch = new Bunch();
-        int originalTime = CookingTimeEstimator.getOriginalTime(bunch);
+        TimeLearner tl = new TimeLearner(sA, bunch);
+        int originalTime = CookingTimeEstimator.getOriginalTime(bunch, tl);
         assertEquals(0, originalTime);
     }
 
     @Test
-    public void testOriginalNoSteps() {
+    public void testOriginalNoSteps() throws SQLException {
         Recipe recipe = new Recipe("title", "author", new ArrayList<Step>());
         Bunch bunch = new Bunch();
         bunch.addRecipe(recipe);
-        int originalTime = CookingTimeEstimator.getOriginalTime(bunch);
+        TimeLearner tl = new TimeLearner(sA, bunch);
+        int originalTime = CookingTimeEstimator.getOriginalTime(bunch, tl);
         assertEquals(0, originalTime);
     }
 
     @Test
-    public void testOriginalNonsimultaneousStep() {
+    public void testOriginalNonsimultaneousStep() throws SQLException {
         List<Step> steps = new ArrayList<Step>();
         steps.add(new Step(sampleIngredients, sampleDescription, oneMinuteDuration, false, 0));
         Recipe recipe = new Recipe("title", "author", steps);
         Bunch bunch = new Bunch();
         bunch.addRecipe(recipe);
-        int originalTime = CookingTimeEstimator.getOriginalTime(bunch);
+        TimeLearner tl = new TimeLearner(sA, bunch);
+        int originalTime = CookingTimeEstimator.getOriginalTime(bunch, tl);
         assertEquals(1, originalTime);
     }
 
     @Test
-    public void testOriginalSimultaneousStep() {
+    public void testOriginalSimultaneousStep() throws SQLException {
         List<Step> steps = new ArrayList<Step>();
         steps.add(new Step(sampleIngredients, sampleDescription, oneMinuteDuration, true, 0));
         Recipe recipe = new Recipe("title", "author", steps);
         Bunch bunch = new Bunch();
         bunch.addRecipe(recipe);
-        int originalTime = CookingTimeEstimator.getOriginalTime(bunch);
+        TimeLearner tl = new TimeLearner(sA, bunch);
+        int originalTime = CookingTimeEstimator.getOriginalTime(bunch, tl);
         assertEquals(1, originalTime);
     }
 
     @Test
-    public void testOriginalMultipleSteps() {
+    public void testOriginalMultipleSteps() throws SQLException {
         List<Step> steps = new ArrayList<Step>();
         steps.add(new Step(sampleIngredients, sampleDescription, oneMinuteDuration, false, 0));
         steps.add(new Step(sampleIngredients, sampleDescription, oneMinuteDuration, true, 1));
@@ -94,22 +98,24 @@ public class CookingTimeEstimatorTest {
         Recipe recipe = new Recipe("title", "author", steps);
         Bunch bunch = new Bunch();
         bunch.addRecipe(recipe);
-        int originalTime = CookingTimeEstimator.getOriginalTime(bunch);
+        TimeLearner tl = new TimeLearner(sA, bunch);
+        int originalTime = CookingTimeEstimator.getOriginalTime(bunch, tl);
         assertEquals(4, originalTime);
     }
 
     @Test
-    public void testOriginalMultipleRecipes() {
+    public void testOriginalMultipleRecipes() throws SQLException {
         List<Step> steps1 = new ArrayList<Step>();
         steps1.add(new Step(sampleIngredients, sampleDescription, oneMinuteDuration, false, 0));
         Recipe recipe1 = new Recipe("title", "author", steps1);
         List<Step> steps2 = new ArrayList<Step>();
-        steps2.add(new Step(sampleIngredients, sampleDescription, oneMinuteDuration, true, 1));
+        steps2.add(new Step(sampleIngredients, sampleDescription, oneMinuteDuration, true, 0));
         Recipe recipe2 = new Recipe("title", "author", steps2);
         Bunch bunch = new Bunch();
         bunch.addRecipe(recipe1);
         bunch.addRecipe(recipe2);
-        int originalTime = CookingTimeEstimator.getOriginalTime(bunch);
+        TimeLearner tl = new TimeLearner(sA, bunch);
+        int originalTime = CookingTimeEstimator.getOriginalTime(bunch, tl);
         assertEquals(2, originalTime);
     }
 
