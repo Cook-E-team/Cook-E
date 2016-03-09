@@ -66,7 +66,8 @@ public class Schedule {
 
         if (calculateEstimatedTimes) {
             this.mOriginalEstimatedTime = CookingTimeEstimator.getOriginalTime(b);
-            this.mOptimizedEstimatedTime = CookingTimeEstimator.getOptimizedTime(new Schedule(b, timeLearner, false));
+            this.mOptimizedEstimatedTime = CookingTimeEstimator.getOptimizedTime(
+                    new Schedule(b, timeLearner, false), timeLearner);
         } else {
             this.mOriginalEstimatedTime = -1;
             this.mOptimizedEstimatedTime = -1;

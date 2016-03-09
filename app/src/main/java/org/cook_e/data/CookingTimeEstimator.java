@@ -37,7 +37,7 @@ public class CookingTimeEstimator {
      * @param schedule the schedule to measure the estimated time of
      * @return the estimated amount of time it would take to cook the given schedule
      */
-    public static int getOptimizedTime(Schedule schedule) {
+    public static int getOptimizedTime(Schedule schedule, TimeLearnerInterface timeLearner) {
         int totalTime = 0;
         Map<Recipe, Integer> busyTimes = new HashMap<Recipe, Integer>();
         for (int i = 0; i < schedule.getStepCount(); i++) {
@@ -52,12 +52,14 @@ public class CookingTimeEstimator {
                 totalTime += minBusyTime;
                 i--;// retry the current step
             } else {
+                Recipe currRecipe = schedule.getCurrentStepRecipe();
                 if (currStep.isSimultaneous()) {
                     // handles case where the next step is simultaneous
-                    busyTimes.put(schedule.getCurrentStepRecipe(), currStep.getDurationMinutes());
+                    busyTimes.put(schedule.getCurrentStepRecipe(),
+                            (int) timeLearner.getEstimatedTime(currRecipe, currStep).getStandardMinutes());
                 } else {
                     // handles case where the next step is not simultaneous
-                    int currStepTime = currStep.getDurationMinutes();
+                    int currStepTime = (int) timeLearner.getEstimatedTime(currRecipe, currStep).getStandardMinutes();
                     updateBusyTimes(busyTimes, currStepTime, schedule);
                     totalTime += currStepTime;
                 }

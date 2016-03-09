@@ -61,7 +61,7 @@ public class ScheduleTest {
         Recipe recipeN5N5 = new Recipe("N5N7", "test", steps);
         recipies.add(recipeN5N5);
         Bunch bunch = new Bunch("test", recipies);
-        Schedule sched = new Schedule(bunch, new TimeLearner(sA, bunch));
+        Schedule sched = new Schedule(bunch, new TimeLearnerStub());
         assertEquals(recipeN5N5.getSteps().size(), sched.getStepCount());
         for(int i = 0; i < sched.getStepCount(); i++) {
             assertEquals(recipeN5N5.getSteps().get(i), sched.getNextStep());
@@ -82,7 +82,7 @@ public class ScheduleTest {
         Recipe recipeN10N10 = new Recipe("N10N10", "test", steps);
         recipies.add(recipeN10N10);
         Bunch bunch = new Bunch("test", recipies);
-        Schedule sched = new Schedule(bunch, new TimeLearner(sA, bunch));
+        Schedule sched = new Schedule(bunch, new TimeLearnerStub());
         assertEquals(4, sched.getStepCount());
         for(int i = 0; i < sched.getStepCount(); i++) {
             assertEquals((i < 2) ? recipeN5N7.getSteps().get(i) :
@@ -105,7 +105,7 @@ public class ScheduleTest {
         Recipe recipe10N10 = new Recipe("10N10", "test", steps);
         recipies.add(recipe10N10);
         Bunch bunch = new Bunch("test", recipies);
-        Schedule sched = new Schedule(bunch, new TimeLearner(sA, bunch));
+        Schedule sched = new Schedule(bunch, new TimeLearnerStub());
         assertEquals(4, sched.getStepCount());
         steps.clear();
         steps.add(tenSimul);
@@ -169,7 +169,7 @@ public class ScheduleTest {
         List<Recipe> recipies = new ArrayList<>();
         recipies.add(recipe10N10);
         Bunch bunch = new Bunch("test", recipies);
-        Schedule sched = new Schedule(bunch, new TimeLearner(sA, bunch));
+        Schedule sched = new Schedule(bunch, new TimeLearnerStub());
         assertEquals(2, sched.getStepCount());
 
         assertEquals(tenSimul, sched.getNextStep());
@@ -186,7 +186,7 @@ public class ScheduleTest {
         Recipe recipeN5N5 = new Recipe("N5N7", "test", steps);
         recipies.add(recipeN5N5);
         Bunch bunch = new Bunch("test", recipies);
-        Schedule sched = new Schedule(bunch, new TimeLearner(sA, bunch));
+        Schedule sched = new Schedule(bunch, new TimeLearnerStub());
 
         sched.getNextStep();
         assertEquals(0, sched.getCurrStepIndex());
@@ -209,7 +209,7 @@ public class ScheduleTest {
         Recipe recipeN5N5 = new Recipe("N5N7", "test", steps);
         recipies.add(recipeN5N5);
         Bunch bunch = new Bunch("test", recipies);
-        Schedule sched = new Schedule(bunch, new TimeLearner(sA, bunch));
+        Schedule sched = new Schedule(bunch, new TimeLearnerStub());
 
         sched.getNextStep();
         assertEquals(0, sched.getMaxVisitedStepIndex());
@@ -236,7 +236,7 @@ public class ScheduleTest {
         recipies.add(recipe1);
         recipies.add(recipe2);
         Bunch bunch = new Bunch("test", recipies);
-        Schedule sched = new Schedule(bunch, new TimeLearner(sA, bunch));
+        Schedule sched = new Schedule(bunch, new TimeLearnerStub());
 
         assertEquals(null, sched.getCurrStep());
         sched.getNextStep();
@@ -257,7 +257,7 @@ public class ScheduleTest {
         recipies.add(recipe1);
         recipies.add(recipe2);
         Bunch bunch = new Bunch("test", recipies);
-        Schedule sched = new Schedule(bunch, new TimeLearner(sA, bunch));
+        Schedule sched = new Schedule(bunch, new TimeLearnerStub());
 
         assertEquals(null, sched.getCurrentStepRecipe());
         sched.getNextStep();
@@ -270,7 +270,7 @@ public class ScheduleTest {
     public void isAtFinalStepNoSteps() throws SQLException {
         List<Recipe> recipies = new ArrayList<>();
         Bunch bunch = new Bunch("test", recipies);
-        Schedule sched = new Schedule(bunch, new TimeLearner(sA, bunch));
+        Schedule sched = new Schedule(bunch, new TimeLearnerStub());
 
         assertEquals(true, sched.isAtFinalStep());
         sched.getNextStep();
@@ -290,7 +290,7 @@ public class ScheduleTest {
         recipies.add(recipe1);
         recipies.add(recipe2);
         Bunch bunch = new Bunch("test", recipies);
-        Schedule sched = new Schedule(bunch, new TimeLearner(sA, bunch));
+        Schedule sched = new Schedule(bunch, new TimeLearnerStub());
 
         assertEquals(false, sched.isAtFinalStep());
         sched.getNextStep();
@@ -316,7 +316,7 @@ public class ScheduleTest {
         recipies.add(recipe1);
         recipies.add(recipe2);
         Bunch bunch = new Bunch("test", recipies);
-        Schedule sched = new Schedule(bunch, new TimeLearner(sA, bunch));
+        Schedule sched = new Schedule(bunch, new TimeLearnerStub());
 
         assertEquals(3, sched.getStepCount());
     }
@@ -334,7 +334,7 @@ public class ScheduleTest {
         recipies.add(recipe1);
         recipies.add(recipe2);
         Bunch bunch = new Bunch("test", recipies);
-        Schedule sched = new Schedule(bunch, new TimeLearner(sA, bunch));
+        Schedule sched = new Schedule(bunch, new TimeLearnerStub());
 
         sched.getNextStep();
         assertEquals(0, sched.getCurrStepIndex());
@@ -365,7 +365,7 @@ public class ScheduleTest {
         recipies.add(recipe1);
         recipies.add(recipe2);
         Bunch bunch = new Bunch("test", recipies);
-        Schedule sched = new Schedule(bunch, new TimeLearner(sA, bunch));
+        Schedule sched = new Schedule(bunch, new TimeLearnerStub());
 
         sched.getNextStep();
         assertEquals(0, sched.getMaxVisitedStepIndex());

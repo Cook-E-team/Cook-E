@@ -117,7 +117,8 @@ public class CookingTimeEstimatorTest {
     @Test
     public void testOptimizedNoRecipes() throws SQLException {
         Bunch bunch = new Bunch();
-        int optimizedTime = CookingTimeEstimator.getOptimizedTime(new Schedule(bunch, new TimeLearner(sA, bunch)));
+        TimeLearner tl = new TimeLearner(sA, bunch);
+        int optimizedTime = CookingTimeEstimator.getOptimizedTime(new Schedule(bunch, tl), tl);
         assertEquals(0, optimizedTime);
     }
 
@@ -126,7 +127,8 @@ public class CookingTimeEstimatorTest {
         Recipe recipe = new Recipe("title", "author", new ArrayList<Step>());
         Bunch bunch = new Bunch();
         bunch.addRecipe(recipe);
-        int optimizedTime = CookingTimeEstimator.getOptimizedTime(new Schedule(bunch, new TimeLearner(sA, bunch)));
+        TimeLearner tl = new TimeLearner(sA, bunch);
+        int optimizedTime = CookingTimeEstimator.getOptimizedTime(new Schedule(bunch, tl), tl);
         assertEquals(0, optimizedTime);
     }
 
@@ -137,7 +139,8 @@ public class CookingTimeEstimatorTest {
         Recipe recipe = new Recipe("title", "author", steps);
         Bunch bunch = new Bunch();
         bunch.addRecipe(recipe);
-        int optimizedTime = CookingTimeEstimator.getOptimizedTime(new Schedule(bunch, new TimeLearner(sA, bunch)));
+        TimeLearner tl = new TimeLearner(sA, bunch);
+        int optimizedTime = CookingTimeEstimator.getOptimizedTime(new Schedule(bunch, tl), tl);
         assertEquals(1, optimizedTime);
     }
 
@@ -148,7 +151,8 @@ public class CookingTimeEstimatorTest {
         Recipe recipe = new Recipe("title", "author", steps);
         Bunch bunch = new Bunch();
         bunch.addRecipe(recipe);
-        int optimizedTime = CookingTimeEstimator.getOptimizedTime(new Schedule(bunch, new TimeLearner(sA, bunch)));
+        TimeLearner tl = new TimeLearner(sA, bunch);
+        int optimizedTime = CookingTimeEstimator.getOptimizedTime(new Schedule(bunch, tl), tl);
         assertEquals(1, optimizedTime);
     }
 
@@ -161,7 +165,8 @@ public class CookingTimeEstimatorTest {
         Recipe recipe = new Recipe("title", "author", steps);
         Bunch bunch = new Bunch();
         bunch.addRecipe(recipe);
-        int optimizedTime = CookingTimeEstimator.getOptimizedTime(new Schedule(bunch, new TimeLearner(sA, bunch)));
+        TimeLearner tl = new TimeLearner(sA, bunch);
+        int optimizedTime = CookingTimeEstimator.getOptimizedTime(new Schedule(bunch, tl), tl);
         assertEquals(4, optimizedTime);
     }
 
@@ -176,7 +181,8 @@ public class CookingTimeEstimatorTest {
         Bunch bunch = new Bunch();
         bunch.addRecipe(recipe1);
         bunch.addRecipe(recipe2);
-        int optimizedTime = CookingTimeEstimator.getOptimizedTime(new Schedule(bunch, new TimeLearner(sA, bunch)));
+        TimeLearner tl = new TimeLearner(sA, bunch);
+        int optimizedTime = CookingTimeEstimator.getOptimizedTime(new Schedule(bunch, tl), tl);
         assertEquals(1, optimizedTime);
     }
 
@@ -194,7 +200,8 @@ public class CookingTimeEstimatorTest {
         Bunch bunch = new Bunch();
         bunch.addRecipe(recipe1);
         bunch.addRecipe(recipe2);
-        int optimizedTime = CookingTimeEstimator.getOptimizedTime(new Schedule(bunch, new TimeLearner(sA,bunch)));
+        TimeLearner tl = new TimeLearner(sA, bunch);
+        int optimizedTime = CookingTimeEstimator.getOptimizedTime(new Schedule(bunch, tl), tl);
         assertEquals(3, optimizedTime);
     }
 
