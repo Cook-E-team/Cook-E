@@ -671,7 +671,6 @@ public class SQLiteAccessor implements SQLAccessor {
         try {
             db.delete(LEARNER_TABLE_NAME, null, null);
         } finally {
-            db.endTransaction();
             db.close();
         }
     }
