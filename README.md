@@ -6,6 +6,8 @@
 
 [User website](https://cook-e-team.github.io/Cook-E/user/)
 
+[Final presentation slides](https://drive.google.com/file/d/0B16ElknrryP_NzdoSldJbmY0NGc/view?usp=sharing)
+
 ## Licensing ##
 
 Cook-E is free software: you can redistribute it and/or modify
